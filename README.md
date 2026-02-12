@@ -13,8 +13,7 @@ By Make It Make Cents
   * **Core Homepage Buttons/Sections**
 
     * Balance page
-    * Scholarship opportunities page
-    * Friends (social) page
+    * Scholarship/loans page
     * Points page
     * Optional: schedule/timetable section
     * Homepage offers (e.g., discounts on student-relevant items like laptops)
@@ -28,9 +27,7 @@ By Make It Make Cents
 
     * Points earned based on variables such as:
 
-      * Staying within budget
-      * Passing grades (more points for higher grades)
-      * Consistency in saving
+      * grades-based (more points for higher grades)
     * Points can be redeemed via the scholarship/discount system for items/services
     * Optional: level system that affects how many points are earned
   * **Scholarship System**
@@ -43,20 +40,11 @@ By Make It Make Cents
       * Institute providing the scholarship
       * Optional: extracurricular activities as an influencing factor
     * Matching system example: uses a student profile (grades, course, location, financial status) to suggest best-fit scholarships
-  * **Social Layer**
-
-    * Add friends within the app
-    * Privacy controls: choose whether to reveal spending habits or keep private
-    * Discussion board for students in the same course
-    * Database to retrieve friends’ banking info **only if** their data is public
-    * Optional: ability to view friends’ schedules
   * **Safety System**
 
-    * Secure login with **2FA**
     * Login attempt counter
     * After 3 failed attempts: timed out for 5 minutes
     * Database storing user credentials linked to the program for authentication/security features
-
 
 # Security Analyst and Software Developer (John)
 
