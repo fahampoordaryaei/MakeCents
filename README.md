@@ -49,3 +49,5 @@ By Make It Make Cents
 # Security Analyst and Software Developer (John)
 
 # Software Developer (Faham)
+
+# Security Analyst (Patrick)
