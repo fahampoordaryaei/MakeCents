@@ -1,8 +1,5 @@
 # MakeCents
-By Make It Make Cents
-
-# Business Analyst (Adam)
-* **Student Finance Tracker Application**
+**Student Finance Tracker Application**
 
   * **Overall UI/UX**
 
@@ -45,9 +42,3 @@ By Make It Make Cents
     * Login attempt counter
     * After 3 failed attempts: timed out for 5 minutes
     * Database storing user credentials linked to the program for authentication/security features
-
-# Security Analyst and Software Developer (John)
-
-# Software Developer (Faham)
-
-# Security Analyst (Patrick)
