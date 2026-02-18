@@ -1,6 +1,7 @@
 # MakeCents
 **Student Finance Tracker Application**
 
+#Features
   * **Overall UI/UX**
 
     * User-friendly GUI with a neat, orderly layout and easy navigation
