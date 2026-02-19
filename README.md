@@ -60,18 +60,23 @@ To start-up the app:
 # Contributors
 
 Project Manager
-**Jaden Cushcieri**
+
+* **Jaden Cushcieri**
 
 Business Analysis
-**Adam Azzopardi**
+
+* **Adam Azzopardi**
 
 Software Development
-**John Manfred Preddy**
-**Faham Poordaryaei**
+
+* **John Manfred Preddy**
+* **Faham Poordaryaei**
 
 Security Design
-**Abraham Okoro Chijioke**
-**John Manfred Preddy**
+
+* **Abraham Okoro Chijioke**
+* **John Manfred Preddy**
 
 Database Design
-**Patrick Ofosuhene**
+
+* **Patrick Ofosuhene**
