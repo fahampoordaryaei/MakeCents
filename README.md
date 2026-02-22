@@ -46,7 +46,7 @@ Android Studio:
 Visual Studio Code:
 * Open an integrated terminal in the folder containing the github repository.
 * Type the following commands and follow instructions:
-* 
+
 `flutter doctor`
 
 `flutter doctor --android licenses`
