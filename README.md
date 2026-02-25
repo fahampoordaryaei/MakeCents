@@ -46,15 +46,22 @@ Android Studio:
 Visual Studio Code:
 * Open an integrated terminal in the folder containing the github repository.
 * Type the following commands and follow instructions:
+
 `flutter doctor`
+
 `flutter doctor --android licenses`
 
 To start-up the app:
 * Launch the emulator
+
 `flutter emulators`
+
 * Copy the ID of the available emulator (something like `Phone_API`)
+
 `flutter emulators --launch [emulator Id]`
+
 * Run the app
+
 `flutter run`
 
 # Contributors
