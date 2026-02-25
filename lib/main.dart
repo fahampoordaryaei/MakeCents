@@ -34,23 +34,95 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Demo data for the financial tracker
   // Initial values to make the chart look interesting immediately
-  final double _income = 2000.0;
-  double _expenses = 500.0;
+  double? _budget;
+  double _expenses = 0.0;
+  bool _showOverBudgetWarning = true;
 
-  void _addExpense() {
+  void _submitData() {
     final String input = _amountController.text;
     if (input.isNotEmpty) {
       final double? amount = double.tryParse(input);
       if (amount != null && amount > 0) {
-        setState(() {
-          _expenses += amount;
-        });
-        _amountController.clear();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Added expense: \$${amount.toStringAsFixed(2)}')),
-        );
+        if (_budget == null) {
+            setState(() {
+            _budget = amount;
+            });
+            _amountController.clear();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Budget set to: \$${amount.toStringAsFixed(2)}')),
+            );
+        } else {
+          // Check if this expense takes us over budget
+          if (_showOverBudgetWarning && (_expenses + amount > _budget!)) {
+             _showOverBudgetDialog(amount);
+          } else {
+             _addExpense(amount);
+          }
+        }
       }
     }
+  }
+
+  void _addExpense(double amount) {
+    setState(() {
+      _expenses += amount;
+    });
+    _amountController.clear();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Added expense: \$${amount.toStringAsFixed(2)}')),
+    );
+  }
+  
+  Future<void> _showOverBudgetDialog(double amount) async {
+    bool dontShowAgain = false;
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text("Over Budget Warning"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text("Adding this expense will exceed your budget by \$${(_expenses + amount - _budget!).toStringAsFixed(2)}. Continue?"),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: dontShowAgain,
+                        onChanged: (val) {
+                          setState(() {
+                            dontShowAgain = val ?? false;
+                          });
+                        },
+                      ),
+                      const Text("Don't show again"),
+                    ],
+                  )
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(), 
+                  child: const Text("Cancel"),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    if (dontShowAgain) {
+                      _showOverBudgetWarning = false;
+                    }
+                    Navigator.of(context).pop();
+                    _addExpense(amount);
+                  },
+                  child: const Text("Add Anyway"),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   void _onItemTapped(int index) {
@@ -108,9 +180,9 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
-                  const Text(
-                    "Add New Expense",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                   Text(
+                    _budget == null ? "Set Monthly Budget" : "Add New Expense",
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 10),
                   TextField(
@@ -124,9 +196,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: 10),
                   FilledButton.icon(
-                    onPressed: _addExpense,
-                    icon: const Icon(Icons.add),
-                    label: const Text("Add Expense"),
+                    onPressed: _submitData,
+                    icon: Icon(_budget == null ? Icons.save : Icons.add),
+                    label: Text(_budget == null ? "Set Budget" : "Add Expense"),
                   ),
                 ],
               ),
@@ -140,6 +212,15 @@ class _HomeScreenState extends State<HomeScreen> {
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
           ),
+          if (_budget != null && _expenses > _budget!)
+             Padding(
+               padding: const EdgeInsets.only(top: 8.0),
+               child: Text(
+                 "You are \$${(_expenses - _budget!).toStringAsFixed(2)} over budget",
+                 style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 16),
+                 textAlign: TextAlign.center,
+               ),
+             ),
           const SizedBox(height: 20),
           
           // Pie Chart
@@ -149,30 +230,48 @@ class _HomeScreenState extends State<HomeScreen> {
               PieChartData(
                 sectionsSpace: 2,
                 centerSpaceRadius: 40,
-                sections: [
-                  PieChartSectionData(
-                    color: Colors.green,
-                    value: _income,
-                    title: _income.toStringAsFixed(0),
-                    radius: 50,
-                    titleStyle: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  PieChartSectionData(
-                    color: Colors.redAccent,
-                    value: _expenses,
-                    title: _expenses.toStringAsFixed(0),
-                    radius: 60,
-                    titleStyle: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
+                sections: _budget == null
+                    ? [
+                        PieChartSectionData(
+                          color: Colors.grey.shade300,
+                          value: 100,
+                          title: "",
+                          radius: 50,
+                          titleStyle: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black54,
+                          ),
+                        ),
+                      ]
+                    : [
+                        PieChartSectionData(
+                          color: Colors.green,
+                          value:
+                              (_budget! - _expenses) > 0 ? (_budget! - _expenses) : 0,
+                          title: ((_budget! - _expenses) > 0
+                                  ? (_budget! - _expenses)
+                                  : 0)
+                              .toStringAsFixed(0),
+                          radius: 50,
+                          titleStyle: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        PieChartSectionData(
+                          color: Colors.redAccent,
+                          value: _expenses,
+                          title: _expenses.toStringAsFixed(0),
+                          radius: 60,
+                          titleStyle: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
               ),
             ),
           ),
@@ -182,7 +281,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildLegendItem(Colors.green, "Income (Fixed)"),
+              _buildLegendItem(Colors.green, "Available"),
               const SizedBox(width: 20),
               _buildLegendItem(Colors.redAccent, "Expenses"),
             ],
