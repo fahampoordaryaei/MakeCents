@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'tracker_page.dart';
 import 'home_page.dart';
-import 'history_page.dart';
 import 'user_page.dart';
 import 'points_page.dart';
 import 'match_page.dart';
