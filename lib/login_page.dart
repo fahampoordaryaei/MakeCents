@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'main.dart';
+import 'startup_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -435,7 +436,9 @@ class _LoginPageState extends State<LoginPage> {
                       padding: EdgeInsets.zero,
                       icon: const Icon(Icons.arrow_back, color: Color(0xFF3e7f3f), size: 18),
                       onPressed: () {
-                        Navigator.of(context).pop();
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (_) => const StartupPage()),
+                        );
                       },
                     ),
                   ),

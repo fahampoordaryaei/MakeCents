@@ -9,6 +9,7 @@ import 'add_expense_page.dart';
 import 'budget_page.dart';
 import 'transaction_provider.dart';
 import 'budget_provider.dart';
+import 'startup_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,7 +42,7 @@ class MakeCentsApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
         useMaterial3: true,
       ),
-      home: const HomeScreen(),
+      home: const StartupPage(),
     );
   }
 }
@@ -63,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _widgetOptions = <Widget>[
       const HomePage(), // Home
-      const TrackerPage(), // Tracker (reuses Overview tracker UI)
+      const TrackerPage(), // Tracker
       const PointsPage(), // Points
       const MatchPage(), // Match
       UserPage(onNavigateToBudget: () {
