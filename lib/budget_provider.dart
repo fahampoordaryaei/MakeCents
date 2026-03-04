@@ -1,13 +1,10 @@
-
 import 'package:flutter/material.dart';
 import 'persistence_service.dart';
 
 class Budget {
   final double amount;
 
-  Budget({
-    required this.amount,
-  });
+  Budget({required this.amount});
 }
 
 class BudgetProvider with ChangeNotifier {

@@ -39,10 +39,10 @@ class _LoginPageState extends State<LoginPage> {
 
   void _onSignInPressed() {
     setState(() {
-      // Check lock
       if (_lockedUntil != null && DateTime.now().isBefore(_lockedUntil!)) {
         final fmt = DateFormat.Hms();
-        _errorMessage = "Too many failed attempts. Your account is locked until ${fmt.format(_lockedUntil!.toLocal())}";
+        _errorMessage =
+            "Too many failed attempts. Your account is locked until ${fmt.format(_lockedUntil!.toLocal())}";
         return;
       }
 
@@ -54,7 +54,7 @@ class _LoginPageState extends State<LoginPage> {
         return;
       }
 
-      // Hardcoded login (use real-looking email)
+      // Hardcoded login
       const hardUser = 'admin@example.com';
       const hardPass = 'Password1234!';
 
@@ -67,13 +67,13 @@ class _LoginPageState extends State<LoginPage> {
         return;
       }
 
-      // If the email is valid format but doesn't match our single user
       if (email.toLowerCase() != hardUser.toLowerCase()) {
         _failedAttempts += 1;
         if (_failedAttempts >= 3) {
           _lockedUntil = DateTime.now().add(const Duration(minutes: 5));
           final fmt = DateFormat.Hms();
-          _errorMessage = "Too many failed attempts. Your account is locked until ${fmt.format(_lockedUntil!.toLocal())}";
+          _errorMessage =
+              "Too many failed attempts. Your account is locked until ${fmt.format(_lockedUntil!.toLocal())}";
         } else {
           final remaining = 3 - _failedAttempts;
           _errorMessage = 'Student not found. $remaining attempts remaining.';
@@ -81,13 +81,11 @@ class _LoginPageState extends State<LoginPage> {
         return;
       }
 
-      // At this point email matches hardUser
       if (password == hardPass) {
         // success -> reset attempts and show 2FA
         _failedAttempts = 0;
         _errorMessage = '';
         _show2fa = true;
-        // focus the first OTP after frame
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (_otpFocusNodes.isNotEmpty) _otpFocusNodes[0].requestFocus();
         });
@@ -96,7 +94,8 @@ class _LoginPageState extends State<LoginPage> {
         if (_failedAttempts >= 3) {
           _lockedUntil = DateTime.now().add(const Duration(minutes: 5));
           final fmt = DateFormat.Hms();
-          _errorMessage = "Too many failed attempts. Your account is locked until ${fmt.format(_lockedUntil!.toLocal())}";
+          _errorMessage =
+              "Too many failed attempts. Your account is locked until ${fmt.format(_lockedUntil!.toLocal())}";
         } else {
           final remaining = 3 - _failedAttempts;
           _errorMessage = 'Invalid credentials. $remaining attempts remaining.';
@@ -124,9 +123,10 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     if (digits.length == 1) {
-      // Normal single-digit entry
       _otpControllers[index].text = digits;
-      _otpControllers[index].selection = const TextSelection.collapsed(offset: 1);
+      _otpControllers[index].selection = const TextSelection.collapsed(
+        offset: 1,
+      );
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (index < 3) {
           _otpFocusNodes[index + 1].requestFocus();
@@ -135,17 +135,10 @@ class _LoginPageState extends State<LoginPage> {
         }
       });
 
-      // If all fields are filled now, auto-verify
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        final allFilled = _otpControllers.every((c) => c.text.isNotEmpty);
-        if (allFilled) _verifyOtpAndContinue();
-      });
-
       _isHandlingOtp = false;
       return;
     }
 
-    // More than one digit was entered (paste or fast typing) -> distribute
     int i = index;
     for (final ch in digits.split('')) {
       if (i >= _otpControllers.length) break;
@@ -159,10 +152,6 @@ class _LoginPageState extends State<LoginPage> {
       } else {
         _otpFocusNodes.last.unfocus();
       }
-
-      // Auto-verify if all fields now filled
-      final allFilled = _otpControllers.every((c) => c.text.isNotEmpty);
-      if (allFilled) _verifyOtpAndContinue();
     });
 
     _isHandlingOtp = false;
@@ -174,7 +163,7 @@ class _LoginPageState extends State<LoginPage> {
       margin: const EdgeInsets.only(top: 12.0),
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFECEC), // chosen light red
+        color: const Color(0xFFFFECEC),
         borderRadius: BorderRadius.circular(10.0),
       ),
       child: Row(
@@ -208,58 +197,45 @@ class _LoginPageState extends State<LoginPage> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // (error banner moved to container header)
         Container(
           padding: const EdgeInsets.all(12.0),
           decoration: BoxDecoration(
             color: const Color(0xFF3e7f3f),
             borderRadius: BorderRadius.circular(12.0),
           ),
-          child: const Icon(
-            Icons.school,
-            color: Colors.white,
-            size: 48.0,
-          ),
+          child: const Icon(Icons.school, color: Colors.white, size: 48.0),
         ),
         const SizedBox(height: 30.0),
         const Text(
           'Login',
-          style: TextStyle(
-            fontSize: 24.0,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8.0),
         const Text(
           'The Student Finance Tracker',
-          style: TextStyle(
-            fontSize: 16.0,
-            color: Colors.grey,
-          ),
+          style: TextStyle(fontSize: 16.0, color: Colors.grey),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 24.0),
         TextFormField(
           controller: _emailController,
-          decoration: const InputDecoration(
-            labelText: 'Student Email',
-          ),
+          decoration: const InputDecoration(labelText: 'Student Email'),
         ),
         const SizedBox(height: 16.0),
         TextFormField(
           controller: _passwordController,
           obscureText: true,
-          decoration: const InputDecoration(
-            labelText: 'Password',
-          ),
+          decoration: const InputDecoration(labelText: 'Password'),
         ),
         const SizedBox(height: 24.0),
         ElevatedButton(
           onPressed: _onSignInPressed,
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF3e7f3f),
-            padding:
-                const EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 32.0,
+              vertical: 16.0,
+            ),
           ),
           child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -272,7 +248,6 @@ class _LoginPageState extends State<LoginPage> {
             ],
           ),
         ),
-        // moved banner above
       ],
     );
   }
@@ -281,7 +256,6 @@ class _LoginPageState extends State<LoginPage> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // (error banner moved to container header)
         Container(
           padding: const EdgeInsets.all(12.0),
           decoration: BoxDecoration(
@@ -297,18 +271,12 @@ class _LoginPageState extends State<LoginPage> {
         const SizedBox(height: 30.0),
         const Text(
           'Two-Factor Authentication',
-          style: TextStyle(
-            fontSize: 20.0,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8.0),
         const Text(
           'We\'ve sent a 4-digit code to your phone.',
-          style: TextStyle(
-            fontSize: 16.0,
-            color: Colors.grey,
-          ),
+          style: TextStyle(fontSize: 16.0, color: Colors.grey),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 24.0),
@@ -319,8 +287,9 @@ class _LoginPageState extends State<LoginPage> {
               width: 64,
               child: Focus(
                 focusNode: _otpFocusNodes[index],
-                onKey: (node, event) {
-                  if (event is RawKeyDownEvent && event.logicalKey == LogicalKeyboardKey.backspace) {
+                onKeyEvent: (node, event) {
+                  if (event is KeyDownEvent &&
+                      event.logicalKey == LogicalKeyboardKey.backspace) {
                     final text = _otpControllers[index].text;
                     if (text.isEmpty && index > 0) {
                       _otpFocusNodes[index - 1].requestFocus();
@@ -334,9 +303,12 @@ class _LoginPageState extends State<LoginPage> {
                   controller: _otpControllers[index],
                   textAlign: TextAlign.center,
                   keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w600,
+                  ),
                   decoration: InputDecoration(
                     counterText: '',
                     filled: true,
@@ -359,8 +331,10 @@ class _LoginPageState extends State<LoginPage> {
           onPressed: _verifyOtpAndContinue,
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF3e7f3f),
-            padding:
-                const EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 32.0,
+              vertical: 16.0,
+            ),
           ),
           child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -391,10 +365,12 @@ class _LoginPageState extends State<LoginPage> {
         // Navigate to Home with fade and remove all routes
         Navigator.of(context).pushAndRemoveUntil(
           PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) => const HomeScreen(),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              return FadeTransition(opacity: animation, child: child);
-            },
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const HomeScreen(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
             transitionDuration: const Duration(milliseconds: 400),
           ),
           (route) => false,
@@ -434,10 +410,16 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     child: IconButton(
                       padding: EdgeInsets.zero,
-                      icon: const Icon(Icons.arrow_back, color: Color(0xFF3e7f3f), size: 18),
+                      icon: const Icon(
+                        Icons.arrow_back,
+                        color: Color(0xFF3e7f3f),
+                        size: 18,
+                      ),
                       onPressed: () {
                         Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: (_) => const StartupPage()),
+                          MaterialPageRoute(
+                            builder: (_) => const StartupPage(),
+                          ),
                         );
                       },
                     ),

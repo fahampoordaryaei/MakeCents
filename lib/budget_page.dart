@@ -47,17 +47,12 @@ class BudgetPage extends StatelessWidget {
     final budget = budgetProvider.budget;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Monthly Budget'),
-      ),
+      appBar: AppBar(title: const Text('Monthly Budget')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
-              'Monthly Budget:',
-              style: TextStyle(fontSize: 24),
-            ),
+            const Text('Monthly Budget:', style: TextStyle(fontSize: 24)),
             Text(
               '\$${budget.amount.toStringAsFixed(2)}',
               style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold),

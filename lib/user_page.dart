@@ -34,7 +34,9 @@ class UserPage extends StatelessWidget {
 
   Future<void> _editBudgetDialog(BuildContext context) async {
     final budgetProvider = Provider.of<BudgetProvider>(context, listen: false);
-    final controller = TextEditingController(text: budgetProvider.budget.amount.toStringAsFixed(0));
+    final controller = TextEditingController(
+      text: budgetProvider.budget.amount.toStringAsFixed(0),
+    );
 
     await showDialog(
       context: context,
@@ -47,7 +49,10 @@ class UserPage extends StatelessWidget {
             decoration: const InputDecoration(labelText: 'Monthly Budget'),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
             FilledButton(
               onPressed: () async {
                 final val = double.tryParse(controller.text);
@@ -97,7 +102,10 @@ class UserPage extends StatelessWidget {
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text('\$${amount.toStringAsFixed(0)}', style: const TextStyle(fontWeight: FontWeight.w600)),
+                        Text(
+                          '\$${amount.toStringAsFixed(0)}',
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
                         const SizedBox(width: 8),
                         IconButton(
                           icon: const Icon(Icons.edit),

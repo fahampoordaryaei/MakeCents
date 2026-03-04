@@ -16,7 +16,7 @@ class MatchPage extends StatelessWidget {
               style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700),
               textAlign: TextAlign.left,
             ),
-            SizedBox(height: 16)
+            SizedBox(height: 16),
           ],
         ),
       ),

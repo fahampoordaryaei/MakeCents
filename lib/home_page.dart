@@ -21,17 +21,16 @@ class HomePage extends StatelessWidget {
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.w700,
-                color: Theme.of(context).textTheme.headlineSmall?.color ?? Colors.black,
+                color:
+                    Theme.of(context).textTheme.headlineSmall?.color ??
+                    Colors.black,
               ),
               textAlign: TextAlign.left,
             ),
             const SizedBox(height: 6),
             Text(
               dateText,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
             ),
           ],
         ),

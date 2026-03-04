@@ -32,14 +32,19 @@ class HistoryPage extends StatelessWidget {
                         final tx = transactions[index];
                         return Card(
                           elevation: 2,
-                          margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 5),
+                          margin: const EdgeInsets.symmetric(
+                            vertical: 8,
+                            horizontal: 5,
+                          ),
                           child: ListTile(
                             leading: CircleAvatar(
                               radius: 30,
                               child: Padding(
                                 padding: const EdgeInsets.all(6),
                                 child: FittedBox(
-                                  child: Text('\$${tx.amount.toStringAsFixed(2)}'),
+                                  child: Text(
+                                    '\$${tx.amount.toStringAsFixed(2)}',
+                                  ),
                                 ),
                               ),
                             ),

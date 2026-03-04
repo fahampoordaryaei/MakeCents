@@ -67,12 +67,14 @@ class _HomeScreenState extends State<HomeScreen> {
       const TrackerPage(), // Tracker
       const PointsPage(), // Points
       const MatchPage(), // Match
-      UserPage(onNavigateToBudget: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const BudgetPage()),
-        );
-      }),
+      UserPage(
+        onNavigateToBudget: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const BudgetPage()),
+          );
+        },
+      ),
     ];
   }
 
@@ -110,8 +112,14 @@ class _HomeScreenState extends State<HomeScreen> {
         type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.show_chart), label: 'Tracker'),
-          BottomNavigationBarItem(icon: Icon(Icons.emoji_events), label: 'Points'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.show_chart),
+            label: 'Tracker',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.emoji_events),
+            label: 'Points',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.school), label: 'Match'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'User'),
         ],

@@ -20,15 +20,15 @@ class _StartupPageState extends State<StartupPage> {
   }
 
   void _goToLogin() {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const LoginPage()),
-    );
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (_) => const LoginPage()));
   }
 
   void _goToRegister() {
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const RegisterPage()),
-    );
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (_) => const RegisterPage()));
   }
 
   @override
@@ -88,7 +88,10 @@ class _StartupPageState extends State<StartupPage> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(
+                vertical: 12.0,
+                horizontal: 16.0,
+              ),
               child: Column(
                 children: [
                   Row(
@@ -116,7 +119,10 @@ class _StartupPageState extends State<StartupPage> {
                             backgroundColor: const Color(0xFF3e7f3f),
                             padding: const EdgeInsets.symmetric(vertical: 14),
                           ),
-                          child: const Text('Get Started', style: TextStyle(fontSize: 16)),
+                          child: const Text(
+                            'Get Started',
+                            style: TextStyle(fontSize: 16),
+                          ),
                         ),
                       ),
                     ],

@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
@@ -22,9 +24,15 @@ class _TrackerPageState extends State<TrackerPage> {
     final double? amount = double.tryParse(input);
     if (amount == null || amount <= 0) return;
 
-    final budgetAmount = Provider.of<BudgetProvider>(context, listen: false).budget.amount;
+    final budgetAmount = Provider.of<BudgetProvider>(
+      context,
+      listen: false,
+    ).budget.amount;
     final txProvider = Provider.of<TransactionProvider>(context, listen: false);
-    final currentExpenses = txProvider.transactions.fold(0.0, (sum, tx) => sum + tx.amount);
+    final currentExpenses = txProvider.transactions.fold(
+      0.0,
+      (sum, tx) => sum + tx.amount,
+    );
 
     if (_showOverBudgetWarning && (currentExpenses + amount > budgetAmount)) {
       await _showOverBudgetDialog(amount, budgetAmount, currentExpenses);
@@ -33,12 +41,18 @@ class _TrackerPageState extends State<TrackerPage> {
       _amountController.clear();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Added expense: \$${amount.toStringAsFixed(2)}')),
+        SnackBar(
+          content: Text('Added expense: \$${amount.toStringAsFixed(2)}'),
+        ),
       );
     }
   }
 
-  Future<void> _showOverBudgetDialog(double amount, double budget, double currentExpenses) async {
+  Future<void> _showOverBudgetDialog(
+    double amount,
+    double budget,
+    double currentExpenses,
+  ) async {
     bool dontShowAgain = false;
     await showDialog(
       context: context,
@@ -50,7 +64,9 @@ class _TrackerPageState extends State<TrackerPage> {
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text("Adding this expense will exceed your budget by \$${(currentExpenses + amount - budget).toStringAsFixed(2)}. Continue?"),
+                  Text(
+                    "Adding this expense will exceed your budget by \$${(currentExpenses + amount - budget).toStringAsFixed(2)}. Continue?",
+                  ),
                   const SizedBox(height: 10),
                   Row(
                     children: [
@@ -64,7 +80,7 @@ class _TrackerPageState extends State<TrackerPage> {
                       ),
                       const Text("Don't show again"),
                     ],
-                  )
+                  ),
                 ],
               ),
               actions: [
@@ -80,11 +96,22 @@ class _TrackerPageState extends State<TrackerPage> {
                       });
                     }
                     Navigator.of(context).pop();
-                    final txProvider = Provider.of<TransactionProvider>(context, listen: false);
-                    await txProvider.addTransaction('Expense', amount, DateTime.now());
+                    final txProvider = Provider.of<TransactionProvider>(
+                      context,
+                      listen: false,
+                    );
+                    await txProvider.addTransaction(
+                      'Expense',
+                      amount,
+                      DateTime.now(),
+                    );
                     if (!mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Added expense: \$${amount.toStringAsFixed(2)}')),
+                      SnackBar(
+                        content: Text(
+                          'Added expense: \$${amount.toStringAsFixed(2)}',
+                        ),
+                      ),
                     );
                   },
                   child: const Text("Add Anyway"),
@@ -101,8 +128,13 @@ class _TrackerPageState extends State<TrackerPage> {
   Widget build(BuildContext context) {
     final budgetAmount = Provider.of<BudgetProvider>(context).budget.amount;
     final txProvider = Provider.of<TransactionProvider>(context);
-    final expenses = txProvider.transactions.fold(0.0, (sum, tx) => sum + tx.amount);
-    final available = (budgetAmount - expenses) > 0 ? (budgetAmount - expenses) : 0.0;
+    final expenses = txProvider.transactions.fold(
+      0.0,
+      (sum, tx) => sum + tx.amount,
+    );
+    final available = (budgetAmount - expenses) > 0
+        ? (budgetAmount - expenses)
+        : 0.0;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
@@ -132,7 +164,9 @@ class _TrackerPageState extends State<TrackerPage> {
                   const SizedBox(height: 10),
                   TextField(
                     controller: _amountController,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Amount',
@@ -161,7 +195,11 @@ class _TrackerPageState extends State<TrackerPage> {
               padding: const EdgeInsets.only(top: 8.0),
               child: Text(
                 "You are \$${(expenses - budgetAmount).toStringAsFixed(2)} over budget",
-                style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 16),
+                style: const TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -235,10 +273,7 @@ class _TrackerPageState extends State<TrackerPage> {
         Container(
           width: 16,
           height: 16,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 8),
         Text(text, style: const TextStyle(fontWeight: FontWeight.w600)),

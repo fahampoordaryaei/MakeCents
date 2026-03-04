@@ -23,13 +23,13 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void _onRegister() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Registered (placeholder)')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Registered (placeholder)')));
     // After placeholder register, go to login
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const LoginPage()),
-    );
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (_) => const LoginPage()));
   }
 
   @override
@@ -61,10 +61,16 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     child: IconButton(
                       padding: EdgeInsets.zero,
-                      icon: const Icon(Icons.arrow_back, color: Color(0xFF3e7f3f), size: 18),
+                      icon: const Icon(
+                        Icons.arrow_back,
+                        color: Color(0xFF3e7f3f),
+                        size: 18,
+                      ),
                       onPressed: () {
                         Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: (_) => const StartupPage()),
+                          MaterialPageRoute(
+                            builder: (_) => const StartupPage(),
+                          ),
                         );
                       },
                     ),
@@ -85,49 +91,40 @@ class _RegisterPageState extends State<RegisterPage> {
                 const SizedBox(height: 30.0),
                 const Text(
                   'Create an account',
-                  style: TextStyle(
-                    fontSize: 24.0,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8.0),
                 const Text(
                   'Sign up to manage budgets and track spending.',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    color: Colors.grey,
-                  ),
+                  style: TextStyle(fontSize: 16.0, color: Colors.grey),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24.0),
                 TextFormField(
                   controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Full name',
-                  ),
+                  decoration: const InputDecoration(labelText: 'Full name'),
                 ),
                 const SizedBox(height: 16.0),
                 TextFormField(
                   controller: _emailController,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                  ),
+                  decoration: const InputDecoration(labelText: 'Email'),
                   keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(height: 16.0),
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                  ),
+                  decoration: const InputDecoration(labelText: 'Password'),
                 ),
                 const SizedBox(height: 24.0),
                 ElevatedButton(
                   onPressed: _onRegister,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF3e7f3f),
-                    padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32.0,
+                      vertical: 16.0,
+                    ),
                   ),
                   child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
