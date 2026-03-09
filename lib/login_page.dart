@@ -36,6 +36,7 @@ class _LoginPageState extends State<LoginPage> {
 
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   void _signIn() {
     setState(() {
       if (_lockedUntil != null && DateTime.now().isBefore(_lockedUntil!)) {
@@ -136,6 +137,42 @@ class _LoginPageState extends State<LoginPage> {
       );
 
 >>>>>>> Stashed changes
+=======
+  Future<void> _onSignInPressed() async {
+    if (_lockedUntil != null && DateTime.now().isBefore(_lockedUntil!)) {
+      setState(() {
+        final fmt = DateFormat.Hms();
+        _errorMessage =
+            "Too many failed attempts. Your account is locked until ${fmt.format(_lockedUntil!.toLocal())}";
+      });
+      return;
+    }
+
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      setState(() {
+        _errorMessage = 'Please fill out all fields.';
+      });
+      return;
+    }
+
+    final emailPattern = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+    if (!emailPattern.hasMatch(email)) {
+      setState(() {
+        _errorMessage = 'Please enter a valid email address.';
+      });
+      return;
+    }
+
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+>>>>>>> Stashed changes
       setState(() {
         _failedAttempts = 0;
         _errorMessage = '';
@@ -158,7 +195,10 @@ class _LoginPageState extends State<LoginPage> {
           _errorMessage = 'Invalid credentials. $remaining attempts remaining.';
         }
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
       });
     }
   }

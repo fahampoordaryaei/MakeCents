@@ -15,7 +15,10 @@ import 'startup_page.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
 >>>>>>> Stashed changes
