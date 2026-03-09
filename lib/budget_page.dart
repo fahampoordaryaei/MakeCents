@@ -8,32 +8,46 @@ class BudgetPage extends StatelessWidget {
 
   void _editDialog(BuildContext context) {
     final bp = Provider.of<BudgetProvider>(context, listen: false);
-    final ctrl = TextEditingController(text: bp.budget.amount.toStringAsFixed(0));
-    showDialog(context: context, builder: (ctx) => AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-      title: const Text('Set Monthly Budget'),
-      content: TextField(
-        controller: ctrl,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        decoration: InputDecoration(
-          labelText: 'Amount (\$)',
-          filled: true, fillColor: const Color(0xFFF4F7F5),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+    final ctrl = TextEditingController(
+      text: bp.budget.amount.toStringAsFixed(0),
+    );
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        title: const Text('Set Monthly Budget'),
+        content: TextField(
+          controller: ctrl,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: InputDecoration(
+            labelText: 'Amount (\$)',
+            filled: true,
+            fillColor: Theme.of(context).colorScheme.surface,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+          ),
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFF3e7f3f),
+            ),
+            onPressed: () async {
+              final v = double.tryParse(ctrl.text);
+              if (v != null && v > 0) await bp.setBudget(v);
+              Navigator.pop(ctx);
+            },
+            child: const Text('Save'),
+          ),
+        ],
       ),
-      actions: [
-        TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-        FilledButton(
-          style: FilledButton.styleFrom(backgroundColor: const Color(0xFF3e7f3f)),
-          onPressed: () async {
-            final v = double.tryParse(ctrl.text);
-            if (v != null && v > 0) await bp.setBudget(v);
-            Navigator.pop(ctx);
-          },
-          child: const Text('Save'),
-        ),
-      ],
-    ));
+    );
   }
 
   @override
@@ -43,74 +57,159 @@ class BudgetPage extends StatelessWidget {
     final spent = txs.fold(0.0, (s, t) => s + t.amount);
     final budget = bp.budget.amount;
     final left = (budget - spent).clamp(0.0, double.infinity);
-    final pct  = budget > 0 ? (spent / budget).clamp(0.0, 1.0) : 0.0;
+    final pct = budget > 0 ? (spent / budget).clamp(0.0, 1.0) : 0.0;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F7F5),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF4F7F5),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
-        title: const Text('Monthly Budget', style: TextStyle(fontWeight: FontWeight.w700)),
+        title: const Text(
+          'Monthly Budget',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
         actions: [
-          IconButton(icon: const Icon(Icons.edit_outlined), onPressed: () => _editDialog(context)),
+          IconButton(
+            icon: const Icon(Icons.edit_outlined),
+            onPressed: () => _editDialog(context),
+          ),
         ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: Column(children: [
-          Container(
-            width: double.infinity, padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(colors: [Color(0xFF3e7f3f), Color(0xFF6abf69)], begin: Alignment.topLeft, end: Alignment.bottomRight),
-              borderRadius: BorderRadius.circular(22),
-              boxShadow: [BoxShadow(color: const Color(0xFF3e7f3f).withOpacity(0.3), blurRadius: 16, offset: const Offset(0, 8))],
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF3e7f3f), Color(0xFF6abf69)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(22),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF3e7f3f).withOpacity(0.3),
+                    blurRadius: 16,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Monthly Budget',
+                    style: TextStyle(color: Colors.white70, fontSize: 15),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    budget > 0 ? '\$${budget.toStringAsFixed(2)}' : 'Not set',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 36,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _BudgetStat(
+                          'Spent',
+                          '\$${spent.toStringAsFixed(2)}',
+                          Colors.white,
+                        ),
+                      ),
+                      Container(width: 1, height: 36, color: Colors.white24),
+                      Expanded(
+                        child: _BudgetStat(
+                          'Remaining',
+                          '\$${left.toStringAsFixed(2)}',
+                          Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (budget > 0) ...[
+                    const SizedBox(height: 16),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: LinearProgressIndicator(
+                        value: pct,
+                        minHeight: 8,
+                        backgroundColor: Colors.white24,
+                        valueColor: const AlwaysStoppedAnimation(Colors.white),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      '${(pct * 100).toStringAsFixed(0)}% used',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const Text('Monthly Budget', style: TextStyle(color: Colors.white70, fontSize: 13)),
-              const SizedBox(height: 8),
-              Text(budget > 0 ? '\$${budget.toStringAsFixed(2)}' : 'Not set',
-                  style: const TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.w800)),
-              const SizedBox(height: 20),
-              Row(children: [
-                Expanded(child: _BudgetStat('Spent', '\$${spent.toStringAsFixed(2)}', Colors.white)),
-                Container(width: 1, height: 36, color: Colors.white24),
-                Expanded(child: _BudgetStat('Remaining', '\$${left.toStringAsFixed(2)}', Colors.white)),
-              ]),
-              if (budget > 0) ...[
-                const SizedBox(height: 16),
-                ClipRRect(borderRadius: BorderRadius.circular(8),
-                  child: LinearProgressIndicator(value: pct, minHeight: 8,
-                    backgroundColor: Colors.white24, valueColor: const AlwaysStoppedAnimation(Colors.white))),
-                const SizedBox(height: 6),
-                Text('${(pct * 100).toStringAsFixed(0)}% used', style: const TextStyle(color: Colors.white70, fontSize: 12)),
-              ],
-            ]),
-          ),
-          const SizedBox(height: 20),
-          Container(
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
-            child: ListTile(
-              leading: Container(width: 42, height: 42,
-                decoration: BoxDecoration(color: const Color(0xFF3e7f3f).withOpacity(0.12), borderRadius: BorderRadius.circular(12)),
-                child: const Icon(Icons.edit_outlined, color: Color(0xFF3e7f3f))),
-              title: const Text('Change Budget', style: TextStyle(fontWeight: FontWeight.w600)),
-              subtitle: const Text('Set a new monthly limit'),
-              trailing: const Icon(Icons.chevron_right, color: Colors.grey),
-              onTap: () => _editDialog(context),
+            const SizedBox(height: 20),
+            Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: ListTile(
+                leading: Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF3e7f3f).withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.edit_outlined,
+                    color: Color(0xFF3e7f3f),
+                  ),
+                ),
+                title: const Text(
+                  'Change Budget',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: const Text('Set a new monthly limit'),
+                trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+                onTap: () => _editDialog(context),
+              ),
             ),
-          ),
-        ]),
+          ],
+        ),
       ),
     );
   }
 }
 
 class _BudgetStat extends StatelessWidget {
-  final String label, value; final Color color;
+  final String label, value;
+  final Color color;
   const _BudgetStat(this.label, this.value, this.color);
   @override
-  Widget build(BuildContext context) => Column(children: [
-    Text(value, style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 18)),
-    Text(label, style: TextStyle(color: color.withOpacity(0.7), fontSize: 12)),
-  ]);
+  Widget build(BuildContext context) => Column(
+    children: [
+      Text(
+        value,
+        style: TextStyle(
+          color: color,
+          fontWeight: FontWeight.w700,
+          fontSize: 18,
+        ),
+      ),
+      Text(
+        label,
+        style: TextStyle(color: color.withOpacity(0.7), fontSize: 14),
+      ),
+    ],
+  );
 }

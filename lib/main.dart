@@ -9,37 +9,40 @@ import 'budget_page.dart';
 import 'transaction_provider.dart';
 import 'budget_provider.dart';
 import 'startup_page.dart';
+import 'theme_provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   final transactionProvider = TransactionProvider();
   await transactionProvider.init();
   final budgetProvider = BudgetProvider();
   await budgetProvider.init();
-  runApp(MultiProvider(
-    providers: [
-      ChangeNotifierProvider.value(value: transactionProvider),
-      ChangeNotifierProvider.value(value: budgetProvider),
-    ],
-    child: const MakeCentsApp(),
-  ));
+  final themeProvider = ThemeProvider();
+  await themeProvider.loadTheme();
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: transactionProvider),
+        ChangeNotifierProvider.value(value: budgetProvider),
+        ChangeNotifierProvider.value(value: themeProvider),
+      ],
+      child: const MakeCentsApp(),
+    ),
+  );
 }
 
 class MakeCentsApp extends StatelessWidget {
   const MakeCentsApp({super.key});
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return MaterialApp(
       title: 'MakeCents',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF3e7f3f),
-          brightness: Brightness.light,
-        ),
-        useMaterial3: true,
-        fontFamily: 'sans-serif',
-      ),
+      theme: themeProvider.currentTheme,
       home: const StartupPage(),
     );
   }
@@ -63,36 +66,100 @@ class _HomeScreenState extends State<HomeScreen> {
       const TrackerPage(),
       const PointsPage(),
       const MatchPage(),
-      UserPage(onNavigateToBudget: () {
-        Navigator.push(context, MaterialPageRoute(builder: (_) => const BudgetPage()));
-      }),
+      UserPage(
+        onNavigateToBudget: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const BudgetPage()),
+          );
+        },
+      ),
     ];
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F7F5),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: _pages[_selectedIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.07), blurRadius: 16, offset: const Offset(0, -4))],
-          borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
+          color: Theme.of(context).colorScheme.surface,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.07),
+              blurRadius: 16,
+              offset: const Offset(0, -4),
+            ),
+          ],
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
         ),
         child: ClipRRect(
-          borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
           child: NavigationBar(
-            backgroundColor: Colors.white,
+            backgroundColor: Theme.of(context).colorScheme.surface,
             selectedIndex: _selectedIndex,
             onDestinationSelected: (i) => setState(() => _selectedIndex = i),
             indicatorColor: const Color(0xFF3e7f3f).withOpacity(0.15),
-            destinations: const [
-              NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home, color: Color(0xFF3e7f3f)), label: 'Home'),
-              NavigationDestination(icon: Icon(Icons.show_chart_outlined), selectedIcon: Icon(Icons.show_chart, color: Color(0xFF3e7f3f)), label: 'Tracker'),
-              NavigationDestination(icon: Icon(Icons.emoji_events_outlined), selectedIcon: Icon(Icons.emoji_events, color: Color(0xFF3e7f3f)), label: 'Points'),
-              NavigationDestination(icon: Icon(Icons.school_outlined), selectedIcon: Icon(Icons.school, color: Color(0xFF3e7f3f)), label: 'Match'),
-              NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person, color: Color(0xFF3e7f3f)), label: 'Profile'),
+            destinations: [
+              NavigationDestination(
+                icon: Icon(
+                  Icons.home_outlined,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                selectedIcon: const Icon(Icons.home, color: Color(0xFF3e7f3f)),
+                label: 'Home',
+              ),
+              NavigationDestination(
+                icon: Icon(
+                  Icons.show_chart_outlined,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                selectedIcon: const Icon(
+                  Icons.show_chart,
+                  color: Color(0xFF3e7f3f),
+                ),
+                label: 'Tracker',
+              ),
+              NavigationDestination(
+                icon: Icon(
+                  Icons.emoji_events_outlined,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                selectedIcon: const Icon(
+                  Icons.emoji_events,
+                  color: Color(0xFF3e7f3f),
+                ),
+                label: 'Points',
+              ),
+              NavigationDestination(
+                icon: Icon(
+                  Icons.school_outlined,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                selectedIcon: const Icon(
+                  Icons.school,
+                  color: Color(0xFF3e7f3f),
+                ),
+                label: 'Match',
+              ),
+              NavigationDestination(
+                icon: Icon(
+                  Icons.person_outline,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                selectedIcon: const Icon(
+                  Icons.person,
+                  color: Color(0xFF3e7f3f),
+                ),
+                label: 'Profile',
+              ),
             ],
           ),
         ),
