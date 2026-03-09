@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
 import 'tracker_page.dart';
 import 'home_page.dart';
 import 'user_page.dart';
@@ -14,11 +12,6 @@ import 'startup_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-<<<<<<< Updated upstream
-=======
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
->>>>>>> Stashed changes
   final transactionProvider = TransactionProvider();
   await transactionProvider.init();
   final budgetProvider = BudgetProvider();
