@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'main.dart';
 import 'startup_page.dart';
 
@@ -33,6 +34,7 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
+<<<<<<< Updated upstream
   void _signIn() {
     setState(() {
       if (_lockedUntil != null && DateTime.now().isBefore(_lockedUntil!)) {
@@ -62,6 +64,65 @@ class _LoginPageState extends State<LoginPage> {
       _fails = 0; _error = ''; _show2fa = true;
       WidgetsBinding.instance.addPostFrameCallback((_) { if (_otpFocus.isNotEmpty) _otpFocus[0].requestFocus(); });
     });
+=======
+  Future<void> _onSignInPressed() async {
+    if (_lockedUntil != null && DateTime.now().isBefore(_lockedUntil!)) {
+      setState(() {
+        final fmt = DateFormat.Hms();
+        _errorMessage =
+            "Too many failed attempts. Your account is locked until ${fmt.format(_lockedUntil!.toLocal())}";
+      });
+      return;
+    }
+
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      setState(() {
+        _errorMessage = 'Please fill out all fields.';
+      });
+      return;
+    }
+
+    final emailPattern = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+    if (!emailPattern.hasMatch(email)) {
+      setState(() {
+        _errorMessage = 'Please enter a valid email address.';
+      });
+      return;
+    }
+
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      setState(() {
+        _failedAttempts = 0;
+        _errorMessage = '';
+        _show2fa = true;
+      });
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_otpFocusNodes.isNotEmpty) _otpFocusNodes[0].requestFocus();
+      });
+    } on FirebaseAuthException catch (_) {
+      setState(() {
+        _failedAttempts += 1;
+        if (_failedAttempts >= 3) {
+          _lockedUntil = DateTime.now().add(const Duration(minutes: 5));
+          final fmt = DateFormat.Hms();
+          _errorMessage =
+              "Too many failed attempts. Your account is locked until ${fmt.format(_lockedUntil!.toLocal())}";
+        } else {
+          final remaining = 3 - _failedAttempts;
+          _errorMessage = 'Invalid credentials. $remaining attempts remaining.';
+        }
+      });
+    }
+>>>>>>> Stashed changes
   }
 
   void _verifyOtp() {
