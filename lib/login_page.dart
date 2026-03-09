@@ -35,6 +35,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   void _signIn() {
     setState(() {
       if (_lockedUntil != null && DateTime.now().isBefore(_lockedUntil!)) {
@@ -99,6 +100,42 @@ class _LoginPageState extends State<LoginPage> {
         password: password,
       );
 
+=======
+  Future<void> _onSignInPressed() async {
+    if (_lockedUntil != null && DateTime.now().isBefore(_lockedUntil!)) {
+      setState(() {
+        final fmt = DateFormat.Hms();
+        _errorMessage =
+            "Too many failed attempts. Your account is locked until ${fmt.format(_lockedUntil!.toLocal())}";
+      });
+      return;
+    }
+
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      setState(() {
+        _errorMessage = 'Please fill out all fields.';
+      });
+      return;
+    }
+
+    final emailPattern = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+    if (!emailPattern.hasMatch(email)) {
+      setState(() {
+        _errorMessage = 'Please enter a valid email address.';
+      });
+      return;
+    }
+
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+>>>>>>> Stashed changes
       setState(() {
         _failedAttempts = 0;
         _errorMessage = '';
@@ -120,6 +157,42 @@ class _LoginPageState extends State<LoginPage> {
           final remaining = 3 - _failedAttempts;
           _errorMessage = 'Invalid credentials. $remaining attempts remaining.';
         }
+<<<<<<< Updated upstream
+=======
+      });
+    }
+  }
+
+  void _onOtpChanged(int index, String value) {
+    if (_isHandlingOtp) return;
+    _isHandlingOtp = true;
+
+    // Keep only digits
+    final digits = value.replaceAll(RegExp(r'[^0-9]'), '');
+
+    if (digits.isEmpty) {
+      // If the field became empty, move focus back
+      if (index > 0) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _otpFocusNodes[index - 1].requestFocus();
+        });
+      }
+      _isHandlingOtp = false;
+      return;
+    }
+
+    if (digits.length == 1) {
+      _otpControllers[index].text = digits;
+      _otpControllers[index].selection = const TextSelection.collapsed(
+        offset: 1,
+      );
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (index < 3) {
+          _otpFocusNodes[index + 1].requestFocus();
+        } else {
+          _otpFocusNodes[index].unfocus();
+        }
+>>>>>>> Stashed changes
       });
     }
 >>>>>>> Stashed changes
