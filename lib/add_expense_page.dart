@@ -47,9 +47,6 @@ class _AddExpensePageState extends State<AddExpensePage> {
         context,
         listen: false,
       ).addTransaction(enteredDescription, enteredAmount, _selectedDate!);
-      print(
-        'Transaction Added: $enteredDescription, $enteredAmount, $_selectedDate',
-      );
       if (!mounted) return;
       Navigator.of(context).pop();
     }
