@@ -26,10 +26,24 @@ class TransactionProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _save() async => PersistenceService.saveTransactions(_transactions);
+  Future<void> _save() async =>
+      PersistenceService.saveTransactions(_transactions);
 
-  Future<void> addTransaction(String title, double amount, DateTime date, {String category = 'Other'}) async {
-    _transactions.add(Transaction(id: DateTime.now().toString(), title: title, amount: amount, date: date, category: category));
+  Future<void> addTransaction(
+    String title,
+    double amount,
+    DateTime date, {
+    String category = 'Other',
+  }) async {
+    _transactions.add(
+      Transaction(
+        id: DateTime.now().toString(),
+        title: title,
+        amount: amount,
+        date: date,
+        category: category,
+      ),
+    );
     await _save();
     notifyListeners();
   }

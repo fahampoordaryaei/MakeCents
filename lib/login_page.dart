@@ -241,7 +241,7 @@ class _LoginPageState extends State<LoginPage> {
           _emailCtrl.text = 'admin@example.com';
           _passwordCtrl.text = 'Password1234!';
           _signIn();
-          
+
           if (_error.isEmpty) {
             for (var i = 0; i < 4; i++) {
               _otpCtrls[i].text = '${i + 1}';
@@ -251,7 +251,10 @@ class _LoginPageState extends State<LoginPage> {
         },
         child: const Text(
           'Admin Login',
-          style: TextStyle(color: Color(0xFF3e7f3f), fontWeight: FontWeight.w600),
+          style: TextStyle(
+            color: Color(0xFF3e7f3f),
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     ],

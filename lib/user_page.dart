@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'login_page.dart';
@@ -189,7 +188,7 @@ class UserPage extends StatelessWidget {
                 onChanged: (val) {
                   tp.setTheme(val ? ThemeType.darkNavy : ThemeType.light);
                 },
-                activeColor: const Color(0xFF3e7f3f),
+                activeThumbColor: const Color(0xFF3e7f3f),
               ),
               onTap: () {
                 tp.setTheme(isDarkMode ? ThemeType.light : ThemeType.darkNavy);

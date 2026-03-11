@@ -699,10 +699,12 @@ class _TrackerPageState extends State<TrackerPage> {
 
   String _fmt(DateTime d) {
     final n = DateTime.now();
-    if (d.year == n.year && d.month == n.month && d.day == n.day)
+    if (d.year == n.year && d.month == n.month && d.day == n.day) {
       return 'Today';
-    if (d.year == n.year && d.month == n.month && d.day == n.day - 1)
+    }
+    if (d.year == n.year && d.month == n.month && d.day == n.day - 1) {
       return 'Yesterday';
+    }
     return '${d.day}/${d.month}/${d.year}';
   }
 }

@@ -1,0 +1,25 @@
+mutation SeedUsers @transaction @auth(level: USER, insecureReason: "Seed data is for internal use and can be created by any authenticated user.") {
+  user_insertMany(data: [
+    {
+      id_expr: "uuidV4()",
+      displayName: "Alice Smith",
+      createdAt_expr: "request.time",
+      email: "alice.smith@example.com",
+      photoUrl: "https://example.com/alice.jpg"
+    },
+    {
+      id_expr: "uuidV4()",
+      displayName: "Bob Johnson",
+      createdAt_expr: "request.time",
+      email: "bob.johnson@example.com",
+      photoUrl: "https://example.com/bob.jpg"
+    },
+    {
+      id_expr: "uuidV4()",
+      displayName: "Charlie Brown",
+      createdAt_expr: "request.time",
+      email: "charlie.brown@example.com",
+      photoUrl: "https://example.com/charlie.jpg"
+    }
+  ])
+}
