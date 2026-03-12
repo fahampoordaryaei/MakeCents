@@ -5,6 +5,7 @@ import 'budget_provider.dart';
 import 'transaction_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'theme_provider.dart';
+import 'user_provider.dart';
 
 class UserPage extends StatelessWidget {
   final VoidCallback onNavigateToBudget;
@@ -12,44 +13,148 @@ class UserPage extends StatelessWidget {
 
   Future<void> _editBudgetDialog(BuildContext context) async {
     final bp = Provider.of<BudgetProvider>(context, listen: false);
-    final ctrl = TextEditingController(
-      text: bp.budget.amount.toStringAsFixed(0),
-    );
+    final initialValue = bp.budget.amount;
+    final ctrl = TextEditingController(text: initialValue.toStringAsFixed(0));
+    double sliderVal = initialValue.clamp(0.0, 10000.0);
+    String dialogError = '';
+
     await showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        title: const Text('Edit Monthly Budget'),
-        content: TextField(
-          controller: ctrl,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          decoration: InputDecoration(
-            labelText: 'Monthly Budget (\$)',
-            filled: true,
-            fillColor: const Color(0xFFF4F7F5),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          void onTextChanged() {
+            final val = double.tryParse(ctrl.text.trim());
+            if (val != null && val >= 0 && val <= 10000) {
+              if (sliderVal != val) {
+                setDialogState(() => sliderVal = val);
+              }
+            } else if (val != null && val > 10000) {
+              setDialogState(() => sliderVal = 10000);
+            }
+          }
+
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(22),
             ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFF3e7f3f),
+            title: const Text(
+              'Update Monthly Budget',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
-            onPressed: () async {
-              final v = double.tryParse(ctrl.text);
-              if (v != null) await bp.setBudget(v);
-              Navigator.pop(ctx);
-            },
-            child: const Text('Save'),
-          ),
-        ],
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (dialogError.isNotEmpty) ...[
+                  Text(
+                    dialogError,
+                    style: const TextStyle(color: Colors.red, fontSize: 13),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                TextField(
+                  controller: ctrl,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  textAlign: TextAlign.center,
+                  onChanged: (_) => onTextChanged(),
+                  style: const TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.w900,
+                  ),
+                  decoration: InputDecoration(
+                    prefixText: '€',
+                    prefixStyle: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: 32,
+                      fontWeight: FontWeight.w900,
+                    ),
+                    filled: true,
+                    fillColor: Theme.of(context).scaffoldBackgroundColor,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 20),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SliderTheme(
+                  data: SliderTheme.of(context).copyWith(
+                    activeTrackColor: const Color(0xFF3e7f3f),
+                    inactiveTrackColor: const Color(
+                      0xFF3e7f3f,
+                    ).withOpacity(0.2),
+                    thumbColor: const Color(0xFF3e7f3f),
+                    trackHeight: 6.0,
+                  ),
+                  child: Slider(
+                    value: sliderVal,
+                    min: 0,
+                    max: 10000,
+                    divisions: 100,
+                    onChanged: (v) {
+                      setDialogState(() {
+                        sliderVal = v;
+                        ctrl.text = v.toInt().toString();
+                      });
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: const [
+                      Text(
+                        '€0',
+                        style: TextStyle(color: Colors.grey, fontSize: 12),
+                      ),
+                      Text(
+                        '€10k',
+                        style: TextStyle(color: Colors.grey, fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFF3e7f3f),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                onPressed: () async {
+                  final v = double.tryParse(ctrl.text.trim());
+                  if (v == null || v <= 0) {
+                    setDialogState(
+                      () => dialogError = 'Please enter a valid amount.',
+                    );
+                    return;
+                  }
+                  if (v > 10000) {
+                    setDialogState(
+                      () => dialogError = 'Max budget is €10,000.',
+                    );
+                    return;
+                  }
+                  await bp.setBudget(v);
+                  Navigator.pop(ctx);
+                },
+                child: const Text('Save Changes'),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -59,12 +164,15 @@ class UserPage extends StatelessWidget {
     final txs = Provider.of<TransactionProvider>(context).transactions;
     final bp = Provider.of<BudgetProvider>(context);
     final tp = Provider.of<ThemeProvider>(context);
+    final up = Provider.of<UserProvider>(context);
     final isDarkMode = tp.themeType != ThemeType.light;
     final totalSpent = txs.fold(0.0, (s, t) => s + t.amount);
 
     final user = FirebaseAuth.instance.currentUser;
-    final userEmail = user?.email ?? 'admin@example.com';
-    final userName = user?.displayName ?? 'User';
+    final userEmail = up.profile?.email ?? user?.email ?? '---';
+    final userName = up.profile != null
+        ? '${up.profile!.firstName} ${up.profile!.lastName}'
+        : (user?.displayName ?? 'Student');
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -87,45 +195,49 @@ class UserPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // Avatar + name
+            // User name and email
             Center(
               child: Column(
                 children: [
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF3e7f3f), Color(0xFF6abf69)],
-                      ),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF3e7f3f).withOpacity(0.3),
-                          blurRadius: 12,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.person,
-                      color: Colors.white,
-                      size: 40,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
                   Text(
                     userName,
                     style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w800,
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
+                  const SizedBox(height: 4),
                   Text(
                     userEmail,
-                    style: const TextStyle(fontSize: 15, color: Colors.grey),
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withOpacity(0.6),
+                    ),
                   ),
+                  if (up.profile?.school != null) ...[
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF3e7f3f).withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        up.profile!.school!,
+                        style: const TextStyle(
+                          color: Color(0xFF3e7f3f),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -207,7 +319,7 @@ class UserPage extends StatelessWidget {
               icon: Icons.lock_outline,
               iconColor: const Color(0xFF4ECDC4),
               title: 'Security',
-              subtitle: 'Password & 2FA',
+              subtitle: 'Password',
               onTap: () {},
             ),
             const SizedBox(height: 8),
@@ -216,10 +328,19 @@ class UserPage extends StatelessWidget {
               iconColor: const Color(0xFFFF6B6B),
               title: 'Log Out',
               subtitle: 'Sign out of your account',
-              onTap: () => Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => const LoginPage()),
-                (r) => false,
-              ),
+              onTap: () async {
+                await FirebaseAuth.instance.signOut();
+                if (context.mounted) {
+                  Provider.of<UserProvider>(
+                    context,
+                    listen: false,
+                  ).clearProfile();
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (_) => const LoginPage()),
+                    (r) => false,
+                  );
+                }
+              },
             ),
           ],
         ),

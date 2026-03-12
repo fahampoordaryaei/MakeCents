@@ -1,3 +1,9 @@
+extend type Course {
+  """
+  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
+  """
+  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "Course", purpose: IMPLICIT_KEY_FIELD)
+}
 extend type Institution {
   """
   ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
@@ -10,9 +16,9 @@ extend type PointsBalance {
   """
   id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "PointsBalance", purpose: IMPLICIT_KEY_FIELD)
   """
-  ✨ Implicit foreign key field based on `PointsBalance`.`user`. It must match the value of `User`.`id`. See `@ref` for how to customize it.
+  ✨ Implicit foreign key field based on `PointsBalance`.`user`. It must match the value of `User`.`username`. See `@ref` for how to customize it.
   """
-  userId: UUID! @fdc_generated(from: "PointsBalance.user", purpose: IMPLICIT_REF_FIELD)
+  userUsername: String! @fdc_generated(from: "PointsBalance.user", purpose: IMPLICIT_REF_FIELD)
 }
 extend type PointsTransaction {
   """
@@ -20,9 +26,9 @@ extend type PointsTransaction {
   """
   id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "PointsTransaction", purpose: IMPLICIT_KEY_FIELD)
   """
-  ✨ Implicit foreign key field based on `PointsTransaction`.`user`. It must match the value of `User`.`id`. See `@ref` for how to customize it.
+  ✨ Implicit foreign key field based on `PointsTransaction`.`user`. It must match the value of `User`.`username`. See `@ref` for how to customize it.
   """
-  userId: UUID! @fdc_generated(from: "PointsTransaction.user", purpose: IMPLICIT_REF_FIELD)
+  userUsername: String! @fdc_generated(from: "PointsTransaction.user", purpose: IMPLICIT_REF_FIELD)
 }
 extend type Scholarship {
   """
@@ -40,9 +46,15 @@ extend type ScholarshipApplication {
   """
   scholarshipId: UUID! @fdc_generated(from: "ScholarshipApplication.scholarship", purpose: IMPLICIT_REF_FIELD)
   """
-  ✨ Implicit foreign key field based on `ScholarshipApplication`.`user`. It must match the value of `User`.`id`. See `@ref` for how to customize it.
+  ✨ Implicit foreign key field based on `ScholarshipApplication`.`user`. It must match the value of `User`.`username`. See `@ref` for how to customize it.
   """
-  userId: UUID! @fdc_generated(from: "ScholarshipApplication.user", purpose: IMPLICIT_REF_FIELD)
+  userUsername: String! @fdc_generated(from: "ScholarshipApplication.user", purpose: IMPLICIT_REF_FIELD)
+}
+extend type School {
+  """
+  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
+  """
+  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "School", purpose: IMPLICIT_KEY_FIELD)
 }
 extend type Transaction {
   """
@@ -50,13 +62,17 @@ extend type Transaction {
   """
   id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "Transaction", purpose: IMPLICIT_KEY_FIELD)
   """
-  ✨ Implicit foreign key field based on `Transaction`.`user`. It must match the value of `User`.`id`. See `@ref` for how to customize it.
+  ✨ Implicit foreign key field based on `Transaction`.`user`. It must match the value of `User`.`username`. See `@ref` for how to customize it.
   """
-  userId: UUID! @fdc_generated(from: "Transaction.user", purpose: IMPLICIT_REF_FIELD)
+  userUsername: String! @fdc_generated(from: "Transaction.user", purpose: IMPLICIT_REF_FIELD)
 }
 extend type User {
   """
-  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
+  ✨ Implicit foreign key field based on `User`.`course`. It must match the value of `Course`.`id`. See `@ref` for how to customize it.
   """
-  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "User", purpose: IMPLICIT_KEY_FIELD)
+  courseId: UUID @fdc_generated(from: "User.course", purpose: IMPLICIT_REF_FIELD)
+  """
+  ✨ Implicit foreign key field based on `User`.`school`. It must match the value of `School`.`id`. See `@ref` for how to customize it.
+  """
+  schoolId: UUID @fdc_generated(from: "User.school", purpose: IMPLICIT_REF_FIELD)
 }

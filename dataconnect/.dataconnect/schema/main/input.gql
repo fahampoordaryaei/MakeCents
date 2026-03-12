@@ -1,4 +1,10 @@
 """
+✨ `Course_KeyOutput` returns the primary key fields of table type `Course`.
+
+It has the same format as `Course_Key`, but is only used as mutation return value.
+"""
+scalar Course_KeyOutput
+"""
 ✨ `Institution_KeyOutput` returns the primary key fields of table type `Institution`.
 
 It has the same format as `Institution_Key`, but is only used as mutation return value.
@@ -29,6 +35,12 @@ It has the same format as `ScholarshipApplication_Key`, but is only used as muta
 """
 scalar ScholarshipApplication_KeyOutput
 """
+✨ `School_KeyOutput` returns the primary key fields of table type `School`.
+
+It has the same format as `School_Key`, but is only used as mutation return value.
+"""
+scalar School_KeyOutput
+"""
 ✨ `Transaction_KeyOutput` returns the primary key fields of table type `Transaction`.
 
 It has the same format as `Transaction_Key`, but is only used as mutation return value.
@@ -40,6 +52,153 @@ scalar Transaction_KeyOutput
 It has the same format as `User_Key`, but is only used as mutation return value.
 """
 scalar User_KeyOutput
+"""
+✨ Generated data input type for table 'Course'. It includes all necessary fields for creating or upserting rows into table.
+"""
+input Course_Data {
+  """
+  ✨ Generated from Field `Course`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `Course`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+  """
+  ✨ Generated from Field `Course`.`name` of type `String!`
+  """
+  name: String
+  """
+  ✨ `_expr` server value variant of `name` (✨ Generated from Field `Course`.`name` of type `String!`)
+  """
+  name_expr: String_Expr
+}
+"""
+✨ Generated filter input type for table 'Course'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input Course_Filter {
+  """
+  Apply multiple filter conditions using `AND` logic.
+  """
+  _and: [Course_Filter!]
+  """
+  Negate the result of the provided filter condition.
+  """
+  _not: Course_Filter
+  """
+  Apply multiple filter conditions using `OR` logic.
+  """
+  _or: [Course_Filter!]
+  """
+  ✨ Generated from Field `Course`.`id` of type `UUID!`
+  """
+  id: UUID_Filter
+  """
+  ✨ Generated from Field `Course`.`name` of type `String!`
+  """
+  name: String_Filter
+  """
+  ✨ Generated from Field `Course`.`users_on_course` of type `[User!]!`
+  """
+  users_on_course: User_ListFilter
+}
+"""
+✨ Generated first-row input type for table 'Course'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
+"""
+input Course_FirstRow {
+  """
+  Order the result by the specified fields.
+  """
+  orderBy: [Course_Order!]
+  """
+  Filters rows based on the specified conditions.
+  """
+  where: Course_Filter
+}
+"""
+✨ Generated having input type for table 'Course'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input Course_Having {
+  """
+  Apply multiple Having conditions using `AND` logic.
+  """
+  _and: [Course_Having!]
+  """
+  Whether to apply DISTINCT to the aggregate function.
+  """
+  _distinct: Boolean
+  """
+  Negate the result of the provided Having condition.
+  """
+  _not: Course_Having
+  """
+  Apply multiple Having conditions using `OR` logic.
+  """
+  _or: [Course_Having!]
+  """
+  ✨ Generated from Field `Course`.`_count` of type `Int!`
+  """
+  _count: Int_Filter
+  """
+  ✨ Generated from Field `Course`.`id_count` of type `Int!`
+  """
+  id_count: Int_Filter
+  """
+  ✨ Generated from Field `Course`.`name_count` of type `Int!`
+  """
+  name_count: Int_Filter
+}
+"""
+✨ Generated key input type for table 'Course'. It represents the primary key fields used to uniquely identify a row in the table.
+"""
+input Course_Key {
+  """
+  ✨ Generated from Field `Course`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `Course`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+}
+"""
+✨ Generated list filter input type for table 'Course'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
+"""
+input Course_ListFilter {
+  """
+  The desired number of objects that match the condition (defaults to at least one).
+  """
+  count: Int_Filter = {gt:0}
+  """
+  Condition of the related objects to filter for.
+  """
+  exist: Course_Filter
+}
+"""
+✨ Generated order input type for table 'Course'. This input defines the sorting order of rows in query results based on one or more fields.
+"""
+input Course_Order {
+  """
+  ✨ Generated from Field `Course`.`id` of type `UUID!`
+  """
+  id: OrderDirection
+  """
+  ✨ Generated from Field `Course`.`name` of type `String!`
+  """
+  name: OrderDirection
+  """
+  ✨ Generated from Field `Course`.`_count` of type `Int!`
+  """
+  _count: OrderDirection
+  """
+  ✨ Generated from Field `Course`.`id_count` of type `Int!`
+  """
+  id_count: OrderDirection
+  """
+  ✨ Generated from Field `Course`.`name_count` of type `Int!`
+  """
+  name_count: OrderDirection
+}
 """
 ✨ Generated data input type for table 'Institution'. It includes all necessary fields for creating or upserting rows into table.
 """
@@ -220,13 +379,13 @@ input PointsBalance_Data {
   """
   id_expr: UUID_Expr
   """
-  ✨ Generated from Field `PointsBalance`.`userId` of type `UUID!`
+  ✨ Generated from Field `PointsBalance`.`userUsername` of type `String!`
   """
-  userId: UUID
+  userUsername: String
   """
-  ✨ `_expr` server value variant of `userId` (✨ Generated from Field `PointsBalance`.`userId` of type `UUID!`)
+  ✨ `_expr` server value variant of `userUsername` (✨ Generated from Field `PointsBalance`.`userUsername` of type `String!`)
   """
-  userId_expr: UUID_Expr
+  userUsername_expr: String_Expr
   """
   ✨ Generated from Field `PointsBalance`.`user` of type `User!`
   """
@@ -281,9 +440,9 @@ input PointsBalance_Filter {
   """
   id: UUID_Filter
   """
-  ✨ Generated from Field `PointsBalance`.`userId` of type `UUID!`
+  ✨ Generated from Field `PointsBalance`.`userUsername` of type `String!`
   """
-  userId: UUID_Filter
+  userUsername: String_Filter
   """
   ✨ Generated from Field `PointsBalance`.`user` of type `User!`
   """
@@ -347,9 +506,9 @@ input PointsBalance_Having {
   """
   updatedAt_count: Int_Filter
   """
-  ✨ Generated from Field `PointsBalance`.`userId_count` of type `Int!`
+  ✨ Generated from Field `PointsBalance`.`userUsername_count` of type `Int!`
   """
-  userId_count: Int_Filter
+  userUsername_count: Int_Filter
   """
   ✨ Generated from Field `PointsBalance`.`totalPoints_sum` of type `Int`
   """
@@ -410,9 +569,9 @@ input PointsBalance_Order {
   """
   id: OrderDirection
   """
-  ✨ Generated from Field `PointsBalance`.`userId` of type `UUID!`
+  ✨ Generated from Field `PointsBalance`.`userUsername` of type `String!`
   """
-  userId: OrderDirection
+  userUsername: OrderDirection
   """
   ✨ Generated from Field `PointsBalance`.`user` of type `User!`
   """
@@ -442,9 +601,9 @@ input PointsBalance_Order {
   """
   updatedAt_count: OrderDirection
   """
-  ✨ Generated from Field `PointsBalance`.`userId_count` of type `Int!`
+  ✨ Generated from Field `PointsBalance`.`userUsername_count` of type `Int!`
   """
-  userId_count: OrderDirection
+  userUsername_count: OrderDirection
   """
   ✨ Generated from Field `PointsBalance`.`totalPoints_sum` of type `Int`
   """
@@ -483,13 +642,13 @@ input PointsTransaction_Data {
   """
   id_expr: UUID_Expr
   """
-  ✨ Generated from Field `PointsTransaction`.`userId` of type `UUID!`
+  ✨ Generated from Field `PointsTransaction`.`userUsername` of type `String!`
   """
-  userId: UUID
+  userUsername: String
   """
-  ✨ `_expr` server value variant of `userId` (✨ Generated from Field `PointsTransaction`.`userId` of type `UUID!`)
+  ✨ `_expr` server value variant of `userUsername` (✨ Generated from Field `PointsTransaction`.`userUsername` of type `String!`)
   """
-  userId_expr: UUID_Expr
+  userUsername_expr: String_Expr
   """
   ✨ Generated from Field `PointsTransaction`.`user` of type `User!`
   """
@@ -552,9 +711,9 @@ input PointsTransaction_Filter {
   """
   id: UUID_Filter
   """
-  ✨ Generated from Field `PointsTransaction`.`userId` of type `UUID!`
+  ✨ Generated from Field `PointsTransaction`.`userUsername` of type `String!`
   """
-  userId: UUID_Filter
+  userUsername: String_Filter
   """
   ✨ Generated from Field `PointsTransaction`.`user` of type `User!`
   """
@@ -626,9 +785,9 @@ input PointsTransaction_Having {
   """
   reason_count: Int_Filter
   """
-  ✨ Generated from Field `PointsTransaction`.`userId_count` of type `Int!`
+  ✨ Generated from Field `PointsTransaction`.`userUsername_count` of type `Int!`
   """
-  userId_count: Int_Filter
+  userUsername_count: Int_Filter
   """
   ✨ Generated from Field `PointsTransaction`.`amount_sum` of type `Int`
   """
@@ -689,9 +848,9 @@ input PointsTransaction_Order {
   """
   id: OrderDirection
   """
-  ✨ Generated from Field `PointsTransaction`.`userId` of type `UUID!`
+  ✨ Generated from Field `PointsTransaction`.`userUsername` of type `String!`
   """
-  userId: OrderDirection
+  userUsername: OrderDirection
   """
   ✨ Generated from Field `PointsTransaction`.`user` of type `User!`
   """
@@ -729,9 +888,9 @@ input PointsTransaction_Order {
   """
   reason_count: OrderDirection
   """
-  ✨ Generated from Field `PointsTransaction`.`userId_count` of type `Int!`
+  ✨ Generated from Field `PointsTransaction`.`userUsername_count` of type `Int!`
   """
-  userId_count: OrderDirection
+  userUsername_count: OrderDirection
   """
   ✨ Generated from Field `PointsTransaction`.`amount_sum` of type `Int`
   """
@@ -1057,13 +1216,13 @@ input ScholarshipApplication_Data {
   """
   scholarshipId_expr: UUID_Expr
   """
-  ✨ Generated from Field `ScholarshipApplication`.`userId` of type `UUID!`
+  ✨ Generated from Field `ScholarshipApplication`.`userUsername` of type `String!`
   """
-  userId: UUID
+  userUsername: String
   """
-  ✨ `_expr` server value variant of `userId` (✨ Generated from Field `ScholarshipApplication`.`userId` of type `UUID!`)
+  ✨ `_expr` server value variant of `userUsername` (✨ Generated from Field `ScholarshipApplication`.`userUsername` of type `String!`)
   """
-  userId_expr: UUID_Expr
+  userUsername_expr: String_Expr
   """
   ✨ Generated from Field `ScholarshipApplication`.`scholarship` of type `Scholarship!`
   """
@@ -1122,9 +1281,9 @@ input ScholarshipApplication_Filter {
   """
   scholarshipId: UUID_Filter
   """
-  ✨ Generated from Field `ScholarshipApplication`.`userId` of type `UUID!`
+  ✨ Generated from Field `ScholarshipApplication`.`userUsername` of type `String!`
   """
-  userId: UUID_Filter
+  userUsername: String_Filter
   """
   ✨ Generated from Field `ScholarshipApplication`.`scholarship` of type `Scholarship!`
   """
@@ -1196,9 +1355,9 @@ input ScholarshipApplication_Having {
   """
   status_count: Int_Filter
   """
-  ✨ Generated from Field `ScholarshipApplication`.`userId_count` of type `Int!`
+  ✨ Generated from Field `ScholarshipApplication`.`userUsername_count` of type `Int!`
   """
-  userId_count: Int_Filter
+  userUsername_count: Int_Filter
   """
   ✨ Generated from Field `ScholarshipApplication`.`appliedAt_min` of type `Timestamp`
   """
@@ -1247,9 +1406,9 @@ input ScholarshipApplication_Order {
   """
   scholarshipId: OrderDirection
   """
-  ✨ Generated from Field `ScholarshipApplication`.`userId` of type `UUID!`
+  ✨ Generated from Field `ScholarshipApplication`.`userUsername` of type `String!`
   """
-  userId: OrderDirection
+  userUsername: OrderDirection
   """
   ✨ Generated from Field `ScholarshipApplication`.`scholarship` of type `Scholarship!`
   """
@@ -1287,9 +1446,9 @@ input ScholarshipApplication_Order {
   """
   status_count: OrderDirection
   """
-  ✨ Generated from Field `ScholarshipApplication`.`userId_count` of type `Int!`
+  ✨ Generated from Field `ScholarshipApplication`.`userUsername_count` of type `Int!`
   """
-  userId_count: OrderDirection
+  userUsername_count: OrderDirection
   """
   ✨ Generated from Field `ScholarshipApplication`.`appliedAt_min` of type `Timestamp`
   """
@@ -1298,6 +1457,153 @@ input ScholarshipApplication_Order {
   ✨ Generated from Field `ScholarshipApplication`.`appliedAt_max` of type `Timestamp`
   """
   appliedAt_max: OrderDirection
+}
+"""
+✨ Generated data input type for table 'School'. It includes all necessary fields for creating or upserting rows into table.
+"""
+input School_Data {
+  """
+  ✨ Generated from Field `School`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `School`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+  """
+  ✨ Generated from Field `School`.`name` of type `String!`
+  """
+  name: String
+  """
+  ✨ `_expr` server value variant of `name` (✨ Generated from Field `School`.`name` of type `String!`)
+  """
+  name_expr: String_Expr
+}
+"""
+✨ Generated filter input type for table 'School'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input School_Filter {
+  """
+  Apply multiple filter conditions using `AND` logic.
+  """
+  _and: [School_Filter!]
+  """
+  Negate the result of the provided filter condition.
+  """
+  _not: School_Filter
+  """
+  Apply multiple filter conditions using `OR` logic.
+  """
+  _or: [School_Filter!]
+  """
+  ✨ Generated from Field `School`.`id` of type `UUID!`
+  """
+  id: UUID_Filter
+  """
+  ✨ Generated from Field `School`.`name` of type `String!`
+  """
+  name: String_Filter
+  """
+  ✨ Generated from Field `School`.`users_on_school` of type `[User!]!`
+  """
+  users_on_school: User_ListFilter
+}
+"""
+✨ Generated first-row input type for table 'School'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
+"""
+input School_FirstRow {
+  """
+  Order the result by the specified fields.
+  """
+  orderBy: [School_Order!]
+  """
+  Filters rows based on the specified conditions.
+  """
+  where: School_Filter
+}
+"""
+✨ Generated having input type for table 'School'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input School_Having {
+  """
+  Apply multiple Having conditions using `AND` logic.
+  """
+  _and: [School_Having!]
+  """
+  Whether to apply DISTINCT to the aggregate function.
+  """
+  _distinct: Boolean
+  """
+  Negate the result of the provided Having condition.
+  """
+  _not: School_Having
+  """
+  Apply multiple Having conditions using `OR` logic.
+  """
+  _or: [School_Having!]
+  """
+  ✨ Generated from Field `School`.`_count` of type `Int!`
+  """
+  _count: Int_Filter
+  """
+  ✨ Generated from Field `School`.`id_count` of type `Int!`
+  """
+  id_count: Int_Filter
+  """
+  ✨ Generated from Field `School`.`name_count` of type `Int!`
+  """
+  name_count: Int_Filter
+}
+"""
+✨ Generated key input type for table 'School'. It represents the primary key fields used to uniquely identify a row in the table.
+"""
+input School_Key {
+  """
+  ✨ Generated from Field `School`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `School`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+}
+"""
+✨ Generated list filter input type for table 'School'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
+"""
+input School_ListFilter {
+  """
+  The desired number of objects that match the condition (defaults to at least one).
+  """
+  count: Int_Filter = {gt:0}
+  """
+  Condition of the related objects to filter for.
+  """
+  exist: School_Filter
+}
+"""
+✨ Generated order input type for table 'School'. This input defines the sorting order of rows in query results based on one or more fields.
+"""
+input School_Order {
+  """
+  ✨ Generated from Field `School`.`id` of type `UUID!`
+  """
+  id: OrderDirection
+  """
+  ✨ Generated from Field `School`.`name` of type `String!`
+  """
+  name: OrderDirection
+  """
+  ✨ Generated from Field `School`.`_count` of type `Int!`
+  """
+  _count: OrderDirection
+  """
+  ✨ Generated from Field `School`.`id_count` of type `Int!`
+  """
+  id_count: OrderDirection
+  """
+  ✨ Generated from Field `School`.`name_count` of type `Int!`
+  """
+  name_count: OrderDirection
 }
 """
 ✨ Generated data input type for table 'Transaction'. It includes all necessary fields for creating or upserting rows into table.
@@ -1312,13 +1618,13 @@ input Transaction_Data {
   """
   id_expr: UUID_Expr
   """
-  ✨ Generated from Field `Transaction`.`userId` of type `UUID!`
+  ✨ Generated from Field `Transaction`.`userUsername` of type `String!`
   """
-  userId: UUID
+  userUsername: String
   """
-  ✨ `_expr` server value variant of `userId` (✨ Generated from Field `Transaction`.`userId` of type `UUID!`)
+  ✨ `_expr` server value variant of `userUsername` (✨ Generated from Field `Transaction`.`userUsername` of type `String!`)
   """
-  userId_expr: UUID_Expr
+  userUsername_expr: String_Expr
   """
   ✨ Generated from Field `Transaction`.`user` of type `User!`
   """
@@ -1405,9 +1711,9 @@ input Transaction_Filter {
   """
   id: UUID_Filter
   """
-  ✨ Generated from Field `Transaction`.`userId` of type `UUID!`
+  ✨ Generated from Field `Transaction`.`userUsername` of type `String!`
   """
-  userId: UUID_Filter
+  userUsername: String_Filter
   """
   ✨ Generated from Field `Transaction`.`user` of type `User!`
   """
@@ -1495,9 +1801,9 @@ input Transaction_Having {
   """
   id_count: Int_Filter
   """
-  ✨ Generated from Field `Transaction`.`userId_count` of type `Int!`
+  ✨ Generated from Field `Transaction`.`userUsername_count` of type `Int!`
   """
-  userId_count: Int_Filter
+  userUsername_count: Int_Filter
   """
   ✨ Generated from Field `Transaction`.`amount_sum` of type `Float`
   """
@@ -1566,9 +1872,9 @@ input Transaction_Order {
   """
   id: OrderDirection
   """
-  ✨ Generated from Field `Transaction`.`userId` of type `UUID!`
+  ✨ Generated from Field `Transaction`.`userUsername` of type `String!`
   """
-  userId: OrderDirection
+  userUsername: OrderDirection
   """
   ✨ Generated from Field `Transaction`.`user` of type `User!`
   """
@@ -1622,9 +1928,9 @@ input Transaction_Order {
   """
   id_count: OrderDirection
   """
-  ✨ Generated from Field `Transaction`.`userId_count` of type `Int!`
+  ✨ Generated from Field `Transaction`.`userUsername_count` of type `Int!`
   """
-  userId_count: OrderDirection
+  userUsername_count: OrderDirection
   """
   ✨ Generated from Field `Transaction`.`amount_sum` of type `Float`
   """
@@ -1663,13 +1969,37 @@ input Transaction_Order {
 """
 input User_Data {
   """
-  ✨ Generated from Field `User`.`id` of type `UUID!`
+  ✨ Generated from Field `User`.`username` of type `String!`
   """
-  id: UUID
+  username: String
   """
-  ✨ `_expr` server value variant of `id` (✨ Generated from Field `User`.`id` of type `UUID!`)
+  ✨ `_expr` server value variant of `username` (✨ Generated from Field `User`.`username` of type `String!`)
   """
-  id_expr: UUID_Expr
+  username_expr: String_Expr
+  """
+  ✨ Generated from Field `User`.`courseId` of type `UUID`
+  """
+  courseId: UUID
+  """
+  ✨ `_expr` server value variant of `courseId` (✨ Generated from Field `User`.`courseId` of type `UUID`)
+  """
+  courseId_expr: UUID_Expr
+  """
+  ✨ Generated from Field `User`.`schoolId` of type `UUID`
+  """
+  schoolId: UUID
+  """
+  ✨ `_expr` server value variant of `schoolId` (✨ Generated from Field `User`.`schoolId` of type `UUID`)
+  """
+  schoolId_expr: UUID_Expr
+  """
+  ✨ Generated from Field `User`.`course` of type `Course`
+  """
+  course: Course_Key
+  """
+  ✨ Generated from Field `User`.`school` of type `School`
+  """
+  school: School_Key
   """
   ✨ Generated from Field `User`.`createdAt` of type `Timestamp!`
   """
@@ -1695,13 +2025,49 @@ input User_Data {
   """
   email_expr: String_Expr
   """
-  ✨ Generated from Field `User`.`username` of type `String!`
+  ✨ Generated from Field `User`.`firstName` of type `String!`
   """
-  username: String
+  firstName: String
   """
-  ✨ `_expr` server value variant of `username` (✨ Generated from Field `User`.`username` of type `String!`)
+  ✨ `_expr` server value variant of `firstName` (✨ Generated from Field `User`.`firstName` of type `String!`)
   """
-  username_expr: String_Expr
+  firstName_expr: String_Expr
+  """
+  ✨ Generated from Field `User`.`lastName` of type `String!`
+  """
+  lastName: String
+  """
+  ✨ `_expr` server value variant of `lastName` (✨ Generated from Field `User`.`lastName` of type `String!`)
+  """
+  lastName_expr: String_Expr
+  """
+  ✨ Generated from Field `User`.`monthlyBudget` of type `Float`
+  """
+  monthlyBudget: Float
+  """
+  ✨ `_expr` server value variant of `monthlyBudget` (✨ Generated from Field `User`.`monthlyBudget` of type `Float`)
+  """
+  monthlyBudget_expr: Float_Expr
+  """
+  ✨ `_update` server value variant of `monthlyBudget` (✨ Generated from Field `User`.`monthlyBudget` of type `Float`)
+  """
+  monthlyBudget_update: [Float_Update!]
+  """
+  ✨ Generated from Field `User`.`otherCourse` of type `String`
+  """
+  otherCourse: String
+  """
+  ✨ `_expr` server value variant of `otherCourse` (✨ Generated from Field `User`.`otherCourse` of type `String`)
+  """
+  otherCourse_expr: String_Expr
+  """
+  ✨ Generated from Field `User`.`otherSchool` of type `String`
+  """
+  otherSchool: String
+  """
+  ✨ `_expr` server value variant of `otherSchool` (✨ Generated from Field `User`.`otherSchool` of type `String`)
+  """
+  otherSchool_expr: String_Expr
 }
 """
 ✨ Generated filter input type for table 'User'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
@@ -1720,9 +2086,25 @@ input User_Filter {
   """
   _or: [User_Filter!]
   """
-  ✨ Generated from Field `User`.`id` of type `UUID!`
+  ✨ Generated from Field `User`.`username` of type `String!`
   """
-  id: UUID_Filter
+  username: String_Filter
+  """
+  ✨ Generated from Field `User`.`courseId` of type `UUID`
+  """
+  courseId: UUID_Filter
+  """
+  ✨ Generated from Field `User`.`schoolId` of type `UUID`
+  """
+  schoolId: UUID_Filter
+  """
+  ✨ Generated from Field `User`.`course` of type `Course`
+  """
+  course: Course_Filter
+  """
+  ✨ Generated from Field `User`.`school` of type `School`
+  """
+  school: School_Filter
   """
   ✨ Generated from Field `User`.`createdAt` of type `Timestamp!`
   """
@@ -1732,9 +2114,25 @@ input User_Filter {
   """
   email: String_Filter
   """
-  ✨ Generated from Field `User`.`username` of type `String!`
+  ✨ Generated from Field `User`.`firstName` of type `String!`
   """
-  username: String_Filter
+  firstName: String_Filter
+  """
+  ✨ Generated from Field `User`.`lastName` of type `String!`
+  """
+  lastName: String_Filter
+  """
+  ✨ Generated from Field `User`.`monthlyBudget` of type `Float`
+  """
+  monthlyBudget: Float_Filter
+  """
+  ✨ Generated from Field `User`.`otherCourse` of type `String`
+  """
+  otherCourse: String_Filter
+  """
+  ✨ Generated from Field `User`.`otherSchool` of type `String`
+  """
+  otherSchool: String_Filter
   """
   ✨ Generated from Field `User`.`pointsBalances_on_user` of type `[PointsBalance!]!`
   """
@@ -1790,6 +2188,10 @@ input User_Having {
   """
   _count: Int_Filter
   """
+  ✨ Generated from Field `User`.`courseId_count` of type `Int!`
+  """
+  courseId_count: Int_Filter
+  """
   ✨ Generated from Field `User`.`createdAt_count` of type `Int!`
   """
   createdAt_count: Int_Filter
@@ -1798,34 +2200,70 @@ input User_Having {
   """
   email_count: Int_Filter
   """
-  ✨ Generated from Field `User`.`id_count` of type `Int!`
+  ✨ Generated from Field `User`.`firstName_count` of type `Int!`
   """
-  id_count: Int_Filter
+  firstName_count: Int_Filter
+  """
+  ✨ Generated from Field `User`.`lastName_count` of type `Int!`
+  """
+  lastName_count: Int_Filter
+  """
+  ✨ Generated from Field `User`.`monthlyBudget_count` of type `Int!`
+  """
+  monthlyBudget_count: Int_Filter
+  """
+  ✨ Generated from Field `User`.`otherCourse_count` of type `Int!`
+  """
+  otherCourse_count: Int_Filter
+  """
+  ✨ Generated from Field `User`.`otherSchool_count` of type `Int!`
+  """
+  otherSchool_count: Int_Filter
+  """
+  ✨ Generated from Field `User`.`schoolId_count` of type `Int!`
+  """
+  schoolId_count: Int_Filter
   """
   ✨ Generated from Field `User`.`username_count` of type `Int!`
   """
   username_count: Int_Filter
   """
+  ✨ Generated from Field `User`.`monthlyBudget_sum` of type `Float`
+  """
+  monthlyBudget_sum: Float_Filter
+  """
+  ✨ Generated from Field `User`.`monthlyBudget_avg` of type `Float`
+  """
+  monthlyBudget_avg: Float_Filter
+  """
   ✨ Generated from Field `User`.`createdAt_min` of type `Timestamp`
   """
   createdAt_min: Timestamp_Filter
   """
+  ✨ Generated from Field `User`.`monthlyBudget_min` of type `Float`
+  """
+  monthlyBudget_min: Float_Filter
+  """
   ✨ Generated from Field `User`.`createdAt_max` of type `Timestamp`
   """
   createdAt_max: Timestamp_Filter
+  """
+  ✨ Generated from Field `User`.`monthlyBudget_max` of type `Float`
+  """
+  monthlyBudget_max: Float_Filter
 }
 """
 ✨ Generated key input type for table 'User'. It represents the primary key fields used to uniquely identify a row in the table.
 """
 input User_Key {
   """
-  ✨ Generated from Field `User`.`id` of type `UUID!`
+  ✨ Generated from Field `User`.`username` of type `String!`
   """
-  id: UUID
+  username: String
   """
-  ✨ `_expr` server value variant of `id` (✨ Generated from Field `User`.`id` of type `UUID!`)
+  ✨ `_expr` server value variant of `username` (✨ Generated from Field `User`.`username` of type `String!`)
   """
-  id_expr: UUID_Expr
+  username_expr: String_Expr
 }
 """
 ✨ Generated list filter input type for table 'User'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
@@ -1845,9 +2283,25 @@ input User_ListFilter {
 """
 input User_Order {
   """
-  ✨ Generated from Field `User`.`id` of type `UUID!`
+  ✨ Generated from Field `User`.`username` of type `String!`
   """
-  id: OrderDirection
+  username: OrderDirection
+  """
+  ✨ Generated from Field `User`.`courseId` of type `UUID`
+  """
+  courseId: OrderDirection
+  """
+  ✨ Generated from Field `User`.`schoolId` of type `UUID`
+  """
+  schoolId: OrderDirection
+  """
+  ✨ Generated from Field `User`.`course` of type `Course`
+  """
+  course: Course_Order
+  """
+  ✨ Generated from Field `User`.`school` of type `School`
+  """
+  school: School_Order
   """
   ✨ Generated from Field `User`.`createdAt` of type `Timestamp!`
   """
@@ -1857,13 +2311,33 @@ input User_Order {
   """
   email: OrderDirection
   """
-  ✨ Generated from Field `User`.`username` of type `String!`
+  ✨ Generated from Field `User`.`firstName` of type `String!`
   """
-  username: OrderDirection
+  firstName: OrderDirection
+  """
+  ✨ Generated from Field `User`.`lastName` of type `String!`
+  """
+  lastName: OrderDirection
+  """
+  ✨ Generated from Field `User`.`monthlyBudget` of type `Float`
+  """
+  monthlyBudget: OrderDirection
+  """
+  ✨ Generated from Field `User`.`otherCourse` of type `String`
+  """
+  otherCourse: OrderDirection
+  """
+  ✨ Generated from Field `User`.`otherSchool` of type `String`
+  """
+  otherSchool: OrderDirection
   """
   ✨ Generated from Field `User`.`_count` of type `Int!`
   """
   _count: OrderDirection
+  """
+  ✨ Generated from Field `User`.`courseId_count` of type `Int!`
+  """
+  courseId_count: OrderDirection
   """
   ✨ Generated from Field `User`.`createdAt_count` of type `Int!`
   """
@@ -1873,19 +2347,55 @@ input User_Order {
   """
   email_count: OrderDirection
   """
-  ✨ Generated from Field `User`.`id_count` of type `Int!`
+  ✨ Generated from Field `User`.`firstName_count` of type `Int!`
   """
-  id_count: OrderDirection
+  firstName_count: OrderDirection
+  """
+  ✨ Generated from Field `User`.`lastName_count` of type `Int!`
+  """
+  lastName_count: OrderDirection
+  """
+  ✨ Generated from Field `User`.`monthlyBudget_count` of type `Int!`
+  """
+  monthlyBudget_count: OrderDirection
+  """
+  ✨ Generated from Field `User`.`otherCourse_count` of type `Int!`
+  """
+  otherCourse_count: OrderDirection
+  """
+  ✨ Generated from Field `User`.`otherSchool_count` of type `Int!`
+  """
+  otherSchool_count: OrderDirection
+  """
+  ✨ Generated from Field `User`.`schoolId_count` of type `Int!`
+  """
+  schoolId_count: OrderDirection
   """
   ✨ Generated from Field `User`.`username_count` of type `Int!`
   """
   username_count: OrderDirection
   """
+  ✨ Generated from Field `User`.`monthlyBudget_sum` of type `Float`
+  """
+  monthlyBudget_sum: OrderDirection
+  """
+  ✨ Generated from Field `User`.`monthlyBudget_avg` of type `Float`
+  """
+  monthlyBudget_avg: OrderDirection
+  """
   ✨ Generated from Field `User`.`createdAt_min` of type `Timestamp`
   """
   createdAt_min: OrderDirection
   """
+  ✨ Generated from Field `User`.`monthlyBudget_min` of type `Float`
+  """
+  monthlyBudget_min: OrderDirection
+  """
   ✨ Generated from Field `User`.`createdAt_max` of type `Timestamp`
   """
   createdAt_max: OrderDirection
+  """
+  ✨ Generated from Field `User`.`monthlyBudget_max` of type `Float`
+  """
+  monthlyBudget_max: OrderDirection
 }

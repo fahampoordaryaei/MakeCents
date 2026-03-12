@@ -1,10 +1,15 @@
 # Basic Usage
 
 ```dart
+ExampleConnector.instance.ListSchools().execute();
+ExampleConnector.instance.ListCourses().execute();
 ExampleConnector.instance.ListUserTransactions(listUserTransactionsVariables).execute();
 ExampleConnector.instance.GetUserPoints(getUserPointsVariables).execute();
 ExampleConnector.instance.AddTransaction(addTransactionVariables).execute();
-ExampleConnector.instance.SeedMakeCentsDatabase().execute();
+ExampleConnector.instance.StoreUserProfile(storeUserProfileVariables).execute();
+ExampleConnector.instance.DeleteTransaction(deleteTransactionVariables).execute();
+ExampleConnector.instance.GetUserProfile(getUserProfileVariables).execute();
+ExampleConnector.instance.SeedOnboardingData().execute();
 
 ```
 
@@ -17,8 +22,8 @@ Optional fields can be discovered based on classes that have `Optional` object t
 This is an example of a mutation with an optional field:
 
 ```dart
-await ExampleConnector.instance.AddTransaction({ ... })
-.description(...)
+await ExampleConnector.instance.StoreUserProfile({ ... })
+.schoolId(...)
 .execute();
 ```
 

@@ -1,7 +1,22 @@
-type User @table {
-  username: String! @unique
+type User @table(key: ["username"]) {
+  username: String!
   email: String! @unique
+  firstName: String!
+  lastName: String!
+  school: School
+  course: Course
+  otherSchool: String
+  otherCourse: String
+  monthlyBudget: Float
   createdAt: Timestamp!
+}
+
+type School @table {
+  name: String! @unique
+}
+
+type Course @table {
+  name: String! @unique
 }
 
 type Institution @table {

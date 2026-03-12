@@ -6,7 +6,6 @@ class Scholarship {
   final String location;
   final double amount;
   final String currency;
-  final double minGrade;
   final List<String> subjects;
   final String description;
   final Color color;
@@ -17,7 +16,6 @@ class Scholarship {
     required this.location,
     required this.amount,
     this.currency = '€',
-    required this.minGrade,
     required this.subjects,
     required this.description,
     this.color = const Color(0xFF3e7f3f),
@@ -30,7 +28,6 @@ const List<Scholarship> kScholarships = [
     provider: 'Global Tech Malta',
     location: 'MALTA',
     amount: 5000,
-    minGrade: 85,
     subjects: [
       'Computer Engineering',
       'Computer Science',
@@ -46,7 +43,6 @@ const List<Scholarship> kScholarships = [
     provider: 'EU Education Fund',
     location: 'EUROPE',
     amount: 3500,
-    minGrade: 75,
     subjects: [
       'Computer Engineering',
       'Computer Science',
@@ -64,7 +60,6 @@ const List<Scholarship> kScholarships = [
     provider: 'Arts Council',
     location: 'GLOBAL',
     amount: 2500,
-    minGrade: 70,
     subjects: ['Arts', 'Design', 'Music', 'Media', 'Architecture'],
     description:
         'Open to creative students worldwide with a passion for arts, design, and cultural expression.',
@@ -75,7 +70,6 @@ const List<Scholarship> kScholarships = [
     provider: 'Chamber of Commerce',
     location: 'MALTA',
     amount: 4000,
-    minGrade: 80,
     subjects: ['Business', 'Economics', 'Finance', 'Management', 'Accounting'],
     description:
         'Awarded to ambitious business students who demonstrate leadership and financial acumen.',
@@ -86,7 +80,6 @@ const List<Scholarship> kScholarships = [
     provider: 'National Health Foundation',
     location: 'EUROPE',
     amount: 6000,
-    minGrade: 88,
     subjects: ['Medicine', 'Nursing', 'Pharmacy', 'Physiotherapy', 'Biology'],
     description:
         'Supporting future healthcare professionals with exceptional academic records.',
@@ -97,7 +90,6 @@ const List<Scholarship> kScholarships = [
     provider: 'Student Finance Malta',
     location: 'GLOBAL',
     amount: 1500,
-    minGrade: 65,
     subjects: ['All Subjects'],
     description:
         'Open to all students regardless of subject, based purely on academic achievement.',
@@ -138,7 +130,6 @@ class MatchPage extends StatefulWidget {
 }
 
 class _MatchPageState extends State<MatchPage> {
-  final _gradeCtrl = TextEditingController();
   String _subject = 'Computer Engineering';
   String _location = 'Malta';
   List<Scholarship>? _results;
@@ -146,30 +137,18 @@ class _MatchPageState extends State<MatchPage> {
 
   @override
   void dispose() {
-    _gradeCtrl.dispose();
     super.dispose();
   }
 
   void _findMatches() {
-    final grade = double.tryParse(_gradeCtrl.text.trim());
-    if (grade == null || grade < 0 || grade > 100) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter a valid grade between 0 and 100.'),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
-      return;
-    }
     FocusScope.of(context).unfocus();
     setState(() {
       _searched = true;
       _results = kScholarships.where((s) {
-        final gradeOk = grade >= s.minGrade;
         final subjectOk =
             s.subjects.contains('All Subjects') ||
             s.subjects.contains(_subject);
-        return gradeOk && subjectOk;
+        return subjectOk;
       }).toList();
     });
   }
@@ -194,7 +173,7 @@ class _MatchPageState extends State<MatchPage> {
             ),
             const SizedBox(height: 4),
             const Text(
-              'Find opportunities based on your grades and background.',
+              'Find opportunities based on your background and subjects.',
               style: TextStyle(color: Colors.grey, fontSize: 16),
             ),
             const SizedBox(height: 24),
@@ -225,38 +204,6 @@ class _MatchPageState extends State<MatchPage> {
                     ),
                   ),
                   const SizedBox(height: 20),
-
-                  // Grade field
-                  const Text(
-                    'AVERAGE GRADE (%)',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.grey,
-                      letterSpacing: 0.8,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: _gradeCtrl,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: 'e.g. 85',
-                      filled: true,
-                      fillColor: Theme.of(context).colorScheme.surface,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 14,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
 
                   // Subject dropdown
                   const Text(
@@ -427,7 +374,7 @@ class _MatchPageState extends State<MatchPage> {
                       ),
                       const SizedBox(height: 4),
                       const Text(
-                        'Try a different subject or improve your grade to unlock more scholarships.',
+                        'Try a different subject to unlock more scholarships.',
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.grey, fontSize: 15),
                       ),
@@ -505,16 +452,7 @@ class _ScholarshipCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   // Tags
-                  Row(
-                    children: [
-                      _Tag(Icons.location_on_outlined, s.location),
-                      const SizedBox(width: 8),
-                      _Tag(
-                        Icons.check_circle_outline,
-                        'MIN ${s.minGrade.toInt()}%',
-                      ),
-                    ],
-                  ),
+                  Row(children: [_Tag(Icons.location_on_outlined, s.location)]),
                   const SizedBox(height: 10),
                   Text(
                     s.description,
@@ -582,10 +520,6 @@ class _ScholarshipCard extends StatelessWidget {
             ),
             Text(
               'Provider: ${s.provider}',
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-            Text(
-              'Min Grade: ${s.minGrade.toInt()}%',
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ],

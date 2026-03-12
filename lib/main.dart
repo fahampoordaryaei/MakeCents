@@ -12,6 +12,7 @@ import 'startup_page.dart';
 import 'theme_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'user_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,6 +29,7 @@ void main() async {
         ChangeNotifierProvider.value(value: transactionProvider),
         ChangeNotifierProvider.value(value: budgetProvider),
         ChangeNotifierProvider.value(value: themeProvider),
+        ChangeNotifierProvider(create: (_) => UserProvider()),
       ],
       child: const MakeCentsApp(),
     ),

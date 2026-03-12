@@ -1,3 +1,69 @@
+extend type Course {
+  """
+  ✨ List `User` objects in a one-to-many relationship (where `User`.`course` is this object).
+  """
+  users_on_course(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: User_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [User_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: User_Having
+  ): [User!]! @fdc_generated(from: "User.course", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "Course", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `Course` table.
+  """
+  _count: Int! @fdc_generated(from: "Course.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Course` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Course.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Course` table where the `name` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  name_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Course.name", purpose: QUERY_COUNT)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "Course.id", purpose: GLOBAL_ID)
+}
 extend type Institution {
   """
   Implicit metadata field that cannot be written. It provides extra information about query results.
@@ -76,14 +142,14 @@ extend type PointsBalance {
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "PointsBalance.updatedAt", purpose: QUERY_COUNT)
   """
-  ✨ Count the number of rows in the `PointsBalance` table where the `userId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  ✨ Count the number of rows in the `PointsBalance` table where the `userUsername` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
-  userId_count(
+  userUsername_count(
     """
     Set to true to count the number of distinct values.
     """
     distinct: Boolean = false
-  ): Int! @fdc_generated(from: "PointsBalance.userId", purpose: QUERY_COUNT)
+  ): Int! @fdc_generated(from: "PointsBalance.userUsername", purpose: QUERY_COUNT)
   """
   ✨ Sum the `totalPoints` field in the `PointsBalance` table.
   """
@@ -169,14 +235,14 @@ extend type PointsTransaction {
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "PointsTransaction.reason", purpose: QUERY_COUNT)
   """
-  ✨ Count the number of rows in the `PointsTransaction` table where the `userId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  ✨ Count the number of rows in the `PointsTransaction` table where the `userUsername` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
-  userId_count(
+  userUsername_count(
     """
     Set to true to count the number of distinct values.
     """
     distinct: Boolean = false
-  ): Int! @fdc_generated(from: "PointsTransaction.userId", purpose: QUERY_COUNT)
+  ): Int! @fdc_generated(from: "PointsTransaction.userUsername", purpose: QUERY_COUNT)
   """
   ✨ Sum the `amount` field in the `PointsTransaction` table.
   """
@@ -389,14 +455,14 @@ extend type ScholarshipApplication {
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "ScholarshipApplication.status", purpose: QUERY_COUNT)
   """
-  ✨ Count the number of rows in the `ScholarshipApplication` table where the `userId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  ✨ Count the number of rows in the `ScholarshipApplication` table where the `userUsername` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
-  userId_count(
+  userUsername_count(
     """
     Set to true to count the number of distinct values.
     """
     distinct: Boolean = false
-  ): Int! @fdc_generated(from: "ScholarshipApplication.userId", purpose: QUERY_COUNT)
+  ): Int! @fdc_generated(from: "ScholarshipApplication.userUsername", purpose: QUERY_COUNT)
   """
   ✨ Minimum of the `appliedAt` field in the `ScholarshipApplication` table.
   """
@@ -409,6 +475,72 @@ extend type ScholarshipApplication {
   A generated field that is used for caching results in SDKs.
   """
   _id: ID! @fdc_generated(from: "ScholarshipApplication.id", purpose: GLOBAL_ID)
+}
+extend type School {
+  """
+  ✨ List `User` objects in a one-to-many relationship (where `User`.`school` is this object).
+  """
+  users_on_school(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: User_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [User_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: User_Having
+  ): [User!]! @fdc_generated(from: "User.school", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "School", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `School` table.
+  """
+  _count: Int! @fdc_generated(from: "School.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `School` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "School.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `School` table where the `name` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  name_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "School.name", purpose: QUERY_COUNT)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "School.id", purpose: GLOBAL_ID)
 }
 extend type Transaction {
   """
@@ -474,14 +606,14 @@ extend type Transaction {
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "Transaction.id", purpose: QUERY_COUNT)
   """
-  ✨ Count the number of rows in the `Transaction` table where the `userId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  ✨ Count the number of rows in the `Transaction` table where the `userUsername` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
-  userId_count(
+  userUsername_count(
     """
     Set to true to count the number of distinct values.
     """
     distinct: Boolean = false
-  ): Int! @fdc_generated(from: "Transaction.userId", purpose: QUERY_COUNT)
+  ): Int! @fdc_generated(from: "Transaction.userUsername", purpose: QUERY_COUNT)
   """
   ✨ Sum the `amount` field in the `Transaction` table.
   """
@@ -675,6 +807,15 @@ extend type User {
   """
   _count: Int! @fdc_generated(from: "User.", purpose: QUERY_COUNT)
   """
+  ✨ Count the number of rows in the `User` table where the `courseId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  courseId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.courseId", purpose: QUERY_COUNT)
+  """
   ✨ Count the number of rows in the `User` table where the `createdAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
   createdAt_count(
@@ -693,14 +834,59 @@ extend type User {
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "User.email", purpose: QUERY_COUNT)
   """
-  ✨ Count the number of rows in the `User` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  ✨ Count the number of rows in the `User` table where the `firstName` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
-  id_count(
+  firstName_count(
     """
     Set to true to count the number of distinct values.
     """
     distinct: Boolean = false
-  ): Int! @fdc_generated(from: "User.id", purpose: QUERY_COUNT)
+  ): Int! @fdc_generated(from: "User.firstName", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `lastName` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  lastName_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.lastName", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `monthlyBudget` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  monthlyBudget_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.monthlyBudget", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `otherCourse` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  otherCourse_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.otherCourse", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `otherSchool` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  otherSchool_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.otherSchool", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `schoolId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  schoolId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.schoolId", purpose: QUERY_COUNT)
   """
   ✨ Count the number of rows in the `User` table where the `username` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
@@ -711,15 +897,41 @@ extend type User {
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "User.username", purpose: QUERY_COUNT)
   """
+  ✨ Sum the `monthlyBudget` field in the `User` table.
+  """
+  monthlyBudget_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "User.monthlyBudget", purpose: QUERY_SUM)
+  """
+  ✨ Average the `monthlyBudget` field in the `User` table.
+  """
+  monthlyBudget_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "User.monthlyBudget", purpose: QUERY_AVG)
+  """
   ✨ Minimum of the `createdAt` field in the `User` table.
   """
   createdAt_min: Timestamp @fdc_generated(from: "User.createdAt", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `monthlyBudget` field in the `User` table.
+  """
+  monthlyBudget_min: Float @fdc_generated(from: "User.monthlyBudget", purpose: QUERY_MIN)
   """
   ✨ Maximum of the `createdAt` field in the `User` table.
   """
   createdAt_max: Timestamp @fdc_generated(from: "User.createdAt", purpose: QUERY_MAX)
   """
+  ✨ Maximum of the `monthlyBudget` field in the `User` table.
+  """
+  monthlyBudget_max: Float @fdc_generated(from: "User.monthlyBudget", purpose: QUERY_MAX)
+  """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "User.id", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "User.username", purpose: GLOBAL_ID)
 }

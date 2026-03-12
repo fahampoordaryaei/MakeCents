@@ -83,5 +83,4 @@ class DefaultFirebaseOptions {
     authDomain: 'makecents-b0fb9.firebaseapp.com',
     storageBucket: 'makecents-b0fb9.firebasestorage.app',
   );
-
 }

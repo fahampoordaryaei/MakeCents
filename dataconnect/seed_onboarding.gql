@@ -9,7 +9,8 @@ mutation SeedOnboardingData @transaction @auth(level: USER, insecureReason: "See
     { name: "American University of Malta (AUM)" },
     { name: "London School of Commerce Malta" },
     { name: "Middlesex University Malta" },
-    { name: "Pegaso International" }
+    { name: "Pegaso International" },
+    { name: "Other" }
   ])
   course_insertMany(data: [
     { name: "Computer Science" },
@@ -41,6 +42,7 @@ mutation SeedOnboardingData @transaction @auth(level: USER, insecureReason: "See
     { name: "Psychology" },
     { name: "Sociology" },
     { name: "Hospitality" },
-    { name: "Tourism" }
+    { name: "Tourism" },
+    { name: "Other" }
   ])
 }

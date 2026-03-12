@@ -1,6 +1,22 @@
+# Operation 4: List all available schools
+query ListSchools @auth(level: PUBLIC) {
+  schools(orderBy: [{name: ASC}]) {
+    id
+    name
+  }
+}
+
+# Operation 5: List all available courses
+query ListCourses @auth(level: PUBLIC) {
+  courses(orderBy: [{name: ASC}]) {
+    id
+    name
+  }
+}
+
 # Operation 1: List all transactions for a user
-query ListUserTransactions($userId: UUID!) @auth(level: USER) {
-  transactions(where: {userId: {eq: $userId}}, orderBy: [{date: DESC}]) {
+query ListUserTransactions($userId: String!) @auth(level: USER) {
+  transactions(where: {userUsername: {eq: $userId}}, orderBy: [{date: DESC}]) {
     id
     amount
     description
@@ -10,8 +26,8 @@ query ListUserTransactions($userId: UUID!) @auth(level: USER) {
 }
 
 # Operation 2: Get a user's total points balance
-query GetUserPoints($userId: UUID!) @auth(level: USER) {
-  pointsBalances(where: {userId: {eq: $userId}}) {
+query GetUserPoints($userId: String!) @auth(level: USER) {
+  pointsBalances(where: {userUsername: {eq: $userId}}) {
     id
     totalPoints
     updatedAt
@@ -20,18 +36,66 @@ query GetUserPoints($userId: UUID!) @auth(level: USER) {
 
 # Operation 3: Add a new transaction
 mutation AddTransaction(
-  $userId: UUID!,
+  $userId: String!,
   $category: String!,
   $amount: Float!,
   $description: String,
   $date: Date!
 ) @auth(level: USER) {
   transaction_insert(data: {
-    userId: $userId,
+    userUsername: $userId,
     category: $category,
     amount: $amount,
     description: $description,
     date: $date,
     createdAt_expr: "request.time"
   })
+}
+
+# Operation 6: Create or update a user profile
+mutation StoreUserProfile(
+  $username: String!,
+  $email: String!,
+  $firstName: String!,
+  $lastName: String!,
+  $schoolId: UUID,
+  $courseId: UUID,
+  $otherSchool: String,
+  $otherCourse: String,
+  $monthlyBudget: Float
+) @auth(level: USER) {
+  user_upsert(data: {
+    username: $username,
+    email: $email,
+    firstName: $firstName,
+    lastName: $lastName,
+    schoolId: $schoolId,
+    courseId: $courseId,
+    otherSchool: $otherSchool,
+    otherCourse: $otherCourse,
+    monthlyBudget: $monthlyBudget,
+    createdAt_expr: "request.time"
+  })
+}
+
+# Operation 8: Delete a transaction
+mutation DeleteTransaction($id: UUID!) @auth(level: USER) {
+  transaction_delete(key: {id: $id})
+}
+
+# Operation 7: Get user profile info
+query GetUserProfile($username: String!) @auth(level: USER) {
+  users(where: {username: {eq: $username}}) {
+    firstName
+    lastName
+    monthlyBudget
+    otherSchool
+    otherCourse
+    school {
+      name
+    }
+    course {
+      name
+    }
+  }
 }

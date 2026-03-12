@@ -39,16 +39,22 @@ class TransactionProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final query = ExampleConnector.instance.listUserTransactions(userId: user.uid);
+      final query = ExampleConnector.instance.listUserTransactions(
+        userId: user.uid,
+      );
       final response = await query.execute();
-      
-      _transactions = response.data.transactions.map((t) => Transaction(
-        id: t.id,
-        title: t.description ?? t.category,
-        amount: t.amount,
-        date: t.date,
-        category: t.category,
-      )).toList();
+
+      _transactions = response.data.transactions
+          .map(
+            (t) => Transaction(
+              id: t.id,
+              title: t.description ?? t.category,
+              amount: t.amount,
+              date: t.date,
+              category: t.category,
+            ),
+          )
+          .toList();
     } catch (e) {
       debugPrint("Error fetching transactions: $e");
     } finally {
@@ -65,25 +71,30 @@ class TransactionProvider with ChangeNotifier {
   }) async {
     final user = auth.FirebaseAuth.instance.currentUser;
     if (user == null) return;
-    
+
     // Optimistic UI update
     final tempId = DateTime.now().toString();
-    _transactions.insert(0, Transaction(
-      id: tempId,
-      title: title,
-      amount: amount,
-      date: date,
-      category: category,
-    ));
+    _transactions.insert(
+      0,
+      Transaction(
+        id: tempId,
+        title: title,
+        amount: amount,
+        date: date,
+        category: category,
+      ),
+    );
     notifyListeners();
 
     try {
-      final mutation = ExampleConnector.instance.addTransaction(
-        userId: user.uid,
-        category: category, 
-        amount: amount,
-        date: date,
-      ).description(title);
+      final mutation = ExampleConnector.instance
+          .addTransaction(
+            userId: user.uid,
+            category: category,
+            amount: amount,
+            date: date,
+          )
+          .description(title);
 
       await mutation.execute();
       // Only refetch if we need the real DB ID immediately, otherwise optimistic update holds
@@ -98,10 +109,28 @@ class TransactionProvider with ChangeNotifier {
 
   Future<void> removeTransaction(int index) async {
     if (index < 0 || index >= _transactions.length) return;
-    
-    // Note: We need a GraphQL mutation for deleting transactions to implement this cleanly in the DB.
-    // For now, Just removing locally.
+
+    final user = auth.FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final removedTx = _transactions[index];
+    final removedId = removedTx.id;
+
+    // Optimistic UI update
     _transactions.removeAt(index);
     notifyListeners();
+
+    try {
+      await ExampleConnector.instance
+          .deleteTransaction(id: removedId)
+          .execute();
+      debugPrint("Successfully deleted transaction: $removedId");
+    } catch (e) {
+      debugPrint("Error deleting transaction: $e");
+      // Revert optimistic update
+      _transactions.insert(index, removedTx);
+      notifyListeners();
+      rethrow;
+    }
   }
 }

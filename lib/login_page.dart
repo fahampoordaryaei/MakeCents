@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'main.dart';
 import 'startup_page.dart';
 
@@ -13,79 +13,38 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
-  final _otpCtrls = List.generate(4, (_) => TextEditingController());
-  final _otpFocus = List.generate(4, (_) => FocusNode());
   String _error = '';
-  bool _show2fa = false;
   bool _obscure = true;
-  int _fails = 0;
-  DateTime? _lockedUntil;
+  bool _isLoading = false;
 
   @override
   void dispose() {
     _emailCtrl.dispose();
     _passwordCtrl.dispose();
-    for (var c in _otpCtrls) {
-      c.dispose();
-    }
-    for (var f in _otpFocus) {
-      f.dispose();
-    }
     super.dispose();
   }
 
-  void _signIn() {
+  Future<void> _signIn() async {
+    final email = _emailCtrl.text.trim();
+    final pass = _passwordCtrl.text;
+
+    if (email.isEmpty || pass.isEmpty) {
+      setState(() => _error = 'Please fill out all fields.');
+      return;
+    }
+
     setState(() {
-      if (_lockedUntil != null && DateTime.now().isBefore(_lockedUntil!)) {
-        _error =
-            'Account locked until ${DateFormat.Hms().format(_lockedUntil!.toLocal())}';
-        return;
-      }
-      final email = _emailCtrl.text.trim();
-      final pass = _passwordCtrl.text;
-      if (email.isEmpty || pass.isEmpty) {
-        _error = 'Please fill out all fields.';
-        return;
-      }
-      if (!RegExp(r'^[^@]+@[^@]+\.[^@]+$').hasMatch(email)) {
-        _error = 'Please enter a valid email address.';
-        return;
-      }
-
-      const hardUser = 'admin@example.com';
-      const hardPass = 'Password1234!';
-
-      if (email.toLowerCase() != hardUser.toLowerCase() || pass != hardPass) {
-        _fails++;
-        if (_fails >= 3) {
-          _lockedUntil = DateTime.now().add(const Duration(minutes: 5));
-          _error =
-              'Too many failed attempts. Locked until ${DateFormat.Hms().format(_lockedUntil!.toLocal())}';
-        } else {
-          _error = email.toLowerCase() != hardUser.toLowerCase()
-              ? 'Student not found. ${3 - _fails} attempts remaining.'
-              : 'Invalid credentials. ${3 - _fails} attempts remaining.';
-        }
-        return;
-      }
-      _fails = 0;
       _error = '';
-      _show2fa = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (_otpFocus.isNotEmpty) _otpFocus[0].requestFocus();
-      });
+      _isLoading = true;
     });
-  }
 
-  void _verifyOtp() {
-    setState(() {
-      final code = _otpCtrls.map((c) => c.text).join();
-      if (code.length < 4) {
-        _error = 'Please enter the 4-digit code.';
-        return;
-      }
-      if (code == '1234') {
-        _error = '';
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: pass,
+      );
+
+      if (mounted) {
         Navigator.of(context).pushAndRemoveUntil(
           PageRouteBuilder(
             pageBuilder: (_, a, _) => const HomeScreen(),
@@ -95,14 +54,20 @@ class _LoginPageState extends State<LoginPage> {
           ),
           (r) => false,
         );
-      } else {
-        _error = 'Invalid 2FA code.';
-        for (var c in _otpCtrls) {
-          c.clear();
-        }
-        _otpFocus[0].requestFocus();
       }
-    });
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _error = e.message ?? 'An error occurred during sign in.';
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = 'An unexpected error occurred.';
+        _isLoading = false;
+      });
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -132,7 +97,7 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 8),
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 300),
-                  child: _show2fa ? _build2fa() : _buildLogin(),
+                  child: _buildLogin(),
                 ),
                 if (_error.isNotEmpty) ...[
                   const SizedBox(height: 12),
@@ -229,31 +194,43 @@ class _LoginPageState extends State<LoginPage> {
               borderRadius: BorderRadius.circular(14),
             ),
           ),
-          child: const Text(
-            'Sign In',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-          ),
+          child: _isLoading
+              ? const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
+                )
+              : const Text(
+                  'Sign In',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                ),
         ),
       ),
       const SizedBox(height: 12),
       TextButton(
         onPressed: () {
-          _emailCtrl.text = 'admin@example.com';
-          _passwordCtrl.text = 'Password1234!';
-          _signIn();
-
-          if (_error.isEmpty) {
-            for (var i = 0; i < 4; i++) {
-              _otpCtrls[i].text = '${i + 1}';
-            }
-            _verifyOtp();
-          }
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => const StartupPage(),
+            ), // Actually should just be a link to sign up maybe
+          );
         },
-        child: const Text(
-          'Admin Login',
-          style: TextStyle(
-            color: Color(0xFF3e7f3f),
-            fontWeight: FontWeight.w600,
+        child: Text.rich(
+          TextSpan(
+            text: "Don't have an account? ",
+            style: const TextStyle(color: Colors.grey),
+            children: [
+              TextSpan(
+                text: 'Sign Up',
+                style: TextStyle(
+                  color: const Color(0xFF3e7f3f),
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -296,81 +273,4 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
-
-  Widget _build2fa() => Column(
-    key: const ValueKey('2fa'),
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: const Color(0xFFEEFBF1),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: const Icon(
-          Icons.phone_android,
-          color: Color(0xFF3e7f3f),
-          size: 40,
-        ),
-      ),
-      const SizedBox(height: 24),
-      Text(
-        'Two-Factor Auth',
-        style: TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.w800,
-          color: Theme.of(context).colorScheme.onSurface,
-        ),
-      ),
-      const SizedBox(height: 6),
-      const Text(
-        "We've sent a 4-digit code to your phone.",
-        style: TextStyle(fontSize: 16, color: Colors.grey),
-        textAlign: TextAlign.center,
-      ),
-      const SizedBox(height: 28),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: List.generate(
-          4,
-          (i) => SizedBox(
-            width: 62,
-            child: TextFormField(
-              controller: _otpCtrls[i],
-              focusNode: _otpFocus[i],
-              textAlign: TextAlign.center,
-              keyboardType: TextInputType.number,
-              maxLength: 1,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
-              decoration: InputDecoration(
-                counterText: '',
-                filled: true,
-                fillColor: Theme.of(context).scaffoldBackgroundColor,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              onChanged: (v) {
-                if (v.isNotEmpty) {
-                  if (i + 1 < _otpFocus.length) {
-                    _otpFocus[i + 1].requestFocus();
-                  } else {
-                    _otpFocus[i].unfocus();
-                  }
-                  final code = _otpCtrls.map((c) => c.text).join();
-                  if (code.length == 4) _verifyOtp();
-                } else {
-                  if (i > 0) {
-                    _otpFocus[i - 1].requestFocus();
-                  }
-                }
-              },
-            ),
-          ),
-        ),
-      ),
-    ],
-  );
 }
