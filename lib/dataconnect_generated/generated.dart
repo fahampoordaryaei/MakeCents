@@ -30,8 +30,8 @@ class ExampleConnector {
   }
   
   
-  AddTransactionVariablesBuilder addTransaction ({required String userId, required String bankAccountId, required String categoryId, required double amount, required DateTime date, }) {
-    return AddTransactionVariablesBuilder(dataConnect, userId: userId,bankAccountId: bankAccountId,categoryId: categoryId,amount: amount,date: date,);
+  AddTransactionVariablesBuilder addTransaction ({required String userId, required String category, required double amount, required DateTime date, }) {
+    return AddTransactionVariablesBuilder(dataConnect, userId: userId,category: category,amount: amount,date: date,);
   }
   
   

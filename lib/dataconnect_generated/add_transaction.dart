@@ -2,8 +2,7 @@ part of 'generated.dart';
 
 class AddTransactionVariablesBuilder {
   String userId;
-  String bankAccountId;
-  String categoryId;
+  String category;
   double amount;
   Optional<String> _description = Optional.optional(nativeFromJson, nativeToJson);
   DateTime date;
@@ -13,7 +12,7 @@ class AddTransactionVariablesBuilder {
    return this;
   }
 
-  AddTransactionVariablesBuilder(this._dataConnect, {required  this.userId,required  this.bankAccountId,required  this.categoryId,required  this.amount,required  this.date,});
+  AddTransactionVariablesBuilder(this._dataConnect, {required  this.userId,required  this.category,required  this.amount,required  this.date,});
   Deserializer<AddTransactionData> dataDeserializer = (dynamic json)  => AddTransactionData.fromJson(jsonDecode(json));
   Serializer<AddTransactionVariables> varsSerializer = (AddTransactionVariables vars) => jsonEncode(vars.toJson());
   Future<OperationResult<AddTransactionData, AddTransactionVariables>> execute() {
@@ -21,7 +20,7 @@ class AddTransactionVariablesBuilder {
   }
 
   MutationRef<AddTransactionData, AddTransactionVariables> ref() {
-    AddTransactionVariables vars= AddTransactionVariables(userId: userId,bankAccountId: bankAccountId,categoryId: categoryId,amount: amount,description: _description,date: date,);
+    AddTransactionVariables vars= AddTransactionVariables(userId: userId,category: category,amount: amount,description: _description,date: date,);
     return _dataConnect.mutation("AddTransaction", dataDeserializer, varsSerializer, vars);
   }
 }
@@ -97,8 +96,7 @@ class AddTransactionData {
 @immutable
 class AddTransactionVariables {
   final String userId;
-  final String bankAccountId;
-  final String categoryId;
+  final String category;
   final double amount;
   late final Optional<String>description;
   final DateTime date;
@@ -106,11 +104,9 @@ class AddTransactionVariables {
   AddTransactionVariables.fromJson(Map<String, dynamic> json):
   
   userId = nativeFromJson<String>(json['userId']),
-  bankAccountId = nativeFromJson<String>(json['bankAccountId']),
-  categoryId = nativeFromJson<String>(json['categoryId']),
+  category = nativeFromJson<String>(json['category']),
   amount = nativeFromJson<double>(json['amount']),
   date = nativeFromJson<DateTime>(json['date']) {
-  
   
   
   
@@ -132,22 +128,20 @@ class AddTransactionVariables {
 
     final AddTransactionVariables otherTyped = other as AddTransactionVariables;
     return userId == otherTyped.userId && 
-    bankAccountId == otherTyped.bankAccountId && 
-    categoryId == otherTyped.categoryId && 
+    category == otherTyped.category && 
     amount == otherTyped.amount && 
     description == otherTyped.description && 
     date == otherTyped.date;
     
   }
   @override
-  int get hashCode => Object.hashAll([userId.hashCode, bankAccountId.hashCode, categoryId.hashCode, amount.hashCode, description.hashCode, date.hashCode]);
+  int get hashCode => Object.hashAll([userId.hashCode, category.hashCode, amount.hashCode, description.hashCode, date.hashCode]);
   
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
     json['userId'] = nativeToJson<String>(userId);
-    json['bankAccountId'] = nativeToJson<String>(bankAccountId);
-    json['categoryId'] = nativeToJson<String>(categoryId);
+    json['category'] = nativeToJson<String>(category);
     json['amount'] = nativeToJson<double>(amount);
     if(description.state == OptionalState.set) {
       json['description'] = description.toJson();
@@ -158,8 +152,7 @@ class AddTransactionVariables {
 
   AddTransactionVariables({
     required this.userId,
-    required this.bankAccountId,
-    required this.categoryId,
+    required this.category,
     required this.amount,
     required this.description,
     required this.date,

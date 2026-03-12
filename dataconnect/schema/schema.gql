@@ -9,23 +9,9 @@ type Institution @table {
   location: String
 }
 
-type BankAccount @table {
-  user: User!
-  name: String!
-  balance: Float!
-  createdAt: Timestamp!
-}
-
-type Category @table {
-  user: User!
-  name: String!
-  color: String
-}
-
 type Transaction @table {
   user: User!
-  bankAccount: BankAccount!
-  category: Category!
+  category: String!
   amount: Float!
   description: String
   date: Date!

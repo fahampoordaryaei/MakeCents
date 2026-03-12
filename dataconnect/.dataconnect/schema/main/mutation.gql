@@ -1,23 +1,5 @@
 extend type Mutation {
   """
-  ✨ Insert a single `BankAccount` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
-  """
-  bankAccount_insert(
-    """
-    Data object to insert into the table.
-    """
-    data: BankAccount_Data!
-  ): BankAccount_KeyOutput! @fdc_generated(from: "BankAccount", purpose: INSERT_SINGLE)
-  """
-  ✨ Insert a single `Category` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
-  """
-  category_insert(
-    """
-    Data object to insert into the table.
-    """
-    data: Category_Data!
-  ): Category_KeyOutput! @fdc_generated(from: "Category", purpose: INSERT_SINGLE)
-  """
   ✨ Insert a single `Institution` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
   """
   institution_insert(
@@ -80,24 +62,6 @@ extend type Mutation {
     """
     data: User_Data!
   ): User_KeyOutput! @fdc_generated(from: "User", purpose: INSERT_SINGLE)
-  """
-  ✨ Insert `BankAccount` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
-  """
-  bankAccount_insertMany(
-    """
-    List of data objects to insert into the table.
-    """
-    data: [BankAccount_Data!]!
-  ): [BankAccount_KeyOutput!]! @fdc_generated(from: "BankAccount", purpose: INSERT_MULTIPLE)
-  """
-  ✨ Insert `Category` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
-  """
-  category_insertMany(
-    """
-    List of data objects to insert into the table.
-    """
-    data: [Category_Data!]!
-  ): [Category_KeyOutput!]! @fdc_generated(from: "Category", purpose: INSERT_MULTIPLE)
   """
   ✨ Insert `Institution` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
   """
@@ -162,24 +126,6 @@ extend type Mutation {
     data: [User_Data!]!
   ): [User_KeyOutput!]! @fdc_generated(from: "User", purpose: INSERT_MULTIPLE)
   """
-  ✨ Insert or update a single `BankAccount` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `BankAccount`.
-  """
-  bankAccount_upsert(
-    """
-    Data object to insert or update if it already exists.
-    """
-    data: BankAccount_Data!
-  ): BankAccount_KeyOutput! @fdc_generated(from: "BankAccount", purpose: UPSERT_SINGLE)
-  """
-  ✨ Insert or update a single `Category` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Category`.
-  """
-  category_upsert(
-    """
-    Data object to insert or update if it already exists.
-    """
-    data: Category_Data!
-  ): Category_KeyOutput! @fdc_generated(from: "Category", purpose: UPSERT_SINGLE)
-  """
   ✨ Insert or update a single `Institution` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Institution`.
   """
   institution_upsert(
@@ -243,24 +189,6 @@ extend type Mutation {
     data: User_Data!
   ): User_KeyOutput! @fdc_generated(from: "User", purpose: UPSERT_SINGLE)
   """
-  ✨ Insert or update `BankAccount` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `BankAccount`.
-  """
-  bankAccount_upsertMany(
-    """
-    List of data objects to insert or update if it already exists.
-    """
-    data: [BankAccount_Data!]!
-  ): [BankAccount_KeyOutput!]! @fdc_generated(from: "BankAccount", purpose: UPSERT_MULTIPLE)
-  """
-  ✨ Insert or update `Category` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Category`.
-  """
-  category_upsertMany(
-    """
-    List of data objects to insert or update if it already exists.
-    """
-    data: [Category_Data!]!
-  ): [Category_KeyOutput!]! @fdc_generated(from: "Category", purpose: UPSERT_MULTIPLE)
-  """
   ✨ Insert or update `Institution` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Institution`.
   """
   institution_upsertMany(
@@ -323,54 +251,6 @@ extend type Mutation {
     """
     data: [User_Data!]!
   ): [User_KeyOutput!]! @fdc_generated(from: "User", purpose: UPSERT_MULTIPLE)
-  """
-  ✨ Update a single `BankAccount` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `BankAccount` or `null` if not found.
-  """
-  bankAccount_update(
-    """
-    The unique ID of the object.
-    """
-    id: UUID
-
-    """
-    The key used to identify the object.
-    """
-    key: BankAccount_Key
-
-    """
-    Fetch the first row based on the filters and ordering.
-    """
-    first: BankAccount_FirstRow
-
-    """
-    Data object containing fields to be updated.
-    """
-    data: BankAccount_Data!
-  ): BankAccount_KeyOutput @fdc_generated(from: "BankAccount", purpose: UPDATE_SINGLE)
-  """
-  ✨ Update a single `Category` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `Category` or `null` if not found.
-  """
-  category_update(
-    """
-    The unique ID of the object.
-    """
-    id: UUID
-
-    """
-    The key used to identify the object.
-    """
-    key: Category_Key
-
-    """
-    Fetch the first row based on the filters and ordering.
-    """
-    first: Category_FirstRow
-
-    """
-    Data object containing fields to be updated.
-    """
-    data: Category_Data!
-  ): Category_KeyOutput @fdc_generated(from: "Category", purpose: UPDATE_SINGLE)
   """
   ✨ Update a single `Institution` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `Institution` or `null` if not found.
   """
@@ -540,44 +420,6 @@ extend type Mutation {
     data: User_Data!
   ): User_KeyOutput @fdc_generated(from: "User", purpose: UPDATE_SINGLE)
   """
-  ✨ Update `BankAccount` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
-  """
-  bankAccount_updateMany(
-    """
-    Filter condition to specify which rows to update.
-    """
-    where: BankAccount_Filter
-
-    """
-    Set to true to update all rows.
-    """
-    all: Boolean = false
-
-    """
-    Data object containing fields to update.
-    """
-    data: BankAccount_Data!
-  ): Int! @fdc_generated(from: "BankAccount", purpose: UPDATE_MULTIPLE)
-  """
-  ✨ Update `Category` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
-  """
-  category_updateMany(
-    """
-    Filter condition to specify which rows to update.
-    """
-    where: Category_Filter
-
-    """
-    Set to true to update all rows.
-    """
-    all: Boolean = false
-
-    """
-    Data object containing fields to update.
-    """
-    data: Category_Data!
-  ): Int! @fdc_generated(from: "Category", purpose: UPDATE_MULTIPLE)
-  """
   ✨ Update `Institution` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
   """
   institution_updateMany(
@@ -711,44 +553,6 @@ extend type Mutation {
     data: User_Data!
   ): Int! @fdc_generated(from: "User", purpose: UPDATE_MULTIPLE)
   """
-  ✨ Delete a single `BankAccount` based on `id`, `key` or `first` and return its key (or `null` if not found).
-  """
-  bankAccount_delete(
-    """
-    The unique ID of the object.
-    """
-    id: UUID
-
-    """
-    The key used to identify the object.
-    """
-    key: BankAccount_Key
-
-    """
-    Fetch the first row based on the filters and ordering.
-    """
-    first: BankAccount_FirstRow
-  ): BankAccount_KeyOutput @fdc_generated(from: "BankAccount", purpose: DELETE_SINGLE)
-  """
-  ✨ Delete a single `Category` based on `id`, `key` or `first` and return its key (or `null` if not found).
-  """
-  category_delete(
-    """
-    The unique ID of the object.
-    """
-    id: UUID
-
-    """
-    The key used to identify the object.
-    """
-    key: Category_Key
-
-    """
-    Fetch the first row based on the filters and ordering.
-    """
-    first: Category_FirstRow
-  ): Category_KeyOutput @fdc_generated(from: "Category", purpose: DELETE_SINGLE)
-  """
   ✨ Delete a single `Institution` based on `id`, `key` or `first` and return its key (or `null` if not found).
   """
   institution_delete(
@@ -881,34 +685,6 @@ extend type Mutation {
     """
     first: User_FirstRow
   ): User_KeyOutput @fdc_generated(from: "User", purpose: DELETE_SINGLE)
-  """
-  ✨ Delete `BankAccount` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
-  """
-  bankAccount_deleteMany(
-    """
-    Filter condition to specify which rows to delete.
-    """
-    where: BankAccount_Filter
-
-    """
-    Set to true to delete all rows.
-    """
-    all: Boolean = false
-  ): Int! @fdc_generated(from: "BankAccount", purpose: DELETE_MULTIPLE)
-  """
-  ✨ Delete `Category` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
-  """
-  category_deleteMany(
-    """
-    Filter condition to specify which rows to delete.
-    """
-    where: Category_Filter
-
-    """
-    Set to true to delete all rows.
-    """
-    all: Boolean = false
-  ): Int! @fdc_generated(from: "Category", purpose: DELETE_MULTIPLE)
   """
   ✨ Delete `Institution` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
   """

@@ -23,14 +23,14 @@ class ListUserTransactionsTransactions {
   final double amount;
   final String? description;
   final DateTime date;
-  final ListUserTransactionsTransactionsCategory category;
+  final String category;
   ListUserTransactionsTransactions.fromJson(dynamic json):
   
   id = nativeFromJson<String>(json['id']),
   amount = nativeFromJson<double>(json['amount']),
   description = json['description'] == null ? null : nativeFromJson<String>(json['description']),
   date = nativeFromJson<DateTime>(json['date']),
-  category = ListUserTransactionsTransactionsCategory.fromJson(json['category']);
+  category = nativeFromJson<String>(json['category']);
   @override
   bool operator ==(Object other) {
     if(identical(this, other)) {
@@ -60,7 +60,7 @@ class ListUserTransactionsTransactions {
       json['description'] = nativeToJson<String?>(description);
     }
     json['date'] = nativeToJson<DateTime>(date);
-    json['category'] = category.toJson();
+    json['category'] = nativeToJson<String>(category);
     return json;
   }
 
@@ -70,47 +70,6 @@ class ListUserTransactionsTransactions {
     this.description,
     required this.date,
     required this.category,
-  });
-}
-
-@immutable
-class ListUserTransactionsTransactionsCategory {
-  final String name;
-  final String? color;
-  ListUserTransactionsTransactionsCategory.fromJson(dynamic json):
-  
-  name = nativeFromJson<String>(json['name']),
-  color = json['color'] == null ? null : nativeFromJson<String>(json['color']);
-  @override
-  bool operator ==(Object other) {
-    if(identical(this, other)) {
-      return true;
-    }
-    if(other.runtimeType != runtimeType) {
-      return false;
-    }
-
-    final ListUserTransactionsTransactionsCategory otherTyped = other as ListUserTransactionsTransactionsCategory;
-    return name == otherTyped.name && 
-    color == otherTyped.color;
-    
-  }
-  @override
-  int get hashCode => Object.hashAll([name.hashCode, color.hashCode]);
-  
-
-  Map<String, dynamic> toJson() {
-    Map<String, dynamic> json = {};
-    json['name'] = nativeToJson<String>(name);
-    if (color != null) {
-      json['color'] = nativeToJson<String?>(color);
-    }
-    return json;
-  }
-
-  ListUserTransactionsTransactionsCategory({
-    required this.name,
-    this.color,
   });
 }
 

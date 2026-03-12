@@ -124,14 +124,12 @@ ref.subscribe(...);
 #### Required Arguments
 ```dart
 String userId = ...;
-String bankAccountId = ...;
-String categoryId = ...;
+String category = ...;
 double amount = ...;
 DateTime date = ...;
 ExampleConnector.instance.addTransaction(
   userId: userId,
-  bankAccountId: bankAccountId,
-  categoryId: categoryId,
+  category: category,
   amount: amount,
   date: date,
 ).execute();
@@ -152,8 +150,7 @@ class AddTransactionVariablesBuilder {
 }
 ExampleConnector.instance.addTransaction(
   userId: userId,
-  bankAccountId: bankAccountId,
-  categoryId: categoryId,
+  category: category,
   amount: amount,
   date: date,
 )
@@ -174,8 +171,7 @@ class OperationResult<Data, Variables> {
 
 final result = await ExampleConnector.instance.addTransaction(
   userId: userId,
-  bankAccountId: bankAccountId,
-  categoryId: categoryId,
+  category: category,
   amount: amount,
   date: date,
 );
@@ -188,15 +184,13 @@ Each builder returns an `execute` function, which is a helper function that crea
 An example of how to use the `Ref` object is shown below:
 ```dart
 String userId = ...;
-String bankAccountId = ...;
-String categoryId = ...;
+String category = ...;
 double amount = ...;
 DateTime date = ...;
 
 final ref = ExampleConnector.instance.addTransaction(
   userId: userId,
-  bankAccountId: bankAccountId,
-  categoryId: categoryId,
+  category: category,
   amount: amount,
   date: date,
 ).ref();

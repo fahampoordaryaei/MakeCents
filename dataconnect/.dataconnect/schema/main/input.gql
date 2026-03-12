@@ -1,16 +1,4 @@
 """
-✨ `BankAccount_KeyOutput` returns the primary key fields of table type `BankAccount`.
-
-It has the same format as `BankAccount_Key`, but is only used as mutation return value.
-"""
-scalar BankAccount_KeyOutput
-"""
-✨ `Category_KeyOutput` returns the primary key fields of table type `Category`.
-
-It has the same format as `Category_Key`, but is only used as mutation return value.
-"""
-scalar Category_KeyOutput
-"""
 ✨ `Institution_KeyOutput` returns the primary key fields of table type `Institution`.
 
 It has the same format as `Institution_Key`, but is only used as mutation return value.
@@ -52,504 +40,6 @@ scalar Transaction_KeyOutput
 It has the same format as `User_Key`, but is only used as mutation return value.
 """
 scalar User_KeyOutput
-"""
-✨ Generated data input type for table 'BankAccount'. It includes all necessary fields for creating or upserting rows into table.
-"""
-input BankAccount_Data {
-  """
-  ✨ Generated from Field `BankAccount`.`id` of type `UUID!`
-  """
-  id: UUID
-  """
-  ✨ `_expr` server value variant of `id` (✨ Generated from Field `BankAccount`.`id` of type `UUID!`)
-  """
-  id_expr: UUID_Expr
-  """
-  ✨ Generated from Field `BankAccount`.`userId` of type `UUID!`
-  """
-  userId: UUID
-  """
-  ✨ `_expr` server value variant of `userId` (✨ Generated from Field `BankAccount`.`userId` of type `UUID!`)
-  """
-  userId_expr: UUID_Expr
-  """
-  ✨ Generated from Field `BankAccount`.`user` of type `User!`
-  """
-  user: User_Key
-  """
-  ✨ Generated from Field `BankAccount`.`balance` of type `Float!`
-  """
-  balance: Float
-  """
-  ✨ `_expr` server value variant of `balance` (✨ Generated from Field `BankAccount`.`balance` of type `Float!`)
-  """
-  balance_expr: Float_Expr
-  """
-  ✨ `_update` server value variant of `balance` (✨ Generated from Field `BankAccount`.`balance` of type `Float!`)
-  """
-  balance_update: [Float_Update!]
-  """
-  ✨ Generated from Field `BankAccount`.`createdAt` of type `Timestamp!`
-  """
-  createdAt: Timestamp
-  """
-  ✨ `_expr` server value variant of `createdAt` (✨ Generated from Field `BankAccount`.`createdAt` of type `Timestamp!`)
-  """
-  createdAt_expr: Timestamp_Expr
-  """
-  ✨ `_time` server value variant of `createdAt` (✨ Generated from Field `BankAccount`.`createdAt` of type `Timestamp!`)
-  """
-  createdAt_time: Timestamp_Relative
-  """
-  ✨ `_update` server value variant of `createdAt` (✨ Generated from Field `BankAccount`.`createdAt` of type `Timestamp!`)
-  """
-  createdAt_update: [Timestamp_Update!]
-  """
-  ✨ Generated from Field `BankAccount`.`name` of type `String!`
-  """
-  name: String
-  """
-  ✨ `_expr` server value variant of `name` (✨ Generated from Field `BankAccount`.`name` of type `String!`)
-  """
-  name_expr: String_Expr
-}
-"""
-✨ Generated filter input type for table 'BankAccount'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
-"""
-input BankAccount_Filter {
-  """
-  Apply multiple filter conditions using `AND` logic.
-  """
-  _and: [BankAccount_Filter!]
-  """
-  Negate the result of the provided filter condition.
-  """
-  _not: BankAccount_Filter
-  """
-  Apply multiple filter conditions using `OR` logic.
-  """
-  _or: [BankAccount_Filter!]
-  """
-  ✨ Generated from Field `BankAccount`.`id` of type `UUID!`
-  """
-  id: UUID_Filter
-  """
-  ✨ Generated from Field `BankAccount`.`userId` of type `UUID!`
-  """
-  userId: UUID_Filter
-  """
-  ✨ Generated from Field `BankAccount`.`user` of type `User!`
-  """
-  user: User_Filter
-  """
-  ✨ Generated from Field `BankAccount`.`balance` of type `Float!`
-  """
-  balance: Float_Filter
-  """
-  ✨ Generated from Field `BankAccount`.`createdAt` of type `Timestamp!`
-  """
-  createdAt: Timestamp_Filter
-  """
-  ✨ Generated from Field `BankAccount`.`name` of type `String!`
-  """
-  name: String_Filter
-  """
-  ✨ Generated from Field `BankAccount`.`transactions_on_bankAccount` of type `[Transaction!]!`
-  """
-  transactions_on_bankAccount: Transaction_ListFilter
-}
-"""
-✨ Generated first-row input type for table 'BankAccount'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
-"""
-input BankAccount_FirstRow {
-  """
-  Order the result by the specified fields.
-  """
-  orderBy: [BankAccount_Order!]
-  """
-  Filters rows based on the specified conditions.
-  """
-  where: BankAccount_Filter
-}
-"""
-✨ Generated having input type for table 'BankAccount'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
-"""
-input BankAccount_Having {
-  """
-  Apply multiple Having conditions using `AND` logic.
-  """
-  _and: [BankAccount_Having!]
-  """
-  Whether to apply DISTINCT to the aggregate function.
-  """
-  _distinct: Boolean
-  """
-  Negate the result of the provided Having condition.
-  """
-  _not: BankAccount_Having
-  """
-  Apply multiple Having conditions using `OR` logic.
-  """
-  _or: [BankAccount_Having!]
-  """
-  ✨ Generated from Field `BankAccount`.`_count` of type `Int!`
-  """
-  _count: Int_Filter
-  """
-  ✨ Generated from Field `BankAccount`.`balance_count` of type `Int!`
-  """
-  balance_count: Int_Filter
-  """
-  ✨ Generated from Field `BankAccount`.`createdAt_count` of type `Int!`
-  """
-  createdAt_count: Int_Filter
-  """
-  ✨ Generated from Field `BankAccount`.`id_count` of type `Int!`
-  """
-  id_count: Int_Filter
-  """
-  ✨ Generated from Field `BankAccount`.`name_count` of type `Int!`
-  """
-  name_count: Int_Filter
-  """
-  ✨ Generated from Field `BankAccount`.`userId_count` of type `Int!`
-  """
-  userId_count: Int_Filter
-  """
-  ✨ Generated from Field `BankAccount`.`balance_sum` of type `Float`
-  """
-  balance_sum: Float_Filter
-  """
-  ✨ Generated from Field `BankAccount`.`balance_avg` of type `Float`
-  """
-  balance_avg: Float_Filter
-  """
-  ✨ Generated from Field `BankAccount`.`balance_min` of type `Float`
-  """
-  balance_min: Float_Filter
-  """
-  ✨ Generated from Field `BankAccount`.`createdAt_min` of type `Timestamp`
-  """
-  createdAt_min: Timestamp_Filter
-  """
-  ✨ Generated from Field `BankAccount`.`balance_max` of type `Float`
-  """
-  balance_max: Float_Filter
-  """
-  ✨ Generated from Field `BankAccount`.`createdAt_max` of type `Timestamp`
-  """
-  createdAt_max: Timestamp_Filter
-}
-"""
-✨ Generated key input type for table 'BankAccount'. It represents the primary key fields used to uniquely identify a row in the table.
-"""
-input BankAccount_Key {
-  """
-  ✨ Generated from Field `BankAccount`.`id` of type `UUID!`
-  """
-  id: UUID
-  """
-  ✨ `_expr` server value variant of `id` (✨ Generated from Field `BankAccount`.`id` of type `UUID!`)
-  """
-  id_expr: UUID_Expr
-}
-"""
-✨ Generated list filter input type for table 'BankAccount'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
-"""
-input BankAccount_ListFilter {
-  """
-  The desired number of objects that match the condition (defaults to at least one).
-  """
-  count: Int_Filter = {gt:0}
-  """
-  Condition of the related objects to filter for.
-  """
-  exist: BankAccount_Filter
-}
-"""
-✨ Generated order input type for table 'BankAccount'. This input defines the sorting order of rows in query results based on one or more fields.
-"""
-input BankAccount_Order {
-  """
-  ✨ Generated from Field `BankAccount`.`id` of type `UUID!`
-  """
-  id: OrderDirection
-  """
-  ✨ Generated from Field `BankAccount`.`userId` of type `UUID!`
-  """
-  userId: OrderDirection
-  """
-  ✨ Generated from Field `BankAccount`.`user` of type `User!`
-  """
-  user: User_Order
-  """
-  ✨ Generated from Field `BankAccount`.`balance` of type `Float!`
-  """
-  balance: OrderDirection
-  """
-  ✨ Generated from Field `BankAccount`.`createdAt` of type `Timestamp!`
-  """
-  createdAt: OrderDirection
-  """
-  ✨ Generated from Field `BankAccount`.`name` of type `String!`
-  """
-  name: OrderDirection
-  """
-  ✨ Generated from Field `BankAccount`.`_count` of type `Int!`
-  """
-  _count: OrderDirection
-  """
-  ✨ Generated from Field `BankAccount`.`balance_count` of type `Int!`
-  """
-  balance_count: OrderDirection
-  """
-  ✨ Generated from Field `BankAccount`.`createdAt_count` of type `Int!`
-  """
-  createdAt_count: OrderDirection
-  """
-  ✨ Generated from Field `BankAccount`.`id_count` of type `Int!`
-  """
-  id_count: OrderDirection
-  """
-  ✨ Generated from Field `BankAccount`.`name_count` of type `Int!`
-  """
-  name_count: OrderDirection
-  """
-  ✨ Generated from Field `BankAccount`.`userId_count` of type `Int!`
-  """
-  userId_count: OrderDirection
-  """
-  ✨ Generated from Field `BankAccount`.`balance_sum` of type `Float`
-  """
-  balance_sum: OrderDirection
-  """
-  ✨ Generated from Field `BankAccount`.`balance_avg` of type `Float`
-  """
-  balance_avg: OrderDirection
-  """
-  ✨ Generated from Field `BankAccount`.`balance_min` of type `Float`
-  """
-  balance_min: OrderDirection
-  """
-  ✨ Generated from Field `BankAccount`.`createdAt_min` of type `Timestamp`
-  """
-  createdAt_min: OrderDirection
-  """
-  ✨ Generated from Field `BankAccount`.`balance_max` of type `Float`
-  """
-  balance_max: OrderDirection
-  """
-  ✨ Generated from Field `BankAccount`.`createdAt_max` of type `Timestamp`
-  """
-  createdAt_max: OrderDirection
-}
-"""
-✨ Generated data input type for table 'Category'. It includes all necessary fields for creating or upserting rows into table.
-"""
-input Category_Data {
-  """
-  ✨ Generated from Field `Category`.`id` of type `UUID!`
-  """
-  id: UUID
-  """
-  ✨ `_expr` server value variant of `id` (✨ Generated from Field `Category`.`id` of type `UUID!`)
-  """
-  id_expr: UUID_Expr
-  """
-  ✨ Generated from Field `Category`.`userId` of type `UUID!`
-  """
-  userId: UUID
-  """
-  ✨ `_expr` server value variant of `userId` (✨ Generated from Field `Category`.`userId` of type `UUID!`)
-  """
-  userId_expr: UUID_Expr
-  """
-  ✨ Generated from Field `Category`.`user` of type `User!`
-  """
-  user: User_Key
-  """
-  ✨ Generated from Field `Category`.`color` of type `String`
-  """
-  color: String
-  """
-  ✨ `_expr` server value variant of `color` (✨ Generated from Field `Category`.`color` of type `String`)
-  """
-  color_expr: String_Expr
-  """
-  ✨ Generated from Field `Category`.`name` of type `String!`
-  """
-  name: String
-  """
-  ✨ `_expr` server value variant of `name` (✨ Generated from Field `Category`.`name` of type `String!`)
-  """
-  name_expr: String_Expr
-}
-"""
-✨ Generated filter input type for table 'Category'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
-"""
-input Category_Filter {
-  """
-  Apply multiple filter conditions using `AND` logic.
-  """
-  _and: [Category_Filter!]
-  """
-  Negate the result of the provided filter condition.
-  """
-  _not: Category_Filter
-  """
-  Apply multiple filter conditions using `OR` logic.
-  """
-  _or: [Category_Filter!]
-  """
-  ✨ Generated from Field `Category`.`id` of type `UUID!`
-  """
-  id: UUID_Filter
-  """
-  ✨ Generated from Field `Category`.`userId` of type `UUID!`
-  """
-  userId: UUID_Filter
-  """
-  ✨ Generated from Field `Category`.`user` of type `User!`
-  """
-  user: User_Filter
-  """
-  ✨ Generated from Field `Category`.`color` of type `String`
-  """
-  color: String_Filter
-  """
-  ✨ Generated from Field `Category`.`name` of type `String!`
-  """
-  name: String_Filter
-  """
-  ✨ Generated from Field `Category`.`transactions_on_category` of type `[Transaction!]!`
-  """
-  transactions_on_category: Transaction_ListFilter
-}
-"""
-✨ Generated first-row input type for table 'Category'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
-"""
-input Category_FirstRow {
-  """
-  Order the result by the specified fields.
-  """
-  orderBy: [Category_Order!]
-  """
-  Filters rows based on the specified conditions.
-  """
-  where: Category_Filter
-}
-"""
-✨ Generated having input type for table 'Category'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
-"""
-input Category_Having {
-  """
-  Apply multiple Having conditions using `AND` logic.
-  """
-  _and: [Category_Having!]
-  """
-  Whether to apply DISTINCT to the aggregate function.
-  """
-  _distinct: Boolean
-  """
-  Negate the result of the provided Having condition.
-  """
-  _not: Category_Having
-  """
-  Apply multiple Having conditions using `OR` logic.
-  """
-  _or: [Category_Having!]
-  """
-  ✨ Generated from Field `Category`.`_count` of type `Int!`
-  """
-  _count: Int_Filter
-  """
-  ✨ Generated from Field `Category`.`color_count` of type `Int!`
-  """
-  color_count: Int_Filter
-  """
-  ✨ Generated from Field `Category`.`id_count` of type `Int!`
-  """
-  id_count: Int_Filter
-  """
-  ✨ Generated from Field `Category`.`name_count` of type `Int!`
-  """
-  name_count: Int_Filter
-  """
-  ✨ Generated from Field `Category`.`userId_count` of type `Int!`
-  """
-  userId_count: Int_Filter
-}
-"""
-✨ Generated key input type for table 'Category'. It represents the primary key fields used to uniquely identify a row in the table.
-"""
-input Category_Key {
-  """
-  ✨ Generated from Field `Category`.`id` of type `UUID!`
-  """
-  id: UUID
-  """
-  ✨ `_expr` server value variant of `id` (✨ Generated from Field `Category`.`id` of type `UUID!`)
-  """
-  id_expr: UUID_Expr
-}
-"""
-✨ Generated list filter input type for table 'Category'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
-"""
-input Category_ListFilter {
-  """
-  The desired number of objects that match the condition (defaults to at least one).
-  """
-  count: Int_Filter = {gt:0}
-  """
-  Condition of the related objects to filter for.
-  """
-  exist: Category_Filter
-}
-"""
-✨ Generated order input type for table 'Category'. This input defines the sorting order of rows in query results based on one or more fields.
-"""
-input Category_Order {
-  """
-  ✨ Generated from Field `Category`.`id` of type `UUID!`
-  """
-  id: OrderDirection
-  """
-  ✨ Generated from Field `Category`.`userId` of type `UUID!`
-  """
-  userId: OrderDirection
-  """
-  ✨ Generated from Field `Category`.`user` of type `User!`
-  """
-  user: User_Order
-  """
-  ✨ Generated from Field `Category`.`color` of type `String`
-  """
-  color: OrderDirection
-  """
-  ✨ Generated from Field `Category`.`name` of type `String!`
-  """
-  name: OrderDirection
-  """
-  ✨ Generated from Field `Category`.`_count` of type `Int!`
-  """
-  _count: OrderDirection
-  """
-  ✨ Generated from Field `Category`.`color_count` of type `Int!`
-  """
-  color_count: OrderDirection
-  """
-  ✨ Generated from Field `Category`.`id_count` of type `Int!`
-  """
-  id_count: OrderDirection
-  """
-  ✨ Generated from Field `Category`.`name_count` of type `Int!`
-  """
-  name_count: OrderDirection
-  """
-  ✨ Generated from Field `Category`.`userId_count` of type `Int!`
-  """
-  userId_count: OrderDirection
-}
 """
 ✨ Generated data input type for table 'Institution'. It includes all necessary fields for creating or upserting rows into table.
 """
@@ -1822,22 +1312,6 @@ input Transaction_Data {
   """
   id_expr: UUID_Expr
   """
-  ✨ Generated from Field `Transaction`.`bankAccountId` of type `UUID!`
-  """
-  bankAccountId: UUID
-  """
-  ✨ `_expr` server value variant of `bankAccountId` (✨ Generated from Field `Transaction`.`bankAccountId` of type `UUID!`)
-  """
-  bankAccountId_expr: UUID_Expr
-  """
-  ✨ Generated from Field `Transaction`.`categoryId` of type `UUID!`
-  """
-  categoryId: UUID
-  """
-  ✨ `_expr` server value variant of `categoryId` (✨ Generated from Field `Transaction`.`categoryId` of type `UUID!`)
-  """
-  categoryId_expr: UUID_Expr
-  """
   ✨ Generated from Field `Transaction`.`userId` of type `UUID!`
   """
   userId: UUID
@@ -1845,14 +1319,6 @@ input Transaction_Data {
   ✨ `_expr` server value variant of `userId` (✨ Generated from Field `Transaction`.`userId` of type `UUID!`)
   """
   userId_expr: UUID_Expr
-  """
-  ✨ Generated from Field `Transaction`.`bankAccount` of type `BankAccount!`
-  """
-  bankAccount: BankAccount_Key
-  """
-  ✨ Generated from Field `Transaction`.`category` of type `Category!`
-  """
-  category: Category_Key
   """
   ✨ Generated from Field `Transaction`.`user` of type `User!`
   """
@@ -1869,6 +1335,14 @@ input Transaction_Data {
   ✨ `_update` server value variant of `amount` (✨ Generated from Field `Transaction`.`amount` of type `Float!`)
   """
   amount_update: [Float_Update!]
+  """
+  ✨ Generated from Field `Transaction`.`category` of type `String!`
+  """
+  category: String
+  """
+  ✨ `_expr` server value variant of `category` (✨ Generated from Field `Transaction`.`category` of type `String!`)
+  """
+  category_expr: String_Expr
   """
   ✨ Generated from Field `Transaction`.`createdAt` of type `Timestamp!`
   """
@@ -1931,25 +1405,9 @@ input Transaction_Filter {
   """
   id: UUID_Filter
   """
-  ✨ Generated from Field `Transaction`.`bankAccountId` of type `UUID!`
-  """
-  bankAccountId: UUID_Filter
-  """
-  ✨ Generated from Field `Transaction`.`categoryId` of type `UUID!`
-  """
-  categoryId: UUID_Filter
-  """
   ✨ Generated from Field `Transaction`.`userId` of type `UUID!`
   """
   userId: UUID_Filter
-  """
-  ✨ Generated from Field `Transaction`.`bankAccount` of type `BankAccount!`
-  """
-  bankAccount: BankAccount_Filter
-  """
-  ✨ Generated from Field `Transaction`.`category` of type `Category!`
-  """
-  category: Category_Filter
   """
   ✨ Generated from Field `Transaction`.`user` of type `User!`
   """
@@ -1958,6 +1416,10 @@ input Transaction_Filter {
   ✨ Generated from Field `Transaction`.`amount` of type `Float!`
   """
   amount: Float_Filter
+  """
+  ✨ Generated from Field `Transaction`.`category` of type `String!`
+  """
+  category: String_Filter
   """
   ✨ Generated from Field `Transaction`.`createdAt` of type `Timestamp!`
   """
@@ -2013,13 +1475,9 @@ input Transaction_Having {
   """
   amount_count: Int_Filter
   """
-  ✨ Generated from Field `Transaction`.`bankAccountId_count` of type `Int!`
+  ✨ Generated from Field `Transaction`.`category_count` of type `Int!`
   """
-  bankAccountId_count: Int_Filter
-  """
-  ✨ Generated from Field `Transaction`.`categoryId_count` of type `Int!`
-  """
-  categoryId_count: Int_Filter
+  category_count: Int_Filter
   """
   ✨ Generated from Field `Transaction`.`createdAt_count` of type `Int!`
   """
@@ -2108,25 +1566,9 @@ input Transaction_Order {
   """
   id: OrderDirection
   """
-  ✨ Generated from Field `Transaction`.`bankAccountId` of type `UUID!`
-  """
-  bankAccountId: OrderDirection
-  """
-  ✨ Generated from Field `Transaction`.`categoryId` of type `UUID!`
-  """
-  categoryId: OrderDirection
-  """
   ✨ Generated from Field `Transaction`.`userId` of type `UUID!`
   """
   userId: OrderDirection
-  """
-  ✨ Generated from Field `Transaction`.`bankAccount` of type `BankAccount!`
-  """
-  bankAccount: BankAccount_Order
-  """
-  ✨ Generated from Field `Transaction`.`category` of type `Category!`
-  """
-  category: Category_Order
   """
   ✨ Generated from Field `Transaction`.`user` of type `User!`
   """
@@ -2135,6 +1577,10 @@ input Transaction_Order {
   ✨ Generated from Field `Transaction`.`amount` of type `Float!`
   """
   amount: OrderDirection
+  """
+  ✨ Generated from Field `Transaction`.`category` of type `String!`
+  """
+  category: OrderDirection
   """
   ✨ Generated from Field `Transaction`.`createdAt` of type `Timestamp!`
   """
@@ -2156,13 +1602,9 @@ input Transaction_Order {
   """
   amount_count: OrderDirection
   """
-  ✨ Generated from Field `Transaction`.`bankAccountId_count` of type `Int!`
+  ✨ Generated from Field `Transaction`.`category_count` of type `Int!`
   """
-  bankAccountId_count: OrderDirection
-  """
-  ✨ Generated from Field `Transaction`.`categoryId_count` of type `Int!`
-  """
-  categoryId_count: OrderDirection
+  category_count: OrderDirection
   """
   ✨ Generated from Field `Transaction`.`createdAt_count` of type `Int!`
   """
@@ -2293,14 +1735,6 @@ input User_Filter {
   ✨ Generated from Field `User`.`username` of type `String!`
   """
   username: String_Filter
-  """
-  ✨ Generated from Field `User`.`bankAccounts_on_user` of type `[BankAccount!]!`
-  """
-  bankAccounts_on_user: BankAccount_ListFilter
-  """
-  ✨ Generated from Field `User`.`categories_on_user` of type `[Category!]!`
-  """
-  categories_on_user: Category_ListFilter
   """
   ✨ Generated from Field `User`.`pointsBalances_on_user` of type `[PointsBalance!]!`
   """

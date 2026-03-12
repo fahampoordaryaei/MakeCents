@@ -5,10 +5,7 @@ query ListUserTransactions($userId: UUID!) @auth(level: USER) {
     amount
     description
     date
-    category {
-      name
-      color
-    }
+    category
   }
 }
 
@@ -24,16 +21,14 @@ query GetUserPoints($userId: UUID!) @auth(level: USER) {
 # Operation 3: Add a new transaction
 mutation AddTransaction(
   $userId: UUID!,
-  $bankAccountId: UUID!,
-  $categoryId: UUID!,
+  $category: String!,
   $amount: Float!,
   $description: String,
   $date: Date!
 ) @auth(level: USER) {
   transaction_insert(data: {
     userId: $userId,
-    bankAccountId: $bankAccountId,
-    categoryId: $categoryId,
+    category: $category,
     amount: $amount,
     description: $description,
     date: $date,

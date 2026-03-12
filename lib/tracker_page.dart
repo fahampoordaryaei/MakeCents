@@ -580,7 +580,16 @@ class _TrackerPageState extends State<TrackerPage> {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    if (txs.isEmpty)
+                    if (txP.isLoading)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 40),
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: Color(0xFF3e7f3f),
+                          ),
+                        ),
+                      )
+                    else if (txs.isEmpty)
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 24),
                         child: Center(

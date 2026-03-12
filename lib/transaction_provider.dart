@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'persistence_service.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
+import 'dataconnect_generated/generated.dart';
 
 class Transaction {
   final String id;
@@ -20,14 +21,41 @@ class Transaction {
 class TransactionProvider with ChangeNotifier {
   List<Transaction> _transactions = [];
   List<Transaction> get transactions => _transactions;
+  bool isLoading = false;
 
   Future<void> init() async {
-    _transactions = await PersistenceService.loadTransactions();
-    notifyListeners();
+    await fetchTransactions();
   }
 
-  Future<void> _save() async =>
-      PersistenceService.saveTransactions(_transactions);
+  Future<void> fetchTransactions() async {
+    final user = auth.FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      _transactions = [];
+      notifyListeners();
+      return;
+    }
+
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final query = ExampleConnector.instance.listUserTransactions(userId: user.uid);
+      final response = await query.execute();
+      
+      _transactions = response.data.transactions.map((t) => Transaction(
+        id: t.id,
+        title: t.description ?? t.category,
+        amount: t.amount,
+        date: t.date,
+        category: t.category,
+      )).toList();
+    } catch (e) {
+      debugPrint("Error fetching transactions: $e");
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
 
   Future<void> addTransaction(
     String title,
@@ -35,23 +63,45 @@ class TransactionProvider with ChangeNotifier {
     DateTime date, {
     String category = 'Other',
   }) async {
-    _transactions.add(
-      Transaction(
-        id: DateTime.now().toString(),
-        title: title,
+    final user = auth.FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    
+    // Optimistic UI update
+    final tempId = DateTime.now().toString();
+    _transactions.insert(0, Transaction(
+      id: tempId,
+      title: title,
+      amount: amount,
+      date: date,
+      category: category,
+    ));
+    notifyListeners();
+
+    try {
+      final mutation = ExampleConnector.instance.addTransaction(
+        userId: user.uid,
+        category: category, 
         amount: amount,
         date: date,
-        category: category,
-      ),
-    );
-    await _save();
-    notifyListeners();
+      ).description(title);
+
+      await mutation.execute();
+      // Only refetch if we need the real DB ID immediately, otherwise optimistic update holds
+      await fetchTransactions();
+    } catch (e) {
+      debugPrint("Error adding transaction: $e");
+      // Revert optimistic update on failure
+      _transactions.removeWhere((t) => t.id == tempId);
+      notifyListeners();
+    }
   }
 
   Future<void> removeTransaction(int index) async {
     if (index < 0 || index >= _transactions.length) return;
+    
+    // Note: We need a GraphQL mutation for deleting transactions to implement this cleanly in the DB.
+    // For now, Just removing locally.
     _transactions.removeAt(index);
-    await _save();
     notifyListeners();
   }
 }
