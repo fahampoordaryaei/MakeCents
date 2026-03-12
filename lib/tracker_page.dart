@@ -554,30 +554,47 @@ class _TrackerPageState extends State<TrackerPage> {
                         height: 200,
                         child: PieChart(
                           PieChartData(
-                            sectionsSpace: 3,
-                            centerSpaceRadius: 45,
+                            sectionsSpace: 2,
+                            centerSpaceRadius: 40,
                             sections: [
                               if (budget > 0 && available > 0)
                                 PieChartSectionData(
-                                  color: const Color(0xFFE8F5E9),
+                                  color: Colors.green.withValues(
+                                    alpha:
+                                        Theme.of(context).brightness ==
+                                            Brightness.light
+                                        ? 0.9
+                                        : 0.8,
+                                  ),
                                   value: available,
                                   title: '',
-                                  radius: 45,
+                                  radius: 50,
                                 ),
                               ...catTotals.entries.map((e) {
                                 final c = catFor(e.key);
+                                final isLarge =
+                                    e.value > (expenses + available) * 0.1;
                                 return PieChartSectionData(
                                   color: c.color,
                                   value: e.value,
-                                  title: e.value > expenses * 0.08
+                                  title: isLarge
                                       ? '\$${e.value.toStringAsFixed(0)}'
                                       : '',
-                                  radius: 55,
-                                  titleStyle: const TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w700,
+                                  radius: isLarge ? 60 : 55,
+                                  titleStyle: TextStyle(
+                                    fontSize: isLarge ? 22 : 20,
+                                    fontWeight: FontWeight.w800,
                                     color: Colors.white,
+                                    shadows: [
+                                      Shadow(
+                                        color: Colors.black.withValues(
+                                          alpha: 0.5,
+                                        ),
+                                        blurRadius: 2,
+                                      ),
+                                    ],
                                   ),
+                                  titlePositionPercentageOffset: 0.6,
                                 );
                               }),
                             ],
@@ -591,7 +608,7 @@ class _TrackerPageState extends State<TrackerPage> {
                         children: [
                           if (budget > 0)
                             _Chip(
-                              const Color(0xFFE8F5E9),
+                              Colors.green.withValues(alpha: 0.7),
                               'Available \$${available.toStringAsFixed(0)}',
                             ),
                           ...catTotals.entries.map(
