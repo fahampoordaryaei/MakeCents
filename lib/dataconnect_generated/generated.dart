@@ -3,6 +3,14 @@ import 'package:firebase_data_connect/firebase_data_connect.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 
+part 'list_user_transactions.dart';
+
+part 'get_user_points.dart';
+
+part 'add_transaction.dart';
+
+part 'seed_make_cents_database.dart';
+
 
 
 
@@ -10,6 +18,26 @@ import 'dart:convert';
 
 
 class ExampleConnector {
+  
+  
+  ListUserTransactionsVariablesBuilder listUserTransactions ({required String userId, }) {
+    return ListUserTransactionsVariablesBuilder(dataConnect, userId: userId,);
+  }
+  
+  
+  GetUserPointsVariablesBuilder getUserPoints ({required String userId, }) {
+    return GetUserPointsVariablesBuilder(dataConnect, userId: userId,);
+  }
+  
+  
+  AddTransactionVariablesBuilder addTransaction ({required String userId, required String bankAccountId, required String categoryId, required double amount, required DateTime date, }) {
+    return AddTransactionVariablesBuilder(dataConnect, userId: userId,bankAccountId: bankAccountId,categoryId: categoryId,amount: amount,date: date,);
+  }
+  
+  
+  SeedMakeCentsDatabaseVariablesBuilder seedMakeCentsDatabase () {
+    return SeedMakeCentsDatabaseVariablesBuilder(dataConnect, );
+  }
   
 
   static ConnectorConfig connectorConfig = ConnectorConfig(

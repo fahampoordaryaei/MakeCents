@@ -1,0 +1,42 @@
+# Operation 1: List all transactions for a user
+query ListUserTransactions($userId: UUID!) @auth(level: USER) {
+  transactions(where: {userId: {eq: $userId}}, orderBy: [{date: DESC}]) {
+    id
+    amount
+    description
+    date
+    category {
+      name
+      color
+    }
+  }
+}
+
+# Operation 2: Get a user's total points balance
+query GetUserPoints($userId: UUID!) @auth(level: USER) {
+  pointsBalances(where: {userId: {eq: $userId}}) {
+    id
+    totalPoints
+    updatedAt
+  }
+}
+
+# Operation 3: Add a new transaction
+mutation AddTransaction(
+  $userId: UUID!,
+  $bankAccountId: UUID!,
+  $categoryId: UUID!,
+  $amount: Float!,
+  $description: String,
+  $date: Date!
+) @auth(level: USER) {
+  transaction_insert(data: {
+    userId: $userId,
+    bankAccountId: $bankAccountId,
+    categoryId: $categoryId,
+    amount: $amount,
+    description: $description,
+    date: $date,
+    createdAt_expr: "request.time"
+  })
+}

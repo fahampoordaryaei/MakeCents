@@ -1,0 +1,479 @@
+extend type Query {
+  """
+  ✨ Look up a single `BankAccount` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  bankAccount(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: BankAccount_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: BankAccount_FirstRow
+  ): BankAccount @fdc_generated(from: "BankAccount", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `Category` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  category(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Category_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Category_FirstRow
+  ): Category @fdc_generated(from: "Category", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `Institution` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  institution(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Institution_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Institution_FirstRow
+  ): Institution @fdc_generated(from: "Institution", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `PointsBalance` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  pointsBalance(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: PointsBalance_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: PointsBalance_FirstRow
+  ): PointsBalance @fdc_generated(from: "PointsBalance", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `PointsTransaction` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  pointsTransaction(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: PointsTransaction_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: PointsTransaction_FirstRow
+  ): PointsTransaction @fdc_generated(from: "PointsTransaction", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `Scholarship` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  scholarship(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Scholarship_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Scholarship_FirstRow
+  ): Scholarship @fdc_generated(from: "Scholarship", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `ScholarshipApplication` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  scholarshipApplication(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: ScholarshipApplication_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: ScholarshipApplication_FirstRow
+  ): ScholarshipApplication @fdc_generated(from: "ScholarshipApplication", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `Transaction` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  transaction(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Transaction_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Transaction_FirstRow
+  ): Transaction @fdc_generated(from: "Transaction", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `User` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  user(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: User_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: User_FirstRow
+  ): User @fdc_generated(from: "User", purpose: QUERY_SINGLE)
+  """
+  ✨ List `BankAccount` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  bankAccounts(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: BankAccount_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [BankAccount_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: BankAccount_Having
+  ): [BankAccount!]! @fdc_generated(from: "BankAccount", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `Category` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  categories(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Category_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Category_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Category_Having
+  ): [Category!]! @fdc_generated(from: "Category", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `Institution` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  institutions(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Institution_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Institution_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Institution_Having
+  ): [Institution!]! @fdc_generated(from: "Institution", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `PointsBalance` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  pointsBalances(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: PointsBalance_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [PointsBalance_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: PointsBalance_Having
+  ): [PointsBalance!]! @fdc_generated(from: "PointsBalance", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `PointsTransaction` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  pointsTransactions(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: PointsTransaction_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [PointsTransaction_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: PointsTransaction_Having
+  ): [PointsTransaction!]! @fdc_generated(from: "PointsTransaction", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `Scholarship` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  scholarships(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Scholarship_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Scholarship_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Scholarship_Having
+  ): [Scholarship!]! @fdc_generated(from: "Scholarship", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `ScholarshipApplication` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  scholarshipApplications(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: ScholarshipApplication_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [ScholarshipApplication_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: ScholarshipApplication_Having
+  ): [ScholarshipApplication!]! @fdc_generated(from: "ScholarshipApplication", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `Transaction` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  transactions(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Transaction_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Transaction_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Transaction_Having
+  ): [Transaction!]! @fdc_generated(from: "Transaction", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `User` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  users(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: User_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [User_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: User_Having
+  ): [User!]! @fdc_generated(from: "User", purpose: QUERY_MULTIPLE)
+}

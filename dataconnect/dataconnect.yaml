@@ -1,13 +1,11 @@
-specVersion: "v1"
+specVersion: "v1alpha"
 serviceId: "makecents"
 location: "europe-west1"
-schemas:
-  - source: "./schema"
-    datasource:
-      postgresql:
-        database: "fdcdb"
-        cloudSql:
-          instanceId: "makecents-db"
-          # schemaValidation: "STRICT"     # STRICT mode makes Postgres schema match Data Connect exactly.
-          # schemaValidation: "COMPATIBLE" # COMPATIBLE mode makes Postgres schema compatible with Data Connect.
+schema:
+  source: "./schema"
+  datasource:
+    postgresql:
+      database: "fdcdb"
+      cloudSql:
+        instanceId: "makecents-db"
 connectorDirs: ["./example"]

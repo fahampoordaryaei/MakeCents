@@ -1,0 +1,6 @@
+mutation SeedMakeCentsDatabase @auth(level: USER) {
+  institution_insert(data: {
+    name: "University of Malta",
+    location: "Malta"
+  })
+}
