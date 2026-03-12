@@ -1,0 +1,127 @@
+# List all available schools
+query ListSchools @auth(level: PUBLIC) {
+  schools(orderBy: [{name: ASC}]) {
+    id
+    name
+  }
+}
+
+# List all available courses
+query ListCourses @auth(level: PUBLIC) {
+  courses(orderBy: [{name: ASC}]) {
+    id
+    name
+  }
+}
+
+# List all transactions for a user
+query ListUserTransactions($userId: String!) @auth(level: USER) {
+  transactions(where: {userUsername: {eq: $userId}}, orderBy: [{date: DESC}]) {
+    id
+    amount
+    description
+    date
+    category
+  }
+}
+
+# Get a user's total points balance
+query GetUserPoints($userId: String!) @auth(level: USER) {
+  pointsBalances(where: {userUsername: {eq: $userId}}) {
+    id
+    totalPoints
+    updatedAt
+  }
+}
+
+# Add a new transaction
+mutation AddTransaction(
+  $userId: String!,
+  $category: String!,
+  $amount: Float!,
+  $description: String,
+  $date: Date!
+) @auth(level: USER) {
+  transaction_insert(data: {
+    userUsername: $userId,
+    category: $category,
+    amount: $amount,
+    description: $description,
+    date: $date,
+    createdAt_expr: "request.time"
+  })
+}
+
+# Create or update a user profile
+mutation StoreUserProfile(
+  $username: String!,
+  $email: String!,
+  $firstName: String!,
+  $lastName: String!,
+  $schoolId: UUID,
+  $courseId: UUID,
+  $otherSchool: String,
+  $otherCourse: String,
+  $monthlyBudget: Float
+) @auth(level: USER) {
+  user_upsert(data: {
+    username: $username,
+    email: $email,
+    firstName: $firstName,
+    lastName: $lastName,
+    schoolId: $schoolId,
+    courseId: $courseId,
+    otherSchool: $otherSchool,
+    otherCourse: $otherCourse,
+    monthlyBudget: $monthlyBudget,
+    createdAt_expr: "request.time"
+  })
+}
+
+# Delete a transaction
+mutation DeleteTransaction($id: UUID!) @auth(level: USER) {
+  transaction_delete(key: {id: $id})
+}
+
+# Get user profile info
+query GetUserProfile($username: String!) @auth(level: USER) {
+  users(where: {username: {eq: $username}}) {
+    firstName
+    lastName
+    monthlyBudget
+    otherSchool
+    otherCourse
+    school {
+      name
+    }
+    course {
+      name
+    }
+  }
+}
+
+# List all available scholarships
+query ListScholarships @auth(level: PUBLIC) {
+  scholarships(orderBy: [{amount: DESC}]) {
+    id
+    title
+    provider
+    location
+    amount
+    currency
+    subjects
+    description
+    color
+    deadline
+  }
+}
+
+# List all expense categories
+query ListExpenseCategories @auth(level: PUBLIC) {
+  expenseCategories(orderBy: [{name: ASC}]) {
+    id
+    name
+    iconName
+    colorHex
+  }
+}

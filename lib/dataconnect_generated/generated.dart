@@ -3,6 +3,10 @@ import 'package:firebase_data_connect/firebase_data_connect.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 
+part 'seed_full_data.dart';
+
+part 'seed_onboarding_data.dart';
+
 part 'list_schools.dart';
 
 part 'list_courses.dart';
@@ -23,8 +27,6 @@ part 'list_scholarships.dart';
 
 part 'list_expense_categories.dart';
 
-part 'seed_onboarding_data.dart';
-
 
 
 
@@ -32,6 +34,16 @@ part 'seed_onboarding_data.dart';
 
 
 class ExampleConnector {
+  
+  
+  SeedFullDataVariablesBuilder seedFullData () {
+    return SeedFullDataVariablesBuilder(dataConnect, );
+  }
+  
+  
+  SeedOnboardingDataVariablesBuilder seedOnboardingData () {
+    return SeedOnboardingDataVariablesBuilder(dataConnect, );
+  }
   
   
   ListSchoolsVariablesBuilder listSchools () {
@@ -81,11 +93,6 @@ class ExampleConnector {
   
   ListExpenseCategoriesVariablesBuilder listExpenseCategories () {
     return ListExpenseCategoriesVariablesBuilder(dataConnect, );
-  }
-  
-  
-  SeedOnboardingDataVariablesBuilder seedOnboardingData () {
-    return SeedOnboardingDataVariablesBuilder(dataConnect, );
   }
   
 
