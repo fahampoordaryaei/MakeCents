@@ -9,7 +9,8 @@ ExampleConnector.instance.AddTransaction(addTransactionVariables).execute();
 ExampleConnector.instance.StoreUserProfile(storeUserProfileVariables).execute();
 ExampleConnector.instance.DeleteTransaction(deleteTransactionVariables).execute();
 ExampleConnector.instance.GetUserProfile(getUserProfileVariables).execute();
-ExampleConnector.instance.SeedOnboardingData().execute();
+ExampleConnector.instance.ListScholarships().execute();
+ExampleConnector.instance.ListExpenseCategories().execute();
 
 ```
 

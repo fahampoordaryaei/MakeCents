@@ -9,6 +9,15 @@ extend type Mutation {
     data: Course_Data!
   ): Course_KeyOutput! @fdc_generated(from: "Course", purpose: INSERT_SINGLE)
   """
+  ✨ Insert a single `ExpenseCategory` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  expenseCategory_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: ExpenseCategory_Data!
+  ): ExpenseCategory_KeyOutput! @fdc_generated(from: "ExpenseCategory", purpose: INSERT_SINGLE)
+  """
   ✨ Insert a single `Institution` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
   """
   institution_insert(
@@ -89,6 +98,15 @@ extend type Mutation {
     """
     data: [Course_Data!]!
   ): [Course_KeyOutput!]! @fdc_generated(from: "Course", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `ExpenseCategory` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  expenseCategory_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [ExpenseCategory_Data!]!
+  ): [ExpenseCategory_KeyOutput!]! @fdc_generated(from: "ExpenseCategory", purpose: INSERT_MULTIPLE)
   """
   ✨ Insert `Institution` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
   """
@@ -171,6 +189,15 @@ extend type Mutation {
     data: Course_Data!
   ): Course_KeyOutput! @fdc_generated(from: "Course", purpose: UPSERT_SINGLE)
   """
+  ✨ Insert or update a single `ExpenseCategory` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `ExpenseCategory`.
+  """
+  expenseCategory_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: ExpenseCategory_Data!
+  ): ExpenseCategory_KeyOutput! @fdc_generated(from: "ExpenseCategory", purpose: UPSERT_SINGLE)
+  """
   ✨ Insert or update a single `Institution` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Institution`.
   """
   institution_upsert(
@@ -251,6 +278,15 @@ extend type Mutation {
     """
     data: [Course_Data!]!
   ): [Course_KeyOutput!]! @fdc_generated(from: "Course", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `ExpenseCategory` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `ExpenseCategory`.
+  """
+  expenseCategory_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [ExpenseCategory_Data!]!
+  ): [ExpenseCategory_KeyOutput!]! @fdc_generated(from: "ExpenseCategory", purpose: UPSERT_MULTIPLE)
   """
   ✨ Insert or update `Institution` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Institution`.
   """
@@ -347,6 +383,30 @@ extend type Mutation {
     """
     data: Course_Data!
   ): Course_KeyOutput @fdc_generated(from: "Course", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `ExpenseCategory` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `ExpenseCategory` or `null` if not found.
+  """
+  expenseCategory_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: ExpenseCategory_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: ExpenseCategory_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: ExpenseCategory_Data!
+  ): ExpenseCategory_KeyOutput @fdc_generated(from: "ExpenseCategory", purpose: UPDATE_SINGLE)
   """
   ✨ Update a single `Institution` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `Institution` or `null` if not found.
   """
@@ -554,6 +614,25 @@ extend type Mutation {
     data: Course_Data!
   ): Int! @fdc_generated(from: "Course", purpose: UPDATE_MULTIPLE)
   """
+  ✨ Update `ExpenseCategory` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  expenseCategory_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: ExpenseCategory_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: ExpenseCategory_Data!
+  ): Int! @fdc_generated(from: "ExpenseCategory", purpose: UPDATE_MULTIPLE)
+  """
   ✨ Update `Institution` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
   """
   institution_updateMany(
@@ -725,6 +804,25 @@ extend type Mutation {
     first: Course_FirstRow
   ): Course_KeyOutput @fdc_generated(from: "Course", purpose: DELETE_SINGLE)
   """
+  ✨ Delete a single `ExpenseCategory` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  expenseCategory_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: ExpenseCategory_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: ExpenseCategory_FirstRow
+  ): ExpenseCategory_KeyOutput @fdc_generated(from: "ExpenseCategory", purpose: DELETE_SINGLE)
+  """
   ✨ Delete a single `Institution` based on `id`, `key` or `first` and return its key (or `null` if not found).
   """
   institution_delete(
@@ -885,6 +983,20 @@ extend type Mutation {
     """
     all: Boolean = false
   ): Int! @fdc_generated(from: "Course", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `ExpenseCategory` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  expenseCategory_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: ExpenseCategory_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "ExpenseCategory", purpose: DELETE_MULTIPLE)
   """
   ✨ Delete `Institution` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
   """

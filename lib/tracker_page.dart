@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+import 'dataconnect_generated/generated.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
 import 'transaction_provider.dart';
@@ -12,20 +13,34 @@ class ExpenseCategory {
   const ExpenseCategory(this.name, this.icon, this.color);
 }
 
-const List<ExpenseCategory> kCategories = [
-  ExpenseCategory('Food', Icons.restaurant, Color(0xFFFF6B6B)),
-  ExpenseCategory('Transport', Icons.directions_bus, Color(0xFF4ECDC4)),
-  ExpenseCategory('Shopping', Icons.shopping_bag, Color(0xFFFFBE0B)),
-  ExpenseCategory('Health', Icons.favorite, Color(0xFF95E1D3)),
-  ExpenseCategory('Education', Icons.school, Color(0xFFA8D8EA)),
-  ExpenseCategory('Entertainment', Icons.sports_esports, Color(0xFFAA96DA)),
-  ExpenseCategory('Bills', Icons.receipt_long, Color(0xFFFC5185)),
-  ExpenseCategory('Other', Icons.more_horiz, Color(0xFFB2B2B2)),
-];
+List<ExpenseCategory> _dynamicCategories = [];
 
-ExpenseCategory catFor(String name) => kCategories.firstWhere(
+IconData _getIcon(String name) {
+  switch (name) {
+    case 'restaurant':
+      return Icons.restaurant;
+    case 'directions_bus':
+      return Icons.directions_bus;
+    case 'shopping_bag':
+      return Icons.shopping_bag;
+    case 'favorite':
+      return Icons.favorite;
+    case 'school':
+      return Icons.school;
+    case 'sports_esports':
+      return Icons.sports_esports;
+    case 'receipt_long':
+      return Icons.receipt_long;
+    default:
+      return Icons.more_horiz;
+  }
+}
+
+ExpenseCategory catFor(String name) => _dynamicCategories.firstWhere(
   (c) => c.name == name,
-  orElse: () => kCategories.last,
+  orElse: () => _dynamicCategories.isNotEmpty
+      ? _dynamicCategories.last
+      : const ExpenseCategory('Other', Icons.more_horiz, Colors.grey),
 );
 
 class TrackerPage extends StatefulWidget {
@@ -37,16 +52,47 @@ class TrackerPage extends StatefulWidget {
 class _TrackerPageState extends State<TrackerPage> {
   final _amountController = TextEditingController();
   final _labelController = TextEditingController();
-  ExpenseCategory _selectedCat = kCategories[0];
+  ExpenseCategory? _selectedCat;
   bool _showOverBudgetWarning = true;
+  bool _isLoadingCategories = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCategories();
+  }
+
+  Future<void> _loadCategories() async {
+    try {
+      final connector = ExampleConnector.instance;
+      final result = await connector.listExpenseCategories().execute();
+      setState(() {
+        _dynamicCategories = result.data.expenseCategories.map((c) {
+          return ExpenseCategory(
+            c.name,
+            _getIcon(c.iconName),
+            Color(int.parse(c.colorHex.replaceFirst('#', '0xFF'))),
+          );
+        }).toList();
+        if (_dynamicCategories.isNotEmpty) {
+          _selectedCat = _dynamicCategories[0];
+        }
+        _isLoadingCategories = false;
+      });
+    } catch (e) {
+      debugPrint('Error loading categories: $e');
+      setState(() => _isLoadingCategories = false);
+    }
+  }
 
   Future<void> _submit() async {
+    if (_selectedCat == null) return;
     final input = _amountController.text.trim();
     if (input.isEmpty) return;
     final amount = double.tryParse(input);
     if (amount == null || amount <= 0) return;
     final label = _labelController.text.trim().isEmpty
-        ? _selectedCat.name
+        ? _selectedCat!.name
         : _labelController.text.trim();
     final budget = Provider.of<BudgetProvider>(
       context,
@@ -65,7 +111,7 @@ class _TrackerPageState extends State<TrackerPage> {
         label,
         amount,
         DateTime.now(),
-        category: _selectedCat.name,
+        category: _selectedCat!.name,
       );
       _amountController.clear();
       _labelController.clear();
@@ -73,7 +119,7 @@ class _TrackerPageState extends State<TrackerPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Added \$${amount.toStringAsFixed(2)} · ${_selectedCat.name}',
+            'Added \$${amount.toStringAsFixed(2)} · ${_selectedCat!.name}',
           ),
           backgroundColor: const Color(0xFF3e7f3f),
         ),
@@ -139,7 +185,7 @@ class _TrackerPageState extends State<TrackerPage> {
                   label,
                   amount,
                   DateTime.now(),
-                  category: _selectedCat.name,
+                  category: _selectedCat!.name,
                 );
                 _amountController.clear();
                 _labelController.clear();
@@ -243,7 +289,7 @@ class _TrackerPageState extends State<TrackerPage> {
                 boxShadow: [
                   BoxShadow(
                     color: (over ? Colors.redAccent : const Color(0xFF3e7f3f))
-                        .withOpacity(0.3),
+                        .withValues(alpha: 0.3),
                     blurRadius: 12,
                     offset: const Offset(0, 6),
                   ),
@@ -283,7 +329,7 @@ class _TrackerPageState extends State<TrackerPage> {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -374,53 +420,70 @@ class _TrackerPageState extends State<TrackerPage> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    SizedBox(
-                      height: 40,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: kCategories.length,
-                        separatorBuilder: (_, _) => const SizedBox(width: 8),
-                        itemBuilder: (_, i) {
-                          final cat = kCategories[i];
-                          final sel = cat.name == _selectedCat.name;
-                          return GestureDetector(
-                            onTap: () => setState(() => _selectedCat = cat),
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: sel
-                                    ? cat.color
-                                    : cat.color.withOpacity(0.15),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    cat.icon,
-                                    size: 14,
-                                    color: sel ? Colors.white : cat.color,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    cat.name,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
+                    if (_isLoadingCategories)
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 20),
+                          child: CircularProgressIndicator(
+                            color: Color(0xFF3e7f3f),
+                          ),
+                        ),
+                      )
+                    else if (_dynamicCategories.isEmpty)
+                      const Text(
+                        'No categories loaded',
+                        style: TextStyle(color: Colors.grey),
+                      )
+                    else
+                      SizedBox(
+                        height: 40,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: _dynamicCategories.length,
+                          separatorBuilder: (_, _) => const SizedBox(width: 8),
+                          itemBuilder: (_, i) {
+                            final cat = _dynamicCategories[i];
+                            final sel =
+                                _selectedCat != null &&
+                                cat.name == _selectedCat!.name;
+                            return GestureDetector(
+                              onTap: () => setState(() => _selectedCat = cat),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: sel
+                                      ? cat.color
+                                      : cat.color.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      cat.icon,
+                                      size: 14,
                                       color: sel ? Colors.white : cat.color,
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      cat.name,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: sel ? Colors.white : cat.color,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          );
-                        },
+                            );
+                          },
+                        ),
                       ),
-                    ),
                     const SizedBox(height: 16),
                     Row(
                       children: [
@@ -628,7 +691,7 @@ class _TrackerPageState extends State<TrackerPage> {
                               width: 42,
                               height: 42,
                               decoration: BoxDecoration(
-                                color: cat.color.withOpacity(0.15),
+                                color: cat.color.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Icon(cat.icon, color: cat.color, size: 20),

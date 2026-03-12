@@ -5,7 +5,7 @@ schema:
   source: "./schema"
   datasource:
     postgresql:
-      database: "fdcdb"
+      database: "makecents-b0fb9-database"
       cloudSql:
-        instanceId: "makecents-db"
+        instanceId: "makecents-b0fb9-database"
 connectorDirs: ["./example"]

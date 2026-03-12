@@ -19,6 +19,10 @@ part 'delete_transaction.dart';
 
 part 'get_user_profile.dart';
 
+part 'list_scholarships.dart';
+
+part 'list_expense_categories.dart';
+
 part 'seed_onboarding_data.dart';
 
 
@@ -67,6 +71,16 @@ class ExampleConnector {
   
   GetUserProfileVariablesBuilder getUserProfile ({required String username, }) {
     return GetUserProfileVariablesBuilder(dataConnect, username: username,);
+  }
+  
+  
+  ListScholarshipsVariablesBuilder listScholarships () {
+    return ListScholarshipsVariablesBuilder(dataConnect, );
+  }
+  
+  
+  ListExpenseCategoriesVariablesBuilder listExpenseCategories () {
+    return ListExpenseCategoriesVariablesBuilder(dataConnect, );
   }
   
   

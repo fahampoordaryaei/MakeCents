@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dataconnect_generated/generated.dart';
 
 class Scholarship {
   final String title;
@@ -21,81 +22,6 @@ class Scholarship {
     this.color = const Color(0xFF3e7f3f),
   });
 }
-
-const List<Scholarship> kScholarships = [
-  Scholarship(
-    title: 'Tech Excellence Award',
-    provider: 'Global Tech Malta',
-    location: 'MALTA',
-    amount: 5000,
-    subjects: [
-      'Computer Engineering',
-      'Computer Science',
-      'IT',
-      'Software Engineering',
-    ],
-    description:
-        'For high-achieving tech students based in Malta pursuing a career in software or engineering.',
-    color: Color(0xFF3e7f3f),
-  ),
-  Scholarship(
-    title: 'STEM Future Leaders',
-    provider: 'EU Education Fund',
-    location: 'EUROPE',
-    amount: 3500,
-    subjects: [
-      'Computer Engineering',
-      'Computer Science',
-      'Mathematics',
-      'Physics',
-      'Chemistry',
-      'Biology',
-    ],
-    description:
-        'Supporting the next generation of European STEM innovators with funding for tuition and research.',
-    color: Color(0xFF4ECDC4),
-  ),
-  Scholarship(
-    title: 'Creative Minds Grant',
-    provider: 'Arts Council',
-    location: 'GLOBAL',
-    amount: 2500,
-    subjects: ['Arts', 'Design', 'Music', 'Media', 'Architecture'],
-    description:
-        'Open to creative students worldwide with a passion for arts, design, and cultural expression.',
-    color: Color(0xFFAA96DA),
-  ),
-  Scholarship(
-    title: 'Business Leaders Bursary',
-    provider: 'Chamber of Commerce',
-    location: 'MALTA',
-    amount: 4000,
-    subjects: ['Business', 'Economics', 'Finance', 'Management', 'Accounting'],
-    description:
-        'Awarded to ambitious business students who demonstrate leadership and financial acumen.',
-    color: Color(0xFFFFBE0B),
-  ),
-  Scholarship(
-    title: 'Health Sciences Award',
-    provider: 'National Health Foundation',
-    location: 'EUROPE',
-    amount: 6000,
-    subjects: ['Medicine', 'Nursing', 'Pharmacy', 'Physiotherapy', 'Biology'],
-    description:
-        'Supporting future healthcare professionals with exceptional academic records.',
-    color: Color(0xFFFC5185),
-  ),
-  Scholarship(
-    title: 'General Academic Merit',
-    provider: 'Student Finance Malta',
-    location: 'GLOBAL',
-    amount: 1500,
-    subjects: ['All Subjects'],
-    description:
-        'Open to all students regardless of subject, based purely on academic achievement.',
-    color: Color(0xFFFF6B6B),
-  ),
-];
 
 const List<String> kSubjects = [
   'All Subjects',
@@ -132,19 +58,47 @@ class MatchPage extends StatefulWidget {
 class _MatchPageState extends State<MatchPage> {
   String _subject = 'Computer Engineering';
   String _location = 'Malta';
+  List<Scholarship>? _allScholarships;
   List<Scholarship>? _results;
   bool _searched = false;
 
   @override
-  void dispose() {
-    super.dispose();
+  void initState() {
+    super.initState();
+    _loadScholarships();
+  }
+
+  Future<void> _loadScholarships() async {
+    try {
+      final connector = ExampleConnector.instance;
+      final result = await connector.listScholarships().execute();
+
+      setState(() {
+        _allScholarships = result.data.scholarships.map((s) {
+          return Scholarship(
+            title: s.title,
+            provider: s.provider,
+            location: s.location,
+            amount: s.amount,
+            currency: s.currency,
+            description: s.description,
+            subjects: s.subjects.split(',').map((e) => e.trim()).toList(),
+            color: Color(int.parse(s.color.replaceFirst('#', '0xFF'))),
+          );
+        }).toList();
+      });
+    } catch (e) {
+      debugPrint('Error loading scholarships: $e');
+      setState(() {});
+    }
   }
 
   void _findMatches() {
+    if (_allScholarships == null) return;
     FocusScope.of(context).unfocus();
     setState(() {
       _searched = true;
-      _results = kScholarships.where((s) {
+      _results = _allScholarships!.where((s) {
         final subjectOk =
             s.subjects.contains('All Subjects') ||
             s.subjects.contains(_subject);
@@ -186,7 +140,7 @@ class _MatchPageState extends State<MatchPage> {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -383,7 +337,7 @@ class _MatchPageState extends State<MatchPage> {
                 ),
               )
             else
-              ...(_searched ? _results! : kScholarships).map(
+              ...(_searched ? (_results ?? []) : (_allScholarships ?? [])).map(
                 (s) => _ScholarshipCard(scholarship: s),
               ),
           ],
@@ -409,7 +363,7 @@ class _ScholarshipCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(18),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),

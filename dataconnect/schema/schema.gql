@@ -26,18 +26,29 @@ type Institution @table {
 
 type Transaction @table {
   user: User!
-  category: String!
+  category: String! # Keeping as String for now to avoid breaking existing code, but will back by ExpenseCategory table
   amount: Float!
   description: String
   date: Date!
   createdAt: Timestamp!
 }
 
+type ExpenseCategory @table {
+  name: String! @unique
+  iconName: String!
+  colorHex: String!
+}
+
 type Scholarship @table {
   title: String!
-  description: String
+  provider: String!
+  location: String!
   amount: Float!
-  deadline: Date!
+  currency: String! @default(value: "€")
+  subjects: String! # Comma-separated strings for matching
+  description: String!
+  color: String!
+  deadline: Date
 }
 
 type ScholarshipApplication @table {

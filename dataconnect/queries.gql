@@ -1,4 +1,4 @@
-# Operation 4: List all available schools
+# List all available schools
 query ListSchools @auth(level: PUBLIC) {
   schools(orderBy: [{name: ASC}]) {
     id
@@ -6,7 +6,7 @@ query ListSchools @auth(level: PUBLIC) {
   }
 }
 
-# Operation 5: List all available courses
+# List all available courses
 query ListCourses @auth(level: PUBLIC) {
   courses(orderBy: [{name: ASC}]) {
     id
@@ -14,7 +14,7 @@ query ListCourses @auth(level: PUBLIC) {
   }
 }
 
-# Operation 1: List all transactions for a user
+# List all transactions for a user
 query ListUserTransactions($userId: String!) @auth(level: USER) {
   transactions(where: {userUsername: {eq: $userId}}, orderBy: [{date: DESC}]) {
     id
@@ -25,7 +25,7 @@ query ListUserTransactions($userId: String!) @auth(level: USER) {
   }
 }
 
-# Operation 2: Get a user's total points balance
+# Get a user's total points balance
 query GetUserPoints($userId: String!) @auth(level: USER) {
   pointsBalances(where: {userUsername: {eq: $userId}}) {
     id
@@ -34,7 +34,7 @@ query GetUserPoints($userId: String!) @auth(level: USER) {
   }
 }
 
-# Operation 3: Add a new transaction
+# Add a new transaction
 mutation AddTransaction(
   $userId: String!,
   $category: String!,
@@ -52,7 +52,7 @@ mutation AddTransaction(
   })
 }
 
-# Operation 6: Create or update a user profile
+# Create or update a user profile
 mutation StoreUserProfile(
   $username: String!,
   $email: String!,
@@ -78,12 +78,12 @@ mutation StoreUserProfile(
   })
 }
 
-# Operation 8: Delete a transaction
+# Delete a transaction
 mutation DeleteTransaction($id: UUID!) @auth(level: USER) {
   transaction_delete(key: {id: $id})
 }
 
-# Operation 7: Get user profile info
+# Get user profile info
 query GetUserProfile($username: String!) @auth(level: USER) {
   users(where: {username: {eq: $username}}) {
     firstName
@@ -97,5 +97,31 @@ query GetUserProfile($username: String!) @auth(level: USER) {
     course {
       name
     }
+  }
+}
+
+# List all available scholarships
+query ListScholarships @auth(level: PUBLIC) {
+  scholarships(orderBy: [{amount: DESC}]) {
+    id
+    title
+    provider
+    location
+    amount
+    currency
+    subjects
+    description
+    color
+    deadline
+  }
+}
+
+# List all expense categories
+query ListExpenseCategories @auth(level: PUBLIC) {
+  expenseCategories(orderBy: [{name: ASC}]) {
+    id
+    name
+    iconName
+    colorHex
   }
 }

@@ -64,6 +64,56 @@ extend type Course {
   """
   _id: ID! @fdc_generated(from: "Course.id", purpose: GLOBAL_ID)
 }
+extend type ExpenseCategory {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "ExpenseCategory", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `ExpenseCategory` table.
+  """
+  _count: Int! @fdc_generated(from: "ExpenseCategory.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ExpenseCategory` table where the `colorHex` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  colorHex_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ExpenseCategory.colorHex", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ExpenseCategory` table where the `iconName` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  iconName_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ExpenseCategory.iconName", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ExpenseCategory` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ExpenseCategory.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ExpenseCategory` table where the `name` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  name_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ExpenseCategory.name", purpose: QUERY_COUNT)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "ExpenseCategory.id", purpose: GLOBAL_ID)
+}
 extend type Institution {
   """
   Implicit metadata field that cannot be written. It provides extra information about query results.
@@ -335,6 +385,24 @@ extend type Scholarship {
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "Scholarship.amount", purpose: QUERY_COUNT)
   """
+  ✨ Count the number of rows in the `Scholarship` table where the `color` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  color_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Scholarship.color", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Scholarship` table where the `currency` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  currency_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Scholarship.currency", purpose: QUERY_COUNT)
+  """
   ✨ Count the number of rows in the `Scholarship` table where the `deadline` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
   deadline_count(
@@ -361,6 +429,33 @@ extend type Scholarship {
     """
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "Scholarship.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Scholarship` table where the `location` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  location_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Scholarship.location", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Scholarship` table where the `provider` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  provider_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Scholarship.provider", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Scholarship` table where the `subjects` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  subjects_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Scholarship.subjects", purpose: QUERY_COUNT)
   """
   ✨ Count the number of rows in the `Scholarship` table where the `title` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """

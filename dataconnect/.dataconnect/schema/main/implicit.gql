@@ -4,6 +4,12 @@ extend type Course {
   """
   id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "Course", purpose: IMPLICIT_KEY_FIELD)
 }
+extend type ExpenseCategory {
+  """
+  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
+  """
+  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "ExpenseCategory", purpose: IMPLICIT_KEY_FIELD)
+}
 extend type Institution {
   """
   ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.

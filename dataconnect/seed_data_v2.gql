@@ -1,0 +1,77 @@
+mutation SeedFullData @transaction @auth(level: USER, insecureReason: "Seed data is for initialization.") {
+  # Seed Expense Categories
+  expenseCategory_insertMany(data: [
+    { name: "Food", iconName: "restaurant", colorHex: "#FF6B6B" },
+    { name: "Transport", iconName: "directions_bus", colorHex: "#4ECDC4" },
+    { name: "Shopping", iconName: "shopping_bag", colorHex: "#FFBE0B" },
+    { name: "Health", iconName: "favorite", colorHex: "#95E1D3" },
+    { name: "Education", iconName: "school", colorHex: "#A8D8EA" },
+    { name: "Entertainment", iconName: "sports_esports", colorHex: "#AA96DA" },
+    { name: "Bills", iconName: "receipt_long", colorHex: "#FC5185" },
+    { name: "Other", iconName: "more_horiz", colorHex: "#B2B2B2" }
+  ])
+
+  # Seed Scholarships
+  scholarship_insertMany(data: [
+    {
+      title: "Tech Excellence Award",
+      provider: "Global Tech Malta",
+      location: "MALTA",
+      amount: 5000,
+      currency: "€",
+      subjects: "Computer Engineering, Computer Science, IT, Software Engineering",
+      description: "For high-achieving tech students based in Malta pursuing a career in software or engineering.",
+      color: "#3e7f3f"
+    },
+    {
+      title: "STEM Future Leaders",
+      provider: "EU Education Fund",
+      location: "EUROPE",
+      amount: 3500,
+      currency: "€",
+      subjects: "Computer Engineering, Computer Science, Mathematics, Physics, Chemistry, Biology",
+      description: "Supporting the next generation of European STEM innovators with funding for tuition and research.",
+      color: "#4ECDC4"
+    },
+    {
+      title: "Creative Minds Grant",
+      provider: "Arts Council",
+      location: "GLOBAL",
+      amount: 2500,
+      currency: "€",
+      subjects: "Arts, Design, Music, Media, Architecture",
+      description: "Open to creative students worldwide with a passion for arts, design, and cultural expression.",
+      color: "#AA96DA"
+    },
+    {
+      title: "Business Leaders Bursary",
+      provider: "Chamber of Commerce",
+      location: "MALTA",
+      amount: 4000,
+      currency: "€",
+      subjects: "Business, Economics, Finance, Management, Accounting",
+      description: "Awarded to ambitious business students who demonstrate leadership and financial acumen.",
+      color: "#FFBE0B"
+    },
+    {
+      title: "Health Sciences Award",
+      provider: "National Health Foundation",
+      location: "EUROPE",
+      amount: 6000,
+      currency: "€",
+      subjects: "Medicine, Nursing, Pharmacy, Physiotherapy, Biology",
+      description: "Supporting future healthcare professionals with exceptional academic records.",
+      color: "#FC5185"
+    },
+    {
+      title: "General Academic Merit",
+      provider: "Student Finance Malta",
+      location: "GLOBAL",
+      amount: 1500,
+      currency: "€",
+      subjects: "All Subjects",
+      description: "Open to all students regardless of subject, based purely on academic achievement.",
+      color: "#FF6B6B"
+    }
+  ])
+}
