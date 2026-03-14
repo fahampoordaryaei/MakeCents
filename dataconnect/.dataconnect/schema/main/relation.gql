@@ -66,6 +66,40 @@ extend type Course {
 }
 extend type ExpenseCategory {
   """
+  ✨ List `Transaction` objects in a one-to-many relationship (where `Transaction`.`category` is this object).
+  """
+  transactions_on_category(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Transaction_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Transaction_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Transaction_Having
+  ): [Transaction!]! @fdc_generated(from: "Transaction.category", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
   Implicit metadata field that cannot be written. It provides extra information about query results.
   """
   _metadata: _Metadata @fdc_generated(from: "ExpenseCategory", purpose: METADATA_FIELD)
@@ -173,6 +207,15 @@ extend type PointsBalance {
     """
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "PointsBalance.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `PointsBalance` table where the `lastBudgetRewardMonth` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  lastBudgetRewardMonth_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "PointsBalance.lastBudgetRewardMonth", purpose: QUERY_COUNT)
   """
   ✨ Count the number of rows in the `PointsBalance` table where the `totalPoints` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
@@ -656,14 +699,14 @@ extend type Transaction {
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "Transaction.amount", purpose: QUERY_COUNT)
   """
-  ✨ Count the number of rows in the `Transaction` table where the `category` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  ✨ Count the number of rows in the `Transaction` table where the `categoryId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
-  category_count(
+  categoryId_count(
     """
     Set to true to count the number of distinct values.
     """
     distinct: Boolean = false
-  ): Int! @fdc_generated(from: "Transaction.category", purpose: QUERY_COUNT)
+  ): Int! @fdc_generated(from: "Transaction.categoryId", purpose: QUERY_COUNT)
   """
   ✨ Count the number of rows in the `Transaction` table where the `createdAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """

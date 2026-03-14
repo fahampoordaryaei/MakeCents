@@ -3,7 +3,14 @@ import 'onboarding_budget_page.dart';
 import 'dataconnect_generated/generated.dart';
 
 class OnboardingProfilePage extends StatefulWidget {
-  const OnboardingProfilePage({super.key});
+  final String firstName;
+  final String lastName;
+
+  const OnboardingProfilePage({
+    super.key,
+    required this.firstName,
+    required this.lastName,
+  });
 
   @override
   State<OnboardingProfilePage> createState() => _OnboardingProfilePageState();
@@ -64,42 +71,43 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
   }
 
   void _onContinue() {
-    setState(() {
-      _error = '';
-      if (_selectedSchool == null) {
-        _error = 'Please select a school.';
-        return;
-      }
-      if (_selectedSchool == 'Other' &&
-          _otherSchoolController.text.trim().isEmpty) {
-        _error = 'Please specify your school.';
-        return;
-      }
-      if (_selectedCourse == null) {
-        _error = 'Please select your course of study.';
-        return;
-      }
-      if (_selectedCourse == 'Other' &&
-          _otherCourseController.text.trim().isEmpty) {
-        _error = 'Please specify your course of study.';
-        return;
-      }
+    setState(() => _error = '');
 
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => OnboardingBudgetPage(
-            schoolId: _selectedSchoolId,
-            courseId: _selectedCourseId,
-            otherSchool: _selectedSchool == 'Other'
-                ? _otherSchoolController.text.trim()
-                : null,
-            otherCourse: _selectedCourse == 'Other'
-                ? _otherCourseController.text.trim()
-                : null,
-          ),
+    if (_selectedSchool == null) {
+      setState(() => _error = 'Please select a school.');
+      return;
+    }
+    if (_selectedSchool == 'Other' &&
+        _otherSchoolController.text.trim().isEmpty) {
+      setState(() => _error = 'Please specify your school.');
+      return;
+    }
+    if (_selectedCourse == null) {
+      setState(() => _error = 'Please select your course of study.');
+      return;
+    }
+    if (_selectedCourse == 'Other' &&
+        _otherCourseController.text.trim().isEmpty) {
+      setState(() => _error = 'Please specify your course of study.');
+      return;
+    }
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => OnboardingBudgetPage(
+          schoolId: _selectedSchoolId,
+          courseId: _selectedCourseId,
+          otherSchool: _selectedSchool == 'Other'
+              ? _otherSchoolController.text.trim()
+              : null,
+          otherCourse: _selectedCourse == 'Other'
+              ? _otherCourseController.text.trim()
+              : null,
+          firstName: widget.firstName,
+          lastName: widget.lastName,
         ),
-      );
-    });
+      ),
+    );
   }
 
   Widget _buildDropdown({
@@ -116,7 +124,6 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
           label: Text(hint),
           initialSelection: value,
           enableFilter: true,
-          enableSearch: true,
           requestFocusOnTap: true,
           menuStyle: MenuStyle(
             backgroundColor: WidgetStatePropertyAll(
@@ -124,7 +131,7 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
             ),
             elevation: const WidgetStatePropertyAll(8),
             surfaceTintColor: WidgetStatePropertyAll(
-              Theme.of(context).colorScheme.primary.withOpacity(0.05),
+              Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
             ),
           ),
           inputDecorationTheme: InputDecorationTheme(
@@ -163,7 +170,7 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
               borderRadius: BorderRadius.circular(16.0),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
+                  color: Colors.black.withValues(alpha: 0.06),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -345,28 +352,20 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
                   ),
 
                   if (_selectedCourse == 'Other') ...[
-                    const SizedBox(height: 16.0),
-                    const Text(
-                      'Study Course name',
-                      style: TextStyle(
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
                     const SizedBox(height: 12.0),
-                    TextField(
+                    TextFormField(
                       controller: _otherCourseController,
                       decoration: InputDecoration(
                         hintText: 'Enter your course name',
                         filled: true,
-                        fillColor: Theme.of(context).colorScheme.surface,
+                        fillColor: Theme.of(context).scaffoldBackgroundColor,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
                           borderSide: BorderSide.none,
                         ),
                         contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 18,
+                          horizontal: 16,
+                          vertical: 16,
                         ),
                       ),
                     ),

@@ -23,14 +23,14 @@ class ListUserTransactionsTransactions {
   final double amount;
   final String? description;
   final DateTime date;
-  final String category;
+  final ListUserTransactionsTransactionsCategory category;
   ListUserTransactionsTransactions.fromJson(dynamic json):
   
   id = nativeFromJson<String>(json['id']),
   amount = nativeFromJson<double>(json['amount']),
   description = json['description'] == null ? null : nativeFromJson<String>(json['description']),
   date = nativeFromJson<DateTime>(json['date']),
-  category = nativeFromJson<String>(json['category']);
+  category = ListUserTransactionsTransactionsCategory.fromJson(json['category']);
   @override
   bool operator ==(Object other) {
     if(identical(this, other)) {
@@ -60,7 +60,7 @@ class ListUserTransactionsTransactions {
       json['description'] = nativeToJson<String?>(description);
     }
     json['date'] = nativeToJson<DateTime>(date);
-    json['category'] = nativeToJson<String>(category);
+    json['category'] = category.toJson();
     return json;
   }
 
@@ -70,6 +70,55 @@ class ListUserTransactionsTransactions {
     this.description,
     required this.date,
     required this.category,
+  });
+}
+
+@immutable
+class ListUserTransactionsTransactionsCategory {
+  final String id;
+  final String name;
+  final String iconName;
+  final String colorHex;
+  ListUserTransactionsTransactionsCategory.fromJson(dynamic json):
+  
+  id = nativeFromJson<String>(json['id']),
+  name = nativeFromJson<String>(json['name']),
+  iconName = nativeFromJson<String>(json['iconName']),
+  colorHex = nativeFromJson<String>(json['colorHex']);
+  @override
+  bool operator ==(Object other) {
+    if(identical(this, other)) {
+      return true;
+    }
+    if(other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    final ListUserTransactionsTransactionsCategory otherTyped = other as ListUserTransactionsTransactionsCategory;
+    return id == otherTyped.id && 
+    name == otherTyped.name && 
+    iconName == otherTyped.iconName && 
+    colorHex == otherTyped.colorHex;
+    
+  }
+  @override
+  int get hashCode => Object.hashAll([id.hashCode, name.hashCode, iconName.hashCode, colorHex.hashCode]);
+  
+
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> json = {};
+    json['id'] = nativeToJson<String>(id);
+    json['name'] = nativeToJson<String>(name);
+    json['iconName'] = nativeToJson<String>(iconName);
+    json['colorHex'] = nativeToJson<String>(colorHex);
+    return json;
+  }
+
+  ListUserTransactionsTransactionsCategory({
+    required this.id,
+    required this.name,
+    required this.iconName,
+    required this.colorHex,
   });
 }
 

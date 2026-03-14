@@ -9,6 +9,8 @@ class OnboardingBudgetPage extends StatefulWidget {
   final String? courseId;
   final String? otherSchool;
   final String? otherCourse;
+  final String firstName;
+  final String lastName;
 
   const OnboardingBudgetPage({
     super.key,
@@ -16,6 +18,8 @@ class OnboardingBudgetPage extends StatefulWidget {
     this.courseId,
     this.otherSchool,
     this.otherCourse,
+    required this.firstName,
+    required this.lastName,
   });
 
   @override
@@ -56,7 +60,6 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
   void _onSliderChanged(double value) {
     setState(() {
       _sliderValue = value;
-      // update text but only if it's different to prevent cursor jumping
       final newText = value.toInt().toString();
       if (_budgetController.text != newText) {
         _budgetController.text = newText;
@@ -99,30 +102,27 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
-        setState(() {
-          _error = 'User not found. Please log in again.';
-          _isLoading = false;
-        });
+        setState(() => _error = 'User not found. Please log in again.');
         return;
       }
-
-      final names = (user.displayName ?? '').split(' ');
-      final firstName = names.isNotEmpty ? names[0] : 'User';
-      final lastName = names.length > 1 ? names.sublist(1).join(' ') : '';
 
       final connector = ExampleConnector.instance;
       await connector
           .storeUserProfile(
             username: user.uid,
             email: user.email ?? '',
-            firstName: firstName,
-            lastName: lastName,
+            firstName: widget.firstName,
+            lastName: widget.lastName,
           )
           .schoolId(widget.schoolId)
           .courseId(widget.courseId)
           .otherSchool(widget.otherSchool)
           .otherCourse(widget.otherCourse)
           .monthlyBudget(budget)
+          .execute();
+
+      await connector
+          .initPointsBalance(userId: user.uid, totalPoints: 0)
           .execute();
 
       if (mounted) {
@@ -132,10 +132,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
         );
       }
     } catch (e) {
-      setState(() {
-        _error = 'Failed to save profile: ${e.toString()}';
-        _isLoading = false;
-      });
+      setState(() => _error = 'Failed to save profile: ${e.toString()}');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -156,7 +153,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
               borderRadius: BorderRadius.circular(16.0),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
+                  color: Colors.black.withValues(alpha: 0.06),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -290,9 +287,11 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                     activeTrackColor: const Color(0xFF3e7f3f),
                     inactiveTrackColor: const Color(
                       0xFF3e7f3f,
-                    ).withOpacity(0.2),
+                    ).withValues(alpha: 0.2),
                     thumbColor: const Color(0xFF3e7f3f),
-                    overlayColor: const Color(0xFF3e7f3f).withOpacity(0.1),
+                    overlayColor: const Color(
+                      0xFF3e7f3f,
+                    ).withValues(alpha: 0.1),
                     trackHeight: 8.0,
                     thumbShape: const RoundSliderThumbShape(
                       enabledThumbRadius: 12.0,

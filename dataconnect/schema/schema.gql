@@ -26,7 +26,7 @@ type Institution @table {
 
 type Transaction @table {
   user: User!
-  category: String! # Keeping as String for now to avoid breaking existing code, but will back by ExpenseCategory table
+  category: ExpenseCategory!
   amount: Float!
   description: String
   date: Date!
@@ -61,6 +61,7 @@ type ScholarshipApplication @table {
 type PointsBalance @table {
   user: User!
   totalPoints: Int!
+  lastBudgetRewardMonth: String
   updatedAt: Timestamp!
 }
 

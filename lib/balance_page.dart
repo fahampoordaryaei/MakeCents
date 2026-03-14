@@ -8,22 +8,32 @@ class BalancePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final transactionProvider = Provider.of<TransactionProvider>(context);
-    final transactions = transactionProvider.transactions;
-
-    final totalBalance = transactions.fold(
-      0.0,
-      (sum, item) => sum + item.amount,
-    );
+    final spent = transactionProvider.monthlySpent;
 
     return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 4,
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(24.0),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Current Balance', style: TextStyle(fontSize: 20)),
             Text(
-              '\$${totalBalance.toStringAsFixed(2)}',
-              style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
+              'Spent This Month',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '€${spent.toStringAsFixed(2)}',
+              style: TextStyle(
+                fontSize: 36,
+                fontWeight: FontWeight.w800,
+                color: Theme.of(context).colorScheme.primary,
+              ),
             ),
           ],
         ),

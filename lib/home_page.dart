@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'transaction_provider.dart';
 import 'budget_provider.dart';
 import 'user_provider.dart';
+import 'functions.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -18,11 +19,14 @@ class HomePage extends StatelessWidget {
 
     final displayName = userProvider.profile?.firstName ?? 'Student';
 
-    final expenses = txProvider.transactions.fold(0.0, (s, t) => s + t.amount);
+    final expenses = txProvider.monthlySpent;
     final budget = budgetProvider.budget.amount;
     final available = budget > 0 ? (budget - expenses).clamp(0.0, budget) : 0.0;
     final spentPct = budget > 0 ? (expenses / budget).clamp(0.0, 1.0) : 0.0;
     final recent = txProvider.transactions.reversed.take(3).toList();
+    final monthTxCount = txProvider.transactions
+        .where((t) => t.date.month == now.month && t.date.year == now.year)
+        .length;
 
     return Material(
       type: MaterialType.transparency,
@@ -32,7 +36,6 @@ class HomePage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Greeting
               Text(
                 'Hey, $displayName! 👋',
                 style: TextStyle(
@@ -48,7 +51,6 @@ class HomePage extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              // Budget summary card
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(22),
@@ -61,7 +63,7 @@ class HomePage extends StatelessWidget {
                   borderRadius: BorderRadius.circular(22),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF3e7f3f).withOpacity(0.35),
+                      color: const Color(0xFF3e7f3f).withValues(alpha: 0.35),
                       blurRadius: 16,
                       offset: const Offset(0, 8),
                     ),
@@ -80,7 +82,7 @@ class HomePage extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      budget > 0 ? '\$${budget.toStringAsFixed(2)}' : 'Not set',
+                      budget > 0 ? '€${budget.toStringAsFixed(2)}' : 'Not set',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 32,
@@ -93,7 +95,7 @@ class HomePage extends StatelessWidget {
                         Expanded(
                           child: _SummaryItem(
                             label: 'Spent',
-                            value: '\$${expenses.toStringAsFixed(2)}',
+                            value: '€${expenses.toStringAsFixed(2)}',
                             icon: Icons.arrow_upward_rounded,
                           ),
                         ),
@@ -101,7 +103,7 @@ class HomePage extends StatelessWidget {
                         Expanded(
                           child: _SummaryItem(
                             label: 'Left',
-                            value: '\$${available.toStringAsFixed(2)}',
+                            value: '€${available.toStringAsFixed(2)}',
                             icon: Icons.savings_outlined,
                           ),
                         ),
@@ -134,7 +136,6 @@ class HomePage extends StatelessWidget {
               ),
               const SizedBox(height: 28),
 
-              // Quick stats row
               Row(
                 children: [
                   Expanded(
@@ -142,7 +143,7 @@ class HomePage extends StatelessWidget {
                       icon: Icons.receipt_long_outlined,
                       color: const Color(0xFF4ECDC4),
                       label: 'Transactions',
-                      value: '${txProvider.transactions.length}',
+                      value: '$monthTxCount',
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -150,16 +151,15 @@ class HomePage extends StatelessWidget {
                     child: _QuickStatCard(
                       icon: Icons.trending_down_outlined,
                       color: const Color(0xFFFF6B6B),
-                      label: "Spent today",
+                      label: 'Spent today',
                       value:
-                          '\$${_todaySpend(txProvider.transactions).toStringAsFixed(2)}',
+                          '€${_todaySpend(txProvider.transactions).toStringAsFixed(2)}',
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 28),
 
-              // Recent transactions
               Text(
                 'Recent Transactions',
                 style: TextStyle(
@@ -178,7 +178,7 @@ class HomePage extends StatelessWidget {
                   ),
                   child: const Center(
                     child: Text(
-                      'No transactions yet.\nAdd one using the Tracker tab.',
+                      'No transactions yet.\nAdd one using the Tracker.',
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.grey),
                     ),
@@ -198,7 +198,7 @@ class HomePage extends StatelessWidget {
                         const Divider(height: 1, indent: 64),
                     itemBuilder: (context, i) {
                       final tx = recent[i];
-                      final cat = _catFor(tx.category);
+                      final cat = catFor(tx.category);
                       return ListTile(
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 16,
@@ -208,7 +208,7 @@ class HomePage extends StatelessWidget {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: cat.color.withOpacity(0.15),
+                            color: cat.color.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Icon(cat.icon, color: cat.color, size: 20),
@@ -228,7 +228,7 @@ class HomePage extends StatelessWidget {
                           ),
                         ),
                         trailing: Text(
-                          '-\$${tx.amount.toStringAsFixed(2)}',
+                          '-€${tx.amount.toStringAsFixed(2)}',
                           style: const TextStyle(
                             color: Color(0xFFFF6B6B),
                             fontWeight: FontWeight.w700,
@@ -256,25 +256,6 @@ class HomePage extends StatelessWidget {
         )
         .fold(0.0, (s, t) => s + t.amount);
   }
-
-  _CatData _catFor(String name) {
-    const map = {
-      'Food': _CatData(Icons.restaurant, Color(0xFFFF6B6B)),
-      'Transport': _CatData(Icons.directions_bus, Color(0xFF4ECDC4)),
-      'Shopping': _CatData(Icons.shopping_bag, Color(0xFFFFE66D)),
-      'Health': _CatData(Icons.favorite, Color(0xFF95E1D3)),
-      'Education': _CatData(Icons.school, Color(0xFFA8D8EA)),
-      'Entertainment': _CatData(Icons.sports_esports, Color(0xFFAA96DA)),
-      'Bills': _CatData(Icons.receipt_long, Color(0xFFFC5185)),
-    };
-    return map[name] ?? const _CatData(Icons.more_horiz, Color(0xFFB2B2B2));
-  }
-}
-
-class _CatData {
-  final IconData icon;
-  final Color color;
-  const _CatData(this.icon, this.color);
 }
 
 class _SummaryItem extends StatelessWidget {
@@ -332,28 +313,34 @@ class _QuickStatCard extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
+              color: color.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: color, size: 20),
           ),
           const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                value,
-                style: TextStyle(
-                  fontWeight: FontWeight.w800,
-                  fontSize: 16,
-                  color: Theme.of(context).colorScheme.onSurface,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 16,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
-              ),
-              Text(
-                label,
-                style: const TextStyle(fontSize: 13, color: Colors.grey),
-              ),
-            ],
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 13, color: Colors.grey),
+                ),
+              ],
+            ),
           ),
         ],
       ),

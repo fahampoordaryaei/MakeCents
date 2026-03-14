@@ -1,47 +1,10 @@
-// ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'dataconnect_generated/generated.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
 import 'transaction_provider.dart';
 import 'budget_provider.dart';
-
-class ExpenseCategory {
-  final String name;
-  final IconData icon;
-  final Color color;
-  const ExpenseCategory(this.name, this.icon, this.color);
-}
-
-List<ExpenseCategory> _dynamicCategories = [];
-
-IconData _getIcon(String name) {
-  switch (name) {
-    case 'restaurant':
-      return Icons.restaurant;
-    case 'directions_bus':
-      return Icons.directions_bus;
-    case 'shopping_bag':
-      return Icons.shopping_bag;
-    case 'favorite':
-      return Icons.favorite;
-    case 'school':
-      return Icons.school;
-    case 'sports_esports':
-      return Icons.sports_esports;
-    case 'receipt_long':
-      return Icons.receipt_long;
-    default:
-      return Icons.more_horiz;
-  }
-}
-
-ExpenseCategory catFor(String name) => _dynamicCategories.firstWhere(
-  (c) => c.name == name,
-  orElse: () => _dynamicCategories.isNotEmpty
-      ? _dynamicCategories.last
-      : const ExpenseCategory('Other', Icons.more_horiz, Colors.grey),
-);
+import 'functions.dart';
 
 class TrackerPage extends StatefulWidget {
   const TrackerPage({super.key});
@@ -67,15 +30,17 @@ class _TrackerPageState extends State<TrackerPage> {
       final connector = ExampleConnector.instance;
       final result = await connector.listExpenseCategories().execute();
       setState(() {
-        _dynamicCategories = result.data.expenseCategories.map((c) {
+        dynamicCategories = result.data.expenseCategories.map((c) {
           return ExpenseCategory(
+            c.id,
             c.name,
-            _getIcon(c.iconName),
+            getIconByName(c.iconName),
             Color(int.parse(c.colorHex.replaceFirst('#', '0xFF'))),
           );
         }).toList();
-        if (_dynamicCategories.isNotEmpty) {
-          _selectedCat = _dynamicCategories[0];
+
+        if (dynamicCategories.isNotEmpty) {
+          _selectedCat = dynamicCategories[0];
         }
         _isLoadingCategories = false;
       });
@@ -83,6 +48,35 @@ class _TrackerPageState extends State<TrackerPage> {
       debugPrint('Error loading categories: $e');
       setState(() => _isLoadingCategories = false);
     }
+  }
+
+  Future<void> _addAndNotify(String label, double amount) async {
+    final txProvider = Provider.of<TransactionProvider>(context, listen: false);
+    try {
+      await txProvider.addTransaction(
+        label,
+        amount,
+        DateTime.now(),
+        categoryName: _selectedCat!.name,
+        categoryId: _selectedCat!.id,
+      );
+    } catch (e) {
+      debugPrint('Failure adding transaction: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to add transaction.')),
+      );
+      return;
+    }
+    _amountController.clear();
+    _labelController.clear();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Added €${amount.toStringAsFixed(2)} · ${_selectedCat!.name}'),
+        backgroundColor: const Color(0xFF3e7f3f),
+      ),
+    );
   }
 
   Future<void> _submit() async {
@@ -94,36 +88,14 @@ class _TrackerPageState extends State<TrackerPage> {
     final label = _labelController.text.trim().isEmpty
         ? _selectedCat!.name
         : _labelController.text.trim();
-    final budget = Provider.of<BudgetProvider>(
-      context,
-      listen: false,
-    ).budget.amount;
+    final budget = Provider.of<BudgetProvider>(context, listen: false).budget.amount;
     final txProvider = Provider.of<TransactionProvider>(context, listen: false);
-    final currentExp = txProvider.transactions.fold(
-      0.0,
-      (s, t) => s + t.amount,
-    );
+    final currentExp = txProvider.monthlySpent;
 
     if (_showOverBudgetWarning && budget > 0 && currentExp + amount > budget) {
       await _overBudgetDialog(amount, budget, currentExp, label);
     } else {
-      await txProvider.addTransaction(
-        label,
-        amount,
-        DateTime.now(),
-        category: _selectedCat!.name,
-      );
-      _amountController.clear();
-      _labelController.clear();
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Added \$${amount.toStringAsFixed(2)} · ${_selectedCat!.name}',
-          ),
-          backgroundColor: const Color(0xFF3e7f3f),
-        ),
-      );
+      await _addAndNotify(label, amount);
     }
   }
 
@@ -152,7 +124,7 @@ class _TrackerPageState extends State<TrackerPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Adding this will exceed your budget by \$${(current + amount - budget).toStringAsFixed(2)}.',
+                'Adding this will exceed your budget by €${(current + amount - budget).toStringAsFixed(2)}.',
               ),
               const SizedBox(height: 12),
               Row(
@@ -178,26 +150,7 @@ class _TrackerPageState extends State<TrackerPage> {
               onPressed: () async {
                 if (dontShow) setState(() => _showOverBudgetWarning = false);
                 Navigator.pop(ctx);
-                await Provider.of<TransactionProvider>(
-                  context,
-                  listen: false,
-                ).addTransaction(
-                  label,
-                  amount,
-                  DateTime.now(),
-                  category: _selectedCat!.name,
-                );
-                _amountController.clear();
-                _labelController.clear();
-                if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Added \$${amount.toStringAsFixed(2)} · $label',
-                    ),
-                    backgroundColor: const Color(0xFF3e7f3f),
-                  ),
-                );
+                await _addAndNotify(label, amount);
               },
               child: const Text('Add Anyway'),
             ),
@@ -214,7 +167,7 @@ class _TrackerPageState extends State<TrackerPage> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         title: const Text('Delete Expense'),
         content: Text(
-          'Remove \$${amount.toStringAsFixed(2)}? This cannot be undone.',
+          'Remove €${amount.toStringAsFixed(2)}? This cannot be undone.',
         ),
         actions: [
           TextButton(
@@ -239,7 +192,9 @@ class _TrackerPageState extends State<TrackerPage> {
     final budget = Provider.of<BudgetProvider>(context).budget.amount;
     final txP = Provider.of<TransactionProvider>(context);
     final txs = txP.transactions;
-    final expenses = txs.fold(0.0, (s, t) => s + t.amount);
+    final now = DateTime.now();
+    final monthTxs = txs.where((t) => t.date.month == now.month && t.date.year == now.year).toList();
+    final expenses = txP.monthlySpent;
     final available = budget > 0
         ? (budget - expenses).clamp(0.0, double.infinity)
         : 0.0;
@@ -247,7 +202,7 @@ class _TrackerPageState extends State<TrackerPage> {
     final pct = budget > 0 ? (expenses / budget).clamp(0.0, 1.0) : 0.0;
 
     final Map<String, double> catTotals = {};
-    for (final t in txs) {
+    for (final t in monthTxs) {
       catTotals[t.category] = (catTotals[t.category] ?? 0) + t.amount;
     }
 
@@ -313,7 +268,7 @@ class _TrackerPageState extends State<TrackerPage> {
                           ),
                           Text(
                             budget > 0
-                                ? '\$${budget.toStringAsFixed(2)}'
+                                ? '€${budget.toStringAsFixed(2)}'
                                 : 'Not set',
                             style: const TextStyle(
                               color: Colors.white,
@@ -349,7 +304,7 @@ class _TrackerPageState extends State<TrackerPage> {
                       Expanded(
                         child: _Stat(
                           'Spent',
-                          '\$${expenses.toStringAsFixed(2)}',
+                          '€${expenses.toStringAsFixed(2)}',
                           Icons.arrow_upward_rounded,
                         ),
                       ),
@@ -357,7 +312,7 @@ class _TrackerPageState extends State<TrackerPage> {
                       Expanded(
                         child: _Stat(
                           'Available',
-                          '\$${available.toStringAsFixed(2)}',
+                          '€${available.toStringAsFixed(2)}',
                           Icons.savings_outlined,
                         ),
                       ),
@@ -429,7 +384,7 @@ class _TrackerPageState extends State<TrackerPage> {
                           ),
                         ),
                       )
-                    else if (_dynamicCategories.isEmpty)
+                    else if (dynamicCategories.isEmpty)
                       const Text(
                         'No categories loaded',
                         style: TextStyle(color: Colors.grey),
@@ -439,10 +394,10 @@ class _TrackerPageState extends State<TrackerPage> {
                         height: 40,
                         child: ListView.separated(
                           scrollDirection: Axis.horizontal,
-                          itemCount: _dynamicCategories.length,
+                          itemCount: dynamicCategories.length,
                           separatorBuilder: (_, _) => const SizedBox(width: 8),
                           itemBuilder: (_, i) {
-                            final cat = _dynamicCategories[i];
+                            final cat = dynamicCategories[i];
                             final sel =
                                 _selectedCat != null &&
                                 cat.name == _selectedCat!.name;
@@ -496,7 +451,7 @@ class _TrackerPageState extends State<TrackerPage> {
                         ),
                         const SizedBox(width: 10),
                         Expanded(
-                          child: _field(_amountController, 'Amount', '\$ '),
+                          child: _field(_amountController, 'Amount', '€'),
                         ),
                       ],
                     ),
@@ -567,8 +522,21 @@ class _TrackerPageState extends State<TrackerPage> {
                                         : 0.8,
                                   ),
                                   value: available,
-                                  title: '',
+                                  title: '€${available.toStringAsFixed(0)}',
                                   radius: 50,
+                                  titleStyle: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w800,
+                                    color: Colors.white,
+                                    shadows: [
+                                      Shadow(
+                                        color: Colors.black.withValues(
+                                          alpha: 0.5,
+                                        ),
+                                        blurRadius: 2,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ...catTotals.entries.map((e) {
                                 final c = catFor(e.key);
@@ -577,12 +545,10 @@ class _TrackerPageState extends State<TrackerPage> {
                                 return PieChartSectionData(
                                   color: c.color,
                                   value: e.value,
-                                  title: isLarge
-                                      ? '\$${e.value.toStringAsFixed(0)}'
-                                      : '',
+                                  title: '€${e.value.toStringAsFixed(0)}',
                                   radius: isLarge ? 60 : 55,
                                   titleStyle: TextStyle(
-                                    fontSize: isLarge ? 22 : 20,
+                                    fontSize: 16,
                                     fontWeight: FontWeight.w800,
                                     color: Colors.white,
                                     shadows: [
@@ -609,12 +575,12 @@ class _TrackerPageState extends State<TrackerPage> {
                           if (budget > 0)
                             _Chip(
                               Colors.green.withValues(alpha: 0.7),
-                              'Available \$${available.toStringAsFixed(0)}',
+                              'Available €${available.toStringAsFixed(0)}',
                             ),
                           ...catTotals.entries.map(
                             (e) => _Chip(
                               catFor(e.key).color,
-                              '${e.key} \$${e.value.toStringAsFixed(0)}',
+                              '${e.key} €${e.value.toStringAsFixed(0)}',
                             ),
                           ),
                         ],
@@ -731,7 +697,7 @@ class _TrackerPageState extends State<TrackerPage> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
-                                  '-\$${tx.amount.toStringAsFixed(2)}',
+                                  '-€${tx.amount.toStringAsFixed(2)}',
                                   style: const TextStyle(
                                     color: Color(0xFFFF6B6B),
                                     fontWeight: FontWeight.w700,

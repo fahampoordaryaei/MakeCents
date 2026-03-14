@@ -21,10 +21,14 @@ class Transaction {
 class TransactionProvider with ChangeNotifier {
   List<Transaction> _transactions = [];
   List<Transaction> get transactions => _transactions;
-  bool isLoading = false;
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
 
-  Future<void> init() async {
-    await fetchTransactions();
+  double get monthlySpent {
+    final now = DateTime.now();
+    return _transactions
+        .where((t) => t.date.month == now.month && t.date.year == now.year)
+        .fold(0.0, (sum, item) => sum + item.amount);
   }
 
   Future<void> fetchTransactions() async {
@@ -35,7 +39,7 @@ class TransactionProvider with ChangeNotifier {
       return;
     }
 
-    isLoading = true;
+    _isLoading = true;
     notifyListeners();
 
     try {
@@ -44,21 +48,20 @@ class TransactionProvider with ChangeNotifier {
       );
       final response = await query.execute();
 
-      _transactions = response.data.transactions
-          .map(
-            (t) => Transaction(
-              id: t.id,
-              title: t.description ?? t.category,
-              amount: t.amount,
-              date: t.date,
-              category: t.category,
-            ),
-          )
-          .toList();
+      _transactions = response.data.transactions.map((tx) {
+        final catName = tx.category.name;
+        return Transaction(
+          id: tx.id,
+          title: tx.description ?? 'Expense',
+          amount: tx.amount,
+          date: tx.date,
+          category: catName,
+        );
+      }).toList();
     } catch (e) {
       debugPrint("Error fetching transactions: $e");
     } finally {
-      isLoading = false;
+      _isLoading = false;
       notifyListeners();
     }
   }
@@ -67,12 +70,12 @@ class TransactionProvider with ChangeNotifier {
     String title,
     double amount,
     DateTime date, {
-    String category = 'Other',
+    String categoryName = 'Other',
+    required String categoryId,
   }) async {
     final user = auth.FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
-    // Optimistic UI update
     final tempId = DateTime.now().toString();
     _transactions.insert(
       0,
@@ -81,7 +84,7 @@ class TransactionProvider with ChangeNotifier {
         title: title,
         amount: amount,
         date: date,
-        category: category,
+        category: categoryName,
       ),
     );
     notifyListeners();
@@ -90,18 +93,35 @@ class TransactionProvider with ChangeNotifier {
       final mutation = ExampleConnector.instance
           .addTransaction(
             userId: user.uid,
-            category: category,
+            categoryId: categoryId,
             amount: amount,
             date: date,
           )
           .description(title);
 
       await mutation.execute();
-      // Only refetch if we need the real DB ID immediately, otherwise optimistic update holds
+
+      try {
+        final pointsResult = await ExampleConnector.instance
+            .getUserPoints(userId: user.uid)
+            .execute();
+
+        if (pointsResult.data.pointsBalances.isNotEmpty) {
+          final existing = pointsResult.data.pointsBalances.first;
+          await ExampleConnector.instance
+              .updatePointsBalance(
+                id: existing.id,
+                totalPoints: existing.totalPoints + 10,
+              )
+              .execute();
+        }
+      } catch (e) {
+        debugPrint("Error updating points balance: $e");
+      }
+
       await fetchTransactions();
     } catch (e) {
       debugPrint("Error adding transaction: $e");
-      // Revert optimistic update on failure
       _transactions.removeWhere((t) => t.id == tempId);
       notifyListeners();
     }
@@ -114,20 +134,16 @@ class TransactionProvider with ChangeNotifier {
     if (user == null) return;
 
     final removedTx = _transactions[index];
-    final removedId = removedTx.id;
 
-    // Optimistic UI update
     _transactions.removeAt(index);
     notifyListeners();
 
     try {
       await ExampleConnector.instance
-          .deleteTransaction(id: removedId)
+          .deleteTransaction(id: removedTx.id)
           .execute();
-      debugPrint("Successfully deleted transaction: $removedId");
     } catch (e) {
       debugPrint("Error deleting transaction: $e");
-      // Revert optimistic update
       _transactions.insert(index, removedTx);
       notifyListeners();
       rethrow;

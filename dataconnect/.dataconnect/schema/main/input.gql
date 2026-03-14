@@ -274,6 +274,10 @@ input ExpenseCategory_Filter {
   ✨ Generated from Field `ExpenseCategory`.`name` of type `String!`
   """
   name: String_Filter
+  """
+  ✨ Generated from Field `ExpenseCategory`.`transactions_on_category` of type `[Transaction!]!`
+  """
+  transactions_on_category: Transaction_ListFilter
 }
 """
 ✨ Generated first-row input type for table 'ExpenseCategory'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
@@ -588,6 +592,14 @@ input PointsBalance_Data {
   """
   user: User_Key
   """
+  ✨ Generated from Field `PointsBalance`.`lastBudgetRewardMonth` of type `String`
+  """
+  lastBudgetRewardMonth: String
+  """
+  ✨ `_expr` server value variant of `lastBudgetRewardMonth` (✨ Generated from Field `PointsBalance`.`lastBudgetRewardMonth` of type `String`)
+  """
+  lastBudgetRewardMonth_expr: String_Expr
+  """
   ✨ Generated from Field `PointsBalance`.`totalPoints` of type `Int!`
   """
   totalPoints: Int
@@ -645,6 +657,10 @@ input PointsBalance_Filter {
   """
   user: User_Filter
   """
+  ✨ Generated from Field `PointsBalance`.`lastBudgetRewardMonth` of type `String`
+  """
+  lastBudgetRewardMonth: String_Filter
+  """
   ✨ Generated from Field `PointsBalance`.`totalPoints` of type `Int!`
   """
   totalPoints: Int_Filter
@@ -694,6 +710,10 @@ input PointsBalance_Having {
   ✨ Generated from Field `PointsBalance`.`id_count` of type `Int!`
   """
   id_count: Int_Filter
+  """
+  ✨ Generated from Field `PointsBalance`.`lastBudgetRewardMonth_count` of type `Int!`
+  """
+  lastBudgetRewardMonth_count: Int_Filter
   """
   ✨ Generated from Field `PointsBalance`.`totalPoints_count` of type `Int!`
   """
@@ -774,6 +794,10 @@ input PointsBalance_Order {
   """
   user: User_Order
   """
+  ✨ Generated from Field `PointsBalance`.`lastBudgetRewardMonth` of type `String`
+  """
+  lastBudgetRewardMonth: OrderDirection
+  """
   ✨ Generated from Field `PointsBalance`.`totalPoints` of type `Int!`
   """
   totalPoints: OrderDirection
@@ -789,6 +813,10 @@ input PointsBalance_Order {
   ✨ Generated from Field `PointsBalance`.`id_count` of type `Int!`
   """
   id_count: OrderDirection
+  """
+  ✨ Generated from Field `PointsBalance`.`lastBudgetRewardMonth_count` of type `Int!`
+  """
+  lastBudgetRewardMonth_count: OrderDirection
   """
   ✨ Generated from Field `PointsBalance`.`totalPoints_count` of type `Int!`
   """
@@ -1935,6 +1963,14 @@ input Transaction_Data {
   """
   id_expr: UUID_Expr
   """
+  ✨ Generated from Field `Transaction`.`categoryId` of type `UUID!`
+  """
+  categoryId: UUID
+  """
+  ✨ `_expr` server value variant of `categoryId` (✨ Generated from Field `Transaction`.`categoryId` of type `UUID!`)
+  """
+  categoryId_expr: UUID_Expr
+  """
   ✨ Generated from Field `Transaction`.`userUsername` of type `String!`
   """
   userUsername: String
@@ -1942,6 +1978,10 @@ input Transaction_Data {
   ✨ `_expr` server value variant of `userUsername` (✨ Generated from Field `Transaction`.`userUsername` of type `String!`)
   """
   userUsername_expr: String_Expr
+  """
+  ✨ Generated from Field `Transaction`.`category` of type `ExpenseCategory!`
+  """
+  category: ExpenseCategory_Key
   """
   ✨ Generated from Field `Transaction`.`user` of type `User!`
   """
@@ -1958,14 +1998,6 @@ input Transaction_Data {
   ✨ `_update` server value variant of `amount` (✨ Generated from Field `Transaction`.`amount` of type `Float!`)
   """
   amount_update: [Float_Update!]
-  """
-  ✨ Generated from Field `Transaction`.`category` of type `String!`
-  """
-  category: String
-  """
-  ✨ `_expr` server value variant of `category` (✨ Generated from Field `Transaction`.`category` of type `String!`)
-  """
-  category_expr: String_Expr
   """
   ✨ Generated from Field `Transaction`.`createdAt` of type `Timestamp!`
   """
@@ -2028,9 +2060,17 @@ input Transaction_Filter {
   """
   id: UUID_Filter
   """
+  ✨ Generated from Field `Transaction`.`categoryId` of type `UUID!`
+  """
+  categoryId: UUID_Filter
+  """
   ✨ Generated from Field `Transaction`.`userUsername` of type `String!`
   """
   userUsername: String_Filter
+  """
+  ✨ Generated from Field `Transaction`.`category` of type `ExpenseCategory!`
+  """
+  category: ExpenseCategory_Filter
   """
   ✨ Generated from Field `Transaction`.`user` of type `User!`
   """
@@ -2039,10 +2079,6 @@ input Transaction_Filter {
   ✨ Generated from Field `Transaction`.`amount` of type `Float!`
   """
   amount: Float_Filter
-  """
-  ✨ Generated from Field `Transaction`.`category` of type `String!`
-  """
-  category: String_Filter
   """
   ✨ Generated from Field `Transaction`.`createdAt` of type `Timestamp!`
   """
@@ -2098,9 +2134,9 @@ input Transaction_Having {
   """
   amount_count: Int_Filter
   """
-  ✨ Generated from Field `Transaction`.`category_count` of type `Int!`
+  ✨ Generated from Field `Transaction`.`categoryId_count` of type `Int!`
   """
-  category_count: Int_Filter
+  categoryId_count: Int_Filter
   """
   ✨ Generated from Field `Transaction`.`createdAt_count` of type `Int!`
   """
@@ -2189,9 +2225,17 @@ input Transaction_Order {
   """
   id: OrderDirection
   """
+  ✨ Generated from Field `Transaction`.`categoryId` of type `UUID!`
+  """
+  categoryId: OrderDirection
+  """
   ✨ Generated from Field `Transaction`.`userUsername` of type `String!`
   """
   userUsername: OrderDirection
+  """
+  ✨ Generated from Field `Transaction`.`category` of type `ExpenseCategory!`
+  """
+  category: ExpenseCategory_Order
   """
   ✨ Generated from Field `Transaction`.`user` of type `User!`
   """
@@ -2200,10 +2244,6 @@ input Transaction_Order {
   ✨ Generated from Field `Transaction`.`amount` of type `Float!`
   """
   amount: OrderDirection
-  """
-  ✨ Generated from Field `Transaction`.`category` of type `String!`
-  """
-  category: OrderDirection
   """
   ✨ Generated from Field `Transaction`.`createdAt` of type `Timestamp!`
   """
@@ -2225,9 +2265,9 @@ input Transaction_Order {
   """
   amount_count: OrderDirection
   """
-  ✨ Generated from Field `Transaction`.`category_count` of type `Int!`
+  ✨ Generated from Field `Transaction`.`categoryId_count` of type `Int!`
   """
-  category_count: OrderDirection
+  categoryId_count: OrderDirection
   """
   ✨ Generated from Field `Transaction`.`createdAt_count` of type `Int!`
   """

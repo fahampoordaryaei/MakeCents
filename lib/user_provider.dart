@@ -8,6 +8,8 @@ class UserProfile {
   final String email;
   final String? school;
   final String? course;
+  final String? otherSchool;
+  final String? otherCourse;
 
   UserProfile({
     required this.firstName,
@@ -15,7 +17,27 @@ class UserProfile {
     required this.email,
     this.school,
     this.course,
+    this.otherSchool,
+    this.otherCourse,
   });
+
+  String get fullName => '$firstName $lastName';
+
+  String get displaySchool {
+    if (school == null) return 'Not set';
+    if (school == 'Other' && otherSchool != null && otherSchool!.isNotEmpty) {
+      return otherSchool!;
+    }
+    return school!;
+  }
+
+  String get displayCourse {
+    if (course == null) return 'Not set';
+    if (course == 'Other' && otherCourse != null && otherCourse!.isNotEmpty) {
+      return otherCourse!;
+    }
+    return course!;
+  }
 }
 
 class UserProvider with ChangeNotifier {
@@ -50,14 +72,8 @@ class UserProvider with ChangeNotifier {
           email: user.email ?? '',
           school: u.school?.name,
           course: u.course?.name,
-        );
-      } else {
-        // Fallback to Firebase Auth display name if DB record missing
-        final names = (user.displayName ?? '').split(' ');
-        _profile = UserProfile(
-          firstName: names.isNotEmpty ? names[0] : 'User',
-          lastName: names.length > 1 ? names.sublist(1).join(' ') : '',
-          email: user.email ?? '',
+          otherSchool: u.otherSchool,
+          otherCourse: u.otherCourse,
         );
       }
     } catch (e) {

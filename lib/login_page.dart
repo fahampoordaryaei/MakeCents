@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'main.dart';
-import 'startup_page.dart';
+import 'register_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -57,12 +57,10 @@ class _LoginPageState extends State<LoginPage> {
     } on FirebaseAuthException catch (e) {
       setState(() {
         _error = e.message ?? 'An error occurred during sign in.';
-        _isLoading = false;
       });
     } catch (e) {
       setState(() {
         _error = 'An unexpected error occurred.';
-        _isLoading = false;
       });
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -83,7 +81,7 @@ class _LoginPageState extends State<LoginPage> {
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
+                  color: Colors.black.withValues(alpha: 0.06),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -94,10 +92,7 @@ class _LoginPageState extends State<LoginPage> {
               children: [
                 Align(alignment: Alignment.centerLeft, child: _backBtn()),
                 const SizedBox(height: 8),
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  child: _buildLogin(),
-                ),
+                _buildLogin(),
                 if (_error.isNotEmpty) ...[
                   const SizedBox(height: 12),
                   Container(
@@ -137,9 +132,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _backBtn() => GestureDetector(
-    onTap: () => Navigator.of(
-      context,
-    ).pushReplacement(MaterialPageRoute(builder: (_) => const StartupPage())),
+    onTap: () => Navigator.pop(context),
     child: Container(
       width: 36,
       height: 36,
@@ -211,11 +204,9 @@ class _LoginPageState extends State<LoginPage> {
       const SizedBox(height: 12),
       TextButton(
         onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => const StartupPage(),
-            ), // Actually should just be a link to sign up maybe
-          );
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const RegisterPage()));
         },
         child: Text.rich(
           TextSpan(

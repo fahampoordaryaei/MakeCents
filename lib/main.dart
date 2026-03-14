@@ -18,7 +18,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   final transactionProvider = TransactionProvider();
-  await transactionProvider.init();
+  await transactionProvider.fetchTransactions();
   final budgetProvider = BudgetProvider();
   await budgetProvider.init();
   final themeProvider = ThemeProvider();
@@ -89,15 +89,11 @@ class _HomeScreenState extends State<HomeScreen> {
           color: Theme.of(context).colorScheme.surface,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.07),
+              color: Colors.black.withValues(alpha:0.07),
               blurRadius: 16,
               offset: const Offset(0, -4),
             ),
           ],
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(24),
-            topRight: Radius.circular(24),
-          ),
         ),
         child: ClipRRect(
           borderRadius: const BorderRadius.only(
@@ -108,7 +104,7 @@ class _HomeScreenState extends State<HomeScreen> {
             backgroundColor: Theme.of(context).colorScheme.surface,
             selectedIndex: _selectedIndex,
             onDestinationSelected: (i) => setState(() => _selectedIndex = i),
-            indicatorColor: const Color(0xFF3e7f3f).withOpacity(0.15),
+            indicatorColor: const Color(0xFF3e7f3f).withValues(alpha:0.15),
             destinations: [
               NavigationDestination(
                 icon: Icon(

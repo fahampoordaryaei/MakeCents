@@ -274,7 +274,7 @@ class _MatchPageState extends State<MatchPage> {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF3e7f3f).withOpacity(0.12),
+                      color: const Color(0xFF3e7f3f).withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -372,12 +372,11 @@ class _ScholarshipCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Icon
             Container(
               width: 52,
               height: 52,
               decoration: BoxDecoration(
-                color: s.color.withOpacity(0.12),
+                color: s.color.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Icon(Icons.school_outlined, color: s.color, size: 26),

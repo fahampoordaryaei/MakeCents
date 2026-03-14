@@ -68,6 +68,10 @@ extend type Transaction {
   """
   id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "Transaction", purpose: IMPLICIT_KEY_FIELD)
   """
+  ✨ Implicit foreign key field based on `Transaction`.`category`. It must match the value of `ExpenseCategory`.`id`. See `@ref` for how to customize it.
+  """
+  categoryId: UUID! @fdc_generated(from: "Transaction.category", purpose: IMPLICIT_REF_FIELD)
+  """
   ✨ Implicit foreign key field based on `Transaction`.`user`. It must match the value of `User`.`username`. See `@ref` for how to customize it.
   """
   userUsername: String! @fdc_generated(from: "Transaction.user", purpose: IMPLICIT_REF_FIELD)

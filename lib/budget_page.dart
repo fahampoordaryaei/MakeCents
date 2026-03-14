@@ -6,55 +6,11 @@ import 'transaction_provider.dart';
 class BudgetPage extends StatelessWidget {
   const BudgetPage({super.key});
 
-  void _editDialog(BuildContext context) {
-    final bp = Provider.of<BudgetProvider>(context, listen: false);
-    final ctrl = TextEditingController(
-      text: bp.budget.amount.toStringAsFixed(0),
-    );
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        title: const Text('Set Monthly Budget'),
-        content: TextField(
-          controller: ctrl,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          decoration: InputDecoration(
-            labelText: 'Amount (\$)',
-            filled: true,
-            fillColor: Theme.of(context).colorScheme.surface,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFF3e7f3f),
-            ),
-            onPressed: () async {
-              final v = double.tryParse(ctrl.text);
-              if (v != null && v > 0) await bp.setBudget(v);
-              Navigator.pop(ctx);
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final bp = Provider.of<BudgetProvider>(context);
-    final txs = Provider.of<TransactionProvider>(context).transactions;
-    final spent = txs.fold(0.0, (s, t) => s + t.amount);
+    final txProvider = Provider.of<TransactionProvider>(context);
+    final spent = txProvider.monthlySpent;
     final budget = bp.budget.amount;
     final left = (budget - spent).clamp(0.0, double.infinity);
     final pct = budget > 0 ? (spent / budget).clamp(0.0, 1.0) : 0.0;
@@ -68,12 +24,6 @@ class BudgetPage extends StatelessWidget {
           'Monthly Budget',
           style: TextStyle(fontWeight: FontWeight.w700),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit_outlined),
-            onPressed: () => _editDialog(context),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -91,7 +41,7 @@ class BudgetPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(22),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF3e7f3f).withOpacity(0.3),
+                    color: const Color(0xFF3e7f3f).withValues(alpha:0.3),
                     blurRadius: 16,
                     offset: const Offset(0, 8),
                   ),
@@ -106,7 +56,7 @@ class BudgetPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    budget > 0 ? '\$${budget.toStringAsFixed(2)}' : 'Not set',
+                    budget > 0 ? '€${budget.toStringAsFixed(2)}' : 'Not set',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 36,
@@ -119,7 +69,7 @@ class BudgetPage extends StatelessWidget {
                       Expanded(
                         child: _BudgetStat(
                           'Spent',
-                          '\$${spent.toStringAsFixed(2)}',
+                          '€${spent.toStringAsFixed(2)}',
                           Colors.white,
                         ),
                       ),
@@ -127,7 +77,7 @@ class BudgetPage extends StatelessWidget {
                       Expanded(
                         child: _BudgetStat(
                           'Remaining',
-                          '\$${left.toStringAsFixed(2)}',
+                          '€${left.toStringAsFixed(2)}',
                           Colors.white,
                         ),
                       ),
@@ -156,34 +106,6 @@ class BudgetPage extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 20),
-            Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: ListTile(
-                leading: Container(
-                  width: 42,
-                  height: 42,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF3e7f3f).withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.edit_outlined,
-                    color: Color(0xFF3e7f3f),
-                  ),
-                ),
-                title: const Text(
-                  'Change Budget',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                subtitle: const Text('Set a new monthly limit'),
-                trailing: const Icon(Icons.chevron_right, color: Colors.grey),
-                onTap: () => _editDialog(context),
-              ),
-            ),
           ],
         ),
       ),
@@ -208,7 +130,7 @@ class _BudgetStat extends StatelessWidget {
       ),
       Text(
         label,
-        style: TextStyle(color: color.withOpacity(0.7), fontSize: 14),
+        style: TextStyle(color: color.withValues(alpha:0.7), fontSize: 14),
       ),
     ],
   );

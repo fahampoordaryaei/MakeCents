@@ -8,10 +8,6 @@ class ThemeProvider extends ChangeNotifier {
 
   ThemeType get themeType => _themeType;
 
-  ThemeProvider() {
-    loadTheme();
-  }
-
   Future<void> loadTheme() async {
     final prefs = await SharedPreferences.getInstance();
     final savedTheme = prefs.getString('theme_pref_v2') ?? 'ThemeType.light';
@@ -51,17 +47,16 @@ final ThemeData lightTheme = ThemeData(
     surface: Colors.white,
   ),
   useMaterial3: true,
-  fontFamily: 'SF Pro Display', // Assuming a modern font
 );
 
 final ThemeData darkNavyTheme = ThemeData(
   brightness: Brightness.dark,
   primaryColor: const Color(0xFF3e7f3f),
-  scaffoldBackgroundColor: const Color(0xFF12151C), // Neutral deep navy
+  scaffoldBackgroundColor: const Color(0xFF12151C),
   colorScheme: const ColorScheme.dark(
     primary: Color(0xFF3e7f3f),
     secondary: Color(0xFF4ECDC4),
-    surface: Color(0xFF1E222D), // Neutral dark slate Navy
+    surface: Color(0xFF1E222D),
   ),
   useMaterial3: true,
 );
@@ -73,7 +68,7 @@ final ThemeData darkAmoledTheme = ThemeData(
   colorScheme: const ColorScheme.dark(
     primary: Color(0xFF3e7f3f),
     secondary: Color(0xFF4ECDC4),
-    surface: Color(0xFF121212), // Very dark gray for cards
+    surface: Color(0xFF121212),
   ),
   useMaterial3: true,
 );

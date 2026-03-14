@@ -3,10 +3,6 @@ import 'package:firebase_data_connect/firebase_data_connect.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 
-part 'seed_full_data.dart';
-
-part 'seed_onboarding_data.dart';
-
 part 'list_schools.dart';
 
 part 'list_courses.dart';
@@ -21,11 +17,21 @@ part 'store_user_profile.dart';
 
 part 'delete_transaction.dart';
 
+part 'update_user_budget.dart';
+
 part 'get_user_profile.dart';
 
 part 'list_scholarships.dart';
 
 part 'list_expense_categories.dart';
+
+part 'init_points_balance.dart';
+
+part 'update_points_balance.dart';
+
+part 'seed_full_data.dart';
+
+part 'seed_onboarding_data.dart';
 
 
 
@@ -34,16 +40,6 @@ part 'list_expense_categories.dart';
 
 
 class ExampleConnector {
-  
-  
-  SeedFullDataVariablesBuilder seedFullData () {
-    return SeedFullDataVariablesBuilder(dataConnect, );
-  }
-  
-  
-  SeedOnboardingDataVariablesBuilder seedOnboardingData () {
-    return SeedOnboardingDataVariablesBuilder(dataConnect, );
-  }
   
   
   ListSchoolsVariablesBuilder listSchools () {
@@ -66,8 +62,8 @@ class ExampleConnector {
   }
   
   
-  AddTransactionVariablesBuilder addTransaction ({required String userId, required String category, required double amount, required DateTime date, }) {
-    return AddTransactionVariablesBuilder(dataConnect, userId: userId,category: category,amount: amount,date: date,);
+  AddTransactionVariablesBuilder addTransaction ({required String userId, required String categoryId, required double amount, required DateTime date, }) {
+    return AddTransactionVariablesBuilder(dataConnect, userId: userId,categoryId: categoryId,amount: amount,date: date,);
   }
   
   
@@ -78,6 +74,11 @@ class ExampleConnector {
   
   DeleteTransactionVariablesBuilder deleteTransaction ({required String id, }) {
     return DeleteTransactionVariablesBuilder(dataConnect, id: id,);
+  }
+  
+  
+  UpdateUserBudgetVariablesBuilder updateUserBudget ({required String username, required double budget, }) {
+    return UpdateUserBudgetVariablesBuilder(dataConnect, username: username,budget: budget,);
   }
   
   
@@ -93,6 +94,26 @@ class ExampleConnector {
   
   ListExpenseCategoriesVariablesBuilder listExpenseCategories () {
     return ListExpenseCategoriesVariablesBuilder(dataConnect, );
+  }
+  
+  
+  InitPointsBalanceVariablesBuilder initPointsBalance ({required String userId, required int totalPoints, }) {
+    return InitPointsBalanceVariablesBuilder(dataConnect, userId: userId,totalPoints: totalPoints,);
+  }
+  
+  
+  UpdatePointsBalanceVariablesBuilder updatePointsBalance ({required String id, required int totalPoints, }) {
+    return UpdatePointsBalanceVariablesBuilder(dataConnect, id: id,totalPoints: totalPoints,);
+  }
+  
+  
+  SeedFullDataVariablesBuilder seedFullData () {
+    return SeedFullDataVariablesBuilder(dataConnect, );
+  }
+  
+  
+  SeedOnboardingDataVariablesBuilder seedOnboardingData () {
+    return SeedOnboardingDataVariablesBuilder(dataConnect, );
   }
   
 

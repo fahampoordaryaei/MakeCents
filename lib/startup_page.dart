@@ -74,7 +74,7 @@ class _StartupPageState extends State<StartupPage> {
                           width: 100,
                           height: 100,
                           decoration: BoxDecoration(
-                            color: s.color.withOpacity(0.15),
+                            color: s.color.withValues(alpha:0.15),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(s.icon, size: 50, color: s.color),

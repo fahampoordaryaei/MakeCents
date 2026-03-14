@@ -86,7 +86,7 @@ class UserPage extends StatelessWidget {
                     activeTrackColor: const Color(0xFF3e7f3f),
                     inactiveTrackColor: const Color(
                       0xFF3e7f3f,
-                    ).withOpacity(0.2),
+                    ).withValues(alpha: 0.2),
                     thumbColor: const Color(0xFF3e7f3f),
                     trackHeight: 6.0,
                   ),
@@ -161,18 +161,16 @@ class UserPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final txs = Provider.of<TransactionProvider>(context).transactions;
+    final txP = Provider.of<TransactionProvider>(context);
     final bp = Provider.of<BudgetProvider>(context);
     final tp = Provider.of<ThemeProvider>(context);
     final up = Provider.of<UserProvider>(context);
     final isDarkMode = tp.themeType != ThemeType.light;
-    final totalSpent = txs.fold(0.0, (s, t) => s + t.amount);
+    final totalSpent = txP.monthlySpent;
 
     final user = FirebaseAuth.instance.currentUser;
-    final userEmail = up.profile?.email ?? user?.email ?? '---';
-    final userName = up.profile != null
-        ? '${up.profile!.firstName} ${up.profile!.lastName}'
-        : (user?.displayName ?? 'Student');
+    final userEmail = up.profile?.email ?? user?.email ?? '';
+    final userName = up.profile?.fullName ?? user?.displayName ?? '';
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -180,22 +178,16 @@ class UserPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Profile',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w800,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                ),
-              ],
+            Text(
+              'Profile',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w800,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
             const SizedBox(height: 24),
 
-            // User name and email
             Center(
               child: Column(
                 children: [
@@ -214,7 +206,7 @@ class UserPage extends StatelessWidget {
                       fontSize: 16,
                       color: Theme.of(
                         context,
-                      ).colorScheme.onSurface.withOpacity(0.6),
+                      ).colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
                   if (up.profile?.school != null) ...[
@@ -225,7 +217,7 @@ class UserPage extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF3e7f3f).withOpacity(0.1),
+                        color: const Color(0xFF3e7f3f).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
@@ -243,13 +235,12 @@ class UserPage extends StatelessWidget {
             ),
             const SizedBox(height: 28),
 
-            // Stats row
             Row(
               children: [
                 Expanded(
                   child: _StatCard(
                     'Total Spent',
-                    '\$${totalSpent.toStringAsFixed(2)}',
+                    '€${totalSpent.toStringAsFixed(2)}',
                     Icons.arrow_upward_rounded,
                     const Color(0xFFFF6B6B),
                   ),
@@ -258,7 +249,7 @@ class UserPage extends StatelessWidget {
                 Expanded(
                   child: _StatCard(
                     'Transactions',
-                    '${txs.length}',
+                    '${txP.transactions.length}',
                     Icons.receipt_long_outlined,
                     const Color(0xFF4ECDC4),
                   ),
@@ -267,7 +258,6 @@ class UserPage extends StatelessWidget {
             ),
             const SizedBox(height: 28),
 
-            // Settings section
             const Text(
               'Settings',
               style: TextStyle(
@@ -282,19 +272,15 @@ class UserPage extends StatelessWidget {
               icon: Icons.account_balance_wallet_outlined,
               iconColor: const Color(0xFF3e7f3f),
               title: 'Monthly Budget',
-              subtitle: '\$${bp.budget.amount.toStringAsFixed(2)}',
+              subtitle: '€${bp.budget.amount.toStringAsFixed(2)}',
               onTap: () => _editBudgetDialog(context),
-              trailing: IconButton(
-                icon: const Icon(Icons.edit_outlined, size: 20),
-                onPressed: () => _editBudgetDialog(context),
-              ),
             ),
             const SizedBox(height: 8),
             _SettingsTile(
               icon: Icons.dark_mode_outlined,
               iconColor: Colors.deepPurple,
               title: 'Dark Mode',
-              subtitle: 'Toggle dark appearance',
+              subtitle: 'Toggle dark mode',
               trailing: Switch(
                 value: isDarkMode,
                 onChanged: (val) {
@@ -305,22 +291,6 @@ class UserPage extends StatelessWidget {
               onTap: () {
                 tp.setTheme(isDarkMode ? ThemeType.light : ThemeType.darkNavy);
               },
-            ),
-            const SizedBox(height: 8),
-            _SettingsTile(
-              icon: Icons.notifications_outlined,
-              iconColor: const Color(0xFFAA96DA),
-              title: 'Notifications',
-              subtitle: 'Manage alerts',
-              onTap: () {},
-            ),
-            const SizedBox(height: 8),
-            _SettingsTile(
-              icon: Icons.lock_outline,
-              iconColor: const Color(0xFF4ECDC4),
-              title: 'Security',
-              subtitle: 'Password',
-              onTap: () {},
             ),
             const SizedBox(height: 8),
             _SettingsTile(
@@ -367,7 +337,7 @@ class _StatCard extends StatelessWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.15),
+            color: color.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(icon, color: color, size: 20),
@@ -421,7 +391,7 @@ class _SettingsTile extends StatelessWidget {
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: iconColor.withOpacity(0.12),
+          color: iconColor.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Icon(icon, color: iconColor, size: 20),

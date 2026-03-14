@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'startup_page.dart';
 import 'onboarding_profile_page.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -34,44 +33,45 @@ class _RegisterPageState extends State<RegisterPage> {
     final email = _emailController.text.trim();
     final pass = _passwordController.text;
 
-    setState(() {
-      _error = '';
-      if (firstName.isEmpty ||
-          lastName.isEmpty ||
-          email.isEmpty ||
-          pass.isEmpty) {
-        _error = 'Please fill out all fields.';
-        return;
-      }
+    setState(() => _error = '');
 
-      if (!RegExp(r'^[^@]+@[^@]+\.[^@]+$').hasMatch(email)) {
-        _error = 'Please enter a valid email address.';
-        return;
-      }
-
-      if (pass.length < 8) {
-        _error = 'Password must be at least 8 characters long.';
-        return;
-      }
-      if (!RegExp(r'[A-Z]').hasMatch(pass)) {
-        _error = 'Password must contain at least 1 uppercase letter.';
-        return;
-      }
-      if (!RegExp(r'[a-z]').hasMatch(pass)) {
-        _error = 'Password must contain at least 1 lowercase letter.';
-        return;
-      }
-      if (!RegExp(r'[0-9]').hasMatch(pass)) {
-        _error = 'Password must contain at least 1 number.';
-        return;
-      }
-      if (!RegExp(r'[^a-zA-Z0-9\s]').hasMatch(pass)) {
-        _error = 'Password must contain at least 1 special character.';
-        return;
-      }
-    });
-
-    if (_error.isNotEmpty) return;
+    if (firstName.isEmpty ||
+        lastName.isEmpty ||
+        email.isEmpty ||
+        pass.isEmpty) {
+      setState(() => _error = 'Please fill out all fields.');
+      return;
+    }
+    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+$').hasMatch(email)) {
+      setState(() => _error = 'Please enter a valid email address.');
+      return;
+    }
+    if (pass.length < 8) {
+      setState(() => _error = 'Password must be at least 8 characters long.');
+      return;
+    }
+    if (!RegExp(r'[A-Z]').hasMatch(pass)) {
+      setState(
+        () => _error = 'Password must contain at least 1 uppercase letter.',
+      );
+      return;
+    }
+    if (!RegExp(r'[a-z]').hasMatch(pass)) {
+      setState(
+        () => _error = 'Password must contain at least 1 lowercase letter.',
+      );
+      return;
+    }
+    if (!RegExp(r'[0-9]').hasMatch(pass)) {
+      setState(() => _error = 'Password must contain at least 1 number.');
+      return;
+    }
+    if (!RegExp(r'[^a-zA-Z0-9\s]').hasMatch(pass)) {
+      setState(
+        () => _error = 'Password must contain at least 1 special character.',
+      );
+      return;
+    }
 
     setState(() => _isLoading = true);
 
@@ -84,19 +84,18 @@ class _RegisterPageState extends State<RegisterPage> {
 
       if (mounted) {
         Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const OnboardingProfilePage()),
+          MaterialPageRoute(
+            builder: (_) =>
+                OnboardingProfilePage(firstName: firstName, lastName: lastName),
+          ),
         );
       }
     } on FirebaseAuthException catch (e) {
-      setState(() {
-        _error = e.message ?? 'An error occurred during registration.';
-        _isLoading = false;
-      });
+      setState(
+        () => _error = e.message ?? 'An error occurred during registration.',
+      );
     } catch (e) {
-      setState(() {
-        _error = 'An unexpected error occurred.';
-        _isLoading = false;
-      });
+      setState(() => _error = 'An unexpected error occurred.');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -156,7 +155,7 @@ class _RegisterPageState extends State<RegisterPage> {
               borderRadius: BorderRadius.circular(16.0),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
+                  color: Colors.black.withValues(alpha: 0.06),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -182,13 +181,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         color: Color(0xFF3e7f3f),
                         size: 18,
                       ),
-                      onPressed: () {
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                            builder: (_) => const StartupPage(),
-                          ),
-                        );
-                      },
+                      onPressed: () => Navigator.pop(context),
                     ),
                   ),
                 ),
