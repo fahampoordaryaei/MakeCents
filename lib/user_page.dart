@@ -294,6 +294,22 @@ class UserPage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             _SettingsTile(
+              icon: Icons.notifications_outlined,
+              iconColor: const Color(0xFFAA96DA),
+              title: 'Notifications',
+              subtitle: 'Manage alerts',
+              onTap: () {},
+            ),
+            const SizedBox(height: 8),
+            _SettingsTile(
+              icon: Icons.lock_outline,
+              iconColor: const Color(0xFF4ECDC4),
+              title: 'Security',
+              subtitle: 'Password',
+              onTap: () {},
+            ),
+            const SizedBox(height: 8),
+            _SettingsTile(
               icon: Icons.logout_outlined,
               iconColor: const Color(0xFFFF6B6B),
               title: 'Log Out',
