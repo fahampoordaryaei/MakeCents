@@ -972,6 +972,15 @@ extend type User {
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "User.email", purpose: QUERY_COUNT)
   """
+  ✨ Count the number of rows in the `User` table where the `failedAttempts` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  failedAttempts_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.failedAttempts", purpose: QUERY_COUNT)
+  """
   ✨ Count the number of rows in the `User` table where the `firstName` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
   firstName_count(
@@ -989,6 +998,15 @@ extend type User {
     """
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "User.lastName", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `lockedUntil` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  lockedUntil_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.lockedUntil", purpose: QUERY_COUNT)
   """
   ✨ Count the number of rows in the `User` table where the `monthlyBudget` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
@@ -1035,6 +1053,15 @@ extend type User {
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "User.username", purpose: QUERY_COUNT)
   """
+  ✨ Sum the `failedAttempts` field in the `User` table.
+  """
+  failedAttempts_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "User.failedAttempts", purpose: QUERY_SUM)
+  """
   ✨ Sum the `monthlyBudget` field in the `User` table.
   """
   monthlyBudget_sum(
@@ -1043,6 +1070,15 @@ extend type User {
     """
     distinct: Boolean = false
   ): Float @fdc_generated(from: "User.monthlyBudget", purpose: QUERY_SUM)
+  """
+  ✨ Average the `failedAttempts` field in the `User` table.
+  """
+  failedAttempts_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "User.failedAttempts", purpose: QUERY_AVG)
   """
   ✨ Average the `monthlyBudget` field in the `User` table.
   """
@@ -1057,6 +1093,14 @@ extend type User {
   """
   createdAt_min: Timestamp @fdc_generated(from: "User.createdAt", purpose: QUERY_MIN)
   """
+  ✨ Minimum of the `failedAttempts` field in the `User` table.
+  """
+  failedAttempts_min: Int @fdc_generated(from: "User.failedAttempts", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `lockedUntil` field in the `User` table.
+  """
+  lockedUntil_min: Timestamp @fdc_generated(from: "User.lockedUntil", purpose: QUERY_MIN)
+  """
   ✨ Minimum of the `monthlyBudget` field in the `User` table.
   """
   monthlyBudget_min: Float @fdc_generated(from: "User.monthlyBudget", purpose: QUERY_MIN)
@@ -1064,6 +1108,14 @@ extend type User {
   ✨ Maximum of the `createdAt` field in the `User` table.
   """
   createdAt_max: Timestamp @fdc_generated(from: "User.createdAt", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `failedAttempts` field in the `User` table.
+  """
+  failedAttempts_max: Int @fdc_generated(from: "User.failedAttempts", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `lockedUntil` field in the `User` table.
+  """
+  lockedUntil_max: Timestamp @fdc_generated(from: "User.lockedUntil", purpose: QUERY_MAX)
   """
   ✨ Maximum of the `monthlyBudget` field in the `User` table.
   """

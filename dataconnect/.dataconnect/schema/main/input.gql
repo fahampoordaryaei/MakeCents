@@ -2382,6 +2382,18 @@ input User_Data {
   """
   email_expr: String_Expr
   """
+  ✨ Generated from Field `User`.`failedAttempts` of type `Int!`
+  """
+  failedAttempts: Int
+  """
+  ✨ `_expr` server value variant of `failedAttempts` (✨ Generated from Field `User`.`failedAttempts` of type `Int!`)
+  """
+  failedAttempts_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `failedAttempts` (✨ Generated from Field `User`.`failedAttempts` of type `Int!`)
+  """
+  failedAttempts_update: [Int_Update!]
+  """
   ✨ Generated from Field `User`.`firstName` of type `String!`
   """
   firstName: String
@@ -2397,6 +2409,22 @@ input User_Data {
   ✨ `_expr` server value variant of `lastName` (✨ Generated from Field `User`.`lastName` of type `String!`)
   """
   lastName_expr: String_Expr
+  """
+  ✨ Generated from Field `User`.`lockedUntil` of type `Timestamp`
+  """
+  lockedUntil: Timestamp
+  """
+  ✨ `_expr` server value variant of `lockedUntil` (✨ Generated from Field `User`.`lockedUntil` of type `Timestamp`)
+  """
+  lockedUntil_expr: Timestamp_Expr
+  """
+  ✨ `_time` server value variant of `lockedUntil` (✨ Generated from Field `User`.`lockedUntil` of type `Timestamp`)
+  """
+  lockedUntil_time: Timestamp_Relative
+  """
+  ✨ `_update` server value variant of `lockedUntil` (✨ Generated from Field `User`.`lockedUntil` of type `Timestamp`)
+  """
+  lockedUntil_update: [Timestamp_Update!]
   """
   ✨ Generated from Field `User`.`monthlyBudget` of type `Float`
   """
@@ -2471,6 +2499,10 @@ input User_Filter {
   """
   email: String_Filter
   """
+  ✨ Generated from Field `User`.`failedAttempts` of type `Int!`
+  """
+  failedAttempts: Int_Filter
+  """
   ✨ Generated from Field `User`.`firstName` of type `String!`
   """
   firstName: String_Filter
@@ -2478,6 +2510,10 @@ input User_Filter {
   ✨ Generated from Field `User`.`lastName` of type `String!`
   """
   lastName: String_Filter
+  """
+  ✨ Generated from Field `User`.`lockedUntil` of type `Timestamp`
+  """
+  lockedUntil: Timestamp_Filter
   """
   ✨ Generated from Field `User`.`monthlyBudget` of type `Float`
   """
@@ -2557,6 +2593,10 @@ input User_Having {
   """
   email_count: Int_Filter
   """
+  ✨ Generated from Field `User`.`failedAttempts_count` of type `Int!`
+  """
+  failedAttempts_count: Int_Filter
+  """
   ✨ Generated from Field `User`.`firstName_count` of type `Int!`
   """
   firstName_count: Int_Filter
@@ -2564,6 +2604,10 @@ input User_Having {
   ✨ Generated from Field `User`.`lastName_count` of type `Int!`
   """
   lastName_count: Int_Filter
+  """
+  ✨ Generated from Field `User`.`lockedUntil_count` of type `Int!`
+  """
+  lockedUntil_count: Int_Filter
   """
   ✨ Generated from Field `User`.`monthlyBudget_count` of type `Int!`
   """
@@ -2585,9 +2629,17 @@ input User_Having {
   """
   username_count: Int_Filter
   """
+  ✨ Generated from Field `User`.`failedAttempts_sum` of type `Int`
+  """
+  failedAttempts_sum: Int_Filter
+  """
   ✨ Generated from Field `User`.`monthlyBudget_sum` of type `Float`
   """
   monthlyBudget_sum: Float_Filter
+  """
+  ✨ Generated from Field `User`.`failedAttempts_avg` of type `Float`
+  """
+  failedAttempts_avg: Float_Filter
   """
   ✨ Generated from Field `User`.`monthlyBudget_avg` of type `Float`
   """
@@ -2597,6 +2649,14 @@ input User_Having {
   """
   createdAt_min: Timestamp_Filter
   """
+  ✨ Generated from Field `User`.`failedAttempts_min` of type `Int`
+  """
+  failedAttempts_min: Int_Filter
+  """
+  ✨ Generated from Field `User`.`lockedUntil_min` of type `Timestamp`
+  """
+  lockedUntil_min: Timestamp_Filter
+  """
   ✨ Generated from Field `User`.`monthlyBudget_min` of type `Float`
   """
   monthlyBudget_min: Float_Filter
@@ -2604,6 +2664,14 @@ input User_Having {
   ✨ Generated from Field `User`.`createdAt_max` of type `Timestamp`
   """
   createdAt_max: Timestamp_Filter
+  """
+  ✨ Generated from Field `User`.`failedAttempts_max` of type `Int`
+  """
+  failedAttempts_max: Int_Filter
+  """
+  ✨ Generated from Field `User`.`lockedUntil_max` of type `Timestamp`
+  """
+  lockedUntil_max: Timestamp_Filter
   """
   ✨ Generated from Field `User`.`monthlyBudget_max` of type `Float`
   """
@@ -2668,6 +2736,10 @@ input User_Order {
   """
   email: OrderDirection
   """
+  ✨ Generated from Field `User`.`failedAttempts` of type `Int!`
+  """
+  failedAttempts: OrderDirection
+  """
   ✨ Generated from Field `User`.`firstName` of type `String!`
   """
   firstName: OrderDirection
@@ -2675,6 +2747,10 @@ input User_Order {
   ✨ Generated from Field `User`.`lastName` of type `String!`
   """
   lastName: OrderDirection
+  """
+  ✨ Generated from Field `User`.`lockedUntil` of type `Timestamp`
+  """
+  lockedUntil: OrderDirection
   """
   ✨ Generated from Field `User`.`monthlyBudget` of type `Float`
   """
@@ -2704,6 +2780,10 @@ input User_Order {
   """
   email_count: OrderDirection
   """
+  ✨ Generated from Field `User`.`failedAttempts_count` of type `Int!`
+  """
+  failedAttempts_count: OrderDirection
+  """
   ✨ Generated from Field `User`.`firstName_count` of type `Int!`
   """
   firstName_count: OrderDirection
@@ -2711,6 +2791,10 @@ input User_Order {
   ✨ Generated from Field `User`.`lastName_count` of type `Int!`
   """
   lastName_count: OrderDirection
+  """
+  ✨ Generated from Field `User`.`lockedUntil_count` of type `Int!`
+  """
+  lockedUntil_count: OrderDirection
   """
   ✨ Generated from Field `User`.`monthlyBudget_count` of type `Int!`
   """
@@ -2732,9 +2816,17 @@ input User_Order {
   """
   username_count: OrderDirection
   """
+  ✨ Generated from Field `User`.`failedAttempts_sum` of type `Int`
+  """
+  failedAttempts_sum: OrderDirection
+  """
   ✨ Generated from Field `User`.`monthlyBudget_sum` of type `Float`
   """
   monthlyBudget_sum: OrderDirection
+  """
+  ✨ Generated from Field `User`.`failedAttempts_avg` of type `Float`
+  """
+  failedAttempts_avg: OrderDirection
   """
   ✨ Generated from Field `User`.`monthlyBudget_avg` of type `Float`
   """
@@ -2744,6 +2836,14 @@ input User_Order {
   """
   createdAt_min: OrderDirection
   """
+  ✨ Generated from Field `User`.`failedAttempts_min` of type `Int`
+  """
+  failedAttempts_min: OrderDirection
+  """
+  ✨ Generated from Field `User`.`lockedUntil_min` of type `Timestamp`
+  """
+  lockedUntil_min: OrderDirection
+  """
   ✨ Generated from Field `User`.`monthlyBudget_min` of type `Float`
   """
   monthlyBudget_min: OrderDirection
@@ -2751,6 +2851,14 @@ input User_Order {
   ✨ Generated from Field `User`.`createdAt_max` of type `Timestamp`
   """
   createdAt_max: OrderDirection
+  """
+  ✨ Generated from Field `User`.`failedAttempts_max` of type `Int`
+  """
+  failedAttempts_max: OrderDirection
+  """
+  ✨ Generated from Field `User`.`lockedUntil_max` of type `Timestamp`
+  """
+  lockedUntil_max: OrderDirection
   """
   ✨ Generated from Field `User`.`monthlyBudget_max` of type `Float`
   """

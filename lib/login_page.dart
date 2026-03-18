@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dataconnect_generated/generated.dart';
+import 'functions.dart';
 import 'main.dart';
 import 'register_page.dart';
 
@@ -38,10 +40,35 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
+      final connector = ExampleConnector.instance;
+      final statusResult = await connector.getLoginStatus(email: email);
+
+      String? username;
+      if (statusResult.users.isNotEmpty) {
+        final user = statusResult.users.first;
+        username = user.username;
+
+        if (user.lockedUntil != null &&
+            DateTime.now().isBefore(user.lockedUntil!)) {
+          final remaining =
+              user.lockedUntil!.difference(DateTime.now()).inMinutes + 1;
+          setState(() {
+            _error =
+                'Account locked. Try again in $remaining minute${remaining == 1 ? '' : 's'}.';
+            _isLoading = false;
+          });
+          return;
+        }
+      }
+
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: pass,
       );
+
+      if (username != null) {
+        await connector.resetLoginAttempts(username: username);
+      }
 
       if (mounted) {
         Navigator.of(context).pushAndRemoveUntil(
@@ -55,15 +82,62 @@ class _LoginPageState extends State<LoginPage> {
         );
       }
     } on FirebaseAuthException catch (e) {
-      setState(() {
-        _error = e.message ?? 'An error occurred during sign in.';
-      });
-    } catch (e) {
+      if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
+        await _recordFailure(email);
+      } else {
+        setState(() {
+          _error = e.message ?? 'Sign in failed.';
+        });
+      }
+    } catch (_) {
       setState(() {
         _error = 'An unexpected error occurred.';
       });
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _recordFailure(String email) async {
+    try {
+      final connector = ExampleConnector.instance;
+      final statusResult = await connector.getLoginStatus(email: email);
+
+      if (statusResult.users.isNotEmpty) {
+        final user = statusResult.users.first;
+        final newCount = user.failedAttempts + 1;
+
+        DateTime? lockUntil;
+        if (newCount >= 3) {
+          lockUntil = DateTime.now().add(const Duration(minutes: 15));
+        }
+
+        await connector.recordFailedLogin(
+          username: user.username,
+          failedAttempts: newCount,
+          lockedUntil: lockUntil,
+        );
+
+        if (newCount >= 3) {
+          setState(() {
+            _error = 'Too many failed attempts. Account locked for 15 minutes.';
+          });
+        } else {
+          final remaining = 3 - newCount;
+          setState(() {
+            _error =
+                'Incorrect password. $remaining attempt${remaining == 1 ? '' : 's'} remaining.';
+          });
+        }
+      } else {
+        setState(() {
+          _error = 'Incorrect email or password.';
+        });
+      }
+    } catch (_) {
+      setState(() {
+        _error = 'Incorrect email or password.';
+      });
     }
   }
 

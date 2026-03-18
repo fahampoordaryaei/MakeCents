@@ -148,6 +148,7 @@ class UserPage extends StatelessWidget {
                     return;
                   }
                   await bp.setBudget(v);
+                  if (!ctx.mounted) return;
                   Navigator.pop(ctx);
                 },
                 child: const Text('Save Changes'),

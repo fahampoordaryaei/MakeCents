@@ -8,6 +8,8 @@ type User @table(key: ["username"]) {
   otherSchool: String
   otherCourse: String
   monthlyBudget: Float
+  failedAttempts: Int! @default(value: 0)
+  lockedUntil: Timestamp
   createdAt: Timestamp!
 }
 
