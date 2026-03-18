@@ -41,7 +41,7 @@ class BudgetPage extends StatelessWidget {
                 borderRadius: BorderRadius.circular(22),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF3e7f3f).withValues(alpha:0.3),
+                    color: const Color(0xFF3e7f3f).withValues(alpha: 0.3),
                     blurRadius: 16,
                     offset: const Offset(0, 8),
                   ),
@@ -52,7 +52,7 @@ class BudgetPage extends StatelessWidget {
                 children: [
                   const Text(
                     'Monthly Budget',
-                    style: TextStyle(color: Colors.white70, fontSize: 15),
+                    style: TextStyle(color: Colors.white, fontSize: 15),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -97,10 +97,7 @@ class BudgetPage extends StatelessWidget {
                     const SizedBox(height: 6),
                     Text(
                       '${(pct * 100).toStringAsFixed(0)}% used',
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 14,
-                      ),
+                      style: const TextStyle(color: Colors.white, fontSize: 14),
                     ),
                   ],
                 ],
@@ -130,7 +127,7 @@ class _BudgetStat extends StatelessWidget {
       ),
       Text(
         label,
-        style: TextStyle(color: color.withValues(alpha:0.7), fontSize: 14),
+        style: TextStyle(color: color.withValues(alpha: 0.7), fontSize: 14),
       ),
     ],
   );

@@ -4,6 +4,7 @@ import 'dataconnect_generated/generated.dart';
 import 'functions.dart';
 import 'main.dart';
 import 'register_page.dart';
+import 'startup_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -41,25 +42,26 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       final connector = ExampleConnector.instance;
-      final statusResult = await connector.getLoginStatus(email: email);
-
       String? username;
-      if (statusResult.users.isNotEmpty) {
-        final user = statusResult.users.first;
-        username = user.username;
+      try {
+        final statusResult = await connector.getLoginStatus(email: email);
+        if (statusResult.users.isNotEmpty) {
+          final user = statusResult.users.first;
+          username = user.username;
 
-        if (user.lockedUntil != null &&
-            DateTime.now().isBefore(user.lockedUntil!)) {
-          final remaining =
-              user.lockedUntil!.difference(DateTime.now()).inMinutes + 1;
-          setState(() {
-            _error =
-                'Account locked. Try again in $remaining minute${remaining == 1 ? '' : 's'}.';
-            _isLoading = false;
-          });
-          return;
+          if (user.lockedUntil != null &&
+              DateTime.now().isBefore(user.lockedUntil!)) {
+            final remaining =
+                user.lockedUntil!.difference(DateTime.now()).inMinutes + 1;
+            setState(() {
+              _error =
+                  'Account locked. Try again in $remaining minute${remaining == 1 ? '' : 's'}.';
+              _isLoading = false;
+            });
+            return;
+          }
         }
-      }
+      } catch (_) {}
 
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
@@ -67,7 +69,9 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       if (username != null) {
-        await connector.resetLoginAttempts(username: username);
+        try {
+          await connector.resetLoginAttempts(username: username);
+        } catch (_) {}
       }
 
       if (mounted) {
@@ -206,7 +210,15 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _backBtn() => GestureDetector(
-    onTap: () => Navigator.pop(context),
+    onTap: () {
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      } else {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const StartupPage()),
+        );
+      }
+    },
     child: Container(
       width: 36,
       height: 36,
@@ -240,9 +252,14 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
       const SizedBox(height: 6),
-      const Text(
-        'Student Finance Tracker',
-        style: TextStyle(fontSize: 16, color: Colors.grey),
+      Text(
+        'Finance tracker for students',
+        style: TextStyle(
+          fontSize: 16,
+          color: Theme.of(
+            context,
+          ).colorScheme.onSurface.withValues(alpha: 0.75),
+        ),
       ),
       const SizedBox(height: 28),
       _inputField(_emailCtrl, 'Student Email', Icons.email_outlined, false),
@@ -285,7 +302,11 @@ class _LoginPageState extends State<LoginPage> {
         child: Text.rich(
           TextSpan(
             text: "Don't have an account? ",
-            style: const TextStyle(color: Colors.grey),
+            style: TextStyle(
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.75),
+            ),
             children: [
               TextSpan(
                 text: 'Sign Up',

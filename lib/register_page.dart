@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'onboarding_profile_page.dart';
+import 'startup_page.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -14,6 +15,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   bool _obscure = true;
   String _error = '';
   bool _isLoading = false;
@@ -24,6 +26,7 @@ class _RegisterPageState extends State<RegisterPage> {
     _lastNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -32,14 +35,31 @@ class _RegisterPageState extends State<RegisterPage> {
     final lastName = _lastNameController.text.trim();
     final email = _emailController.text.trim();
     final pass = _passwordController.text;
+    final confirmPass = _confirmPasswordController.text;
+    final nameRegex = RegExp(r'^[A-Za-z]+(?: [A-Za-z]+)*$');
 
     setState(() => _error = '');
 
     if (firstName.isEmpty ||
         lastName.isEmpty ||
         email.isEmpty ||
-        pass.isEmpty) {
+        pass.isEmpty ||
+        confirmPass.isEmpty) {
       setState(() => _error = 'Please fill out all fields.');
+      return;
+    }
+    if (pass != confirmPass) {
+      setState(() => _error = 'Passwords do not match.');
+      return;
+    }
+    if (!nameRegex.hasMatch(firstName)) {
+      setState(
+        () => _error = 'First name can only contain letters and spaces.',
+      );
+      return;
+    }
+    if (!nameRegex.hasMatch(lastName)) {
+      setState(() => _error = 'Last name can only contain letters and spaces.');
       return;
     }
     if (!RegExp(r'^[^@]+@[^@]+\.[^@]+$').hasMatch(email)) {
@@ -79,7 +99,6 @@ class _RegisterPageState extends State<RegisterPage> {
       final userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: pass);
 
-      // Update display name
       await userCredential.user?.updateDisplayName('$firstName $lastName');
 
       if (mounted) {
@@ -181,7 +200,17 @@ class _RegisterPageState extends State<RegisterPage> {
                         color: Color(0xFF3e7f3f),
                         size: 18,
                       ),
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () {
+                        if (Navigator.of(context).canPop()) {
+                          Navigator.of(context).pop();
+                        } else {
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (_) => const StartupPage(),
+                            ),
+                          );
+                        }
+                      },
                     ),
                   ),
                 ),
@@ -207,9 +236,14 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ),
                 const SizedBox(height: 8.0),
-                const Text(
-                  'Sign up to manage budgets and track spending.',
-                  style: TextStyle(fontSize: 16.0, color: Colors.grey),
+                Text(
+                  'Sign up to track spending and set your monthly budget.',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.75),
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24.0),
@@ -238,7 +272,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             _error,
                             style: const TextStyle(
                               color: Color(0xFF8B0000),
-                              fontSize: 13,
+                              fontSize: 14,
                             ),
                           ),
                         ),
@@ -272,6 +306,13 @@ class _RegisterPageState extends State<RegisterPage> {
                   icon: Icons.lock_outline,
                   isPassword: true,
                 ),
+                const SizedBox(height: 16.0),
+                _inputField(
+                  controller: _confirmPasswordController,
+                  label: 'Confirm Password',
+                  icon: Icons.lock_outline,
+                  isPassword: true,
+                ),
                 const SizedBox(height: 12.0),
                 Align(
                   alignment: Alignment.centerLeft,
@@ -283,7 +324,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     '• 1 number\n'
                     '• 1 special character',
                     style: TextStyle(
-                      fontSize: 13.0,
+                      fontSize: 14.0,
                       color: Colors.grey.shade500,
                       height: 1.4,
                     ),
@@ -311,7 +352,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             ),
                           )
                         : const Text(
-                            'Register',
+                            'Create account',
                             style: TextStyle(
                               fontSize: 16.0,
                               fontWeight: FontWeight.w700,

@@ -1,13 +1,208 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'transaction_provider.dart';
 import 'budget_provider.dart';
 import 'user_provider.dart';
 import 'functions.dart';
+import 'dataconnect_generated/generated.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  bool _isLoadingHomeFeeds = true;
+  List<ListProductsProducts> _unredeemedDeals = const [];
+  List<ListScholarshipsScholarships> _matchedScholarships = const [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadHomeFeeds();
+  }
+
+  Future<void> _loadHomeFeeds() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      if (!mounted) return;
+      setState(() => _isLoadingHomeFeeds = false);
+      return;
+    }
+
+    try {
+      final connector = ExampleConnector.instance;
+      final productsResult = await connector.listProducts().execute();
+      final redeemedResult = await connector
+          .listRedeemedProducts(userId: user.uid)
+          .execute();
+      final profileResult = await connector
+          .getUserProfile(username: user.uid)
+          .execute();
+      final scholarshipsResult = await connector.listScholarships().execute();
+
+      final redeemedIds = redeemedResult.data.redeemedProducts
+          .map((r) => r.product.id)
+          .toSet();
+      final unredeemed =
+          productsResult.data.products
+              .where((p) => p.active && !redeemedIds.contains(p.id))
+              .toList()
+            ..sort((a, b) => a.cost.compareTo(b.cost));
+
+      final courseId = profileResult.data.users.isNotEmpty
+          ? profileResult.data.users.first.course?.id
+          : null;
+      final matched = courseId == null
+          ? <ListScholarshipsScholarships>[]
+          : scholarshipsResult.data.scholarships.where((s) {
+              return s.courses_via_ScholarshipCourse.any(
+                (c) => c.id == courseId,
+              );
+            }).toList();
+
+      if (!mounted) return;
+      setState(() {
+        _unredeemedDeals = unredeemed.take(3).toList();
+        _matchedScholarships = matched.take(3).toList();
+        _isLoadingHomeFeeds = false;
+      });
+    } catch (e) {
+      debugPrint('Error loading home feeds: $e');
+      if (!mounted) return;
+      setState(() => _isLoadingHomeFeeds = false);
+    }
+  }
+
+  Color _scholarshipColor(String rawColor) {
+    final hex = rawColor.trim();
+    if (hex.isEmpty) return const Color(0xFF3e7f3f);
+    try {
+      return Color(int.parse(hex.replaceFirst('#', '0xFF')));
+    } catch (_) {
+      return const Color(0xFF3e7f3f);
+    }
+  }
+
+  void _showDiscountDetails(BuildContext context, ListProductsProducts p) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        title: Text(p.name),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: buildProductImage(
+                p.id,
+                size: 110,
+                radius: 12,
+                fallbackColor: Colors.grey.shade300,
+                fallbackChild: const Icon(
+                  Icons.image_outlined,
+                  color: Colors.grey,
+                  size: 22,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              p.storeName,
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              p.description,
+              style: const TextStyle(fontSize: 14, color: Colors.black87),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              '${p.cost} pts',
+              style: const TextStyle(
+                color: Color(0xFF3e7f3f),
+                fontWeight: FontWeight.w800,
+                fontSize: 18,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showScholarshipDetails(
+    BuildContext context,
+    ListScholarshipsScholarships s,
+  ) {
+    final scholarshipColor = _scholarshipColor(s.color);
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        title: Text(s.title),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Provider: ${s.provider}',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: scholarshipColor,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Please email us your application letter and school records.',
+              style: TextStyle(fontSize: 14, color: Colors.black87),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Contact: ${s.email}',
+              style: const TextStyle(fontSize: 14, color: Colors.black87),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              '${s.currency}${s.amount.toStringAsFixed(0)}',
+              style: TextStyle(
+                color: scholarshipColor,
+                fontWeight: FontWeight.w800,
+                fontSize: 20,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              s.description,
+              style: const TextStyle(fontSize: 14, color: Colors.black87),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +218,7 @@ class HomePage extends StatelessWidget {
     final budget = budgetProvider.budget.amount;
     final available = budget > 0 ? (budget - expenses).clamp(0.0, budget) : 0.0;
     final spentPct = budget > 0 ? (expenses / budget).clamp(0.0, 1.0) : 0.0;
-    final recent = txProvider.transactions.reversed.take(3).toList();
+    final recent = txProvider.transactions.take(3).toList();
     final monthTxCount = txProvider.transactions
         .where((t) => t.date.month == now.month && t.date.year == now.year)
         .length;
@@ -47,7 +242,12 @@ class HomePage extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 dateText,
-                style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.75),
+                ),
               ),
               const SizedBox(height: 24),
 
@@ -72,29 +272,12 @@ class HomePage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Monthly Budget',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      budget > 0 ? '€${budget.toStringAsFixed(2)}' : 'Not set',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 32,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 10),
                     Row(
                       children: [
                         Expanded(
                           child: _SummaryItem(
-                            label: 'Spent',
+                            label: 'Spent this month',
                             value: '€${expenses.toStringAsFixed(2)}',
                             icon: Icons.arrow_upward_rounded,
                           ),
@@ -102,7 +285,7 @@ class HomePage extends StatelessWidget {
                         Container(width: 1, height: 36, color: Colors.white24),
                         Expanded(
                           child: _SummaryItem(
-                            label: 'Left',
+                            label: 'Left in budget',
                             value: '€${available.toStringAsFixed(2)}',
                             icon: Icons.savings_outlined,
                           ),
@@ -110,7 +293,7 @@ class HomePage extends StatelessWidget {
                       ],
                     ),
                     if (budget > 0) ...[
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(6),
                         child: LinearProgressIndicator(
@@ -122,12 +305,12 @@ class HomePage extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 10),
                       Text(
                         '${(spentPct * 100).toStringAsFixed(0)}% of budget used',
                         style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14,
+                          color: Colors.white,
+                          fontSize: 18,
                         ),
                       ),
                     ],
@@ -161,6 +344,225 @@ class HomePage extends StatelessWidget {
               const SizedBox(height: 28),
 
               Text(
+                'Your discounts',
+                style: TextStyle(
+                  fontSize: 21,
+                  fontWeight: FontWeight.w700,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 12),
+              if (_isLoadingHomeFeeds)
+                Text(
+                  'Loading discounts...',
+                  style: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.75),
+                  ),
+                )
+              else if (_unredeemedDeals.isEmpty)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Text(
+                    'No unredeemed discounts available.',
+                    style: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.75),
+                    ),
+                  ),
+                )
+              else
+                ..._unredeemedDeals.map((p) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: GestureDetector(
+                      onTap: () => _showDiscountDetails(context, p),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(right: 12),
+                              child: buildProductImage(
+                                p.id,
+                                size: 44,
+                                radius: 12,
+                                fallbackColor: Colors.grey.shade300,
+                                fallbackChild: const Icon(
+                                  Icons.image_outlined,
+                                  color: Colors.grey,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    p.name,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 17,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  Text(
+                                    p.storeName,
+                                    style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withValues(alpha: 0.75),
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Text(
+                              '${p.cost} pts',
+                              style: const TextStyle(
+                                color: Color(0xFF3e7f3f),
+                                fontWeight: FontWeight.w700,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+
+              const SizedBox(height: 18),
+              Text(
+                'Scholarships for you',
+                style: TextStyle(
+                  fontSize: 21,
+                  fontWeight: FontWeight.w700,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 12),
+              if (_isLoadingHomeFeeds)
+                Text(
+                  'Loading scholarships...',
+                  style: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.75),
+                  ),
+                )
+              else if (_matchedScholarships.isEmpty)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Text(
+                    'No matched scholarships yet. Set your course in profile.',
+                    style: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.75),
+                    ),
+                  ),
+                )
+              else
+                ..._matchedScholarships.map((s) {
+                  final scholarshipColor = _scholarshipColor(s.color);
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: GestureDetector(
+                      onTap: () => _showScholarshipDetails(context, s),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: scholarshipColor.withValues(alpha: 0.08),
+                          border: Border.all(
+                            color: scholarshipColor.withValues(alpha: 0.28),
+                          ),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 44,
+                              height: 44,
+                              margin: const EdgeInsets.only(right: 12),
+                              decoration: BoxDecoration(
+                                color: scholarshipColor.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Icon(
+                                Icons.school_outlined,
+                                color: scholarshipColor,
+                                size: 22,
+                              ),
+                            ),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    s.title,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 17,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    s.provider,
+                                    style: TextStyle(
+                                      color: scholarshipColor,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Text(
+                              '${s.currency}${s.amount.toStringAsFixed(0)}',
+                              style: TextStyle(
+                                color: scholarshipColor,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+
+              const SizedBox(height: 10),
+
+              Text(
                 'Recent Transactions',
                 style: TextStyle(
                   fontSize: 18,
@@ -176,11 +578,15 @@ class HomePage extends StatelessWidget {
                     color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Text(
                       'No transactions yet.\nAdd one using the Tracker.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey),
+                      style: TextStyle(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.75),
+                      ),
                     ),
                   ),
                 )
@@ -232,6 +638,7 @@ class HomePage extends StatelessWidget {
                           style: const TextStyle(
                             color: Color(0xFFFF6B6B),
                             fontWeight: FontWeight.w700,
+                            fontSize: 16,
                           ),
                         ),
                       );
@@ -270,20 +677,17 @@ class _SummaryItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(icon, color: Colors.white70, size: 16),
+        Icon(icon, color: Colors.white, size: 16),
         const SizedBox(height: 4),
         Text(
           value,
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w700,
-            fontSize: 17,
+            fontSize: 24,
           ),
         ),
-        Text(
-          label,
-          style: const TextStyle(color: Colors.white70, fontSize: 14),
-        ),
+        Text(label, style: const TextStyle(color: Colors.white, fontSize: 20)),
       ],
     );
   }
@@ -337,7 +741,12 @@ class _QuickStatCard extends StatelessWidget {
                   label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 13, color: Colors.grey),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.75),
+                  ),
                 ),
               ],
             ),

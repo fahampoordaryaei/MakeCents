@@ -4,7 +4,7 @@ import 'dataconnect_generated/generated.dart';
 
 class Budget {
   final double amount;
-  Budget({required this.amount});
+  const Budget({required this.amount});
 }
 
 class BudgetProvider with ChangeNotifier {
@@ -46,7 +46,7 @@ class BudgetProvider with ChangeNotifier {
           .updateUserBudget(username: user.uid, budget: amount)
           .execute();
     } catch (e) {
-      debugPrint('Error saving budget to backend: $e');
+      debugPrint('Budget sync issue: $e');
     }
   }
 }

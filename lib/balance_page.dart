@@ -12,14 +12,14 @@ class BalancePage extends StatelessWidget {
 
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 4,
+      elevation: 2,
       child: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Spent This Month',
+              'Spent this month',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,

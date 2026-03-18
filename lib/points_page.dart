@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'dataconnect_generated/generated.dart';
+import 'functions.dart';
 
 class PointsPage extends StatefulWidget {
   const PointsPage({super.key});
@@ -11,18 +14,23 @@ class PointsPage extends StatefulWidget {
 
 class _PointsPageState extends State<PointsPage> {
   int? _points;
-  bool _isLoading = true;
+  bool _isLoadingPoints = true;
+  bool _isLoadingProducts = true;
+  String? _redeemingProductId;
+  List<ListProductsProducts> _products = const [];
+  Map<String, _RedeemedProductInfo> _redeemedByProductId = const {};
 
   @override
   void initState() {
     super.initState();
     _loadCloudPoints();
+    _loadProductsAndRedemptions();
   }
 
   Future<void> _loadCloudPoints() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      setState(() => _isLoading = false);
+      setState(() => _isLoadingPoints = false);
       return;
     }
 
@@ -37,15 +45,316 @@ class _PointsPageState extends State<PointsPage> {
     } catch (e) {
       debugPrint('Error loading cloud points: $e');
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoadingPoints = false);
     }
+  }
+
+  Future<void> _loadProductsAndRedemptions() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      setState(() => _isLoadingProducts = false);
+      return;
+    }
+
+    try {
+      final productsResult = await ExampleConnector.instance
+          .listProducts()
+          .execute();
+      final redeemedResult = await ExampleConnector.instance
+          .listRedeemedProducts(userId: user.uid)
+          .execute();
+
+      final redeemedMap = <String, _RedeemedProductInfo>{
+        for (final r in redeemedResult.data.redeemedProducts)
+          r.product.id: _RedeemedProductInfo(code: r.code),
+      };
+
+      if (!mounted) return;
+      setState(() {
+        _products = productsResult.data.products;
+        _redeemedByProductId = redeemedMap;
+      });
+    } catch (e) {
+      debugPrint('Error loading products/redeemed products: $e');
+    } finally {
+      if (mounted) setState(() => _isLoadingProducts = false);
+    }
+  }
+
+  Future<void> _refreshRedeemData() async {
+    await Future.wait([_loadCloudPoints(), _loadProductsAndRedemptions()]);
+  }
+
+  Future<_RedeemResult> _redeemProduct(ListProductsProducts product) async {
+    setState(() => _redeemingProductId = product.id);
+    try {
+      final callable = FirebaseFunctions.instanceFor(
+        region: 'europe-west1',
+      ).httpsCallable('redeemProduct');
+      final response = await callable
+          .call(<String, dynamic>{'productId': product.id})
+          .timeout(const Duration(seconds: 20));
+
+      final data = Map<String, dynamic>.from(response.data as Map);
+      final code = (data['code'] as String?) ?? '';
+      final remainingPoints = (data['remainingPoints'] as num?)?.toInt();
+      if (mounted && remainingPoints != null) {
+        setState(() => _points = remainingPoints);
+      }
+      await _refreshRedeemData();
+
+      return _RedeemResult(
+        text: code.isNotEmpty ? code : 'REDEEMED',
+        isError: false,
+      );
+    } on FirebaseFunctionsException catch (e) {
+      final mapped = switch (e.code) {
+        'unauthenticated' => 'Please sign in and try again.',
+        'not-found' => 'This product could not be found.',
+        'failed-precondition' =>
+          e.message ?? 'This product cannot be redeemed.',
+        'aborted' =>
+          e.message ?? 'Could not generate a discount code. Try again.',
+        _ => e.message ?? 'Could not redeem product right now.',
+      };
+      return _RedeemResult(text: mapped, isError: true);
+    } on TimeoutException {
+      return const _RedeemResult(
+        text: 'Redeem request timed out. Please retry.',
+        isError: true,
+      );
+    } catch (_) {
+      return const _RedeemResult(
+        text: 'Could not redeem product.',
+        isError: true,
+      );
+    } finally {
+      if (mounted) setState(() => _redeemingProductId = null);
+    }
+  }
+
+  Future<void> _showProductDetails(
+    BuildContext context,
+    ListProductsProducts product,
+  ) async {
+    String? inlineMessage;
+    bool inlineIsError = false;
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            final points = _points ?? 0;
+            final redeemed = _redeemedByProductId[product.id];
+            final isRedeemed = redeemed != null;
+            final canRedeem = !isRedeemed && points >= product.cost;
+            final redeeming = _redeemingProductId == product.id;
+            final needed = (product.cost - points).clamp(0, 999999);
+
+            return Dialog(
+              insetPadding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 24,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(22),
+              ),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 560),
+                child: Padding(
+                  padding: const EdgeInsets.all(22),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildProductImage(product.id, size: 110, radius: 14),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  product.name,
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w800,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  product.storeName,
+                                  style: TextStyle(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(
+                                      0xFF3e7f3f,
+                                    ).withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    '${product.cost} pts',
+                                    style: const TextStyle(
+                                      color: Color(0xFF3e7f3f),
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 18),
+                      Text(
+                        product.description,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                      const SizedBox(height: 22),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: redeeming
+                                  ? null
+                                  : () => Navigator.of(dialogContext).pop(),
+                              child: const Text('Close'),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: isRedeemed
+                                ? FilledButton(
+                                    onPressed: null,
+                                    child: const Text('Redeemed'),
+                                  )
+                                : canRedeem
+                                ? FilledButton(
+                                    onPressed: redeeming
+                                        ? null
+                                        : () async {
+                                            setDialogState(() {
+                                              inlineMessage = null;
+                                              inlineIsError = false;
+                                            });
+                                            final result = await _redeemProduct(
+                                              product,
+                                            );
+                                            if (!mounted) return;
+                                            setDialogState(() {
+                                              inlineMessage = result.text;
+                                              inlineIsError = result.isError;
+                                            });
+                                          },
+                                    style: FilledButton.styleFrom(
+                                      backgroundColor: const Color(0xFF3e7f3f),
+                                    ),
+                                    child: redeeming
+                                        ? const SizedBox(
+                                            width: 16,
+                                            height: 16,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              color: Colors.white,
+                                            ),
+                                          )
+                                        : const Text('Redeem'),
+                                  )
+                                : FilledButton(
+                                    onPressed: null,
+                                    child: Text('Need $needed pts'),
+                                  ),
+                          ),
+                        ],
+                      ),
+                      if (inlineMessage != null) ...[
+                        const SizedBox(height: 14),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.withValues(alpha: 0.14),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.grey.withValues(alpha: 0.38),
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                inlineIsError ? 'Status' : 'Code',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: inlineIsError
+                                      ? Colors.red
+                                      : Color(0xFF3e7f3f),
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              SelectableText(
+                                inlineMessage!,
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 1.4,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  List<ListProductsProducts> _sortedProducts() {
+    final items = [..._products];
+    items.sort((a, b) {
+      final aRedeemed = _redeemedByProductId.containsKey(a.id);
+      final bRedeemed = _redeemedByProductId.containsKey(b.id);
+      if (aRedeemed != bRedeemed) return aRedeemed ? 1 : -1;
+      return a.cost.compareTo(b.cost);
+    });
+    return items;
   }
 
   @override
   Widget build(BuildContext context) {
     final points = _points ?? 0;
-    final level = (points / 100).floor() + 1;
-    final progress = (points % 100) / 100.0;
+    final products = _sortedProducts();
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -64,99 +373,70 @@ class _PointsPageState extends State<PointsPage> {
             const SizedBox(height: 4),
             const Text(
               'Earn points by tracking your spending',
-              style: TextStyle(color: Colors.grey, fontSize: 16),
+              style: TextStyle(color: Colors.black87, fontSize: 16),
             ),
             const SizedBox(height: 24),
 
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFFAA96DA), Color(0xFFFC5185)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(22),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFFAA96DA).withValues(alpha: 0.4),
-                    blurRadius: 16,
-                    offset: const Offset(0, 8),
+            Center(
+              child: Container(
+                width: 240,
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFAA96DA), Color(0xFFFC5185)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                ],
-              ),
-              child: _isLoading
-                  ? const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(16),
-                        child: CircularProgressIndicator(color: Colors.white),
-                      ),
-                    )
-                  : Column(
-                      children: [
-                        const Icon(
-                          Icons.emoji_events,
-                          color: Colors.white,
-                          size: 36,
+                  borderRadius: BorderRadius.circular(22),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFAA96DA).withValues(alpha: 0.4),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: _isLoadingPoints
+                    ? const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(16),
+                          child: CircularProgressIndicator(color: Colors.white),
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '$points',
-                          style: const TextStyle(
+                      )
+                    : Column(
+                        children: [
+                          const Icon(
+                            Icons.emoji_events,
                             color: Colors.white,
-                            fontSize: 36,
-                            fontWeight: FontWeight.w900,
+                            size: 36,
                           ),
-                        ),
-                        const SizedBox(height: 12),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            'Level $level',
+                          Text(
+                            '$points',
                             style: const TextStyle(
                               color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 15,
+                              fontSize: 50,
+                              fontWeight: FontWeight.w900,
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 12),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: LinearProgressIndicator(
-                            value: progress,
-                            minHeight: 8,
-                            backgroundColor: Colors.white24,
-                            valueColor: const AlwaysStoppedAnimation(
-                              Colors.white,
+                          const SizedBox(height: 8),
+                          const Text(
+                            'Total points',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${(progress * 100).toStringAsFixed(0)}% to Level ${level + 1}',
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
+              ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
 
             Text(
-              'How to earn points',
+              'Ways to earn points',
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 18,
                 fontWeight: FontWeight.w700,
                 color: Theme.of(context).colorScheme.onSurface,
               ),
@@ -171,7 +451,7 @@ class _PointsPageState extends State<PointsPage> {
               ),
               (
                 'Stay under budget (monthly)',
-                '+50 pts',
+                '+100 pts',
                 Icons.savings_outlined,
                 const Color(0xFF3e7f3f),
               ),
@@ -228,9 +508,144 @@ class _PointsPageState extends State<PointsPage> {
                 ),
               ),
             ),
+            const SizedBox(height: 18),
+            Text(
+              'Redeem discounts',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 12),
+            if (_isLoadingProducts)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16),
+                child: Center(
+                  child: CircularProgressIndicator(color: Color(0xFF3e7f3f)),
+                ),
+              )
+            else if (products.isEmpty)
+              Text(
+                'No products available right now.',
+                style: const TextStyle(color: Colors.black87, fontSize: 14),
+              )
+            else
+              ...products.map((p) {
+                final redeemed = _redeemedByProductId[p.id];
+                final isRedeemed = redeemed != null;
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () => _showProductDetails(context, p),
+                    child: Container(
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildProductImage(p.id, size: 72, radius: 12),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  p.name,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 16,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  p.storeName,
+                                  style: TextStyle(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                if (isRedeemed) ...[
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Code: ${redeemed.code}',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF3e7f3f),
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 7,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(
+                                    0xFF3e7f3f,
+                                  ).withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  '${p.cost} pts',
+                                  style: const TextStyle(
+                                    color: Color(0xFF3e7f3f),
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              if (!isRedeemed)
+                                OutlinedButton(
+                                  onPressed: () =>
+                                      _showProductDetails(context, p),
+                                  child: const Text('View'),
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }),
           ],
         ),
       ),
     );
   }
+}
+
+class _RedeemedProductInfo {
+  final String code;
+
+  const _RedeemedProductInfo({required this.code});
+}
+
+class _RedeemResult {
+  final String text;
+  final bool isError;
+
+  const _RedeemResult({required this.text, required this.isError});
 }

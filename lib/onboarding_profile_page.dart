@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'onboarding_budget_page.dart';
 import 'dataconnect_generated/generated.dart';
+import 'startup_page.dart';
 
 class OnboardingProfilePage extends StatefulWidget {
   final String firstName;
@@ -197,7 +198,15 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
                         size: 18,
                       ),
                       onPressed: () {
-                        Navigator.of(context).pop();
+                        if (Navigator.of(context).canPop()) {
+                          Navigator.of(context).pop();
+                        } else {
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (_) => const StartupPage(),
+                            ),
+                          );
+                        }
                       },
                     ),
                   ),
@@ -216,7 +225,7 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
                 ),
                 const SizedBox(height: 30.0),
                 Text(
-                  'Tell us more',
+                  'Your profile details',
                   style: TextStyle(
                     fontSize: 24.0,
                     fontWeight: FontWeight.bold,
@@ -224,9 +233,14 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
                   ),
                 ),
                 const SizedBox(height: 8.0),
-                const Text(
-                  'Help us personalize your tracking experience.',
-                  style: TextStyle(fontSize: 16.0, color: Colors.grey),
+                Text(
+                  'Help us personalise your experience.',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.75),
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 32.0),
@@ -265,7 +279,7 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
                             _error,
                             style: const TextStyle(
                               color: Color(0xFF8B0000),
-                              fontSize: 13,
+                              fontSize: 14,
                             ),
                           ),
                         ),
@@ -279,7 +293,7 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
                     child: Text(
                       'SCHOOL OR UNIVERSITY',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 14,
                         fontWeight: FontWeight.w700,
                         color: Colors.grey.shade500,
                         letterSpacing: 0.8,
@@ -328,7 +342,7 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
                     child: Text(
                       'COURSE OF STUDY',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 14,
                         fontWeight: FontWeight.w700,
                         color: Colors.grey.shade500,
                         letterSpacing: 0.8,
@@ -384,7 +398,7 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
                         ),
                       ),
                       child: const Text(
-                        'Continue',
+                        'Next',
                         style: TextStyle(
                           fontSize: 16.0,
                           fontWeight: FontWeight.w700,

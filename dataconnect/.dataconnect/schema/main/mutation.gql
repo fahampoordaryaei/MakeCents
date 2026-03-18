@@ -45,6 +45,24 @@ extend type Mutation {
     data: PointsTransaction_Data!
   ): PointsTransaction_KeyOutput! @fdc_generated(from: "PointsTransaction", purpose: INSERT_SINGLE)
   """
+  ✨ Insert a single `Product` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  product_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: Product_Data!
+  ): Product_KeyOutput! @fdc_generated(from: "Product", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `RedeemedProduct` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  redeemedProduct_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: RedeemedProduct_Data!
+  ): RedeemedProduct_KeyOutput! @fdc_generated(from: "RedeemedProduct", purpose: INSERT_SINGLE)
+  """
   ✨ Insert a single `Scholarship` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
   """
   scholarship_insert(
@@ -62,6 +80,15 @@ extend type Mutation {
     """
     data: ScholarshipApplication_Data!
   ): ScholarshipApplication_KeyOutput! @fdc_generated(from: "ScholarshipApplication", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `ScholarshipCourse` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  scholarshipCourse_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: ScholarshipCourse_Data!
+  ): ScholarshipCourse_KeyOutput! @fdc_generated(from: "ScholarshipCourse", purpose: INSERT_SINGLE)
   """
   ✨ Insert a single `School` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
   """
@@ -135,6 +162,24 @@ extend type Mutation {
     data: [PointsTransaction_Data!]!
   ): [PointsTransaction_KeyOutput!]! @fdc_generated(from: "PointsTransaction", purpose: INSERT_MULTIPLE)
   """
+  ✨ Insert `Product` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  product_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [Product_Data!]!
+  ): [Product_KeyOutput!]! @fdc_generated(from: "Product", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `RedeemedProduct` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  redeemedProduct_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [RedeemedProduct_Data!]!
+  ): [RedeemedProduct_KeyOutput!]! @fdc_generated(from: "RedeemedProduct", purpose: INSERT_MULTIPLE)
+  """
   ✨ Insert `Scholarship` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
   """
   scholarship_insertMany(
@@ -152,6 +197,15 @@ extend type Mutation {
     """
     data: [ScholarshipApplication_Data!]!
   ): [ScholarshipApplication_KeyOutput!]! @fdc_generated(from: "ScholarshipApplication", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `ScholarshipCourse` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  scholarshipCourse_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [ScholarshipCourse_Data!]!
+  ): [ScholarshipCourse_KeyOutput!]! @fdc_generated(from: "ScholarshipCourse", purpose: INSERT_MULTIPLE)
   """
   ✨ Insert `School` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
   """
@@ -225,6 +279,24 @@ extend type Mutation {
     data: PointsTransaction_Data!
   ): PointsTransaction_KeyOutput! @fdc_generated(from: "PointsTransaction", purpose: UPSERT_SINGLE)
   """
+  ✨ Insert or update a single `Product` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Product`.
+  """
+  product_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: Product_Data!
+  ): Product_KeyOutput! @fdc_generated(from: "Product", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `RedeemedProduct` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `RedeemedProduct`.
+  """
+  redeemedProduct_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: RedeemedProduct_Data!
+  ): RedeemedProduct_KeyOutput! @fdc_generated(from: "RedeemedProduct", purpose: UPSERT_SINGLE)
+  """
   ✨ Insert or update a single `Scholarship` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Scholarship`.
   """
   scholarship_upsert(
@@ -242,6 +314,15 @@ extend type Mutation {
     """
     data: ScholarshipApplication_Data!
   ): ScholarshipApplication_KeyOutput! @fdc_generated(from: "ScholarshipApplication", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `ScholarshipCourse` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `ScholarshipCourse`.
+  """
+  scholarshipCourse_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: ScholarshipCourse_Data!
+  ): ScholarshipCourse_KeyOutput! @fdc_generated(from: "ScholarshipCourse", purpose: UPSERT_SINGLE)
   """
   ✨ Insert or update a single `School` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `School`.
   """
@@ -315,6 +396,24 @@ extend type Mutation {
     data: [PointsTransaction_Data!]!
   ): [PointsTransaction_KeyOutput!]! @fdc_generated(from: "PointsTransaction", purpose: UPSERT_MULTIPLE)
   """
+  ✨ Insert or update `Product` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Product`.
+  """
+  product_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [Product_Data!]!
+  ): [Product_KeyOutput!]! @fdc_generated(from: "Product", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `RedeemedProduct` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `RedeemedProduct`.
+  """
+  redeemedProduct_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [RedeemedProduct_Data!]!
+  ): [RedeemedProduct_KeyOutput!]! @fdc_generated(from: "RedeemedProduct", purpose: UPSERT_MULTIPLE)
+  """
   ✨ Insert or update `Scholarship` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Scholarship`.
   """
   scholarship_upsertMany(
@@ -332,6 +431,15 @@ extend type Mutation {
     """
     data: [ScholarshipApplication_Data!]!
   ): [ScholarshipApplication_KeyOutput!]! @fdc_generated(from: "ScholarshipApplication", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `ScholarshipCourse` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `ScholarshipCourse`.
+  """
+  scholarshipCourse_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [ScholarshipCourse_Data!]!
+  ): [ScholarshipCourse_KeyOutput!]! @fdc_generated(from: "ScholarshipCourse", purpose: UPSERT_MULTIPLE)
   """
   ✨ Insert or update `School` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `School`.
   """
@@ -480,6 +588,49 @@ extend type Mutation {
     data: PointsTransaction_Data!
   ): PointsTransaction_KeyOutput @fdc_generated(from: "PointsTransaction", purpose: UPDATE_SINGLE)
   """
+  ✨ Update a single `Product` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `Product` or `null` if not found.
+  """
+  product_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Product_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Product_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: Product_Data!
+  ): Product_KeyOutput @fdc_generated(from: "Product", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `RedeemedProduct` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `RedeemedProduct` or `null` if not found.
+  """
+  redeemedProduct_update(
+    """
+    The key used to identify the object.
+    """
+    key: RedeemedProduct_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: RedeemedProduct_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: RedeemedProduct_Data!
+  ): RedeemedProduct_KeyOutput @fdc_generated(from: "RedeemedProduct", purpose: UPDATE_SINGLE)
+  """
   ✨ Update a single `Scholarship` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `Scholarship` or `null` if not found.
   """
   scholarship_update(
@@ -527,6 +678,25 @@ extend type Mutation {
     """
     data: ScholarshipApplication_Data!
   ): ScholarshipApplication_KeyOutput @fdc_generated(from: "ScholarshipApplication", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `ScholarshipCourse` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `ScholarshipCourse` or `null` if not found.
+  """
+  scholarshipCourse_update(
+    """
+    The key used to identify the object.
+    """
+    key: ScholarshipCourse_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: ScholarshipCourse_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: ScholarshipCourse_Data!
+  ): ScholarshipCourse_KeyOutput @fdc_generated(from: "ScholarshipCourse", purpose: UPDATE_SINGLE)
   """
   ✨ Update a single `School` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `School` or `null` if not found.
   """
@@ -690,6 +860,44 @@ extend type Mutation {
     data: PointsTransaction_Data!
   ): Int! @fdc_generated(from: "PointsTransaction", purpose: UPDATE_MULTIPLE)
   """
+  ✨ Update `Product` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  product_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: Product_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: Product_Data!
+  ): Int! @fdc_generated(from: "Product", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `RedeemedProduct` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  redeemedProduct_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: RedeemedProduct_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: RedeemedProduct_Data!
+  ): Int! @fdc_generated(from: "RedeemedProduct", purpose: UPDATE_MULTIPLE)
+  """
   ✨ Update `Scholarship` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
   """
   scholarship_updateMany(
@@ -727,6 +935,25 @@ extend type Mutation {
     """
     data: ScholarshipApplication_Data!
   ): Int! @fdc_generated(from: "ScholarshipApplication", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `ScholarshipCourse` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  scholarshipCourse_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: ScholarshipCourse_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: ScholarshipCourse_Data!
+  ): Int! @fdc_generated(from: "ScholarshipCourse", purpose: UPDATE_MULTIPLE)
   """
   ✨ Update `School` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
   """
@@ -880,6 +1107,39 @@ extend type Mutation {
     first: PointsTransaction_FirstRow
   ): PointsTransaction_KeyOutput @fdc_generated(from: "PointsTransaction", purpose: DELETE_SINGLE)
   """
+  ✨ Delete a single `Product` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  product_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Product_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Product_FirstRow
+  ): Product_KeyOutput @fdc_generated(from: "Product", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `RedeemedProduct` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  redeemedProduct_delete(
+    """
+    The key used to identify the object.
+    """
+    key: RedeemedProduct_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: RedeemedProduct_FirstRow
+  ): RedeemedProduct_KeyOutput @fdc_generated(from: "RedeemedProduct", purpose: DELETE_SINGLE)
+  """
   ✨ Delete a single `Scholarship` based on `id`, `key` or `first` and return its key (or `null` if not found).
   """
   scholarship_delete(
@@ -917,6 +1177,20 @@ extend type Mutation {
     """
     first: ScholarshipApplication_FirstRow
   ): ScholarshipApplication_KeyOutput @fdc_generated(from: "ScholarshipApplication", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `ScholarshipCourse` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  scholarshipCourse_delete(
+    """
+    The key used to identify the object.
+    """
+    key: ScholarshipCourse_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: ScholarshipCourse_FirstRow
+  ): ScholarshipCourse_KeyOutput @fdc_generated(from: "ScholarshipCourse", purpose: DELETE_SINGLE)
   """
   ✨ Delete a single `School` based on `id`, `key` or `first` and return its key (or `null` if not found).
   """
@@ -1040,6 +1314,34 @@ extend type Mutation {
     all: Boolean = false
   ): Int! @fdc_generated(from: "PointsTransaction", purpose: DELETE_MULTIPLE)
   """
+  ✨ Delete `Product` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  product_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: Product_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "Product", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `RedeemedProduct` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  redeemedProduct_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: RedeemedProduct_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "RedeemedProduct", purpose: DELETE_MULTIPLE)
+  """
   ✨ Delete `Scholarship` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
   """
   scholarship_deleteMany(
@@ -1067,6 +1369,20 @@ extend type Mutation {
     """
     all: Boolean = false
   ): Int! @fdc_generated(from: "ScholarshipApplication", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `ScholarshipCourse` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  scholarshipCourse_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: ScholarshipCourse_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "ScholarshipCourse", purpose: DELETE_MULTIPLE)
   """
   ✨ Delete `School` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
   """

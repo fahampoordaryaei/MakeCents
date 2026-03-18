@@ -15,10 +15,34 @@ List<ExpenseCategory> dynamicCategories = [];
 
 ExpenseCategory catFor(String name) => dynamicCategories.firstWhere(
   (c) => c.name == name,
-  orElse: () => dynamicCategories.isNotEmpty
-      ? dynamicCategories.last
-      : const ExpenseCategory('', 'Other', Icons.more_horiz, Colors.grey),
+  orElse: () =>
+      const ExpenseCategory('', 'Other', Icons.more_horiz, Colors.grey),
 );
+
+Widget buildProductImage(
+  String id, {
+  required double size,
+  required double radius,
+  Color? fallbackColor,
+  Widget? fallbackChild,
+}) {
+  final imageId = id.replaceAll('-', '');
+  return ClipRRect(
+    borderRadius: BorderRadius.circular(radius),
+    child: Image.asset(
+      'assets/products/$imageId.jpg',
+      width: size,
+      height: size,
+      fit: BoxFit.cover,
+      errorBuilder: (_, _, _) => Container(
+        width: size,
+        height: size,
+        color: fallbackColor ?? Colors.grey.withValues(alpha: 0.2),
+        child: fallbackChild,
+      ),
+    ),
+  );
+}
 
 IconData getIconByName(String name) {
   switch (name) {

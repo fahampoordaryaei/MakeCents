@@ -32,14 +32,14 @@ class _StartupPageState extends State<StartupPage> {
       Color(0xFFAA96DA),
     ),
     _Slide(
-      'Smart Tips',
-      'Get personalised advice to make the most of your money.',
-      Icons.lightbulb_outline,
+      'Find Scholarship Opportunities',
+      'Discover scholarships that match your course and profile in seconds.',
+      Icons.school_outlined,
       Color(0xFFFFBE0B),
     ),
     _Slide(
       'Get Started',
-      'Join thousands of students managing finances smarter.',
+      'Start managing your student finances with confidence.',
       Icons.savings_outlined,
       Color(0xFFFC5185),
     ),
@@ -74,7 +74,7 @@ class _StartupPageState extends State<StartupPage> {
                           width: 100,
                           height: 100,
                           decoration: BoxDecoration(
-                            color: s.color.withValues(alpha:0.15),
+                            color: s.color.withValues(alpha: 0.15),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(s.icon, size: 50, color: s.color),
@@ -83,7 +83,7 @@ class _StartupPageState extends State<StartupPage> {
                         Text(
                           s.title,
                           style: TextStyle(
-                            fontSize: 28,
+                            fontSize: 32,
                             fontWeight: FontWeight.w800,
                             color: Theme.of(context).colorScheme.onSurface,
                           ),
@@ -93,8 +93,8 @@ class _StartupPageState extends State<StartupPage> {
                         Text(
                           s.subtitle,
                           style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey,
+                            fontSize: 20,
+                            color: Color.fromARGB(255, 0, 0, 0),
                             height: 1.6,
                           ),
                           textAlign: TextAlign.center,

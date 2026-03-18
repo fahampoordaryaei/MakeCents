@@ -37,38 +37,39 @@ class ThemeProvider extends ChangeNotifier {
   }
 }
 
-final ThemeData lightTheme = ThemeData(
+ThemeData _appTheme({
+  required Brightness brightness,
+  required Color scaffoldBackgroundColor,
+  required Color surface,
+}) {
+  return ThemeData(
+    brightness: brightness,
+    primaryColor: const Color(0xFF3e7f3f),
+    scaffoldBackgroundColor: scaffoldBackgroundColor,
+    colorScheme: ColorScheme.fromSeed(
+      seedColor: const Color(0xFF3e7f3f),
+      brightness: brightness,
+      surface: surface,
+      secondary: const Color(0xFF5AB8B2),
+    ),
+    useMaterial3: true,
+  );
+}
+
+final ThemeData lightTheme = _appTheme(
   brightness: Brightness.light,
-  primaryColor: const Color(0xFF3e7f3f),
   scaffoldBackgroundColor: const Color(0xFFF4F7F5),
-  colorScheme: const ColorScheme.light(
-    primary: Color(0xFF3e7f3f),
-    secondary: Color(0xFF4ECDC4),
-    surface: Colors.white,
-  ),
-  useMaterial3: true,
+  surface: Colors.white,
 );
 
-final ThemeData darkNavyTheme = ThemeData(
+final ThemeData darkNavyTheme = _appTheme(
   brightness: Brightness.dark,
-  primaryColor: const Color(0xFF3e7f3f),
   scaffoldBackgroundColor: const Color(0xFF12151C),
-  colorScheme: const ColorScheme.dark(
-    primary: Color(0xFF3e7f3f),
-    secondary: Color(0xFF4ECDC4),
-    surface: Color(0xFF1E222D),
-  ),
-  useMaterial3: true,
+  surface: const Color(0xFF1E222D),
 );
 
-final ThemeData darkAmoledTheme = ThemeData(
+final ThemeData darkAmoledTheme = _appTheme(
   brightness: Brightness.dark,
-  primaryColor: const Color(0xFF3e7f3f),
   scaffoldBackgroundColor: Colors.black,
-  colorScheme: const ColorScheme.dark(
-    primary: Color(0xFF3e7f3f),
-    secondary: Color(0xFF4ECDC4),
-    surface: Color(0xFF121212),
-  ),
-  useMaterial3: true,
+  surface: const Color(0xFF121212),
 );

@@ -44,13 +44,16 @@ type ExpenseCategory @table {
 type Scholarship @table {
   title: String!
   provider: String!
-  location: String!
+  email: String!
   amount: Float!
   currency: String! @default(value: "€")
-  subjects: String! # Comma-separated strings for matching
   description: String!
   color: String!
-  deadline: Date
+}
+
+type ScholarshipCourse @table(key: ["scholarship", "course"]) {
+  scholarship: Scholarship!
+  course: Course!
 }
 
 type ScholarshipApplication @table {
@@ -72,4 +75,20 @@ type PointsTransaction @table {
   amount: Int!
   reason: String!
   createdAt: Timestamp!
+}
+
+type Product @table {
+  name: String!
+  description: String!
+  storeName: String!
+  cost: Int!
+  active: Boolean! @default(value: true)
+  createdAt: Timestamp!
+}
+
+type RedeemedProduct @table(key: ["user", "product"]) {
+  user: User!
+  product: Product!
+  code: String! @unique
+  redeemedAt: Timestamp!
 }

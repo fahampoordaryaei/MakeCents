@@ -40,7 +40,7 @@ class MakeCentsApp extends StatelessWidget {
   const MakeCentsApp({super.key});
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
+    final themeProvider = context.watch<ThemeProvider>();
     return MaterialApp(
       title: 'MakeCents',
       debugShowCheckedModeBanner: false,
@@ -60,6 +60,16 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   late final List<Widget> _pages;
 
+  Future<void> _refreshSessionData() async {
+    final transactionProvider = context.read<TransactionProvider>();
+    final budgetProvider = context.read<BudgetProvider>();
+    final userProvider = context.read<UserProvider>();
+
+    await transactionProvider.fetchTransactions();
+    await budgetProvider.init();
+    await userProvider.loadProfile();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -77,6 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       ),
     ];
+    Future.microtask(_refreshSessionData);
   }
 
   @override
@@ -89,7 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
           color: Theme.of(context).colorScheme.surface,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha:0.07),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 16,
               offset: const Offset(0, -4),
             ),
@@ -104,7 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
             backgroundColor: Theme.of(context).colorScheme.surface,
             selectedIndex: _selectedIndex,
             onDestinationSelected: (i) => setState(() => _selectedIndex = i),
-            indicatorColor: const Color(0xFF3e7f3f).withValues(alpha:0.15),
+            indicatorColor: const Color(0xFF3e7f3f).withValues(alpha: 0.15),
             destinations: [
               NavigationDestination(
                 icon: Icon(

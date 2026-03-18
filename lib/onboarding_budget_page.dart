@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 import 'dataconnect_generated/generated.dart';
 import 'main.dart';
+import 'budget_provider.dart';
+import 'user_provider.dart';
+import 'startup_page.dart';
 
 class OnboardingBudgetPage extends StatefulWidget {
   final String? schoolId;
@@ -80,7 +84,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
   Future<void> _onFinish() async {
     final budgetText = _budgetController.text.trim();
     if (budgetText.isEmpty) {
-      setState(() => _error = 'Please enter a target budget.');
+      setState(() => _error = 'Please enter your budget.');
       return;
     }
 
@@ -125,12 +129,17 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
           .initPointsBalance(userId: user.uid, totalPoints: 0)
           .execute();
 
-      if (mounted) {
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
-          (r) => false,
-        );
-      }
+      if (!mounted) return;
+      final budgetProvider = context.read<BudgetProvider>();
+      final userProvider = context.read<UserProvider>();
+      await budgetProvider.init();
+      await userProvider.loadProfile();
+
+      if (!mounted) return;
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        (r) => false,
+      );
     } catch (e) {
       setState(() => _error = 'Failed to save profile: ${e.toString()}');
     } finally {
@@ -180,7 +189,15 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                         size: 18,
                       ),
                       onPressed: () {
-                        Navigator.of(context).pop();
+                        if (Navigator.of(context).canPop()) {
+                          Navigator.of(context).pop();
+                        } else {
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (_) => const StartupPage(),
+                            ),
+                          );
+                        }
                       },
                     ),
                   ),
@@ -207,9 +224,14 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                   ),
                 ),
                 const SizedBox(height: 8.0),
-                const Text(
-                  'How much do you want to limit your spending to each month?',
-                  style: TextStyle(fontSize: 16.0, color: Colors.grey),
+                Text(
+                  'Set a monthly budget.',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.75),
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 32.0),
@@ -236,7 +258,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                             _error,
                             style: const TextStyle(
                               color: Color(0xFF8B0000),
-                              fontSize: 13,
+                              fontSize: 14,
                             ),
                           ),
                         ),
@@ -351,7 +373,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                             ),
                           )
                         : const Text(
-                            'Finish Setup',
+                            'Complete setup',
                             style: TextStyle(
                               fontSize: 16.0,
                               fontWeight: FontWeight.w700,

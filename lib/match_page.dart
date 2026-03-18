@@ -1,53 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'dataconnect_generated/generated.dart';
 
 class Scholarship {
   final String title;
   final String provider;
-  final String location;
+  final String email;
   final double amount;
   final String currency;
-  final List<String> subjects;
+  final List<String> courseIds;
   final String description;
   final Color color;
 
   const Scholarship({
     required this.title,
     required this.provider,
-    required this.location,
+    required this.email,
     required this.amount,
     this.currency = '€',
-    required this.subjects,
+    required this.courseIds,
     required this.description,
     this.color = const Color(0xFF3e7f3f),
   });
 }
 
-const List<String> kSubjects = [
-  'All Subjects',
-  'Computer Engineering',
-  'Computer Science',
-  'IT',
-  'Software Engineering',
-  'Mathematics',
-  'Physics',
-  'Chemistry',
-  'Biology',
-  'Medicine',
-  'Nursing',
-  'Pharmacy',
-  'Physiotherapy',
-  'Business',
-  'Economics',
-  'Finance',
-  'Management',
-  'Accounting',
-  'Arts',
-  'Design',
-  'Music',
-  'Media',
-  'Architecture',
-];
+class MatcherCourse {
+  final String id;
+  final String name;
+  const MatcherCourse({required this.id, required this.name});
+}
 
 class MatchPage extends StatefulWidget {
   const MatchPage({super.key});
@@ -56,16 +38,63 @@ class MatchPage extends StatefulWidget {
 }
 
 class _MatchPageState extends State<MatchPage> {
-  String _subject = 'Computer Engineering';
-  String _location = 'Malta';
+  List<MatcherCourse> _courses = const [];
+  String? _selectedCourseId;
   List<Scholarship>? _allScholarships;
   List<Scholarship>? _results;
   bool _searched = false;
+  bool _coursesLoaded = false;
 
   @override
   void initState() {
     super.initState();
     _loadScholarships();
+    _loadCoursesAndProfileSelection();
+  }
+
+  Future<void> _loadCoursesAndProfileSelection() async {
+    try {
+      final connector = ExampleConnector.instance;
+      final coursesResult = await connector.listCourses().execute();
+      final courses = coursesResult.data.courses
+          .map((c) => MatcherCourse(id: c.id, name: c.name))
+          .toList();
+
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        if (!mounted) return;
+        setState(() {
+          _coursesLoaded = true;
+          _courses = courses;
+          _selectedCourseId = courses.isNotEmpty ? courses.first.id : null;
+        });
+        return;
+      }
+
+      final result = await connector
+          .getUserProfile(username: user.uid)
+          .execute();
+      final dbUser = result.data.users.isNotEmpty
+          ? result.data.users.first
+          : null;
+      final selectedCourseId = dbUser?.course?.id;
+
+      if (!mounted) return;
+      setState(() {
+        _coursesLoaded = true;
+        _courses = courses;
+        _selectedCourseId =
+            selectedCourseId ?? (courses.isNotEmpty ? courses.first.id : null);
+      });
+    } catch (e) {
+      debugPrint('Error loading courses: $e');
+      if (!mounted) return;
+      setState(() {
+        _coursesLoaded = true;
+        _courses = const [];
+        _selectedCourseId = null;
+      });
+    }
   }
 
   Future<void> _loadScholarships() async {
@@ -78,11 +107,13 @@ class _MatchPageState extends State<MatchPage> {
           return Scholarship(
             title: s.title,
             provider: s.provider,
-            location: s.location,
+            email: s.email,
             amount: s.amount,
             currency: s.currency,
             description: s.description,
-            subjects: s.subjects.split(',').map((e) => e.trim()).toList(),
+            courseIds: s.courses_via_ScholarshipCourse
+                .map((course) => course.id)
+                .toList(),
             color: Color(int.parse(s.color.replaceFirst('#', '0xFF'))),
           );
         }).toList();
@@ -98,11 +129,13 @@ class _MatchPageState extends State<MatchPage> {
     FocusScope.of(context).unfocus();
     setState(() {
       _searched = true;
+      final selectedCourseId = _selectedCourseId;
+      if (selectedCourseId == null) {
+        _results = <Scholarship>[];
+        return;
+      }
       _results = _allScholarships!.where((s) {
-        final subjectOk =
-            s.subjects.contains('All Subjects') ||
-            s.subjects.contains(_subject);
-        return subjectOk;
+        return s.courseIds.contains(selectedCourseId);
       }).toList();
     });
   }
@@ -127,8 +160,8 @@ class _MatchPageState extends State<MatchPage> {
             ),
             const SizedBox(height: 4),
             const Text(
-              'Find opportunities based on your background and subjects.',
-              style: TextStyle(color: Colors.grey, fontSize: 16),
+              'Find opportunities based on your background and course.',
+              style: TextStyle(color: Colors.black87, fontSize: 16),
             ),
             const SizedBox(height: 24),
 
@@ -159,73 +192,55 @@ class _MatchPageState extends State<MatchPage> {
                   ),
                   const SizedBox(height: 20),
 
-                  // Subject dropdown
+                  // Course dropdown
                   const Text(
-                    'SUBJECT',
+                    'COURSE',
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: Colors.grey,
+                      color: Colors.black87,
                       letterSpacing: 0.8,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: _subject,
-                        isExpanded: true,
-                        items: kSubjects
-                            .where((s) => s != 'All Subjects')
-                            .map(
-                              (s) => DropdownMenuItem(
-                                value: s,
-                                child: Text(
-                                  s,
-                                  style: const TextStyle(fontSize: 16),
-                                ),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (v) => setState(() => _subject = v!),
+                  if (!_coursesLoaded)
+                    const LinearProgressIndicator(minHeight: 2)
+                  else if (_courses.isEmpty)
+                    Text(
+                      'No courses available.',
+                      style: TextStyle(
+                        color: Colors.black87,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Location field
-                  const Text(
-                    'LOCATION',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.grey,
-                      letterSpacing: 0.8,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: TextEditingController(text: _location),
-                    onChanged: (v) => _location = v,
-                    decoration: InputDecoration(
-                      hintText: 'e.g. Malta',
-                      filled: true,
-                      fillColor: Theme.of(context).colorScheme.surface,
-                      border: OutlineInputBorder(
+                    )
+                  else
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
                       ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 14,
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: _selectedCourseId,
+                          isExpanded: true,
+                          items: _courses
+                              .map(
+                                (c) => DropdownMenuItem(
+                                  value: c.id,
+                                  child: Text(
+                                    c.name,
+                                    style: const TextStyle(fontSize: 16),
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (v) =>
+                              setState(() => _selectedCourseId = v),
+                        ),
                       ),
                     ),
-                  ),
                   const SizedBox(height: 20),
 
                   // Find button
@@ -242,7 +257,7 @@ class _MatchPageState extends State<MatchPage> {
                       ),
                       icon: const Icon(Icons.radar_outlined),
                       label: const Text(
-                        'Find My Matches',
+                        'Find matches',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -286,19 +301,6 @@ class _MatchPageState extends State<MatchPage> {
                       ),
                     ),
                   ),
-                if (!_searched)
-                  TextButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(
-                      Icons.filter_list,
-                      size: 16,
-                      color: Colors.grey,
-                    ),
-                    label: const Text(
-                      'Filter',
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  ),
               ],
             ),
             const SizedBox(height: 12),
@@ -328,9 +330,9 @@ class _MatchPageState extends State<MatchPage> {
                       ),
                       const SizedBox(height: 4),
                       const Text(
-                        'Try a different subject to unlock more scholarships.',
+                        'Try a different course to see more scholarships.',
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.grey, fontSize: 15),
+                        style: TextStyle(color: Colors.black87, fontSize: 15),
                       ),
                     ],
                   ),
@@ -403,15 +405,21 @@ class _ScholarshipCard extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  // Tags
-                  Row(children: [_Tag(Icons.location_on_outlined, s.location)]),
+                  const SizedBox(height: 6),
+                  const Text(
+                    'Please email us your application letter and school records.',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.black87,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   const SizedBox(height: 10),
                   Text(
                     s.description,
                     style: const TextStyle(
                       fontSize: 14,
-                      color: Colors.grey,
+                      color: Colors.black87,
                       height: 1.4,
                     ),
                   ),
@@ -465,70 +473,60 @@ class _ScholarshipCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(s.description, style: const TextStyle(color: Colors.grey)),
+            Text(
+              'Provider: ${s.provider}',
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+            ),
             const SizedBox(height: 16),
             Text(
               'Amount: ${s.currency}${s.amount.toStringAsFixed(0)}',
-              style: const TextStyle(fontWeight: FontWeight.w700),
+              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 22),
             ),
+            const SizedBox(height: 12),
             Text(
-              'Provider: ${s.provider}',
-              style: const TextStyle(fontWeight: FontWeight.w600),
+              s.description,
+              style: const TextStyle(color: Colors.black87, fontSize: 18),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Please email us your application letter and school records.',
+              style: TextStyle(fontSize: 16, color: Colors.black87),
             ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            child: const Text('Close', style: TextStyle(fontSize: 16)),
           ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: s.color),
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Application started for ${s.title}!'),
-                  backgroundColor: s.color,
-                ),
-              );
-            },
-            child: const Text('Start Application'),
+            onPressed: () => _launchApplyEmail(context, s),
+            child: const Text('Open Email', style: TextStyle(fontSize: 20)),
           ),
         ],
       ),
     );
   }
-}
 
-class _Tag extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  const _Tag(this.icon, this.label);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 11, color: Colors.grey),
-          const SizedBox(width: 3),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 13,
-              color: Colors.grey,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
+  Future<void> _launchApplyEmail(BuildContext context, Scholarship s) async {
+    final uri = Uri(
+      scheme: 'mailto',
+      path: s.email,
+      queryParameters: {
+        'subject': 'Scholarship Application - ${s.title}',
+        'body': 'Please email us your application letter and school records.',
+      },
     );
+
+    final launched = await launchUrl(uri);
+    if (!launched && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not open your email app.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 }

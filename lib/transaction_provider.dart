@@ -59,7 +59,7 @@ class TransactionProvider with ChangeNotifier {
         );
       }).toList();
     } catch (e) {
-      debugPrint("Error fetching transactions: $e");
+      debugPrint('Error fetching transactions: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -116,12 +116,12 @@ class TransactionProvider with ChangeNotifier {
               .execute();
         }
       } catch (e) {
-        debugPrint("Error updating points balance: $e");
+        debugPrint('Error updating points balance: $e');
       }
 
       await fetchTransactions();
     } catch (e) {
-      debugPrint("Error adding transaction: $e");
+      debugPrint('Error adding transaction: $e');
       _transactions.removeWhere((t) => t.id == tempId);
       notifyListeners();
     }
@@ -143,8 +143,50 @@ class TransactionProvider with ChangeNotifier {
           .deleteTransaction(id: removedTx.id)
           .execute();
     } catch (e) {
-      debugPrint("Error deleting transaction: $e");
+      debugPrint('Error deleting transaction: $e');
       _transactions.insert(index, removedTx);
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  Future<void> updateTransaction({
+    required String id,
+    required String title,
+    required double amount,
+    required DateTime date,
+    required String categoryId,
+    required String categoryName,
+  }) async {
+    final index = _transactions.indexWhere((t) => t.id == id);
+    if (index < 0) return;
+
+    final original = _transactions[index];
+    final updated = Transaction(
+      id: original.id,
+      title: title,
+      amount: amount,
+      date: date,
+      category: categoryName,
+    );
+
+    _transactions[index] = updated;
+    notifyListeners();
+
+    try {
+      final mutation = ExampleConnector.instance
+          .updateTransaction(
+            id: id,
+            categoryId: categoryId,
+            amount: amount,
+            date: date,
+          )
+          .description(title);
+      await mutation.execute();
+      await fetchTransactions();
+    } catch (e) {
+      debugPrint('Error updating transaction: $e');
+      _transactions[index] = original;
       notifyListeners();
       rethrow;
     }

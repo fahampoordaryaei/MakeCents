@@ -1,5 +1,39 @@
 extend type Course {
   """
+  ✨ List `ScholarshipCourse` objects in a one-to-many relationship (where `ScholarshipCourse`.`course` is this object).
+  """
+  scholarshipCourses_on_course(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: ScholarshipCourse_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [ScholarshipCourse_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: ScholarshipCourse_Having
+  ): [ScholarshipCourse!]! @fdc_generated(from: "ScholarshipCourse.course", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
   ✨ List `User` objects in a one-to-many relationship (where `User`.`course` is this object).
   """
   users_on_course(
@@ -33,6 +67,40 @@ extend type Course {
     """
     having: User_Having
   ): [User!]! @fdc_generated(from: "User.course", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
+  ✨ List `Scholarship` objects using `ScholarshipCourse` as the join table (a `ScholarshipCourse` object exists where its `course` is this and its `scholarship` is that).
+  """
+  scholarships_via_ScholarshipCourse(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: ScholarshipCourse_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [ScholarshipCourse_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: ScholarshipCourse_Having
+  ): [Scholarship!]! @fdc_generated(from: "ScholarshipCourse", purpose: QUERY_MULTIPLE_MANY_TO_MANY)
   """
   Implicit metadata field that cannot be written. It provides extra information about query results.
   """
@@ -375,6 +443,243 @@ extend type PointsTransaction {
   """
   _id: ID! @fdc_generated(from: "PointsTransaction.id", purpose: GLOBAL_ID)
 }
+extend type Product {
+  """
+  ✨ List `RedeemedProduct` objects in a one-to-many relationship (where `RedeemedProduct`.`product` is this object).
+  """
+  redeemedProducts_on_product(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: RedeemedProduct_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [RedeemedProduct_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: RedeemedProduct_Having
+  ): [RedeemedProduct!]! @fdc_generated(from: "RedeemedProduct.product", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
+  ✨ List `User` objects using `RedeemedProduct` as the join table (a `RedeemedProduct` object exists where its `product` is this and its `user` is that).
+  """
+  users_via_RedeemedProduct(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: RedeemedProduct_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [RedeemedProduct_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: RedeemedProduct_Having
+  ): [User!]! @fdc_generated(from: "RedeemedProduct", purpose: QUERY_MULTIPLE_MANY_TO_MANY)
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "Product", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `Product` table.
+  """
+  _count: Int! @fdc_generated(from: "Product.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Product` table where the `active` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  active_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Product.active", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Product` table where the `cost` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  cost_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Product.cost", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Product` table where the `createdAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  createdAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Product.createdAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Product` table where the `description` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  description_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Product.description", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Product` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Product.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Product` table where the `name` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  name_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Product.name", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Product` table where the `storeName` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  storeName_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Product.storeName", purpose: QUERY_COUNT)
+  """
+  ✨ Sum the `cost` field in the `Product` table.
+  """
+  cost_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "Product.cost", purpose: QUERY_SUM)
+  """
+  ✨ Average the `cost` field in the `Product` table.
+  """
+  cost_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "Product.cost", purpose: QUERY_AVG)
+  """
+  ✨ Minimum of the `cost` field in the `Product` table.
+  """
+  cost_min: Int @fdc_generated(from: "Product.cost", purpose: QUERY_MIN)
+  """
+  ✨ Minimum of the `createdAt` field in the `Product` table.
+  """
+  createdAt_min: Timestamp @fdc_generated(from: "Product.createdAt", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `cost` field in the `Product` table.
+  """
+  cost_max: Int @fdc_generated(from: "Product.cost", purpose: QUERY_MAX)
+  """
+  ✨ Maximum of the `createdAt` field in the `Product` table.
+  """
+  createdAt_max: Timestamp @fdc_generated(from: "Product.createdAt", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "Product.id", purpose: GLOBAL_ID)
+}
+extend type RedeemedProduct {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "RedeemedProduct", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `RedeemedProduct` table.
+  """
+  _count: Int! @fdc_generated(from: "RedeemedProduct.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `RedeemedProduct` table where the `code` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  code_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "RedeemedProduct.code", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `RedeemedProduct` table where the `productId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  productId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "RedeemedProduct.productId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `RedeemedProduct` table where the `redeemedAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  redeemedAt_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "RedeemedProduct.redeemedAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `RedeemedProduct` table where the `userUsername` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  userUsername_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "RedeemedProduct.userUsername", purpose: QUERY_COUNT)
+  """
+  ✨ Minimum of the `redeemedAt` field in the `RedeemedProduct` table.
+  """
+  redeemedAt_min: Timestamp @fdc_generated(from: "RedeemedProduct.redeemedAt", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `redeemedAt` field in the `RedeemedProduct` table.
+  """
+  redeemedAt_max: Timestamp @fdc_generated(from: "RedeemedProduct.redeemedAt", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "RedeemedProduct.userUsername,productId", purpose: GLOBAL_ID)
+}
 extend type Scholarship {
   """
   ✨ List `ScholarshipApplication` objects in a one-to-many relationship (where `ScholarshipApplication`.`scholarship` is this object).
@@ -411,6 +716,74 @@ extend type Scholarship {
     having: ScholarshipApplication_Having
   ): [ScholarshipApplication!]! @fdc_generated(from: "ScholarshipApplication.scholarship", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
   """
+  ✨ List `ScholarshipCourse` objects in a one-to-many relationship (where `ScholarshipCourse`.`scholarship` is this object).
+  """
+  scholarshipCourses_on_scholarship(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: ScholarshipCourse_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [ScholarshipCourse_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: ScholarshipCourse_Having
+  ): [ScholarshipCourse!]! @fdc_generated(from: "ScholarshipCourse.scholarship", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
+  ✨ List `Course` objects using `ScholarshipCourse` as the join table (a `ScholarshipCourse` object exists where its `scholarship` is this and its `course` is that).
+  """
+  courses_via_ScholarshipCourse(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: ScholarshipCourse_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [ScholarshipCourse_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: ScholarshipCourse_Having
+  ): [Course!]! @fdc_generated(from: "ScholarshipCourse", purpose: QUERY_MULTIPLE_MANY_TO_MANY)
+  """
   Implicit metadata field that cannot be written. It provides extra information about query results.
   """
   _metadata: _Metadata @fdc_generated(from: "Scholarship", purpose: METADATA_FIELD)
@@ -446,15 +819,6 @@ extend type Scholarship {
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "Scholarship.currency", purpose: QUERY_COUNT)
   """
-  ✨ Count the number of rows in the `Scholarship` table where the `deadline` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
-  """
-  deadline_count(
-    """
-    Set to true to count the number of distinct values.
-    """
-    distinct: Boolean = false
-  ): Int! @fdc_generated(from: "Scholarship.deadline", purpose: QUERY_COUNT)
-  """
   ✨ Count the number of rows in the `Scholarship` table where the `description` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
   description_count(
@@ -463,6 +827,15 @@ extend type Scholarship {
     """
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "Scholarship.description", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Scholarship` table where the `email` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  email_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Scholarship.email", purpose: QUERY_COUNT)
   """
   ✨ Count the number of rows in the `Scholarship` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
@@ -473,15 +846,6 @@ extend type Scholarship {
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "Scholarship.id", purpose: QUERY_COUNT)
   """
-  ✨ Count the number of rows in the `Scholarship` table where the `location` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
-  """
-  location_count(
-    """
-    Set to true to count the number of distinct values.
-    """
-    distinct: Boolean = false
-  ): Int! @fdc_generated(from: "Scholarship.location", purpose: QUERY_COUNT)
-  """
   ✨ Count the number of rows in the `Scholarship` table where the `provider` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
   provider_count(
@@ -490,15 +854,6 @@ extend type Scholarship {
     """
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "Scholarship.provider", purpose: QUERY_COUNT)
-  """
-  ✨ Count the number of rows in the `Scholarship` table where the `subjects` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
-  """
-  subjects_count(
-    """
-    Set to true to count the number of distinct values.
-    """
-    distinct: Boolean = false
-  ): Int! @fdc_generated(from: "Scholarship.subjects", purpose: QUERY_COUNT)
   """
   ✨ Count the number of rows in the `Scholarship` table where the `title` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
@@ -531,17 +886,9 @@ extend type Scholarship {
   """
   amount_min: Float @fdc_generated(from: "Scholarship.amount", purpose: QUERY_MIN)
   """
-  ✨ Minimum of the `deadline` field in the `Scholarship` table.
-  """
-  deadline_min: Date @fdc_generated(from: "Scholarship.deadline", purpose: QUERY_MIN)
-  """
   ✨ Maximum of the `amount` field in the `Scholarship` table.
   """
   amount_max: Float @fdc_generated(from: "Scholarship.amount", purpose: QUERY_MAX)
-  """
-  ✨ Maximum of the `deadline` field in the `Scholarship` table.
-  """
-  deadline_max: Date @fdc_generated(from: "Scholarship.deadline", purpose: QUERY_MAX)
   """
   A generated field that is used for caching results in SDKs.
   """
@@ -613,6 +960,38 @@ extend type ScholarshipApplication {
   A generated field that is used for caching results in SDKs.
   """
   _id: ID! @fdc_generated(from: "ScholarshipApplication.id", purpose: GLOBAL_ID)
+}
+extend type ScholarshipCourse {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "ScholarshipCourse", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `ScholarshipCourse` table.
+  """
+  _count: Int! @fdc_generated(from: "ScholarshipCourse.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ScholarshipCourse` table where the `courseId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  courseId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ScholarshipCourse.courseId", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ScholarshipCourse` table where the `scholarshipId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  scholarshipId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ScholarshipCourse.scholarshipId", purpose: QUERY_COUNT)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "ScholarshipCourse.scholarshipId,courseId", purpose: GLOBAL_ID)
 }
 extend type School {
   """
@@ -869,6 +1248,40 @@ extend type User {
     having: PointsTransaction_Having
   ): [PointsTransaction!]! @fdc_generated(from: "PointsTransaction.user", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
   """
+  ✨ List `RedeemedProduct` objects in a one-to-many relationship (where `RedeemedProduct`.`user` is this object).
+  """
+  redeemedProducts_on_user(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: RedeemedProduct_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [RedeemedProduct_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: RedeemedProduct_Having
+  ): [RedeemedProduct!]! @fdc_generated(from: "RedeemedProduct.user", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
   ✨ List `ScholarshipApplication` objects in a one-to-many relationship (where `ScholarshipApplication`.`user` is this object).
   """
   scholarshipApplications_on_user(
@@ -936,6 +1349,40 @@ extend type User {
     """
     having: Transaction_Having
   ): [Transaction!]! @fdc_generated(from: "Transaction.user", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
+  ✨ List `Product` objects using `RedeemedProduct` as the join table (a `RedeemedProduct` object exists where its `user` is this and its `product` is that).
+  """
+  products_via_RedeemedProduct(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: RedeemedProduct_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [RedeemedProduct_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: RedeemedProduct_Having
+  ): [Product!]! @fdc_generated(from: "RedeemedProduct", purpose: QUERY_MULTIPLE_MANY_TO_MANY)
   """
   Implicit metadata field that cannot be written. It provides extra information about query results.
   """

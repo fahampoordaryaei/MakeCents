@@ -75,9 +75,12 @@ class UserProvider with ChangeNotifier {
           otherSchool: u.otherSchool,
           otherCourse: u.otherCourse,
         );
+      } else {
+        _profile = null;
       }
     } catch (e) {
       debugPrint('Error loading profile: $e');
+      _profile = null;
     } finally {
       _isLoading = false;
       notifyListeners();

@@ -36,6 +36,22 @@ extend type PointsTransaction {
   """
   userUsername: String! @fdc_generated(from: "PointsTransaction.user", purpose: IMPLICIT_REF_FIELD)
 }
+extend type Product {
+  """
+  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
+  """
+  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "Product", purpose: IMPLICIT_KEY_FIELD)
+}
+extend type RedeemedProduct {
+  """
+  ✨ Implicit foreign key field based on `RedeemedProduct`.`user`. It must match the value of `User`.`username`. See `@ref` for how to customize it.
+  """
+  userUsername: String! @fdc_generated(from: "RedeemedProduct.user", purpose: IMPLICIT_REF_FIELD)
+  """
+  ✨ Implicit foreign key field based on `RedeemedProduct`.`product`. It must match the value of `Product`.`id`. See `@ref` for how to customize it.
+  """
+  productId: UUID! @fdc_generated(from: "RedeemedProduct.product", purpose: IMPLICIT_REF_FIELD)
+}
 extend type Scholarship {
   """
   ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
@@ -55,6 +71,16 @@ extend type ScholarshipApplication {
   ✨ Implicit foreign key field based on `ScholarshipApplication`.`user`. It must match the value of `User`.`username`. See `@ref` for how to customize it.
   """
   userUsername: String! @fdc_generated(from: "ScholarshipApplication.user", purpose: IMPLICIT_REF_FIELD)
+}
+extend type ScholarshipCourse {
+  """
+  ✨ Implicit foreign key field based on `ScholarshipCourse`.`scholarship`. It must match the value of `Scholarship`.`id`. See `@ref` for how to customize it.
+  """
+  scholarshipId: UUID! @fdc_generated(from: "ScholarshipCourse.scholarship", purpose: IMPLICIT_REF_FIELD)
+  """
+  ✨ Implicit foreign key field based on `ScholarshipCourse`.`course`. It must match the value of `Course`.`id`. See `@ref` for how to customize it.
+  """
+  courseId: UUID! @fdc_generated(from: "ScholarshipCourse.course", purpose: IMPLICIT_REF_FIELD)
 }
 extend type School {
   """

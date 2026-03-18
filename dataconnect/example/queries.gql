@@ -16,7 +16,11 @@ query ListCourses @auth(level: PUBLIC) {
 
 # List transactions for a user
 query ListUserTransactions($userId: String!) @auth(level: USER) {
-  transactions(where: {userUsername: {eq: $userId}}, orderBy: [{date: DESC}]) {
+  transactions(
+    where: {userUsername: {eq: $userId}}
+    orderBy: [{date: DESC}, {createdAt: DESC}]
+    limit: 1000
+  ) {
     id
     amount
     description
@@ -36,6 +40,37 @@ query GetUserPoints($userId: String!) @auth(level: USER) {
     id
     totalPoints
     updatedAt
+  }
+}
+
+# List redeemable products
+query ListProducts @auth(level: PUBLIC) {
+  products(where: {active: {eq: true}}, orderBy: [{cost: ASC}, {name: ASC}]) {
+    id
+    name
+    description
+    storeName
+    cost
+    active
+  }
+}
+
+# List products redeemed by the user
+query ListRedeemedProducts($userId: String!) @auth(level: USER) {
+  redeemedProducts(
+    where: {userUsername: {eq: $userId}}
+    orderBy: [{redeemedAt: DESC}]
+  ) {
+    code
+    redeemedAt
+    product {
+      id
+      name
+      description
+      storeName
+      cost
+      active
+    }
   }
 }
 
@@ -88,6 +123,30 @@ mutation DeleteTransaction($id: UUID!) @auth(level: USER) {
   transaction_delete(key: {id: $id})
 }
 
+# Update transaction
+mutation UpdateTransaction(
+  $id: UUID!,
+  $categoryId: UUID!,
+  $amount: Float!,
+  $description: String,
+  $date: Date!
+) @auth(level: USER) {
+  transaction_update(
+    key: {id: $id}
+    data: {
+      categoryId: $categoryId
+      amount: $amount
+      description: $description
+      date: $date
+    }
+  )
+}
+
+# Delete user profile
+mutation DeleteUserProfile($username: String!) @auth(level: USER) {
+  user_delete(key: {username: $username})
+}
+
 # Update user budget
 mutation UpdateUserBudget($username: String!, $budget: Float!) @auth(level: USER) {
   user_update(key: {username: $username}, data: {monthlyBudget: $budget})
@@ -105,6 +164,7 @@ query GetUserProfile($username: String!) @auth(level: USER) {
       name
     }
     course {
+      id
       name
     }
   }
@@ -116,13 +176,15 @@ query ListScholarships @auth(level: PUBLIC) {
     id
     title
     provider
-    location
+    email
     amount
     currency
-    subjects
+    courses_via_ScholarshipCourse {
+      id
+      name
+    }
     description
     color
-    deadline
   }
 }
 

@@ -4,12 +4,287 @@ import 'login_page.dart';
 import 'budget_provider.dart';
 import 'transaction_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dataconnect_generated/generated.dart';
 import 'theme_provider.dart';
 import 'user_provider.dart';
 
 class UserPage extends StatelessWidget {
   final VoidCallback onNavigateToBudget;
   const UserPage({super.key, required this.onNavigateToBudget});
+
+  bool _isValidPassword(String pass) {
+    return pass.length >= 8 &&
+        RegExp(r'[A-Z]').hasMatch(pass) &&
+        RegExp(r'[a-z]').hasMatch(pass) &&
+        RegExp(r'[0-9]').hasMatch(pass) &&
+        RegExp(r'[^a-zA-Z0-9\s]').hasMatch(pass);
+  }
+
+  Future<void> _showChangePasswordDialog(BuildContext context) async {
+    final newPasswordCtrl = TextEditingController();
+    final confirmPasswordCtrl = TextEditingController();
+    bool obscureNew = true;
+    bool obscureConfirm = true;
+    String dialogError = '';
+
+    await showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Text('Change password'),
+          content: SizedBox(
+            width: 420,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: newPasswordCtrl,
+                  obscureText: obscureNew,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    labelText: 'New password',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        obscureNew
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                      ),
+                      onPressed: () =>
+                          setDialogState(() => obscureNew = !obscureNew),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: confirmPasswordCtrl,
+                  obscureText: obscureConfirm,
+                  decoration: InputDecoration(
+                    labelText: 'Confirm new password',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        obscureConfirm
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                      ),
+                      onPressed: () => setDialogState(
+                        () => obscureConfirm = !obscureConfirm,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Password must contain:\n'
+                    '• Min 8 characters\n'
+                    '• 1 uppercase letter\n'
+                    '• 1 lowercase letter\n'
+                    '• 1 number\n'
+                    '• 1 special character',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(
+                        ctx,
+                      ).colorScheme.onSurface.withValues(alpha: 0.8),
+                      height: 1.35,
+                    ),
+                  ),
+                ),
+                if (dialogError.isNotEmpty) ...[
+                  const SizedBox(height: 10),
+                  Text(
+                    dialogError,
+                    style: const TextStyle(color: Colors.red, fontSize: 16),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () async {
+                final newPass = newPasswordCtrl.text;
+                final confirmPass = confirmPasswordCtrl.text;
+                if (newPass.isEmpty || confirmPass.isEmpty) {
+                  setDialogState(
+                    () => dialogError = 'Please fill out all fields.',
+                  );
+                  return;
+                }
+                if (!_isValidPassword(newPass)) {
+                  setDialogState(
+                    () => dialogError = 'Password does not meet requirements.',
+                  );
+                  return;
+                }
+                if (newPass != confirmPass) {
+                  setDialogState(() => dialogError = 'Passwords do not match.');
+                  return;
+                }
+
+                try {
+                  final user = FirebaseAuth.instance.currentUser;
+                  if (user == null) {
+                    setDialogState(() => dialogError = 'No active user found.');
+                    return;
+                  }
+                  await user.updatePassword(newPass);
+                  if (!ctx.mounted) return;
+                  Navigator.pop(ctx);
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Password updated.')),
+                  );
+                } on FirebaseAuthException catch (e) {
+                  if (e.code == 'requires-recent-login') {
+                    setDialogState(
+                      () => dialogError =
+                          'Please log in again before changing password.',
+                    );
+                  } else {
+                    setDialogState(
+                      () => dialogError = 'Could not update password.',
+                    );
+                  }
+                } catch (_) {
+                  setDialogState(
+                    () => dialogError = 'Could not update password.',
+                  );
+                }
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openSettingsMenu(BuildContext context) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => _SettingsPage(
+          onChangePassword: _showChangePasswordDialog,
+          onDeleteAccount: _confirmDeleteAccount,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _confirmDeleteAccount(BuildContext context) async {
+    final passwordCtrl = TextEditingController();
+    bool obscure = true;
+    final password = await showDialog<String>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Text('Delete account?'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('This will permanently remove your account.'),
+              const SizedBox(height: 12),
+              TextField(
+                controller: passwordCtrl,
+                obscureText: obscure,
+                autofocus: true,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      obscure
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                    ),
+                    onPressed: () => setDialogState(() => obscure = !obscure),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFFFF6B6B),
+              ),
+              onPressed: () => Navigator.pop(ctx, passwordCtrl.text.trim()),
+              child: const Text('Delete'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (!context.mounted) return;
+    if (password == null || password.isEmpty) return;
+
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('No active user found.')));
+        return;
+      }
+
+      final email = user.email;
+      if (email == null || email.isEmpty) return;
+
+      final credential = EmailAuthProvider.credential(
+        email: email,
+        password: password,
+      );
+      await user.reauthenticateWithCredential(credential);
+
+      await ExampleConnector.instance
+          .deleteUserProfile(username: user.uid)
+          .execute();
+
+      await user.delete();
+
+      if (!context.mounted) return;
+      Provider.of<UserProvider>(context, listen: false).clearProfile();
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginPage()),
+        (r) => false,
+      );
+    } on FirebaseAuthException {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not delete account.')),
+      );
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not delete account.')),
+      );
+    }
+  }
 
   Future<void> _editBudgetDialog(BuildContext context) async {
     final bp = Provider.of<BudgetProvider>(context, listen: false);
@@ -48,7 +323,7 @@ class UserPage extends StatelessWidget {
                 if (dialogError.isNotEmpty) ...[
                   Text(
                     dialogError,
-                    style: const TextStyle(color: Colors.red, fontSize: 13),
+                    style: const TextStyle(color: Colors.red, fontSize: 14),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 12),
@@ -107,14 +382,24 @@ class UserPage extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
+                    children: [
                       Text(
                         '€0',
-                        style: TextStyle(color: Colors.grey, fontSize: 12),
+                        style: TextStyle(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.75),
+                          fontSize: 14,
+                        ),
                       ),
                       Text(
                         '€10k',
-                        style: TextStyle(color: Colors.grey, fontSize: 12),
+                        style: TextStyle(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.75),
+                          fontSize: 14,
+                        ),
                       ),
                     ],
                   ),
@@ -225,7 +510,7 @@ class UserPage extends StatelessWidget {
                         up.profile!.school!,
                         style: const TextStyle(
                           color: Color(0xFF3e7f3f),
-                          fontSize: 12,
+                          fontSize: 14,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -257,14 +542,15 @@ class UserPage extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 28),
-
-            const Text(
+            const SizedBox(height: 30),
+            Text(
               'Settings',
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 20,
                 fontWeight: FontWeight.w700,
-                color: Colors.grey,
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
               ),
             ),
             const SizedBox(height: 12),
@@ -295,19 +581,11 @@ class UserPage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             _SettingsTile(
-              icon: Icons.notifications_outlined,
-              iconColor: const Color(0xFFAA96DA),
-              title: 'Notifications',
-              subtitle: 'Manage alerts',
-              onTap: () {},
-            ),
-            const SizedBox(height: 8),
-            _SettingsTile(
-              icon: Icons.lock_outline,
+              icon: Icons.settings_outlined,
               iconColor: const Color(0xFF4ECDC4),
-              title: 'Security',
-              subtitle: 'Password',
-              onTap: () {},
+              title: 'Settings',
+              subtitle: 'Account settings',
+              onTap: () => _openSettingsMenu(context),
             ),
             const SizedBox(height: 8),
             _SettingsTile(
@@ -373,13 +651,91 @@ class _StatCard extends StatelessWidget {
             ),
             Text(
               label,
-              style: const TextStyle(fontSize: 13, color: Colors.grey),
+              style: TextStyle(
+                fontSize: 14,
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.75),
+              ),
             ),
           ],
         ),
       ],
     ),
   );
+}
+
+class _SettingsPage extends StatelessWidget {
+  final Future<void> Function(BuildContext context) onChangePassword;
+  final Future<void> Function(BuildContext context) onDeleteAccount;
+
+  const _SettingsPage({
+    required this.onChangePassword,
+    required this.onDeleteAccount,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    margin: const EdgeInsets.only(right: 12),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      icon: Icon(
+                        Icons.arrow_back,
+                        color: Theme.of(context).colorScheme.onSurface,
+                        size: 18,
+                      ),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ),
+                  Text(
+                    'Settings',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w800,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              _SettingsTile(
+                icon: Icons.lock_outline,
+                iconColor: const Color(0xFF4ECDC4),
+                title: 'Change password',
+                subtitle: 'Update account password',
+                onTap: () => onChangePassword(context),
+              ),
+              const SizedBox(height: 8),
+              _SettingsTile(
+                icon: Icons.delete_outline,
+                iconColor: const Color(0xFFFF6B6B),
+                title: 'Delete account',
+                subtitle: 'Permanently remove your account',
+                onTap: () => onDeleteAccount(context),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _SettingsTile extends StatelessWidget {
@@ -419,9 +775,21 @@ class _SettingsTile extends StatelessWidget {
       ),
       subtitle: Text(
         subtitle,
-        style: const TextStyle(fontSize: 14, color: Colors.grey),
+        style: TextStyle(
+          fontSize: 14,
+          color: Theme.of(
+            context,
+          ).colorScheme.onSurface.withValues(alpha: 0.75),
+        ),
       ),
-      trailing: trailing ?? const Icon(Icons.chevron_right, color: Colors.grey),
+      trailing:
+          trailing ??
+          Icon(
+            Icons.chevron_right,
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.75),
+          ),
     ),
   );
 }

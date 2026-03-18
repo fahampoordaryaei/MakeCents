@@ -29,6 +29,18 @@ It has the same format as `PointsTransaction_Key`, but is only used as mutation 
 """
 scalar PointsTransaction_KeyOutput
 """
+✨ `Product_KeyOutput` returns the primary key fields of table type `Product`.
+
+It has the same format as `Product_Key`, but is only used as mutation return value.
+"""
+scalar Product_KeyOutput
+"""
+✨ `RedeemedProduct_KeyOutput` returns the primary key fields of table type `RedeemedProduct`.
+
+It has the same format as `RedeemedProduct_Key`, but is only used as mutation return value.
+"""
+scalar RedeemedProduct_KeyOutput
+"""
 ✨ `Scholarship_KeyOutput` returns the primary key fields of table type `Scholarship`.
 
 It has the same format as `Scholarship_Key`, but is only used as mutation return value.
@@ -40,6 +52,12 @@ scalar Scholarship_KeyOutput
 It has the same format as `ScholarshipApplication_Key`, but is only used as mutation return value.
 """
 scalar ScholarshipApplication_KeyOutput
+"""
+✨ `ScholarshipCourse_KeyOutput` returns the primary key fields of table type `ScholarshipCourse`.
+
+It has the same format as `ScholarshipCourse_Key`, but is only used as mutation return value.
+"""
+scalar ScholarshipCourse_KeyOutput
 """
 ✨ `School_KeyOutput` returns the primary key fields of table type `School`.
 
@@ -104,9 +122,17 @@ input Course_Filter {
   """
   name: String_Filter
   """
+  ✨ Generated from Field `Course`.`scholarshipCourses_on_course` of type `[ScholarshipCourse!]!`
+  """
+  scholarshipCourses_on_course: ScholarshipCourse_ListFilter
+  """
   ✨ Generated from Field `Course`.`users_on_course` of type `[User!]!`
   """
   users_on_course: User_ListFilter
+  """
+  ✨ Generated from Field `Course`.`scholarships_via_ScholarshipCourse` of type `[Scholarship!]!`
+  """
+  scholarships_via_ScholarshipCourse: Scholarship_ListFilter
 }
 """
 ✨ Generated first-row input type for table 'Course'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
@@ -1142,6 +1168,584 @@ input PointsTransaction_Order {
   createdAt_max: OrderDirection
 }
 """
+✨ Generated data input type for table 'Product'. It includes all necessary fields for creating or upserting rows into table.
+"""
+input Product_Data {
+  """
+  ✨ Generated from Field `Product`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `Product`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+  """
+  ✨ Generated from Field `Product`.`active` of type `Boolean!`
+  """
+  active: Boolean
+  """
+  ✨ `_expr` server value variant of `active` (✨ Generated from Field `Product`.`active` of type `Boolean!`)
+  """
+  active_expr: Boolean_Expr
+  """
+  ✨ Generated from Field `Product`.`cost` of type `Int!`
+  """
+  cost: Int
+  """
+  ✨ `_expr` server value variant of `cost` (✨ Generated from Field `Product`.`cost` of type `Int!`)
+  """
+  cost_expr: Int_Expr
+  """
+  ✨ `_update` server value variant of `cost` (✨ Generated from Field `Product`.`cost` of type `Int!`)
+  """
+  cost_update: [Int_Update!]
+  """
+  ✨ Generated from Field `Product`.`createdAt` of type `Timestamp!`
+  """
+  createdAt: Timestamp
+  """
+  ✨ `_expr` server value variant of `createdAt` (✨ Generated from Field `Product`.`createdAt` of type `Timestamp!`)
+  """
+  createdAt_expr: Timestamp_Expr
+  """
+  ✨ `_time` server value variant of `createdAt` (✨ Generated from Field `Product`.`createdAt` of type `Timestamp!`)
+  """
+  createdAt_time: Timestamp_Relative
+  """
+  ✨ `_update` server value variant of `createdAt` (✨ Generated from Field `Product`.`createdAt` of type `Timestamp!`)
+  """
+  createdAt_update: [Timestamp_Update!]
+  """
+  ✨ Generated from Field `Product`.`description` of type `String!`
+  """
+  description: String
+  """
+  ✨ `_expr` server value variant of `description` (✨ Generated from Field `Product`.`description` of type `String!`)
+  """
+  description_expr: String_Expr
+  """
+  ✨ Generated from Field `Product`.`name` of type `String!`
+  """
+  name: String
+  """
+  ✨ `_expr` server value variant of `name` (✨ Generated from Field `Product`.`name` of type `String!`)
+  """
+  name_expr: String_Expr
+  """
+  ✨ Generated from Field `Product`.`storeName` of type `String!`
+  """
+  storeName: String
+  """
+  ✨ `_expr` server value variant of `storeName` (✨ Generated from Field `Product`.`storeName` of type `String!`)
+  """
+  storeName_expr: String_Expr
+}
+"""
+✨ Generated filter input type for table 'Product'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input Product_Filter {
+  """
+  Apply multiple filter conditions using `AND` logic.
+  """
+  _and: [Product_Filter!]
+  """
+  Negate the result of the provided filter condition.
+  """
+  _not: Product_Filter
+  """
+  Apply multiple filter conditions using `OR` logic.
+  """
+  _or: [Product_Filter!]
+  """
+  ✨ Generated from Field `Product`.`id` of type `UUID!`
+  """
+  id: UUID_Filter
+  """
+  ✨ Generated from Field `Product`.`active` of type `Boolean!`
+  """
+  active: Boolean_Filter
+  """
+  ✨ Generated from Field `Product`.`cost` of type `Int!`
+  """
+  cost: Int_Filter
+  """
+  ✨ Generated from Field `Product`.`createdAt` of type `Timestamp!`
+  """
+  createdAt: Timestamp_Filter
+  """
+  ✨ Generated from Field `Product`.`description` of type `String!`
+  """
+  description: String_Filter
+  """
+  ✨ Generated from Field `Product`.`name` of type `String!`
+  """
+  name: String_Filter
+  """
+  ✨ Generated from Field `Product`.`storeName` of type `String!`
+  """
+  storeName: String_Filter
+  """
+  ✨ Generated from Field `Product`.`redeemedProducts_on_product` of type `[RedeemedProduct!]!`
+  """
+  redeemedProducts_on_product: RedeemedProduct_ListFilter
+  """
+  ✨ Generated from Field `Product`.`users_via_RedeemedProduct` of type `[User!]!`
+  """
+  users_via_RedeemedProduct: User_ListFilter
+}
+"""
+✨ Generated first-row input type for table 'Product'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
+"""
+input Product_FirstRow {
+  """
+  Order the result by the specified fields.
+  """
+  orderBy: [Product_Order!]
+  """
+  Filters rows based on the specified conditions.
+  """
+  where: Product_Filter
+}
+"""
+✨ Generated having input type for table 'Product'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input Product_Having {
+  """
+  Apply multiple Having conditions using `AND` logic.
+  """
+  _and: [Product_Having!]
+  """
+  Whether to apply DISTINCT to the aggregate function.
+  """
+  _distinct: Boolean
+  """
+  Negate the result of the provided Having condition.
+  """
+  _not: Product_Having
+  """
+  Apply multiple Having conditions using `OR` logic.
+  """
+  _or: [Product_Having!]
+  """
+  ✨ Generated from Field `Product`.`_count` of type `Int!`
+  """
+  _count: Int_Filter
+  """
+  ✨ Generated from Field `Product`.`active_count` of type `Int!`
+  """
+  active_count: Int_Filter
+  """
+  ✨ Generated from Field `Product`.`cost_count` of type `Int!`
+  """
+  cost_count: Int_Filter
+  """
+  ✨ Generated from Field `Product`.`createdAt_count` of type `Int!`
+  """
+  createdAt_count: Int_Filter
+  """
+  ✨ Generated from Field `Product`.`description_count` of type `Int!`
+  """
+  description_count: Int_Filter
+  """
+  ✨ Generated from Field `Product`.`id_count` of type `Int!`
+  """
+  id_count: Int_Filter
+  """
+  ✨ Generated from Field `Product`.`name_count` of type `Int!`
+  """
+  name_count: Int_Filter
+  """
+  ✨ Generated from Field `Product`.`storeName_count` of type `Int!`
+  """
+  storeName_count: Int_Filter
+  """
+  ✨ Generated from Field `Product`.`cost_sum` of type `Int`
+  """
+  cost_sum: Int_Filter
+  """
+  ✨ Generated from Field `Product`.`cost_avg` of type `Float`
+  """
+  cost_avg: Float_Filter
+  """
+  ✨ Generated from Field `Product`.`cost_min` of type `Int`
+  """
+  cost_min: Int_Filter
+  """
+  ✨ Generated from Field `Product`.`createdAt_min` of type `Timestamp`
+  """
+  createdAt_min: Timestamp_Filter
+  """
+  ✨ Generated from Field `Product`.`cost_max` of type `Int`
+  """
+  cost_max: Int_Filter
+  """
+  ✨ Generated from Field `Product`.`createdAt_max` of type `Timestamp`
+  """
+  createdAt_max: Timestamp_Filter
+}
+"""
+✨ Generated key input type for table 'Product'. It represents the primary key fields used to uniquely identify a row in the table.
+"""
+input Product_Key {
+  """
+  ✨ Generated from Field `Product`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `Product`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr
+}
+"""
+✨ Generated list filter input type for table 'Product'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
+"""
+input Product_ListFilter {
+  """
+  The desired number of objects that match the condition (defaults to at least one).
+  """
+  count: Int_Filter = {gt:0}
+  """
+  Condition of the related objects to filter for.
+  """
+  exist: Product_Filter
+}
+"""
+✨ Generated order input type for table 'Product'. This input defines the sorting order of rows in query results based on one or more fields.
+"""
+input Product_Order {
+  """
+  ✨ Generated from Field `Product`.`id` of type `UUID!`
+  """
+  id: OrderDirection
+  """
+  ✨ Generated from Field `Product`.`active` of type `Boolean!`
+  """
+  active: OrderDirection
+  """
+  ✨ Generated from Field `Product`.`cost` of type `Int!`
+  """
+  cost: OrderDirection
+  """
+  ✨ Generated from Field `Product`.`createdAt` of type `Timestamp!`
+  """
+  createdAt: OrderDirection
+  """
+  ✨ Generated from Field `Product`.`description` of type `String!`
+  """
+  description: OrderDirection
+  """
+  ✨ Generated from Field `Product`.`name` of type `String!`
+  """
+  name: OrderDirection
+  """
+  ✨ Generated from Field `Product`.`storeName` of type `String!`
+  """
+  storeName: OrderDirection
+  """
+  ✨ Generated from Field `Product`.`_count` of type `Int!`
+  """
+  _count: OrderDirection
+  """
+  ✨ Generated from Field `Product`.`active_count` of type `Int!`
+  """
+  active_count: OrderDirection
+  """
+  ✨ Generated from Field `Product`.`cost_count` of type `Int!`
+  """
+  cost_count: OrderDirection
+  """
+  ✨ Generated from Field `Product`.`createdAt_count` of type `Int!`
+  """
+  createdAt_count: OrderDirection
+  """
+  ✨ Generated from Field `Product`.`description_count` of type `Int!`
+  """
+  description_count: OrderDirection
+  """
+  ✨ Generated from Field `Product`.`id_count` of type `Int!`
+  """
+  id_count: OrderDirection
+  """
+  ✨ Generated from Field `Product`.`name_count` of type `Int!`
+  """
+  name_count: OrderDirection
+  """
+  ✨ Generated from Field `Product`.`storeName_count` of type `Int!`
+  """
+  storeName_count: OrderDirection
+  """
+  ✨ Generated from Field `Product`.`cost_sum` of type `Int`
+  """
+  cost_sum: OrderDirection
+  """
+  ✨ Generated from Field `Product`.`cost_avg` of type `Float`
+  """
+  cost_avg: OrderDirection
+  """
+  ✨ Generated from Field `Product`.`cost_min` of type `Int`
+  """
+  cost_min: OrderDirection
+  """
+  ✨ Generated from Field `Product`.`createdAt_min` of type `Timestamp`
+  """
+  createdAt_min: OrderDirection
+  """
+  ✨ Generated from Field `Product`.`cost_max` of type `Int`
+  """
+  cost_max: OrderDirection
+  """
+  ✨ Generated from Field `Product`.`createdAt_max` of type `Timestamp`
+  """
+  createdAt_max: OrderDirection
+}
+"""
+✨ Generated data input type for table 'RedeemedProduct'. It includes all necessary fields for creating or upserting rows into table.
+"""
+input RedeemedProduct_Data {
+  """
+  ✨ Generated from Field `RedeemedProduct`.`userUsername` of type `String!`
+  """
+  userUsername: String
+  """
+  ✨ `_expr` server value variant of `userUsername` (✨ Generated from Field `RedeemedProduct`.`userUsername` of type `String!`)
+  """
+  userUsername_expr: String_Expr
+  """
+  ✨ Generated from Field `RedeemedProduct`.`productId` of type `UUID!`
+  """
+  productId: UUID
+  """
+  ✨ `_expr` server value variant of `productId` (✨ Generated from Field `RedeemedProduct`.`productId` of type `UUID!`)
+  """
+  productId_expr: UUID_Expr
+  """
+  ✨ Generated from Field `RedeemedProduct`.`product` of type `Product!`
+  """
+  product: Product_Key
+  """
+  ✨ Generated from Field `RedeemedProduct`.`user` of type `User!`
+  """
+  user: User_Key
+  """
+  ✨ Generated from Field `RedeemedProduct`.`code` of type `String!`
+  """
+  code: String
+  """
+  ✨ `_expr` server value variant of `code` (✨ Generated from Field `RedeemedProduct`.`code` of type `String!`)
+  """
+  code_expr: String_Expr
+  """
+  ✨ Generated from Field `RedeemedProduct`.`redeemedAt` of type `Timestamp!`
+  """
+  redeemedAt: Timestamp
+  """
+  ✨ `_expr` server value variant of `redeemedAt` (✨ Generated from Field `RedeemedProduct`.`redeemedAt` of type `Timestamp!`)
+  """
+  redeemedAt_expr: Timestamp_Expr
+  """
+  ✨ `_time` server value variant of `redeemedAt` (✨ Generated from Field `RedeemedProduct`.`redeemedAt` of type `Timestamp!`)
+  """
+  redeemedAt_time: Timestamp_Relative
+  """
+  ✨ `_update` server value variant of `redeemedAt` (✨ Generated from Field `RedeemedProduct`.`redeemedAt` of type `Timestamp!`)
+  """
+  redeemedAt_update: [Timestamp_Update!]
+}
+"""
+✨ Generated filter input type for table 'RedeemedProduct'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input RedeemedProduct_Filter {
+  """
+  Apply multiple filter conditions using `AND` logic.
+  """
+  _and: [RedeemedProduct_Filter!]
+  """
+  Negate the result of the provided filter condition.
+  """
+  _not: RedeemedProduct_Filter
+  """
+  Apply multiple filter conditions using `OR` logic.
+  """
+  _or: [RedeemedProduct_Filter!]
+  """
+  ✨ Generated from Field `RedeemedProduct`.`userUsername` of type `String!`
+  """
+  userUsername: String_Filter
+  """
+  ✨ Generated from Field `RedeemedProduct`.`productId` of type `UUID!`
+  """
+  productId: UUID_Filter
+  """
+  ✨ Generated from Field `RedeemedProduct`.`product` of type `Product!`
+  """
+  product: Product_Filter
+  """
+  ✨ Generated from Field `RedeemedProduct`.`user` of type `User!`
+  """
+  user: User_Filter
+  """
+  ✨ Generated from Field `RedeemedProduct`.`code` of type `String!`
+  """
+  code: String_Filter
+  """
+  ✨ Generated from Field `RedeemedProduct`.`redeemedAt` of type `Timestamp!`
+  """
+  redeemedAt: Timestamp_Filter
+}
+"""
+✨ Generated first-row input type for table 'RedeemedProduct'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
+"""
+input RedeemedProduct_FirstRow {
+  """
+  Order the result by the specified fields.
+  """
+  orderBy: [RedeemedProduct_Order!]
+  """
+  Filters rows based on the specified conditions.
+  """
+  where: RedeemedProduct_Filter
+}
+"""
+✨ Generated having input type for table 'RedeemedProduct'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input RedeemedProduct_Having {
+  """
+  Apply multiple Having conditions using `AND` logic.
+  """
+  _and: [RedeemedProduct_Having!]
+  """
+  Whether to apply DISTINCT to the aggregate function.
+  """
+  _distinct: Boolean
+  """
+  Negate the result of the provided Having condition.
+  """
+  _not: RedeemedProduct_Having
+  """
+  Apply multiple Having conditions using `OR` logic.
+  """
+  _or: [RedeemedProduct_Having!]
+  """
+  ✨ Generated from Field `RedeemedProduct`.`_count` of type `Int!`
+  """
+  _count: Int_Filter
+  """
+  ✨ Generated from Field `RedeemedProduct`.`code_count` of type `Int!`
+  """
+  code_count: Int_Filter
+  """
+  ✨ Generated from Field `RedeemedProduct`.`productId_count` of type `Int!`
+  """
+  productId_count: Int_Filter
+  """
+  ✨ Generated from Field `RedeemedProduct`.`redeemedAt_count` of type `Int!`
+  """
+  redeemedAt_count: Int_Filter
+  """
+  ✨ Generated from Field `RedeemedProduct`.`userUsername_count` of type `Int!`
+  """
+  userUsername_count: Int_Filter
+  """
+  ✨ Generated from Field `RedeemedProduct`.`redeemedAt_min` of type `Timestamp`
+  """
+  redeemedAt_min: Timestamp_Filter
+  """
+  ✨ Generated from Field `RedeemedProduct`.`redeemedAt_max` of type `Timestamp`
+  """
+  redeemedAt_max: Timestamp_Filter
+}
+"""
+✨ Generated key input type for table 'RedeemedProduct'. It represents the primary key fields used to uniquely identify a row in the table.
+"""
+input RedeemedProduct_Key {
+  """
+  ✨ Generated from Field `RedeemedProduct`.`userUsername` of type `String!`
+  """
+  userUsername: String
+  """
+  ✨ `_expr` server value variant of `userUsername` (✨ Generated from Field `RedeemedProduct`.`userUsername` of type `String!`)
+  """
+  userUsername_expr: String_Expr
+  """
+  ✨ Generated from Field `RedeemedProduct`.`productId` of type `UUID!`
+  """
+  productId: UUID
+  """
+  ✨ `_expr` server value variant of `productId` (✨ Generated from Field `RedeemedProduct`.`productId` of type `UUID!`)
+  """
+  productId_expr: UUID_Expr
+}
+"""
+✨ Generated list filter input type for table 'RedeemedProduct'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
+"""
+input RedeemedProduct_ListFilter {
+  """
+  The desired number of objects that match the condition (defaults to at least one).
+  """
+  count: Int_Filter = {gt:0}
+  """
+  Condition of the related objects to filter for.
+  """
+  exist: RedeemedProduct_Filter
+}
+"""
+✨ Generated order input type for table 'RedeemedProduct'. This input defines the sorting order of rows in query results based on one or more fields.
+"""
+input RedeemedProduct_Order {
+  """
+  ✨ Generated from Field `RedeemedProduct`.`userUsername` of type `String!`
+  """
+  userUsername: OrderDirection
+  """
+  ✨ Generated from Field `RedeemedProduct`.`productId` of type `UUID!`
+  """
+  productId: OrderDirection
+  """
+  ✨ Generated from Field `RedeemedProduct`.`product` of type `Product!`
+  """
+  product: Product_Order
+  """
+  ✨ Generated from Field `RedeemedProduct`.`user` of type `User!`
+  """
+  user: User_Order
+  """
+  ✨ Generated from Field `RedeemedProduct`.`code` of type `String!`
+  """
+  code: OrderDirection
+  """
+  ✨ Generated from Field `RedeemedProduct`.`redeemedAt` of type `Timestamp!`
+  """
+  redeemedAt: OrderDirection
+  """
+  ✨ Generated from Field `RedeemedProduct`.`_count` of type `Int!`
+  """
+  _count: OrderDirection
+  """
+  ✨ Generated from Field `RedeemedProduct`.`code_count` of type `Int!`
+  """
+  code_count: OrderDirection
+  """
+  ✨ Generated from Field `RedeemedProduct`.`productId_count` of type `Int!`
+  """
+  productId_count: OrderDirection
+  """
+  ✨ Generated from Field `RedeemedProduct`.`redeemedAt_count` of type `Int!`
+  """
+  redeemedAt_count: OrderDirection
+  """
+  ✨ Generated from Field `RedeemedProduct`.`userUsername_count` of type `Int!`
+  """
+  userUsername_count: OrderDirection
+  """
+  ✨ Generated from Field `RedeemedProduct`.`redeemedAt_min` of type `Timestamp`
+  """
+  redeemedAt_min: OrderDirection
+  """
+  ✨ Generated from Field `RedeemedProduct`.`redeemedAt_max` of type `Timestamp`
+  """
+  redeemedAt_max: OrderDirection
+}
+"""
 ✨ Generated data input type for table 'Scholarship'. It includes all necessary fields for creating or upserting rows into table.
 """
 input Scholarship_Data {
@@ -1182,22 +1786,6 @@ input Scholarship_Data {
   """
   currency_expr: String_Expr
   """
-  ✨ Generated from Field `Scholarship`.`deadline` of type `Date`
-  """
-  deadline: Date
-  """
-  ✨ `_date` server value variant of `deadline` (✨ Generated from Field `Scholarship`.`deadline` of type `Date`)
-  """
-  deadline_date: Date_Relative
-  """
-  ✨ `_expr` server value variant of `deadline` (✨ Generated from Field `Scholarship`.`deadline` of type `Date`)
-  """
-  deadline_expr: Date_Expr
-  """
-  ✨ `_update` server value variant of `deadline` (✨ Generated from Field `Scholarship`.`deadline` of type `Date`)
-  """
-  deadline_update: [Date_Update!]
-  """
   ✨ Generated from Field `Scholarship`.`description` of type `String!`
   """
   description: String
@@ -1206,13 +1794,13 @@ input Scholarship_Data {
   """
   description_expr: String_Expr
   """
-  ✨ Generated from Field `Scholarship`.`location` of type `String!`
+  ✨ Generated from Field `Scholarship`.`email` of type `String!`
   """
-  location: String
+  email: String
   """
-  ✨ `_expr` server value variant of `location` (✨ Generated from Field `Scholarship`.`location` of type `String!`)
+  ✨ `_expr` server value variant of `email` (✨ Generated from Field `Scholarship`.`email` of type `String!`)
   """
-  location_expr: String_Expr
+  email_expr: String_Expr
   """
   ✨ Generated from Field `Scholarship`.`provider` of type `String!`
   """
@@ -1221,14 +1809,6 @@ input Scholarship_Data {
   ✨ `_expr` server value variant of `provider` (✨ Generated from Field `Scholarship`.`provider` of type `String!`)
   """
   provider_expr: String_Expr
-  """
-  ✨ Generated from Field `Scholarship`.`subjects` of type `String!`
-  """
-  subjects: String
-  """
-  ✨ `_expr` server value variant of `subjects` (✨ Generated from Field `Scholarship`.`subjects` of type `String!`)
-  """
-  subjects_expr: String_Expr
   """
   ✨ Generated from Field `Scholarship`.`title` of type `String!`
   """
@@ -1271,25 +1851,17 @@ input Scholarship_Filter {
   """
   currency: String_Filter
   """
-  ✨ Generated from Field `Scholarship`.`deadline` of type `Date`
-  """
-  deadline: Date_Filter
-  """
   ✨ Generated from Field `Scholarship`.`description` of type `String!`
   """
   description: String_Filter
   """
-  ✨ Generated from Field `Scholarship`.`location` of type `String!`
+  ✨ Generated from Field `Scholarship`.`email` of type `String!`
   """
-  location: String_Filter
+  email: String_Filter
   """
   ✨ Generated from Field `Scholarship`.`provider` of type `String!`
   """
   provider: String_Filter
-  """
-  ✨ Generated from Field `Scholarship`.`subjects` of type `String!`
-  """
-  subjects: String_Filter
   """
   ✨ Generated from Field `Scholarship`.`title` of type `String!`
   """
@@ -1298,6 +1870,14 @@ input Scholarship_Filter {
   ✨ Generated from Field `Scholarship`.`scholarshipApplications_on_scholarship` of type `[ScholarshipApplication!]!`
   """
   scholarshipApplications_on_scholarship: ScholarshipApplication_ListFilter
+  """
+  ✨ Generated from Field `Scholarship`.`scholarshipCourses_on_scholarship` of type `[ScholarshipCourse!]!`
+  """
+  scholarshipCourses_on_scholarship: ScholarshipCourse_ListFilter
+  """
+  ✨ Generated from Field `Scholarship`.`courses_via_ScholarshipCourse` of type `[Course!]!`
+  """
+  courses_via_ScholarshipCourse: Course_ListFilter
 }
 """
 ✨ Generated first-row input type for table 'Scholarship'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
@@ -1349,29 +1929,21 @@ input Scholarship_Having {
   """
   currency_count: Int_Filter
   """
-  ✨ Generated from Field `Scholarship`.`deadline_count` of type `Int!`
-  """
-  deadline_count: Int_Filter
-  """
   ✨ Generated from Field `Scholarship`.`description_count` of type `Int!`
   """
   description_count: Int_Filter
+  """
+  ✨ Generated from Field `Scholarship`.`email_count` of type `Int!`
+  """
+  email_count: Int_Filter
   """
   ✨ Generated from Field `Scholarship`.`id_count` of type `Int!`
   """
   id_count: Int_Filter
   """
-  ✨ Generated from Field `Scholarship`.`location_count` of type `Int!`
-  """
-  location_count: Int_Filter
-  """
   ✨ Generated from Field `Scholarship`.`provider_count` of type `Int!`
   """
   provider_count: Int_Filter
-  """
-  ✨ Generated from Field `Scholarship`.`subjects_count` of type `Int!`
-  """
-  subjects_count: Int_Filter
   """
   ✨ Generated from Field `Scholarship`.`title_count` of type `Int!`
   """
@@ -1389,17 +1961,9 @@ input Scholarship_Having {
   """
   amount_min: Float_Filter
   """
-  ✨ Generated from Field `Scholarship`.`deadline_min` of type `Date`
-  """
-  deadline_min: Date_Filter
-  """
   ✨ Generated from Field `Scholarship`.`amount_max` of type `Float`
   """
   amount_max: Float_Filter
-  """
-  ✨ Generated from Field `Scholarship`.`deadline_max` of type `Date`
-  """
-  deadline_max: Date_Filter
 }
 """
 ✨ Generated key input type for table 'Scholarship'. It represents the primary key fields used to uniquely identify a row in the table.
@@ -1448,25 +2012,17 @@ input Scholarship_Order {
   """
   currency: OrderDirection
   """
-  ✨ Generated from Field `Scholarship`.`deadline` of type `Date`
-  """
-  deadline: OrderDirection
-  """
   ✨ Generated from Field `Scholarship`.`description` of type `String!`
   """
   description: OrderDirection
   """
-  ✨ Generated from Field `Scholarship`.`location` of type `String!`
+  ✨ Generated from Field `Scholarship`.`email` of type `String!`
   """
-  location: OrderDirection
+  email: OrderDirection
   """
   ✨ Generated from Field `Scholarship`.`provider` of type `String!`
   """
   provider: OrderDirection
-  """
-  ✨ Generated from Field `Scholarship`.`subjects` of type `String!`
-  """
-  subjects: OrderDirection
   """
   ✨ Generated from Field `Scholarship`.`title` of type `String!`
   """
@@ -1488,29 +2044,21 @@ input Scholarship_Order {
   """
   currency_count: OrderDirection
   """
-  ✨ Generated from Field `Scholarship`.`deadline_count` of type `Int!`
-  """
-  deadline_count: OrderDirection
-  """
   ✨ Generated from Field `Scholarship`.`description_count` of type `Int!`
   """
   description_count: OrderDirection
+  """
+  ✨ Generated from Field `Scholarship`.`email_count` of type `Int!`
+  """
+  email_count: OrderDirection
   """
   ✨ Generated from Field `Scholarship`.`id_count` of type `Int!`
   """
   id_count: OrderDirection
   """
-  ✨ Generated from Field `Scholarship`.`location_count` of type `Int!`
-  """
-  location_count: OrderDirection
-  """
   ✨ Generated from Field `Scholarship`.`provider_count` of type `Int!`
   """
   provider_count: OrderDirection
-  """
-  ✨ Generated from Field `Scholarship`.`subjects_count` of type `Int!`
-  """
-  subjects_count: OrderDirection
   """
   ✨ Generated from Field `Scholarship`.`title_count` of type `Int!`
   """
@@ -1528,17 +2076,9 @@ input Scholarship_Order {
   """
   amount_min: OrderDirection
   """
-  ✨ Generated from Field `Scholarship`.`deadline_min` of type `Date`
-  """
-  deadline_min: OrderDirection
-  """
   ✨ Generated from Field `Scholarship`.`amount_max` of type `Float`
   """
   amount_max: OrderDirection
-  """
-  ✨ Generated from Field `Scholarship`.`deadline_max` of type `Date`
-  """
-  deadline_max: OrderDirection
 }
 """
 ✨ Generated data input type for table 'ScholarshipApplication'. It includes all necessary fields for creating or upserting rows into table.
@@ -1802,6 +2342,181 @@ input ScholarshipApplication_Order {
   ✨ Generated from Field `ScholarshipApplication`.`appliedAt_max` of type `Timestamp`
   """
   appliedAt_max: OrderDirection
+}
+"""
+✨ Generated data input type for table 'ScholarshipCourse'. It includes all necessary fields for creating or upserting rows into table.
+"""
+input ScholarshipCourse_Data {
+  """
+  ✨ Generated from Field `ScholarshipCourse`.`scholarshipId` of type `UUID!`
+  """
+  scholarshipId: UUID
+  """
+  ✨ `_expr` server value variant of `scholarshipId` (✨ Generated from Field `ScholarshipCourse`.`scholarshipId` of type `UUID!`)
+  """
+  scholarshipId_expr: UUID_Expr
+  """
+  ✨ Generated from Field `ScholarshipCourse`.`courseId` of type `UUID!`
+  """
+  courseId: UUID
+  """
+  ✨ `_expr` server value variant of `courseId` (✨ Generated from Field `ScholarshipCourse`.`courseId` of type `UUID!`)
+  """
+  courseId_expr: UUID_Expr
+  """
+  ✨ Generated from Field `ScholarshipCourse`.`course` of type `Course!`
+  """
+  course: Course_Key
+  """
+  ✨ Generated from Field `ScholarshipCourse`.`scholarship` of type `Scholarship!`
+  """
+  scholarship: Scholarship_Key
+}
+"""
+✨ Generated filter input type for table 'ScholarshipCourse'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input ScholarshipCourse_Filter {
+  """
+  Apply multiple filter conditions using `AND` logic.
+  """
+  _and: [ScholarshipCourse_Filter!]
+  """
+  Negate the result of the provided filter condition.
+  """
+  _not: ScholarshipCourse_Filter
+  """
+  Apply multiple filter conditions using `OR` logic.
+  """
+  _or: [ScholarshipCourse_Filter!]
+  """
+  ✨ Generated from Field `ScholarshipCourse`.`scholarshipId` of type `UUID!`
+  """
+  scholarshipId: UUID_Filter
+  """
+  ✨ Generated from Field `ScholarshipCourse`.`courseId` of type `UUID!`
+  """
+  courseId: UUID_Filter
+  """
+  ✨ Generated from Field `ScholarshipCourse`.`course` of type `Course!`
+  """
+  course: Course_Filter
+  """
+  ✨ Generated from Field `ScholarshipCourse`.`scholarship` of type `Scholarship!`
+  """
+  scholarship: Scholarship_Filter
+}
+"""
+✨ Generated first-row input type for table 'ScholarshipCourse'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
+"""
+input ScholarshipCourse_FirstRow {
+  """
+  Order the result by the specified fields.
+  """
+  orderBy: [ScholarshipCourse_Order!]
+  """
+  Filters rows based on the specified conditions.
+  """
+  where: ScholarshipCourse_Filter
+}
+"""
+✨ Generated having input type for table 'ScholarshipCourse'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input ScholarshipCourse_Having {
+  """
+  Apply multiple Having conditions using `AND` logic.
+  """
+  _and: [ScholarshipCourse_Having!]
+  """
+  Whether to apply DISTINCT to the aggregate function.
+  """
+  _distinct: Boolean
+  """
+  Negate the result of the provided Having condition.
+  """
+  _not: ScholarshipCourse_Having
+  """
+  Apply multiple Having conditions using `OR` logic.
+  """
+  _or: [ScholarshipCourse_Having!]
+  """
+  ✨ Generated from Field `ScholarshipCourse`.`_count` of type `Int!`
+  """
+  _count: Int_Filter
+  """
+  ✨ Generated from Field `ScholarshipCourse`.`courseId_count` of type `Int!`
+  """
+  courseId_count: Int_Filter
+  """
+  ✨ Generated from Field `ScholarshipCourse`.`scholarshipId_count` of type `Int!`
+  """
+  scholarshipId_count: Int_Filter
+}
+"""
+✨ Generated key input type for table 'ScholarshipCourse'. It represents the primary key fields used to uniquely identify a row in the table.
+"""
+input ScholarshipCourse_Key {
+  """
+  ✨ Generated from Field `ScholarshipCourse`.`scholarshipId` of type `UUID!`
+  """
+  scholarshipId: UUID
+  """
+  ✨ `_expr` server value variant of `scholarshipId` (✨ Generated from Field `ScholarshipCourse`.`scholarshipId` of type `UUID!`)
+  """
+  scholarshipId_expr: UUID_Expr
+  """
+  ✨ Generated from Field `ScholarshipCourse`.`courseId` of type `UUID!`
+  """
+  courseId: UUID
+  """
+  ✨ `_expr` server value variant of `courseId` (✨ Generated from Field `ScholarshipCourse`.`courseId` of type `UUID!`)
+  """
+  courseId_expr: UUID_Expr
+}
+"""
+✨ Generated list filter input type for table 'ScholarshipCourse'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
+"""
+input ScholarshipCourse_ListFilter {
+  """
+  The desired number of objects that match the condition (defaults to at least one).
+  """
+  count: Int_Filter = {gt:0}
+  """
+  Condition of the related objects to filter for.
+  """
+  exist: ScholarshipCourse_Filter
+}
+"""
+✨ Generated order input type for table 'ScholarshipCourse'. This input defines the sorting order of rows in query results based on one or more fields.
+"""
+input ScholarshipCourse_Order {
+  """
+  ✨ Generated from Field `ScholarshipCourse`.`scholarshipId` of type `UUID!`
+  """
+  scholarshipId: OrderDirection
+  """
+  ✨ Generated from Field `ScholarshipCourse`.`courseId` of type `UUID!`
+  """
+  courseId: OrderDirection
+  """
+  ✨ Generated from Field `ScholarshipCourse`.`course` of type `Course!`
+  """
+  course: Course_Order
+  """
+  ✨ Generated from Field `ScholarshipCourse`.`scholarship` of type `Scholarship!`
+  """
+  scholarship: Scholarship_Order
+  """
+  ✨ Generated from Field `ScholarshipCourse`.`_count` of type `Int!`
+  """
+  _count: OrderDirection
+  """
+  ✨ Generated from Field `ScholarshipCourse`.`courseId_count` of type `Int!`
+  """
+  courseId_count: OrderDirection
+  """
+  ✨ Generated from Field `ScholarshipCourse`.`scholarshipId_count` of type `Int!`
+  """
+  scholarshipId_count: OrderDirection
 }
 """
 ✨ Generated data input type for table 'School'. It includes all necessary fields for creating or upserting rows into table.
@@ -2535,6 +3250,10 @@ input User_Filter {
   """
   pointsTransactions_on_user: PointsTransaction_ListFilter
   """
+  ✨ Generated from Field `User`.`redeemedProducts_on_user` of type `[RedeemedProduct!]!`
+  """
+  redeemedProducts_on_user: RedeemedProduct_ListFilter
+  """
   ✨ Generated from Field `User`.`scholarshipApplications_on_user` of type `[ScholarshipApplication!]!`
   """
   scholarshipApplications_on_user: ScholarshipApplication_ListFilter
@@ -2542,6 +3261,10 @@ input User_Filter {
   ✨ Generated from Field `User`.`transactions_on_user` of type `[Transaction!]!`
   """
   transactions_on_user: Transaction_ListFilter
+  """
+  ✨ Generated from Field `User`.`products_via_RedeemedProduct` of type `[Product!]!`
+  """
+  products_via_RedeemedProduct: Product_ListFilter
 }
 """
 ✨ Generated first-row input type for table 'User'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.

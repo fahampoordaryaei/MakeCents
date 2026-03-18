@@ -37,7 +37,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
           return ExpenseCategory(
             c.id,
             c.name,
-            _getIcon(c.iconName),
+            getIconByName(c.iconName),
             Color(int.parse(c.colorHex.replaceFirst('#', '0xFF'))),
           );
         }).toList();
@@ -50,27 +50,6 @@ class _AddExpensePageState extends State<AddExpensePage> {
     } catch (e) {
       debugPrint('Error loading categories: $e');
       setState(() => _isLoadingCategories = false);
-    }
-  }
-
-  IconData _getIcon(String name) {
-    switch (name) {
-      case 'restaurant':
-        return Icons.restaurant;
-      case 'directions_bus':
-        return Icons.directions_bus;
-      case 'shopping_bag':
-        return Icons.shopping_bag;
-      case 'favorite':
-        return Icons.favorite;
-      case 'school':
-        return Icons.school;
-      case 'sports_esports':
-        return Icons.sports_esports;
-      case 'receipt_long':
-        return Icons.receipt_long;
-      default:
-        return Icons.more_horiz;
     }
   }
 
@@ -93,7 +72,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
     if (_selectedCategory == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a category.')),
+        const SnackBar(content: Text('Please choose a category.')),
       );
       return;
     }
@@ -204,7 +183,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                   ),
                   TextButton(
                     onPressed: () => _selectDate(context),
-                    child: const Text('Change Date'),
+                    child: const Text('Edit date'),
                   ),
                 ],
               ),

@@ -16,62 +16,225 @@ mutation SeedFullData @transaction @auth(level: USER, insecureReason: "Seed data
     {
       title: "Tech Excellence Award",
       provider: "Global Tech Malta",
-      location: "MALTA",
+      email: "applications@globaltechmalta.org",
       amount: 5000,
       currency: "€",
-      subjects: "Computer Engineering, Computer Science, IT, Software Engineering",
       description: "For high-achieving tech students based in Malta pursuing a career in software or engineering.",
       color: "#3e7f3f"
     },
     {
       title: "STEM Future Leaders",
       provider: "EU Education Fund",
-      location: "EUROPE",
+      email: "apply@eueducationfund.eu",
       amount: 3500,
       currency: "€",
-      subjects: "Computer Engineering, Computer Science, Mathematics, Physics, Chemistry, Biology",
       description: "Supporting the next generation of European STEM innovators with funding for tuition and research.",
       color: "#4ECDC4"
     },
     {
       title: "Creative Minds Grant",
       provider: "Arts Council",
-      location: "GLOBAL",
+      email: "grants@artscouncil.org",
       amount: 2500,
       currency: "€",
-      subjects: "Arts, Design, Music, Media, Architecture",
       description: "Open to creative students worldwide with a passion for arts, design, and cultural expression.",
       color: "#AA96DA"
     },
     {
       title: "Business Leaders Bursary",
       provider: "Chamber of Commerce",
-      location: "MALTA",
+      email: "bursary@chambercommerce.mt",
       amount: 4000,
       currency: "€",
-      subjects: "Business, Economics, Finance, Management, Accounting",
       description: "Awarded to ambitious business students who demonstrate leadership and financial acumen.",
       color: "#FFBE0B"
     },
     {
       title: "Health Sciences Award",
       provider: "National Health Foundation",
-      location: "EUROPE",
+      email: "scholarships@nhf.eu",
       amount: 6000,
       currency: "€",
-      subjects: "Medicine, Nursing, Pharmacy, Physiotherapy, Biology",
       description: "Supporting future healthcare professionals with exceptional academic records.",
       color: "#FC5185"
     },
     {
       title: "General Academic Merit",
       provider: "Student Finance Malta",
-      location: "GLOBAL",
+      email: "support@studentfinance.gov.mt",
       amount: 1500,
       currency: "€",
-      subjects: "All Subjects",
       description: "Open to all students regardless of subject, based purely on academic achievement.",
       color: "#FF6B6B"
+    }
+  ])
+
+  # Seed discount products
+  product_insertMany(data: [
+    {
+      name: "Campus Bookstore Voucher",
+      description: "Save on textbooks and academic stationery.",
+      storeName: "Campus Bookstore",
+      cost: 240,
+      active: true,
+      createdAt_expr: "request.time"
+    },
+    {
+      name: "Printing Credit Pack",
+      description: "Discount on university printing and binding.",
+      storeName: "Uni Print Hub",
+      cost: 180,
+      active: true,
+      createdAt_expr: "request.time"
+    },
+    {
+      name: "Online Course Coupon",
+      description: "Redeem on selected upskilling courses.",
+      storeName: "LearnFast Academy",
+      cost: 360,
+      active: true,
+      createdAt_expr: "request.time"
+    },
+    {
+      name: "Exam Prep Bundle",
+      description: "Discounted access to mock exams and notes.",
+      storeName: "PrepMaster",
+      cost: 320,
+      active: true,
+      createdAt_expr: "request.time"
+    },
+    {
+      name: "Coffee Shop Student Deal",
+      description: "Fuel study sessions with discounted drinks.",
+      storeName: "Bean Corner",
+      cost: 140,
+      active: true,
+      createdAt_expr: "request.time"
+    },
+    {
+      name: "Grocery Saver Coupon",
+      description: "Save on weekly essentials and snacks.",
+      storeName: "FreshMart",
+      cost: 220,
+      active: true,
+      createdAt_expr: "request.time"
+    },
+    {
+      name: "Fitness Pass Discount",
+      description: "Reduced price on gym and classes.",
+      storeName: "ActiveLife Gym",
+      cost: 420,
+      active: true,
+      createdAt_expr: "request.time"
+    },
+    {
+      name: "Streaming Student Offer",
+      description: "Discount on entertainment subscription.",
+      storeName: "StreamWave",
+      cost: 280,
+      active: true,
+      createdAt_expr: "request.time"
+    },
+    {
+      name: "Phone Repair Discount",
+      description: "Lower repair costs for accidental damage.",
+      storeName: "FixPoint Mobile",
+      cost: 340,
+      active: true,
+      createdAt_expr: "request.time"
+    },
+    {
+      name: "Food Delivery Student Code",
+      description: "Discount on delivery orders near campus.",
+      storeName: "QuickBite",
+      cost: 200,
+      active: true,
+      createdAt_expr: "request.time"
+    }
+  ])
+}
+
+mutation SeedProductsOnly @transaction @auth(level: USER, insecureReason: "Seed product data is for initialization.") {
+  product_insertMany(data: [
+    {
+      name: "Campus Bookstore Voucher",
+      description: "Save on textbooks and academic stationery.",
+      storeName: "Campus Bookstore",
+      cost: 240,
+      active: true,
+      createdAt_expr: "request.time"
+    },
+    {
+      name: "Printing Credit Pack",
+      description: "Discount on university printing and binding.",
+      storeName: "Uni Print Hub",
+      cost: 180,
+      active: true,
+      createdAt_expr: "request.time"
+    },
+    {
+      name: "Online Course Coupon",
+      description: "Redeem on selected upskilling courses.",
+      storeName: "LearnFast Academy",
+      cost: 360,
+      active: true,
+      createdAt_expr: "request.time"
+    },
+    {
+      name: "Exam Prep Bundle",
+      description: "Discounted access to mock exams and notes.",
+      storeName: "PrepMaster",
+      cost: 320,
+      active: true,
+      createdAt_expr: "request.time"
+    },
+    {
+      name: "Coffee Shop Student Deal",
+      description: "Fuel study sessions with discounted drinks.",
+      storeName: "Bean Corner",
+      cost: 140,
+      active: true,
+      createdAt_expr: "request.time"
+    },
+    {
+      name: "Grocery Saver Coupon",
+      description: "Save on weekly essentials and snacks.",
+      storeName: "FreshMart",
+      cost: 220,
+      active: true,
+      createdAt_expr: "request.time"
+    },
+    {
+      name: "Fitness Pass Discount",
+      description: "Reduced price on gym and classes.",
+      storeName: "ActiveLife Gym",
+      cost: 420,
+      active: true,
+      createdAt_expr: "request.time"
+    },
+    {
+      name: "Streaming Student Offer",
+      description: "Discount on entertainment subscription.",
+      storeName: "StreamWave",
+      cost: 280,
+      active: true,
+      createdAt_expr: "request.time"
+    },
+    {
+      name: "Phone Repair Discount",
+      description: "Lower repair costs for accidental damage.",
+      storeName: "FixPoint Mobile",
+      cost: 340,
+      active: true,
+      createdAt_expr: "request.time"
+    },
+    {
+      name: "Food Delivery Student Code",
+      description: "Discount on delivery orders near campus.",
+      storeName: "QuickBite",
+      cost: 200,
+      active: true,
+      createdAt_expr: "request.time"
     }
   ])
 }
