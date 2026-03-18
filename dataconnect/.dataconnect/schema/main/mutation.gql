@@ -90,15 +90,6 @@ extend type Mutation {
     data: ScholarshipCourse_Data!
   ): ScholarshipCourse_KeyOutput! @fdc_generated(from: "ScholarshipCourse", purpose: INSERT_SINGLE)
   """
-  ✨ Insert a single `School` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
-  """
-  school_insert(
-    """
-    Data object to insert into the table.
-    """
-    data: School_Data!
-  ): School_KeyOutput! @fdc_generated(from: "School", purpose: INSERT_SINGLE)
-  """
   ✨ Insert a single `Transaction` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
   """
   transaction_insert(
@@ -206,15 +197,6 @@ extend type Mutation {
     """
     data: [ScholarshipCourse_Data!]!
   ): [ScholarshipCourse_KeyOutput!]! @fdc_generated(from: "ScholarshipCourse", purpose: INSERT_MULTIPLE)
-  """
-  ✨ Insert `School` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
-  """
-  school_insertMany(
-    """
-    List of data objects to insert into the table.
-    """
-    data: [School_Data!]!
-  ): [School_KeyOutput!]! @fdc_generated(from: "School", purpose: INSERT_MULTIPLE)
   """
   ✨ Insert `Transaction` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
   """
@@ -324,15 +306,6 @@ extend type Mutation {
     data: ScholarshipCourse_Data!
   ): ScholarshipCourse_KeyOutput! @fdc_generated(from: "ScholarshipCourse", purpose: UPSERT_SINGLE)
   """
-  ✨ Insert or update a single `School` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `School`.
-  """
-  school_upsert(
-    """
-    Data object to insert or update if it already exists.
-    """
-    data: School_Data!
-  ): School_KeyOutput! @fdc_generated(from: "School", purpose: UPSERT_SINGLE)
-  """
   ✨ Insert or update a single `Transaction` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Transaction`.
   """
   transaction_upsert(
@@ -440,15 +413,6 @@ extend type Mutation {
     """
     data: [ScholarshipCourse_Data!]!
   ): [ScholarshipCourse_KeyOutput!]! @fdc_generated(from: "ScholarshipCourse", purpose: UPSERT_MULTIPLE)
-  """
-  ✨ Insert or update `School` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `School`.
-  """
-  school_upsertMany(
-    """
-    List of data objects to insert or update if it already exists.
-    """
-    data: [School_Data!]!
-  ): [School_KeyOutput!]! @fdc_generated(from: "School", purpose: UPSERT_MULTIPLE)
   """
   ✨ Insert or update `Transaction` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Transaction`.
   """
@@ -698,30 +662,6 @@ extend type Mutation {
     data: ScholarshipCourse_Data!
   ): ScholarshipCourse_KeyOutput @fdc_generated(from: "ScholarshipCourse", purpose: UPDATE_SINGLE)
   """
-  ✨ Update a single `School` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `School` or `null` if not found.
-  """
-  school_update(
-    """
-    The unique ID of the object.
-    """
-    id: UUID
-
-    """
-    The key used to identify the object.
-    """
-    key: School_Key
-
-    """
-    Fetch the first row based on the filters and ordering.
-    """
-    first: School_FirstRow
-
-    """
-    Data object containing fields to be updated.
-    """
-    data: School_Data!
-  ): School_KeyOutput @fdc_generated(from: "School", purpose: UPDATE_SINGLE)
-  """
   ✨ Update a single `Transaction` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `Transaction` or `null` if not found.
   """
   transaction_update(
@@ -955,25 +895,6 @@ extend type Mutation {
     data: ScholarshipCourse_Data!
   ): Int! @fdc_generated(from: "ScholarshipCourse", purpose: UPDATE_MULTIPLE)
   """
-  ✨ Update `School` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
-  """
-  school_updateMany(
-    """
-    Filter condition to specify which rows to update.
-    """
-    where: School_Filter
-
-    """
-    Set to true to update all rows.
-    """
-    all: Boolean = false
-
-    """
-    Data object containing fields to update.
-    """
-    data: School_Data!
-  ): Int! @fdc_generated(from: "School", purpose: UPDATE_MULTIPLE)
-  """
   ✨ Update `Transaction` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
   """
   transaction_updateMany(
@@ -1192,25 +1113,6 @@ extend type Mutation {
     first: ScholarshipCourse_FirstRow
   ): ScholarshipCourse_KeyOutput @fdc_generated(from: "ScholarshipCourse", purpose: DELETE_SINGLE)
   """
-  ✨ Delete a single `School` based on `id`, `key` or `first` and return its key (or `null` if not found).
-  """
-  school_delete(
-    """
-    The unique ID of the object.
-    """
-    id: UUID
-
-    """
-    The key used to identify the object.
-    """
-    key: School_Key
-
-    """
-    Fetch the first row based on the filters and ordering.
-    """
-    first: School_FirstRow
-  ): School_KeyOutput @fdc_generated(from: "School", purpose: DELETE_SINGLE)
-  """
   ✨ Delete a single `Transaction` based on `id`, `key` or `first` and return its key (or `null` if not found).
   """
   transaction_delete(
@@ -1383,20 +1285,6 @@ extend type Mutation {
     """
     all: Boolean = false
   ): Int! @fdc_generated(from: "ScholarshipCourse", purpose: DELETE_MULTIPLE)
-  """
-  ✨ Delete `School` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
-  """
-  school_deleteMany(
-    """
-    Filter condition to specify which rows to delete.
-    """
-    where: School_Filter
-
-    """
-    Set to true to delete all rows.
-    """
-    all: Boolean = false
-  ): Int! @fdc_generated(from: "School", purpose: DELETE_MULTIPLE)
   """
   ✨ Delete `Transaction` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
   """

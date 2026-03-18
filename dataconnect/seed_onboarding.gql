@@ -1,5 +1,5 @@
 mutation SeedOnboardingData @transaction @auth(level: USER, insecureReason: "Seed data is for initialization.") {
-  school_insertMany(data: [
+  institution_insertMany(data: [
     { name: "University of Malta (UoM)" },
     { name: "Malta College of Arts, Science and Technology (MCAST)" },
     { name: "STC Higher Education" },

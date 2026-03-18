@@ -1,6 +1,6 @@
-# List schools
-query ListSchools @auth(level: PUBLIC) {
-  schools(orderBy: [{name: ASC}]) {
+# List institutions
+query ListInstitutions @auth(level: PUBLIC) {
+  institutions(orderBy: [{name: ASC}]) {
     id
     name
   }
@@ -98,7 +98,7 @@ mutation StoreUserProfile(
   $email: String!,
   $firstName: String!,
   $lastName: String!,
-  $schoolId: UUID,
+  $institutionId: UUID,
   $courseId: UUID,
   $otherSchool: String,
   $otherCourse: String,
@@ -109,7 +109,7 @@ mutation StoreUserProfile(
     email: $email,
     firstName: $firstName,
     lastName: $lastName,
-    schoolId: $schoolId,
+    institutionId: $institutionId,
     courseId: $courseId,
     otherSchool: $otherSchool,
     otherCourse: $otherCourse,
@@ -160,7 +160,7 @@ query GetUserProfile($username: String!) @auth(level: USER) {
     monthlyBudget
     otherSchool
     otherCourse
-    school {
+    institution {
       name
     }
     course {

@@ -495,7 +495,7 @@ class UserPage extends StatelessWidget {
                       ).colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
-                  if (up.profile?.school != null) ...[
+                  if (up.profile?.institution != null) ...[
                     const SizedBox(height: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -507,7 +507,7 @@ class UserPage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        up.profile!.school!,
+                        up.profile!.institution!,
                         style: const TextStyle(
                           color: Color(0xFF3e7f3f),
                           fontSize: 14,

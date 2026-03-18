@@ -17,9 +17,9 @@ class SeedOnboardingDataVariablesBuilder {
 }
 
 @immutable
-class SeedOnboardingDataSchoolInsertMany {
+class SeedOnboardingDataInstitutionInsertMany {
   final String id;
-  SeedOnboardingDataSchoolInsertMany.fromJson(dynamic json):
+  SeedOnboardingDataInstitutionInsertMany.fromJson(dynamic json):
   
   id = nativeFromJson<String>(json['id']);
   @override
@@ -31,7 +31,7 @@ class SeedOnboardingDataSchoolInsertMany {
       return false;
     }
 
-    final SeedOnboardingDataSchoolInsertMany otherTyped = other as SeedOnboardingDataSchoolInsertMany;
+    final SeedOnboardingDataInstitutionInsertMany otherTyped = other as SeedOnboardingDataInstitutionInsertMany;
     return id == otherTyped.id;
     
   }
@@ -45,7 +45,7 @@ class SeedOnboardingDataSchoolInsertMany {
     return json;
   }
 
-  SeedOnboardingDataSchoolInsertMany({
+  SeedOnboardingDataInstitutionInsertMany({
     required this.id,
   });
 }
@@ -86,12 +86,12 @@ class SeedOnboardingDataCourseInsertMany {
 
 @immutable
 class SeedOnboardingDataData {
-  final List<SeedOnboardingDataSchoolInsertMany> school_insertMany;
+  final List<SeedOnboardingDataInstitutionInsertMany> institution_insertMany;
   final List<SeedOnboardingDataCourseInsertMany> course_insertMany;
   SeedOnboardingDataData.fromJson(dynamic json):
   
-  school_insertMany = (json['school_insertMany'] as List<dynamic>)
-        .map((e) => SeedOnboardingDataSchoolInsertMany.fromJson(e))
+  institution_insertMany = (json['institution_insertMany'] as List<dynamic>)
+        .map((e) => SeedOnboardingDataInstitutionInsertMany.fromJson(e))
         .toList(),
   course_insertMany = (json['course_insertMany'] as List<dynamic>)
         .map((e) => SeedOnboardingDataCourseInsertMany.fromJson(e))
@@ -106,23 +106,23 @@ class SeedOnboardingDataData {
     }
 
     final SeedOnboardingDataData otherTyped = other as SeedOnboardingDataData;
-    return school_insertMany == otherTyped.school_insertMany && 
+    return institution_insertMany == otherTyped.institution_insertMany && 
     course_insertMany == otherTyped.course_insertMany;
     
   }
   @override
-  int get hashCode => Object.hashAll([school_insertMany.hashCode, course_insertMany.hashCode]);
+  int get hashCode => Object.hashAll([institution_insertMany.hashCode, course_insertMany.hashCode]);
   
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
-    json['school_insertMany'] = school_insertMany.map((e) => e.toJson()).toList();
+    json['institution_insertMany'] = institution_insertMany.map((e) => e.toJson()).toList();
     json['course_insertMany'] = course_insertMany.map((e) => e.toJson()).toList();
     return json;
   }
 
   SeedOnboardingDataData({
-    required this.school_insertMany,
+    required this.institution_insertMany,
     required this.course_insertMany,
   });
 }

@@ -3,7 +3,7 @@ type User @table(key: ["username"]) {
   email: String! @unique
   firstName: String!
   lastName: String!
-  school: School
+  institution: Institution
   course: Course
   otherSchool: String
   otherCourse: String
@@ -13,16 +13,12 @@ type User @table(key: ["username"]) {
   createdAt: Timestamp!
 }
 
-type School @table {
-  name: String! @unique
-}
-
 type Course @table {
   name: String! @unique
 }
 
 type Institution @table {
-  name: String!
+  name: String! @unique
   location: String
 }
 

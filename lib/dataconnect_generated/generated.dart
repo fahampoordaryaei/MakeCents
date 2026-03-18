@@ -3,7 +3,7 @@ import 'package:firebase_data_connect/firebase_data_connect.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 
-part 'list_schools.dart';
+part 'list_institutions.dart';
 
 part 'list_courses.dart';
 
@@ -52,8 +52,8 @@ part 'seed_onboarding_data.dart';
 class ExampleConnector {
   
   
-  ListSchoolsVariablesBuilder listSchools () {
-    return ListSchoolsVariablesBuilder(dataConnect, );
+  ListInstitutionsVariablesBuilder listInstitutions () {
+    return ListInstitutionsVariablesBuilder(dataConnect, );
   }
   
   

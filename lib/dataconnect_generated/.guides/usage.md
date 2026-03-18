@@ -1,7 +1,7 @@
 # Basic Usage
 
 ```dart
-ExampleConnector.instance.ListSchools().execute();
+ExampleConnector.instance.ListInstitutions().execute();
 ExampleConnector.instance.ListCourses().execute();
 ExampleConnector.instance.ListUserTransactions(listUserTransactionsVariables).execute();
 ExampleConnector.instance.GetUserPoints(getUserPointsVariables).execute();

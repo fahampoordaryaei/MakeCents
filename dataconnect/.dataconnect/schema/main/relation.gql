@@ -218,6 +218,40 @@ extend type ExpenseCategory {
 }
 extend type Institution {
   """
+  ✨ List `User` objects in a one-to-many relationship (where `User`.`institution` is this object).
+  """
+  users_on_institution(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: User_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [User_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: User_Having
+  ): [User!]! @fdc_generated(from: "User.institution", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
   Implicit metadata field that cannot be written. It provides extra information about query results.
   """
   _metadata: _Metadata @fdc_generated(from: "Institution", purpose: METADATA_FIELD)
@@ -993,72 +1027,6 @@ extend type ScholarshipCourse {
   """
   _id: ID! @fdc_generated(from: "ScholarshipCourse.scholarshipId,courseId", purpose: GLOBAL_ID)
 }
-extend type School {
-  """
-  ✨ List `User` objects in a one-to-many relationship (where `User`.`school` is this object).
-  """
-  users_on_school(
-    """
-    Filter condition to narrow down the query results.
-    """
-    where: User_Filter
-
-    """
-    Order the query results by specific fields.
-    """
-    orderBy: [User_Order!]
-
-    """
-    Number of rows to skip before starting to return the results.
-    """
-    offset: Int
-
-    """
-    Maximum number of rows to return (defaults to 100 rows).
-    """
-    limit: Int = 100
-
-    """
-    Set to true to return distinct results.
-    """
-    distinct: Boolean = false
-
-    """
-    Filter condition to apply to the groups of aggregate queries.
-    """
-    having: User_Having
-  ): [User!]! @fdc_generated(from: "User.school", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
-  """
-  Implicit metadata field that cannot be written. It provides extra information about query results.
-  """
-  _metadata: _Metadata @fdc_generated(from: "School", purpose: METADATA_FIELD)
-  """
-  ✨ Count the number of rows in the `School` table.
-  """
-  _count: Int! @fdc_generated(from: "School.", purpose: QUERY_COUNT)
-  """
-  ✨ Count the number of rows in the `School` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
-  """
-  id_count(
-    """
-    Set to true to count the number of distinct values.
-    """
-    distinct: Boolean = false
-  ): Int! @fdc_generated(from: "School.id", purpose: QUERY_COUNT)
-  """
-  ✨ Count the number of rows in the `School` table where the `name` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
-  """
-  name_count(
-    """
-    Set to true to count the number of distinct values.
-    """
-    distinct: Boolean = false
-  ): Int! @fdc_generated(from: "School.name", purpose: QUERY_COUNT)
-  """
-  A generated field that is used for caching results in SDKs.
-  """
-  _id: ID! @fdc_generated(from: "School.id", purpose: GLOBAL_ID)
-}
 extend type Transaction {
   """
   Implicit metadata field that cannot be written. It provides extra information about query results.
@@ -1437,6 +1405,15 @@ extend type User {
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "User.firstName", purpose: QUERY_COUNT)
   """
+  ✨ Count the number of rows in the `User` table where the `institutionId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  institutionId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.institutionId", purpose: QUERY_COUNT)
+  """
   ✨ Count the number of rows in the `User` table where the `lastName` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
   lastName_count(
@@ -1481,15 +1458,6 @@ extend type User {
     """
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "User.otherSchool", purpose: QUERY_COUNT)
-  """
-  ✨ Count the number of rows in the `User` table where the `schoolId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
-  """
-  schoolId_count(
-    """
-    Set to true to count the number of distinct values.
-    """
-    distinct: Boolean = false
-  ): Int! @fdc_generated(from: "User.schoolId", purpose: QUERY_COUNT)
   """
   ✨ Count the number of rows in the `User` table where the `username` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """

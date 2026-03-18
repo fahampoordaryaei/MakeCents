@@ -418,11 +418,12 @@ class _TrackerPageState extends State<TrackerPage> {
                                 categoryId: selectedCategory!.id,
                                 categoryName: selectedCategory!.name,
                               );
-                              if (!mounted) return;
+                              if (!dialogContext.mounted) return;
                               Navigator.pop(dialogContext);
                             } catch (_) {
-                              if (!mounted) return;
+                              if (!dialogContext.mounted) return;
                               Navigator.pop(dialogContext);
+                              if (!mounted) return;
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text(
@@ -870,7 +871,7 @@ class _TrackerPageState extends State<TrackerPage> {
                               barTouchData: BarTouchData(
                                 enabled: true,
                                 touchTooltipData: BarTouchTooltipData(
-                                  getTooltipItem: (group, _, rod, __) =>
+                                  getTooltipItem: (group, _, rod, _) =>
                                       BarTooltipItem(
                                         '€${rod.toY.toStringAsFixed(2)}',
                                         const TextStyle(

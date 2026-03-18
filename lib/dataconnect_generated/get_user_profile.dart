@@ -24,7 +24,7 @@ class GetUserProfileUsers {
   final double? monthlyBudget;
   final String? otherSchool;
   final String? otherCourse;
-  final GetUserProfileUsersSchool? school;
+  final GetUserProfileUsersInstitution? institution;
   final GetUserProfileUsersCourse? course;
   GetUserProfileUsers.fromJson(dynamic json):
   
@@ -33,7 +33,7 @@ class GetUserProfileUsers {
   monthlyBudget = json['monthlyBudget'] == null ? null : nativeFromJson<double>(json['monthlyBudget']),
   otherSchool = json['otherSchool'] == null ? null : nativeFromJson<String>(json['otherSchool']),
   otherCourse = json['otherCourse'] == null ? null : nativeFromJson<String>(json['otherCourse']),
-  school = json['school'] == null ? null : GetUserProfileUsersSchool.fromJson(json['school']),
+  institution = json['institution'] == null ? null : GetUserProfileUsersInstitution.fromJson(json['institution']),
   course = json['course'] == null ? null : GetUserProfileUsersCourse.fromJson(json['course']);
   @override
   bool operator ==(Object other) {
@@ -50,12 +50,12 @@ class GetUserProfileUsers {
     monthlyBudget == otherTyped.monthlyBudget && 
     otherSchool == otherTyped.otherSchool && 
     otherCourse == otherTyped.otherCourse && 
-    school == otherTyped.school && 
+    institution == otherTyped.institution && 
     course == otherTyped.course;
     
   }
   @override
-  int get hashCode => Object.hashAll([firstName.hashCode, lastName.hashCode, monthlyBudget.hashCode, otherSchool.hashCode, otherCourse.hashCode, school.hashCode, course.hashCode]);
+  int get hashCode => Object.hashAll([firstName.hashCode, lastName.hashCode, monthlyBudget.hashCode, otherSchool.hashCode, otherCourse.hashCode, institution.hashCode, course.hashCode]);
   
 
   Map<String, dynamic> toJson() {
@@ -71,8 +71,8 @@ class GetUserProfileUsers {
     if (otherCourse != null) {
       json['otherCourse'] = nativeToJson<String?>(otherCourse);
     }
-    if (school != null) {
-      json['school'] = school!.toJson();
+    if (institution != null) {
+      json['institution'] = institution!.toJson();
     }
     if (course != null) {
       json['course'] = course!.toJson();
@@ -86,15 +86,15 @@ class GetUserProfileUsers {
     this.monthlyBudget,
     this.otherSchool,
     this.otherCourse,
-    this.school,
+    this.institution,
     this.course,
   });
 }
 
 @immutable
-class GetUserProfileUsersSchool {
+class GetUserProfileUsersInstitution {
   final String name;
-  GetUserProfileUsersSchool.fromJson(dynamic json):
+  GetUserProfileUsersInstitution.fromJson(dynamic json):
   
   name = nativeFromJson<String>(json['name']);
   @override
@@ -106,7 +106,7 @@ class GetUserProfileUsersSchool {
       return false;
     }
 
-    final GetUserProfileUsersSchool otherTyped = other as GetUserProfileUsersSchool;
+    final GetUserProfileUsersInstitution otherTyped = other as GetUserProfileUsersInstitution;
     return name == otherTyped.name;
     
   }
@@ -120,7 +120,7 @@ class GetUserProfileUsersSchool {
     return json;
   }
 
-  GetUserProfileUsersSchool({
+  GetUserProfileUsersInstitution({
     required this.name,
   });
 }

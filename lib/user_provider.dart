@@ -6,7 +6,7 @@ class UserProfile {
   final String firstName;
   final String lastName;
   final String email;
-  final String? school;
+  final String? institution;
   final String? course;
   final String? otherSchool;
   final String? otherCourse;
@@ -15,7 +15,7 @@ class UserProfile {
     required this.firstName,
     required this.lastName,
     required this.email,
-    this.school,
+    this.institution,
     this.course,
     this.otherSchool,
     this.otherCourse,
@@ -23,12 +23,14 @@ class UserProfile {
 
   String get fullName => '$firstName $lastName';
 
-  String get displaySchool {
-    if (school == null) return 'Not set';
-    if (school == 'Other' && otherSchool != null && otherSchool!.isNotEmpty) {
+  String get displayInstitution {
+    if (institution == null) return 'Not set';
+    if (institution == 'Other' &&
+        otherSchool != null &&
+        otherSchool!.isNotEmpty) {
       return otherSchool!;
     }
-    return school!;
+    return institution!;
   }
 
   String get displayCourse {
@@ -70,7 +72,7 @@ class UserProvider with ChangeNotifier {
           firstName: u.firstName,
           lastName: u.lastName,
           email: user.email ?? '',
-          school: u.school?.name,
+          institution: u.institution?.name,
           course: u.course?.name,
           otherSchool: u.otherSchool,
           otherCourse: u.otherCourse,

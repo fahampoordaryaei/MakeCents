@@ -9,7 +9,7 @@ import 'user_provider.dart';
 import 'startup_page.dart';
 
 class OnboardingBudgetPage extends StatefulWidget {
-  final String? schoolId;
+  final String? institutionId;
   final String? courseId;
   final String? otherSchool;
   final String? otherCourse;
@@ -18,7 +18,7 @@ class OnboardingBudgetPage extends StatefulWidget {
 
   const OnboardingBudgetPage({
     super.key,
-    this.schoolId,
+    this.institutionId,
     this.courseId,
     this.otherSchool,
     this.otherCourse,
@@ -118,7 +118,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
             firstName: widget.firstName,
             lastName: widget.lastName,
           )
-          .schoolId(widget.schoolId)
+          .institutionId(widget.institutionId)
           .courseId(widget.courseId)
           .otherSchool(widget.otherSchool)
           .otherCourse(widget.otherCourse)

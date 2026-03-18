@@ -5,14 +5,14 @@ class StoreUserProfileVariablesBuilder {
   String email;
   String firstName;
   String lastName;
-  Optional<String> _schoolId = Optional.optional(nativeFromJson, nativeToJson);
+  Optional<String> _institutionId = Optional.optional(nativeFromJson, nativeToJson);
   Optional<String> _courseId = Optional.optional(nativeFromJson, nativeToJson);
   Optional<String> _otherSchool = Optional.optional(nativeFromJson, nativeToJson);
   Optional<String> _otherCourse = Optional.optional(nativeFromJson, nativeToJson);
   Optional<double> _monthlyBudget = Optional.optional(nativeFromJson, nativeToJson);
 
-  final FirebaseDataConnect _dataConnect;  StoreUserProfileVariablesBuilder schoolId(String? t) {
-   _schoolId.value = t;
+  final FirebaseDataConnect _dataConnect;  StoreUserProfileVariablesBuilder institutionId(String? t) {
+   _institutionId.value = t;
    return this;
   }
   StoreUserProfileVariablesBuilder courseId(String? t) {
@@ -40,7 +40,7 @@ class StoreUserProfileVariablesBuilder {
   }
 
   MutationRef<StoreUserProfileData, StoreUserProfileVariables> ref() {
-    StoreUserProfileVariables vars= StoreUserProfileVariables(username: username,email: email,firstName: firstName,lastName: lastName,schoolId: _schoolId,courseId: _courseId,otherSchool: _otherSchool,otherCourse: _otherCourse,monthlyBudget: _monthlyBudget,);
+    StoreUserProfileVariables vars= StoreUserProfileVariables(username: username,email: email,firstName: firstName,lastName: lastName,institutionId: _institutionId,courseId: _courseId,otherSchool: _otherSchool,otherCourse: _otherCourse,monthlyBudget: _monthlyBudget,);
     return _dataConnect.mutation("StoreUserProfile", dataDeserializer, varsSerializer, vars);
   }
 }
@@ -119,7 +119,7 @@ class StoreUserProfileVariables {
   final String email;
   final String firstName;
   final String lastName;
-  late final Optional<String>schoolId;
+  late final Optional<String>institutionId;
   late final Optional<String>courseId;
   late final Optional<String>otherSchool;
   late final Optional<String>otherCourse;
@@ -137,8 +137,8 @@ class StoreUserProfileVariables {
   
   
   
-    schoolId = Optional.optional(nativeFromJson, nativeToJson);
-    schoolId.value = json['schoolId'] == null ? null : nativeFromJson<String>(json['schoolId']);
+    institutionId = Optional.optional(nativeFromJson, nativeToJson);
+    institutionId.value = json['institutionId'] == null ? null : nativeFromJson<String>(json['institutionId']);
   
   
     courseId = Optional.optional(nativeFromJson, nativeToJson);
@@ -171,7 +171,7 @@ class StoreUserProfileVariables {
     email == otherTyped.email && 
     firstName == otherTyped.firstName && 
     lastName == otherTyped.lastName && 
-    schoolId == otherTyped.schoolId && 
+    institutionId == otherTyped.institutionId && 
     courseId == otherTyped.courseId && 
     otherSchool == otherTyped.otherSchool && 
     otherCourse == otherTyped.otherCourse && 
@@ -179,7 +179,7 @@ class StoreUserProfileVariables {
     
   }
   @override
-  int get hashCode => Object.hashAll([username.hashCode, email.hashCode, firstName.hashCode, lastName.hashCode, schoolId.hashCode, courseId.hashCode, otherSchool.hashCode, otherCourse.hashCode, monthlyBudget.hashCode]);
+  int get hashCode => Object.hashAll([username.hashCode, email.hashCode, firstName.hashCode, lastName.hashCode, institutionId.hashCode, courseId.hashCode, otherSchool.hashCode, otherCourse.hashCode, monthlyBudget.hashCode]);
   
 
   Map<String, dynamic> toJson() {
@@ -188,8 +188,8 @@ class StoreUserProfileVariables {
     json['email'] = nativeToJson<String>(email);
     json['firstName'] = nativeToJson<String>(firstName);
     json['lastName'] = nativeToJson<String>(lastName);
-    if(schoolId.state == OptionalState.set) {
-      json['schoolId'] = schoolId.toJson();
+    if(institutionId.state == OptionalState.set) {
+      json['institutionId'] = institutionId.toJson();
     }
     if(courseId.state == OptionalState.set) {
       json['courseId'] = courseId.toJson();
@@ -211,7 +211,7 @@ class StoreUserProfileVariables {
     required this.email,
     required this.firstName,
     required this.lastName,
-    required this.schoolId,
+    required this.institutionId,
     required this.courseId,
     required this.otherSchool,
     required this.otherCourse,

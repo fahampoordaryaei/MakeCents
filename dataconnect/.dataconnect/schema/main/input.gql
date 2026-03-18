@@ -59,12 +59,6 @@ It has the same format as `ScholarshipCourse_Key`, but is only used as mutation 
 """
 scalar ScholarshipCourse_KeyOutput
 """
-✨ `School_KeyOutput` returns the primary key fields of table type `School`.
-
-It has the same format as `School_Key`, but is only used as mutation return value.
-"""
-scalar School_KeyOutput
-"""
 ✨ `Transaction_KeyOutput` returns the primary key fields of table type `Transaction`.
 
 It has the same format as `Transaction_Key`, but is only used as mutation return value.
@@ -483,6 +477,10 @@ input Institution_Filter {
   ✨ Generated from Field `Institution`.`name` of type `String!`
   """
   name: String_Filter
+  """
+  ✨ Generated from Field `Institution`.`users_on_institution` of type `[User!]!`
+  """
+  users_on_institution: User_ListFilter
 }
 """
 ✨ Generated first-row input type for table 'Institution'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
@@ -2519,153 +2517,6 @@ input ScholarshipCourse_Order {
   scholarshipId_count: OrderDirection
 }
 """
-✨ Generated data input type for table 'School'. It includes all necessary fields for creating or upserting rows into table.
-"""
-input School_Data {
-  """
-  ✨ Generated from Field `School`.`id` of type `UUID!`
-  """
-  id: UUID
-  """
-  ✨ `_expr` server value variant of `id` (✨ Generated from Field `School`.`id` of type `UUID!`)
-  """
-  id_expr: UUID_Expr
-  """
-  ✨ Generated from Field `School`.`name` of type `String!`
-  """
-  name: String
-  """
-  ✨ `_expr` server value variant of `name` (✨ Generated from Field `School`.`name` of type `String!`)
-  """
-  name_expr: String_Expr
-}
-"""
-✨ Generated filter input type for table 'School'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
-"""
-input School_Filter {
-  """
-  Apply multiple filter conditions using `AND` logic.
-  """
-  _and: [School_Filter!]
-  """
-  Negate the result of the provided filter condition.
-  """
-  _not: School_Filter
-  """
-  Apply multiple filter conditions using `OR` logic.
-  """
-  _or: [School_Filter!]
-  """
-  ✨ Generated from Field `School`.`id` of type `UUID!`
-  """
-  id: UUID_Filter
-  """
-  ✨ Generated from Field `School`.`name` of type `String!`
-  """
-  name: String_Filter
-  """
-  ✨ Generated from Field `School`.`users_on_school` of type `[User!]!`
-  """
-  users_on_school: User_ListFilter
-}
-"""
-✨ Generated first-row input type for table 'School'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
-"""
-input School_FirstRow {
-  """
-  Order the result by the specified fields.
-  """
-  orderBy: [School_Order!]
-  """
-  Filters rows based on the specified conditions.
-  """
-  where: School_Filter
-}
-"""
-✨ Generated having input type for table 'School'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
-"""
-input School_Having {
-  """
-  Apply multiple Having conditions using `AND` logic.
-  """
-  _and: [School_Having!]
-  """
-  Whether to apply DISTINCT to the aggregate function.
-  """
-  _distinct: Boolean
-  """
-  Negate the result of the provided Having condition.
-  """
-  _not: School_Having
-  """
-  Apply multiple Having conditions using `OR` logic.
-  """
-  _or: [School_Having!]
-  """
-  ✨ Generated from Field `School`.`_count` of type `Int!`
-  """
-  _count: Int_Filter
-  """
-  ✨ Generated from Field `School`.`id_count` of type `Int!`
-  """
-  id_count: Int_Filter
-  """
-  ✨ Generated from Field `School`.`name_count` of type `Int!`
-  """
-  name_count: Int_Filter
-}
-"""
-✨ Generated key input type for table 'School'. It represents the primary key fields used to uniquely identify a row in the table.
-"""
-input School_Key {
-  """
-  ✨ Generated from Field `School`.`id` of type `UUID!`
-  """
-  id: UUID
-  """
-  ✨ `_expr` server value variant of `id` (✨ Generated from Field `School`.`id` of type `UUID!`)
-  """
-  id_expr: UUID_Expr
-}
-"""
-✨ Generated list filter input type for table 'School'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
-"""
-input School_ListFilter {
-  """
-  The desired number of objects that match the condition (defaults to at least one).
-  """
-  count: Int_Filter = {gt:0}
-  """
-  Condition of the related objects to filter for.
-  """
-  exist: School_Filter
-}
-"""
-✨ Generated order input type for table 'School'. This input defines the sorting order of rows in query results based on one or more fields.
-"""
-input School_Order {
-  """
-  ✨ Generated from Field `School`.`id` of type `UUID!`
-  """
-  id: OrderDirection
-  """
-  ✨ Generated from Field `School`.`name` of type `String!`
-  """
-  name: OrderDirection
-  """
-  ✨ Generated from Field `School`.`_count` of type `Int!`
-  """
-  _count: OrderDirection
-  """
-  ✨ Generated from Field `School`.`id_count` of type `Int!`
-  """
-  id_count: OrderDirection
-  """
-  ✨ Generated from Field `School`.`name_count` of type `Int!`
-  """
-  name_count: OrderDirection
-}
-"""
 ✨ Generated data input type for table 'Transaction'. It includes all necessary fields for creating or upserting rows into table.
 """
 input Transaction_Data {
@@ -3057,21 +2908,21 @@ input User_Data {
   """
   courseId_expr: UUID_Expr
   """
-  ✨ Generated from Field `User`.`schoolId` of type `UUID`
+  ✨ Generated from Field `User`.`institutionId` of type `UUID`
   """
-  schoolId: UUID
+  institutionId: UUID
   """
-  ✨ `_expr` server value variant of `schoolId` (✨ Generated from Field `User`.`schoolId` of type `UUID`)
+  ✨ `_expr` server value variant of `institutionId` (✨ Generated from Field `User`.`institutionId` of type `UUID`)
   """
-  schoolId_expr: UUID_Expr
+  institutionId_expr: UUID_Expr
   """
   ✨ Generated from Field `User`.`course` of type `Course`
   """
   course: Course_Key
   """
-  ✨ Generated from Field `User`.`school` of type `School`
+  ✨ Generated from Field `User`.`institution` of type `Institution`
   """
-  school: School_Key
+  institution: Institution_Key
   """
   ✨ Generated from Field `User`.`createdAt` of type `Timestamp!`
   """
@@ -3194,17 +3045,17 @@ input User_Filter {
   """
   courseId: UUID_Filter
   """
-  ✨ Generated from Field `User`.`schoolId` of type `UUID`
+  ✨ Generated from Field `User`.`institutionId` of type `UUID`
   """
-  schoolId: UUID_Filter
+  institutionId: UUID_Filter
   """
   ✨ Generated from Field `User`.`course` of type `Course`
   """
   course: Course_Filter
   """
-  ✨ Generated from Field `User`.`school` of type `School`
+  ✨ Generated from Field `User`.`institution` of type `Institution`
   """
-  school: School_Filter
+  institution: Institution_Filter
   """
   ✨ Generated from Field `User`.`createdAt` of type `Timestamp!`
   """
@@ -3324,6 +3175,10 @@ input User_Having {
   """
   firstName_count: Int_Filter
   """
+  ✨ Generated from Field `User`.`institutionId_count` of type `Int!`
+  """
+  institutionId_count: Int_Filter
+  """
   ✨ Generated from Field `User`.`lastName_count` of type `Int!`
   """
   lastName_count: Int_Filter
@@ -3343,10 +3198,6 @@ input User_Having {
   ✨ Generated from Field `User`.`otherSchool_count` of type `Int!`
   """
   otherSchool_count: Int_Filter
-  """
-  ✨ Generated from Field `User`.`schoolId_count` of type `Int!`
-  """
-  schoolId_count: Int_Filter
   """
   ✨ Generated from Field `User`.`username_count` of type `Int!`
   """
@@ -3439,17 +3290,17 @@ input User_Order {
   """
   courseId: OrderDirection
   """
-  ✨ Generated from Field `User`.`schoolId` of type `UUID`
+  ✨ Generated from Field `User`.`institutionId` of type `UUID`
   """
-  schoolId: OrderDirection
+  institutionId: OrderDirection
   """
   ✨ Generated from Field `User`.`course` of type `Course`
   """
   course: Course_Order
   """
-  ✨ Generated from Field `User`.`school` of type `School`
+  ✨ Generated from Field `User`.`institution` of type `Institution`
   """
-  school: School_Order
+  institution: Institution_Order
   """
   ✨ Generated from Field `User`.`createdAt` of type `Timestamp!`
   """
@@ -3511,6 +3362,10 @@ input User_Order {
   """
   firstName_count: OrderDirection
   """
+  ✨ Generated from Field `User`.`institutionId_count` of type `Int!`
+  """
+  institutionId_count: OrderDirection
+  """
   ✨ Generated from Field `User`.`lastName_count` of type `Int!`
   """
   lastName_count: OrderDirection
@@ -3530,10 +3385,6 @@ input User_Order {
   ✨ Generated from Field `User`.`otherSchool_count` of type `Int!`
   """
   otherSchool_count: OrderDirection
-  """
-  ✨ Generated from Field `User`.`schoolId_count` of type `Int!`
-  """
-  schoolId_count: OrderDirection
   """
   ✨ Generated from Field `User`.`username_count` of type `Int!`
   """

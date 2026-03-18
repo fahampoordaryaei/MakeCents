@@ -18,18 +18,18 @@ class OnboardingProfilePage extends StatefulWidget {
 }
 
 class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
-  String? _selectedSchool;
+  String? _selectedInstitution;
   String? _selectedCourse;
-  String? _selectedSchoolId;
+  String? _selectedInstitutionId;
   String? _selectedCourseId;
   final TextEditingController _otherSchoolController = TextEditingController();
   final TextEditingController _otherCourseController = TextEditingController();
   String _error = '';
   bool _isLoading = true;
 
-  List<ListSchoolsSchools> _allSchools = [];
+  List<ListInstitutionsInstitutions> _allInstitutions = [];
   List<ListCoursesCourses> _allCourses = [];
-  List<String> _schoolNames = [];
+  List<String> _institutionNames = [];
   List<String> _courseNames = [];
 
   @override
@@ -42,13 +42,13 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
     try {
       final connector = ExampleConnector.instance;
 
-      final schoolsResult = await connector.listSchools().execute();
+      final institutionsResult = await connector.listInstitutions().execute();
       final coursesResult = await connector.listCourses().execute();
 
       setState(() {
-        _allSchools = schoolsResult.data.schools;
-        _schoolNames = _allSchools.map((s) => s.name).toList();
-        if (!_schoolNames.contains('Other')) _schoolNames.add('Other');
+        _allInstitutions = institutionsResult.data.institutions;
+        _institutionNames = _allInstitutions.map((i) => i.name).toList();
+        if (!_institutionNames.contains('Other')) _institutionNames.add('Other');
 
         _allCourses = coursesResult.data.courses;
         _courseNames = _allCourses.map((c) => c.name).toList();
@@ -74,13 +74,13 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
   void _onContinue() {
     setState(() => _error = '');
 
-    if (_selectedSchool == null) {
-      setState(() => _error = 'Please select a school.');
+    if (_selectedInstitution == null) {
+      setState(() => _error = 'Please select an institution.');
       return;
     }
-    if (_selectedSchool == 'Other' &&
+    if (_selectedInstitution == 'Other' &&
         _otherSchoolController.text.trim().isEmpty) {
-      setState(() => _error = 'Please specify your school.');
+      setState(() => _error = 'Please specify your institution.');
       return;
     }
     if (_selectedCourse == null) {
@@ -96,9 +96,9 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => OnboardingBudgetPage(
-          schoolId: _selectedSchoolId,
+          institutionId: _selectedInstitutionId,
           courseId: _selectedCourseId,
-          otherSchool: _selectedSchool == 'Other'
+          otherSchool: _selectedInstitution == 'Other'
               ? _otherSchoolController.text.trim()
               : null,
           otherCourse: _selectedCourse == 'Other'
@@ -291,7 +291,7 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'SCHOOL OR UNIVERSITY',
+                      'INSTITUTION',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
@@ -302,26 +302,26 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
                   ),
                   const SizedBox(height: 8.0),
                   _buildDropdown(
-                    hint: 'Select your school',
-                    value: _selectedSchool,
-                    items: _schoolNames,
+                    hint: 'Select your institution',
+                    value: _selectedInstitution,
+                    items: _institutionNames,
                     onChanged: (val) {
                       setState(() {
-                        _selectedSchool = val;
-                        _selectedSchoolId = _allSchools
-                            .where((s) => s.name == val)
+                        _selectedInstitution = val;
+                        _selectedInstitutionId = _allInstitutions
+                            .where((i) => i.name == val)
                             .firstOrNull
                             ?.id;
                       });
                     },
                   ),
 
-                  if (_selectedSchool == 'Other') ...[
+                  if (_selectedInstitution == 'Other') ...[
                     const SizedBox(height: 12.0),
                     TextFormField(
                       controller: _otherSchoolController,
                       decoration: InputDecoration(
-                        hintText: 'Enter school name',
+                        hintText: 'Enter institution name',
                         filled: true,
                         fillColor: Theme.of(context).scaffoldBackgroundColor,
                         border: OutlineInputBorder(

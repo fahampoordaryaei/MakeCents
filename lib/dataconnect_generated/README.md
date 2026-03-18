@@ -21,17 +21,17 @@ ExampleConnector.instance.dataConnect.useDataConnectEmulator(host, port);
 You can also call queries and mutations by using the connector class.
 ## Queries
 
-### ListSchools
+### ListInstitutions
 #### Required Arguments
 ```dart
 // No required arguments
-ExampleConnector.instance.listSchools().execute();
+ExampleConnector.instance.listInstitutions().execute();
 ```
 
 
 
 #### Return Type
-`execute()` returns a `QueryResult<ListSchoolsData, void>`
+`execute()` returns a `QueryResult<ListInstitutionsData, void>`
 ```dart
 /// Result of an Operation Request (query/mutation).
 class OperationResult<Data, Variables> {
@@ -46,8 +46,8 @@ class QueryResult<Data, Variables> extends OperationResult<Data, Variables> {
   QueryResult(super.dataConnect, super.data, super.ref);
 }
 
-final result = await ExampleConnector.instance.listSchools();
-ListSchoolsData data = result.data;
+final result = await ExampleConnector.instance.listInstitutions();
+ListInstitutionsData data = result.data;
 final ref = result.ref;
 ```
 
@@ -55,7 +55,7 @@ final ref = result.ref;
 Each builder returns an `execute` function, which is a helper function that creates a `Ref` object, and executes the underlying operation.
 An example of how to use the `Ref` object is shown below:
 ```dart
-final ref = ExampleConnector.instance.listSchools().ref();
+final ref = ExampleConnector.instance.listInstitutions().ref();
 ref.execute();
 
 ref.subscribe(...);
@@ -522,8 +522,8 @@ The builder pattern allows Data Connect to distinguish between fields that haven
 ```dart
 class StoreUserProfileVariablesBuilder {
   ...
-   StoreUserProfileVariablesBuilder schoolId(String? t) {
-   _schoolId.value = t;
+   StoreUserProfileVariablesBuilder institutionId(String? t) {
+   _institutionId.value = t;
    return this;
   }
   StoreUserProfileVariablesBuilder courseId(String? t) {
@@ -551,7 +551,7 @@ ExampleConnector.instance.storeUserProfile(
   firstName: firstName,
   lastName: lastName,
 )
-.schoolId(schoolId)
+.institutionId(institutionId)
 .courseId(courseId)
 .otherSchool(otherSchool)
 .otherCourse(otherCourse)

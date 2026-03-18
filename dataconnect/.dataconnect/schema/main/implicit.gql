@@ -82,12 +82,6 @@ extend type ScholarshipCourse {
   """
   courseId: UUID! @fdc_generated(from: "ScholarshipCourse.course", purpose: IMPLICIT_REF_FIELD)
 }
-extend type School {
-  """
-  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
-  """
-  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "School", purpose: IMPLICIT_KEY_FIELD)
-}
 extend type Transaction {
   """
   ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
@@ -108,7 +102,7 @@ extend type User {
   """
   courseId: UUID @fdc_generated(from: "User.course", purpose: IMPLICIT_REF_FIELD)
   """
-  ✨ Implicit foreign key field based on `User`.`school`. It must match the value of `School`.`id`. See `@ref` for how to customize it.
+  ✨ Implicit foreign key field based on `User`.`institution`. It must match the value of `Institution`.`id`. See `@ref` for how to customize it.
   """
-  schoolId: UUID @fdc_generated(from: "User.school", purpose: IMPLICIT_REF_FIELD)
+  institutionId: UUID @fdc_generated(from: "User.institution", purpose: IMPLICIT_REF_FIELD)
 }
