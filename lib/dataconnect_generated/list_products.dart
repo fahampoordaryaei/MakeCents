@@ -1,22 +1,18 @@
 part of 'generated.dart';
 
 class ListProductsVariablesBuilder {
+  
   final FirebaseDataConnect _dataConnect;
-  ListProductsVariablesBuilder(this._dataConnect);
-  Deserializer<ListProductsData> dataDeserializer = (dynamic json) =>
-      ListProductsData.fromJson(jsonDecode(json));
-
+  ListProductsVariablesBuilder(this._dataConnect, );
+  Deserializer<ListProductsData> dataDeserializer = (dynamic json)  => ListProductsData.fromJson(jsonDecode(json));
+  
   Future<QueryResult<ListProductsData, void>> execute() {
     return ref().execute();
   }
 
   QueryRef<ListProductsData, void> ref() {
-    return _dataConnect.query(
-      "ListProducts",
-      dataDeserializer,
-      emptySerializer,
-      null,
-    );
+    
+    return _dataConnect.query("ListProducts", dataDeserializer, emptySerializer, null);
   }
 }
 
@@ -28,40 +24,35 @@ class ListProductsProducts {
   final String storeName;
   final int cost;
   final bool active;
-  ListProductsProducts.fromJson(dynamic json)
-    : id = nativeFromJson<String>(json['id']),
-      name = nativeFromJson<String>(json['name']),
-      description = nativeFromJson<String>(json['description']),
-      storeName = nativeFromJson<String>(json['storeName']),
-      cost = nativeFromJson<int>(json['cost']),
-      active = nativeFromJson<bool>(json['active']);
+  ListProductsProducts.fromJson(dynamic json):
+  
+  id = nativeFromJson<String>(json['id']),
+  name = nativeFromJson<String>(json['name']),
+  description = nativeFromJson<String>(json['description']),
+  storeName = nativeFromJson<String>(json['storeName']),
+  cost = nativeFromJson<int>(json['cost']),
+  active = nativeFromJson<bool>(json['active']);
   @override
   bool operator ==(Object other) {
-    if (identical(this, other)) {
+    if(identical(this, other)) {
       return true;
     }
-    if (other.runtimeType != runtimeType) {
+    if(other.runtimeType != runtimeType) {
       return false;
     }
 
     final ListProductsProducts otherTyped = other as ListProductsProducts;
-    return id == otherTyped.id &&
-        name == otherTyped.name &&
-        description == otherTyped.description &&
-        storeName == otherTyped.storeName &&
-        cost == otherTyped.cost &&
-        active == otherTyped.active;
+    return id == otherTyped.id && 
+    name == otherTyped.name && 
+    description == otherTyped.description && 
+    storeName == otherTyped.storeName && 
+    cost == otherTyped.cost && 
+    active == otherTyped.active;
+    
   }
-
   @override
-  int get hashCode => Object.hashAll([
-    id.hashCode,
-    name.hashCode,
-    description.hashCode,
-    storeName.hashCode,
-    cost.hashCode,
-    active.hashCode,
-  ]);
+  int get hashCode => Object.hashAll([id.hashCode, name.hashCode, description.hashCode, storeName.hashCode, cost.hashCode, active.hashCode]);
+  
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -87,25 +78,27 @@ class ListProductsProducts {
 @immutable
 class ListProductsData {
   final List<ListProductsProducts> products;
-  ListProductsData.fromJson(dynamic json)
-    : products = (json['products'] as List<dynamic>)
-          .map((e) => ListProductsProducts.fromJson(e))
-          .toList();
+  ListProductsData.fromJson(dynamic json):
+  
+  products = (json['products'] as List<dynamic>)
+        .map((e) => ListProductsProducts.fromJson(e))
+        .toList();
   @override
   bool operator ==(Object other) {
-    if (identical(this, other)) {
+    if(identical(this, other)) {
       return true;
     }
-    if (other.runtimeType != runtimeType) {
+    if(other.runtimeType != runtimeType) {
       return false;
     }
 
     final ListProductsData otherTyped = other as ListProductsData;
     return products == otherTyped.products;
+    
   }
-
   @override
   int get hashCode => products.hashCode;
+  
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -113,5 +106,8 @@ class ListProductsData {
     return json;
   }
 
-  ListProductsData({required this.products});
+  ListProductsData({
+    required this.products,
+  });
 }
+

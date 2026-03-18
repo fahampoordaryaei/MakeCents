@@ -4,23 +4,16 @@ class GetUserProfileVariablesBuilder {
   String username;
 
   final FirebaseDataConnect _dataConnect;
-  GetUserProfileVariablesBuilder(this._dataConnect, {required this.username});
-  Deserializer<GetUserProfileData> dataDeserializer = (dynamic json) =>
-      GetUserProfileData.fromJson(jsonDecode(json));
-  Serializer<GetUserProfileVariables> varsSerializer =
-      (GetUserProfileVariables vars) => jsonEncode(vars.toJson());
+  GetUserProfileVariablesBuilder(this._dataConnect, {required  this.username,});
+  Deserializer<GetUserProfileData> dataDeserializer = (dynamic json)  => GetUserProfileData.fromJson(jsonDecode(json));
+  Serializer<GetUserProfileVariables> varsSerializer = (GetUserProfileVariables vars) => jsonEncode(vars.toJson());
   Future<QueryResult<GetUserProfileData, GetUserProfileVariables>> execute() {
     return ref().execute();
   }
 
   QueryRef<GetUserProfileData, GetUserProfileVariables> ref() {
-    GetUserProfileVariables vars = GetUserProfileVariables(username: username);
-    return _dataConnect.query(
-      "GetUserProfile",
-      dataDeserializer,
-      varsSerializer,
-      vars,
-    );
+    GetUserProfileVariables vars= GetUserProfileVariables(username: username,);
+    return _dataConnect.query("GetUserProfile", dataDeserializer, varsSerializer, vars);
   }
 }
 
@@ -33,53 +26,37 @@ class GetUserProfileUsers {
   final String? otherCourse;
   final GetUserProfileUsersSchool? school;
   final GetUserProfileUsersCourse? course;
-  GetUserProfileUsers.fromJson(dynamic json)
-    : firstName = nativeFromJson<String>(json['firstName']),
-      lastName = nativeFromJson<String>(json['lastName']),
-      monthlyBudget = json['monthlyBudget'] == null
-          ? null
-          : nativeFromJson<double>(json['monthlyBudget']),
-      otherSchool = json['otherSchool'] == null
-          ? null
-          : nativeFromJson<String>(json['otherSchool']),
-      otherCourse = json['otherCourse'] == null
-          ? null
-          : nativeFromJson<String>(json['otherCourse']),
-      school = json['school'] == null
-          ? null
-          : GetUserProfileUsersSchool.fromJson(json['school']),
-      course = json['course'] == null
-          ? null
-          : GetUserProfileUsersCourse.fromJson(json['course']);
+  GetUserProfileUsers.fromJson(dynamic json):
+  
+  firstName = nativeFromJson<String>(json['firstName']),
+  lastName = nativeFromJson<String>(json['lastName']),
+  monthlyBudget = json['monthlyBudget'] == null ? null : nativeFromJson<double>(json['monthlyBudget']),
+  otherSchool = json['otherSchool'] == null ? null : nativeFromJson<String>(json['otherSchool']),
+  otherCourse = json['otherCourse'] == null ? null : nativeFromJson<String>(json['otherCourse']),
+  school = json['school'] == null ? null : GetUserProfileUsersSchool.fromJson(json['school']),
+  course = json['course'] == null ? null : GetUserProfileUsersCourse.fromJson(json['course']);
   @override
   bool operator ==(Object other) {
-    if (identical(this, other)) {
+    if(identical(this, other)) {
       return true;
     }
-    if (other.runtimeType != runtimeType) {
+    if(other.runtimeType != runtimeType) {
       return false;
     }
 
     final GetUserProfileUsers otherTyped = other as GetUserProfileUsers;
-    return firstName == otherTyped.firstName &&
-        lastName == otherTyped.lastName &&
-        monthlyBudget == otherTyped.monthlyBudget &&
-        otherSchool == otherTyped.otherSchool &&
-        otherCourse == otherTyped.otherCourse &&
-        school == otherTyped.school &&
-        course == otherTyped.course;
+    return firstName == otherTyped.firstName && 
+    lastName == otherTyped.lastName && 
+    monthlyBudget == otherTyped.monthlyBudget && 
+    otherSchool == otherTyped.otherSchool && 
+    otherCourse == otherTyped.otherCourse && 
+    school == otherTyped.school && 
+    course == otherTyped.course;
+    
   }
-
   @override
-  int get hashCode => Object.hashAll([
-    firstName.hashCode,
-    lastName.hashCode,
-    monthlyBudget.hashCode,
-    otherSchool.hashCode,
-    otherCourse.hashCode,
-    school.hashCode,
-    course.hashCode,
-  ]);
+  int get hashCode => Object.hashAll([firstName.hashCode, lastName.hashCode, monthlyBudget.hashCode, otherSchool.hashCode, otherCourse.hashCode, school.hashCode, course.hashCode]);
+  
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -117,24 +94,25 @@ class GetUserProfileUsers {
 @immutable
 class GetUserProfileUsersSchool {
   final String name;
-  GetUserProfileUsersSchool.fromJson(dynamic json)
-    : name = nativeFromJson<String>(json['name']);
+  GetUserProfileUsersSchool.fromJson(dynamic json):
+  
+  name = nativeFromJson<String>(json['name']);
   @override
   bool operator ==(Object other) {
-    if (identical(this, other)) {
+    if(identical(this, other)) {
       return true;
     }
-    if (other.runtimeType != runtimeType) {
+    if(other.runtimeType != runtimeType) {
       return false;
     }
 
-    final GetUserProfileUsersSchool otherTyped =
-        other as GetUserProfileUsersSchool;
+    final GetUserProfileUsersSchool otherTyped = other as GetUserProfileUsersSchool;
     return name == otherTyped.name;
+    
   }
-
   @override
   int get hashCode => name.hashCode;
+  
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -142,32 +120,36 @@ class GetUserProfileUsersSchool {
     return json;
   }
 
-  GetUserProfileUsersSchool({required this.name});
+  GetUserProfileUsersSchool({
+    required this.name,
+  });
 }
 
 @immutable
 class GetUserProfileUsersCourse {
   final String id;
   final String name;
-  GetUserProfileUsersCourse.fromJson(dynamic json)
-    : id = nativeFromJson<String>(json['id']),
-      name = nativeFromJson<String>(json['name']);
+  GetUserProfileUsersCourse.fromJson(dynamic json):
+  
+  id = nativeFromJson<String>(json['id']),
+  name = nativeFromJson<String>(json['name']);
   @override
   bool operator ==(Object other) {
-    if (identical(this, other)) {
+    if(identical(this, other)) {
       return true;
     }
-    if (other.runtimeType != runtimeType) {
+    if(other.runtimeType != runtimeType) {
       return false;
     }
 
-    final GetUserProfileUsersCourse otherTyped =
-        other as GetUserProfileUsersCourse;
-    return id == otherTyped.id && name == otherTyped.name;
+    final GetUserProfileUsersCourse otherTyped = other as GetUserProfileUsersCourse;
+    return id == otherTyped.id && 
+    name == otherTyped.name;
+    
   }
-
   @override
   int get hashCode => Object.hashAll([id.hashCode, name.hashCode]);
+  
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -176,31 +158,36 @@ class GetUserProfileUsersCourse {
     return json;
   }
 
-  GetUserProfileUsersCourse({required this.id, required this.name});
+  GetUserProfileUsersCourse({
+    required this.id,
+    required this.name,
+  });
 }
 
 @immutable
 class GetUserProfileData {
   final List<GetUserProfileUsers> users;
-  GetUserProfileData.fromJson(dynamic json)
-    : users = (json['users'] as List<dynamic>)
-          .map((e) => GetUserProfileUsers.fromJson(e))
-          .toList();
+  GetUserProfileData.fromJson(dynamic json):
+  
+  users = (json['users'] as List<dynamic>)
+        .map((e) => GetUserProfileUsers.fromJson(e))
+        .toList();
   @override
   bool operator ==(Object other) {
-    if (identical(this, other)) {
+    if(identical(this, other)) {
       return true;
     }
-    if (other.runtimeType != runtimeType) {
+    if(other.runtimeType != runtimeType) {
       return false;
     }
 
     final GetUserProfileData otherTyped = other as GetUserProfileData;
     return users == otherTyped.users;
+    
   }
-
   @override
   int get hashCode => users.hashCode;
+  
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -208,32 +195,34 @@ class GetUserProfileData {
     return json;
   }
 
-  GetUserProfileData({required this.users});
+  GetUserProfileData({
+    required this.users,
+  });
 }
 
 @immutable
 class GetUserProfileVariables {
   final String username;
-  @Deprecated(
-    'fromJson is deprecated for Variable classes as they are no longer required for deserialization.',
-  )
-  GetUserProfileVariables.fromJson(Map<String, dynamic> json)
-    : username = nativeFromJson<String>(json['username']);
+  @Deprecated('fromJson is deprecated for Variable classes as they are no longer required for deserialization.')
+  GetUserProfileVariables.fromJson(Map<String, dynamic> json):
+  
+  username = nativeFromJson<String>(json['username']);
   @override
   bool operator ==(Object other) {
-    if (identical(this, other)) {
+    if(identical(this, other)) {
       return true;
     }
-    if (other.runtimeType != runtimeType) {
+    if(other.runtimeType != runtimeType) {
       return false;
     }
 
     final GetUserProfileVariables otherTyped = other as GetUserProfileVariables;
     return username == otherTyped.username;
+    
   }
-
   @override
   int get hashCode => username.hashCode;
+  
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -241,5 +230,8 @@ class GetUserProfileVariables {
     return json;
   }
 
-  GetUserProfileVariables({required this.username});
+  GetUserProfileVariables({
+    required this.username,
+  });
 }
+

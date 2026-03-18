@@ -4,29 +4,16 @@ class ListRedeemedProductsVariablesBuilder {
   String userId;
 
   final FirebaseDataConnect _dataConnect;
-  ListRedeemedProductsVariablesBuilder(
-    this._dataConnect, {
-    required this.userId,
-  });
-  Deserializer<ListRedeemedProductsData> dataDeserializer = (dynamic json) =>
-      ListRedeemedProductsData.fromJson(jsonDecode(json));
-  Serializer<ListRedeemedProductsVariables> varsSerializer =
-      (ListRedeemedProductsVariables vars) => jsonEncode(vars.toJson());
-  Future<QueryResult<ListRedeemedProductsData, ListRedeemedProductsVariables>>
-  execute() {
+  ListRedeemedProductsVariablesBuilder(this._dataConnect, {required  this.userId,});
+  Deserializer<ListRedeemedProductsData> dataDeserializer = (dynamic json)  => ListRedeemedProductsData.fromJson(jsonDecode(json));
+  Serializer<ListRedeemedProductsVariables> varsSerializer = (ListRedeemedProductsVariables vars) => jsonEncode(vars.toJson());
+  Future<QueryResult<ListRedeemedProductsData, ListRedeemedProductsVariables>> execute() {
     return ref().execute();
   }
 
   QueryRef<ListRedeemedProductsData, ListRedeemedProductsVariables> ref() {
-    ListRedeemedProductsVariables vars = ListRedeemedProductsVariables(
-      userId: userId,
-    );
-    return _dataConnect.query(
-      "ListRedeemedProducts",
-      dataDeserializer,
-      varsSerializer,
-      vars,
-    );
+    ListRedeemedProductsVariables vars= ListRedeemedProductsVariables(userId: userId,);
+    return _dataConnect.query("ListRedeemedProducts", dataDeserializer, varsSerializer, vars);
   }
 }
 
@@ -35,31 +22,29 @@ class ListRedeemedProductsRedeemedProducts {
   final String code;
   final Timestamp redeemedAt;
   final ListRedeemedProductsRedeemedProductsProduct product;
-  ListRedeemedProductsRedeemedProducts.fromJson(dynamic json)
-    : code = nativeFromJson<String>(json['code']),
-      redeemedAt = Timestamp.fromJson(json['redeemedAt']),
-      product = ListRedeemedProductsRedeemedProductsProduct.fromJson(
-        json['product'],
-      );
+  ListRedeemedProductsRedeemedProducts.fromJson(dynamic json):
+  
+  code = nativeFromJson<String>(json['code']),
+  redeemedAt = Timestamp.fromJson(json['redeemedAt']),
+  product = ListRedeemedProductsRedeemedProductsProduct.fromJson(json['product']);
   @override
   bool operator ==(Object other) {
-    if (identical(this, other)) {
+    if(identical(this, other)) {
       return true;
     }
-    if (other.runtimeType != runtimeType) {
+    if(other.runtimeType != runtimeType) {
       return false;
     }
 
-    final ListRedeemedProductsRedeemedProducts otherTyped =
-        other as ListRedeemedProductsRedeemedProducts;
-    return code == otherTyped.code &&
-        redeemedAt == otherTyped.redeemedAt &&
-        product == otherTyped.product;
+    final ListRedeemedProductsRedeemedProducts otherTyped = other as ListRedeemedProductsRedeemedProducts;
+    return code == otherTyped.code && 
+    redeemedAt == otherTyped.redeemedAt && 
+    product == otherTyped.product;
+    
   }
-
   @override
-  int get hashCode =>
-      Object.hashAll([code.hashCode, redeemedAt.hashCode, product.hashCode]);
+  int get hashCode => Object.hashAll([code.hashCode, redeemedAt.hashCode, product.hashCode]);
+  
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -84,41 +69,35 @@ class ListRedeemedProductsRedeemedProductsProduct {
   final String storeName;
   final int cost;
   final bool active;
-  ListRedeemedProductsRedeemedProductsProduct.fromJson(dynamic json)
-    : id = nativeFromJson<String>(json['id']),
-      name = nativeFromJson<String>(json['name']),
-      description = nativeFromJson<String>(json['description']),
-      storeName = nativeFromJson<String>(json['storeName']),
-      cost = nativeFromJson<int>(json['cost']),
-      active = nativeFromJson<bool>(json['active']);
+  ListRedeemedProductsRedeemedProductsProduct.fromJson(dynamic json):
+  
+  id = nativeFromJson<String>(json['id']),
+  name = nativeFromJson<String>(json['name']),
+  description = nativeFromJson<String>(json['description']),
+  storeName = nativeFromJson<String>(json['storeName']),
+  cost = nativeFromJson<int>(json['cost']),
+  active = nativeFromJson<bool>(json['active']);
   @override
   bool operator ==(Object other) {
-    if (identical(this, other)) {
+    if(identical(this, other)) {
       return true;
     }
-    if (other.runtimeType != runtimeType) {
+    if(other.runtimeType != runtimeType) {
       return false;
     }
 
-    final ListRedeemedProductsRedeemedProductsProduct otherTyped =
-        other as ListRedeemedProductsRedeemedProductsProduct;
-    return id == otherTyped.id &&
-        name == otherTyped.name &&
-        description == otherTyped.description &&
-        storeName == otherTyped.storeName &&
-        cost == otherTyped.cost &&
-        active == otherTyped.active;
+    final ListRedeemedProductsRedeemedProductsProduct otherTyped = other as ListRedeemedProductsRedeemedProductsProduct;
+    return id == otherTyped.id && 
+    name == otherTyped.name && 
+    description == otherTyped.description && 
+    storeName == otherTyped.storeName && 
+    cost == otherTyped.cost && 
+    active == otherTyped.active;
+    
   }
-
   @override
-  int get hashCode => Object.hashAll([
-    id.hashCode,
-    name.hashCode,
-    description.hashCode,
-    storeName.hashCode,
-    cost.hashCode,
-    active.hashCode,
-  ]);
+  int get hashCode => Object.hashAll([id.hashCode, name.hashCode, description.hashCode, storeName.hashCode, cost.hashCode, active.hashCode]);
+  
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -144,26 +123,27 @@ class ListRedeemedProductsRedeemedProductsProduct {
 @immutable
 class ListRedeemedProductsData {
   final List<ListRedeemedProductsRedeemedProducts> redeemedProducts;
-  ListRedeemedProductsData.fromJson(dynamic json)
-    : redeemedProducts = (json['redeemedProducts'] as List<dynamic>)
-          .map((e) => ListRedeemedProductsRedeemedProducts.fromJson(e))
-          .toList();
+  ListRedeemedProductsData.fromJson(dynamic json):
+  
+  redeemedProducts = (json['redeemedProducts'] as List<dynamic>)
+        .map((e) => ListRedeemedProductsRedeemedProducts.fromJson(e))
+        .toList();
   @override
   bool operator ==(Object other) {
-    if (identical(this, other)) {
+    if(identical(this, other)) {
       return true;
     }
-    if (other.runtimeType != runtimeType) {
+    if(other.runtimeType != runtimeType) {
       return false;
     }
 
-    final ListRedeemedProductsData otherTyped =
-        other as ListRedeemedProductsData;
+    final ListRedeemedProductsData otherTyped = other as ListRedeemedProductsData;
     return redeemedProducts == otherTyped.redeemedProducts;
+    
   }
-
   @override
   int get hashCode => redeemedProducts.hashCode;
+  
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -171,33 +151,34 @@ class ListRedeemedProductsData {
     return json;
   }
 
-  ListRedeemedProductsData({required this.redeemedProducts});
+  ListRedeemedProductsData({
+    required this.redeemedProducts,
+  });
 }
 
 @immutable
 class ListRedeemedProductsVariables {
   final String userId;
-  @Deprecated(
-    'fromJson is deprecated for Variable classes as they are no longer required for deserialization.',
-  )
-  ListRedeemedProductsVariables.fromJson(Map<String, dynamic> json)
-    : userId = nativeFromJson<String>(json['userId']);
+  @Deprecated('fromJson is deprecated for Variable classes as they are no longer required for deserialization.')
+  ListRedeemedProductsVariables.fromJson(Map<String, dynamic> json):
+  
+  userId = nativeFromJson<String>(json['userId']);
   @override
   bool operator ==(Object other) {
-    if (identical(this, other)) {
+    if(identical(this, other)) {
       return true;
     }
-    if (other.runtimeType != runtimeType) {
+    if(other.runtimeType != runtimeType) {
       return false;
     }
 
-    final ListRedeemedProductsVariables otherTyped =
-        other as ListRedeemedProductsVariables;
+    final ListRedeemedProductsVariables otherTyped = other as ListRedeemedProductsVariables;
     return userId == otherTyped.userId;
+    
   }
-
   @override
   int get hashCode => userId.hashCode;
+  
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -205,5 +186,8 @@ class ListRedeemedProductsVariables {
     return json;
   }
 
-  ListRedeemedProductsVariables({required this.userId});
+  ListRedeemedProductsVariables({
+    required this.userId,
+  });
 }
+
