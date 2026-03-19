@@ -1,6 +1,9 @@
 # Basic Usage
 
 ```dart
+ExampleConnector.instance.SeedFullData().execute();
+ExampleConnector.instance.SeedProductsOnly().execute();
+ExampleConnector.instance.SeedOnboardingData().execute();
 ExampleConnector.instance.ListInstitutions().execute();
 ExampleConnector.instance.ListCourses().execute();
 ExampleConnector.instance.ListUserTransactions(listUserTransactionsVariables).execute();
@@ -8,9 +11,6 @@ ExampleConnector.instance.GetUserPoints(getUserPointsVariables).execute();
 ExampleConnector.instance.ListProducts().execute();
 ExampleConnector.instance.ListRedeemedProducts(listRedeemedProductsVariables).execute();
 ExampleConnector.instance.AddTransaction(addTransactionVariables).execute();
-ExampleConnector.instance.StoreUserProfile(storeUserProfileVariables).execute();
-ExampleConnector.instance.DeleteTransaction(deleteTransactionVariables).execute();
-ExampleConnector.instance.UpdateTransaction(updateTransactionVariables).execute();
 
 ```
 

@@ -3,6 +3,12 @@ import 'package:firebase_data_connect/firebase_data_connect.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 
+part 'seed_full_data.dart';
+
+part 'seed_products_only.dart';
+
+part 'seed_onboarding_data.dart';
+
 part 'list_institutions.dart';
 
 part 'list_courses.dart';
@@ -37,12 +43,6 @@ part 'init_points_balance.dart';
 
 part 'update_points_balance.dart';
 
-part 'seed_full_data.dart';
-
-part 'seed_products_only.dart';
-
-part 'seed_onboarding_data.dart';
-
 
 
 
@@ -50,6 +50,21 @@ part 'seed_onboarding_data.dart';
 
 
 class ExampleConnector {
+  
+  
+  SeedFullDataVariablesBuilder seedFullData () {
+    return SeedFullDataVariablesBuilder(dataConnect, );
+  }
+  
+  
+  SeedProductsOnlyVariablesBuilder seedProductsOnly () {
+    return SeedProductsOnlyVariablesBuilder(dataConnect, );
+  }
+  
+  
+  SeedOnboardingDataVariablesBuilder seedOnboardingData () {
+    return SeedOnboardingDataVariablesBuilder(dataConnect, );
+  }
   
   
   ListInstitutionsVariablesBuilder listInstitutions () {
@@ -134,21 +149,6 @@ class ExampleConnector {
   
   UpdatePointsBalanceVariablesBuilder updatePointsBalance ({required String id, required int totalPoints, }) {
     return UpdatePointsBalanceVariablesBuilder(dataConnect, id: id,totalPoints: totalPoints,);
-  }
-  
-  
-  SeedFullDataVariablesBuilder seedFullData () {
-    return SeedFullDataVariablesBuilder(dataConnect, );
-  }
-  
-  
-  SeedProductsOnlyVariablesBuilder seedProductsOnly () {
-    return SeedProductsOnlyVariablesBuilder(dataConnect, );
-  }
-  
-  
-  SeedOnboardingDataVariablesBuilder seedOnboardingData () {
-    return SeedOnboardingDataVariablesBuilder(dataConnect, );
   }
   
 
