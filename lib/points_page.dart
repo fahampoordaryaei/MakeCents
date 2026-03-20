@@ -147,7 +147,6 @@ class _PointsPageState extends State<PointsPage> {
             final points = _points ?? 0;
             final redeemed = _redeemedByProductId[product.id];
             final isRedeemed = redeemed != null;
-            final canRedeem = !isRedeemed && points >= product.cost;
             final redeeming = _redeemingProductId == product.id;
             final needed = (product.cost - points).clamp(0, 999999);
 
@@ -249,7 +248,7 @@ class _PointsPageState extends State<PointsPage> {
                                     onPressed: null,
                                     child: const Text('Redeemed'),
                                   )
-                                : canRedeem
+                                : !isRedeemed && points >= product.cost
                                 ? FilledButton(
                                     onPressed: redeeming
                                         ? null

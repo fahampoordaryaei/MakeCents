@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'onboarding_budget_page.dart';
 import 'dataconnect_generated/generated.dart';
 import 'startup_page.dart';
@@ -48,11 +49,15 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
       setState(() {
         _allInstitutions = institutionsResult.data.institutions;
         _institutionNames = _allInstitutions.map((i) => i.name).toList();
-        if (!_institutionNames.contains('Other')) _institutionNames.add('Other');
+        if (!_institutionNames.contains('Other')) {
+          _institutionNames.add('Other');
+        }
 
         _allCourses = coursesResult.data.courses;
         _courseNames = _allCourses.map((c) => c.name).toList();
-        if (!_courseNames.contains('Other')) _courseNames.add('Other');
+        if (!_courseNames.contains('Other')) {
+          _courseNames.add('Other');
+        }
 
         _isLoading = false;
       });
@@ -109,6 +114,40 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
         ),
       ),
     );
+  }
+
+  Future<void> _confirmCancelRegistration() async {
+    if (await showDialog<bool>(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text('Cancel setup?'),
+                content: const Text('Your registration will be canceled.'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: const Text('No'),
+                  ),
+                  FilledButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    child: const Text('Yes, cancel'),
+                  ),
+                ],
+              ),
+            ) !=
+            true ||
+        !mounted) {
+      return;
+    }
+
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      await user?.delete();
+    } catch (_) {}
+    await FirebaseAuth.instance.signOut();
+    if (!mounted) return;
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (_) => const StartupPage()));
   }
 
   Widget _buildDropdown({
@@ -193,21 +232,11 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
                     child: IconButton(
                       padding: EdgeInsets.zero,
                       icon: const Icon(
-                        Icons.arrow_back,
+                        Icons.close,
                         color: Color(0xFF3e7f3f),
                         size: 18,
                       ),
-                      onPressed: () {
-                        if (Navigator.of(context).canPop()) {
-                          Navigator.of(context).pop();
-                        } else {
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (_) => const StartupPage(),
-                            ),
-                          );
-                        }
-                      },
+                      onPressed: _confirmCancelRegistration,
                     ),
                   ),
                 ),

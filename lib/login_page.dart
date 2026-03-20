@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_data_connect/firebase_data_connect.dart';
 import 'dataconnect_generated/generated.dart';
 import 'main.dart';
+import 'onboarding_profile_page.dart';
 import 'register_page.dart';
 import 'startup_page.dart';
 
@@ -70,22 +71,47 @@ class _LoginPageState extends State<LoginPage> {
         password: pass,
       );
 
+      final authUser = FirebaseAuth.instance.currentUser;
+      if (authUser == null) {
+        setState(() {
+          _error = 'Sign in failed.';
+        });
+        return;
+      }
+
       if (username != null) {
         try {
           await connector.resetLoginAttempts(username: username).execute();
         } catch (_) {}
       }
 
+      final profileResult = await connector
+          .getUserProfile(username: authUser.uid)
+          .execute();
+
       if (mounted) {
-        Navigator.of(context).pushAndRemoveUntil(
-          PageRouteBuilder(
-            pageBuilder: (_, a, _) => const HomeScreen(),
-            transitionsBuilder: (_, a, _, child) =>
-                FadeTransition(opacity: a, child: child),
-            transitionDuration: const Duration(milliseconds: 400),
-          ),
-          (r) => false,
-        );
+        if (profileResult.data.users.isNotEmpty) {
+          Navigator.of(context).pushAndRemoveUntil(
+            PageRouteBuilder(
+              pageBuilder: (_, a, _) => const HomeScreen(),
+              transitionsBuilder: (_, a, _, child) =>
+                  FadeTransition(opacity: a, child: child),
+              transitionDuration: const Duration(milliseconds: 400),
+            ),
+            (r) => false,
+          );
+        } else {
+          final (firstName, lastName) = _splitDisplayName(authUser.displayName);
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (_) => OnboardingProfilePage(
+                firstName: firstName,
+                lastName: lastName,
+              ),
+            ),
+            (r) => false,
+          );
+        }
       }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
@@ -151,6 +177,17 @@ class _LoginPageState extends State<LoginPage> {
         _error = 'Incorrect email or password.';
       });
     }
+  }
+
+  (String, String) _splitDisplayName(String? displayName) {
+    final value = displayName?.trim() ?? '';
+    if (value.isEmpty) return ('Student', 'User');
+    final parts = value
+        .split(RegExp(r'\s+'))
+        .where((p) => p.isNotEmpty)
+        .toList();
+    if (parts.length == 1) return (parts.first, 'User');
+    return (parts.first, parts.sublist(1).join(' '));
   }
 
   @override

@@ -98,7 +98,6 @@ class _RegisterPageState extends State<RegisterPage> {
     try {
       final userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: pass);
-
       await userCredential.user?.updateDisplayName('$firstName $lastName');
 
       if (mounted) {
@@ -235,18 +234,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
-                const SizedBox(height: 8.0),
-                Text(
-                  'Sign up to track spending and set your monthly budget.',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.75),
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 24.0),
+                const SizedBox(height: 20.0),
                 if (_error.isNotEmpty) ...[
                   Container(
                     width: double.infinity,
@@ -352,7 +340,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             ),
                           )
                         : const Text(
-                            'Create account',
+                            'Continue',
                             style: TextStyle(
                               fontSize: 16.0,
                               fontWeight: FontWeight.w700,
