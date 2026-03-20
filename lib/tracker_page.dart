@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'dataconnect_generated/generated.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'dart:math' as math;
 import 'transaction_provider.dart';
 import 'budget_provider.dart';
 import 'functions.dart';
+
+final DateFormat _histogramDateLabel = DateFormat('d/MMM');
 
 class TrackerPage extends StatefulWidget {
   const TrackerPage({super.key});
@@ -204,264 +207,17 @@ class _TrackerPageState extends State<TrackerPage> {
   }
 
   Future<void> _editDialog(TransactionProvider p, Transaction tx) async {
-    final titleController = TextEditingController(text: tx.title);
-    final amountController = TextEditingController(
-      text: tx.amount.toStringAsFixed(2),
-    );
-    DateTime selectedDate = DateTime(tx.date.year, tx.date.month, tx.date.day);
-    final dateController = TextEditingController(
-      text: '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
-    );
-    ExpenseCategory? selectedCategory = dynamicCategories
-        .where((c) => c.name == tx.category)
-        .cast<ExpenseCategory?>()
-        .firstWhere(
-          (c) => c != null,
-          orElse: () =>
-              dynamicCategories.isNotEmpty ? dynamicCategories[0] : null,
-        );
-
-    await showModalBottomSheet(
+    await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (dialogContext, ss) => Padding(
-          padding: EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: 16,
-            bottom: MediaQuery.of(dialogContext).viewInsets.bottom + 16,
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: SafeArea(
-              top: false,
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Edit expense',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w700,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Category',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.8),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      if (_isLoadingCategories)
-                        const Center(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(vertical: 20),
-                            child: CircularProgressIndicator(
-                              color: Color(0xFF3e7f3f),
-                            ),
-                          ),
-                        )
-                      else if (dynamicCategories.isEmpty)
-                        Text(
-                          'No categories loaded',
-                          style: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.75),
-                          ),
-                        )
-                      else
-                        SizedBox(
-                          height: 40,
-                          child: ListView.separated(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: dynamicCategories.length,
-                            separatorBuilder: (_, _) =>
-                                const SizedBox(width: 8),
-                            itemBuilder: (_, i) {
-                              final cat = dynamicCategories[i];
-                              final sel =
-                                  selectedCategory != null &&
-                                  cat.name == selectedCategory!.name;
-                              return GestureDetector(
-                                onTap: () => ss(() => selectedCategory = cat),
-                                child: AnimatedContainer(
-                                  duration: const Duration(milliseconds: 200),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 8,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: sel
-                                        ? cat.color
-                                        : cat.color.withValues(alpha: 0.15),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        cat.icon,
-                                        size: 15,
-                                        color: sel ? Colors.white : cat.color,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        cat.name,
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w600,
-                                          color: sel ? Colors.white : cat.color,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      const SizedBox(height: 24),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _field(
-                              titleController,
-                              'Label (optional)',
-                              null,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: _field(amountController, 'Amount', '€'),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      TextField(
-                        controller: dateController,
-                        readOnly: true,
-                        onTap: () async {
-                          final picked = await showDatePicker(
-                            context: dialogContext,
-                            initialDate: selectedDate,
-                            firstDate: DateTime(2020),
-                            lastDate: DateTime.now().add(
-                              const Duration(days: 365),
-                            ),
-                          );
-                          if (picked != null) {
-                            ss(() {
-                              selectedDate = DateTime(
-                                picked.year,
-                                picked.month,
-                                picked.day,
-                              );
-                              dateController.text =
-                                  '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}';
-                            });
-                          }
-                        },
-                        decoration: InputDecoration(
-                          labelText: 'Edit Date',
-                          filled: true,
-                          fillColor: Theme.of(context).colorScheme.surface,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 14,
-                          ),
-                          suffixIcon: const Icon(Icons.calendar_today_outlined),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        child: FilledButton.icon(
-                          onPressed: () async {
-                            final parsedAmount = double.tryParse(
-                              amountController.text.trim(),
-                            );
-                            final trimmedTitle = titleController.text.trim();
-                            if (selectedCategory == null ||
-                                parsedAmount == null ||
-                                parsedAmount <= 0) {
-                              return;
-                            }
-                            final safeTitle = trimmedTitle.isEmpty
-                                ? selectedCategory!.name
-                                : trimmedTitle;
-                            try {
-                              await p.updateTransaction(
-                                id: tx.id,
-                                title: safeTitle,
-                                amount: parsedAmount,
-                                date: selectedDate,
-                                categoryId: selectedCategory!.id,
-                                categoryName: selectedCategory!.name,
-                              );
-                              if (!dialogContext.mounted) return;
-                              Navigator.pop(dialogContext);
-                            } catch (_) {
-                              if (!dialogContext.mounted) return;
-                              Navigator.pop(dialogContext);
-                              if (!mounted) return;
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Failed to update transaction.',
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                          style: FilledButton.styleFrom(
-                            backgroundColor: const Color(0xFF3e7f3f),
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          icon: const Icon(Icons.save_outlined),
-                          label: const Text(
-                            'Save Changes',
-                            style: TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
+      builder: (_) => _EditTransactionSheet(
+        tx: tx,
+        provider: p,
+        categoriesLoading: _isLoadingCategories,
+        messengerContext: context,
       ),
     );
-    titleController.dispose();
-    amountController.dispose();
-    dateController.dispose();
   }
 
   @override
@@ -494,8 +250,8 @@ class _TrackerPageState extends State<TrackerPage> {
     for (final t in monthTxs) {
       catTotals[t.category] = (catTotals[t.category] ?? 0) + t.amount;
     }
-    const groupThreshold = 0.10; // 10%
-    const labelThreshold = 0.05; // 5%
+    const groupThreshold = 0.10;
+    const labelThreshold = 0.05;
     final totalForPct = expenses + (budget > 0 ? available : 0);
     final groupedCatTotals = <String, double>{};
     double otherTotal = 0;
@@ -529,9 +285,24 @@ class _TrackerPageState extends State<TrackerPage> {
       return histogramByDay[_dayKey(day)] ?? 0.0;
     });
     final maxDaily = last30DailySpend.fold<double>(0.0, math.max);
-    final maxY = maxDaily <= 0 ? 20.0 : (maxDaily / 20).ceil() * 20.0;
-    const yInterval = 20.0;
+    final double maxY;
+    final double yInterval;
+    if (maxDaily <= 0 || !maxDaily.isFinite) {
+      maxY = 20.0;
+      yInterval = 5.0;
+    } else {
+      maxY = maxDaily * 1.05;
+      yInterval = maxY / 5;
+    }
     final total30Days = last30DailySpend.fold(0.0, (sum, v) => sum + v);
+    const lineStep = 5;
+    final lineSpots = <FlSpot>[];
+    for (var day = 0; day < 30; day += lineStep) {
+      lineSpots.add(FlSpot(day.toDouble(), last30DailySpend[day]));
+    }
+    if (lineSpots.isEmpty || lineSpots.last.x < 29) {
+      lineSpots.add(FlSpot(29, last30DailySpend[29]));
+    }
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -561,7 +332,6 @@ class _TrackerPageState extends State<TrackerPage> {
             ),
             const SizedBox(height: 20),
 
-            // Budget card
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -671,7 +441,6 @@ class _TrackerPageState extends State<TrackerPage> {
             ),
             const SizedBox(height: 16),
 
-            // Add expense card
             Card(
               elevation: 0,
               color: Theme.of(context).colorScheme.surface,
@@ -815,7 +584,6 @@ class _TrackerPageState extends State<TrackerPage> {
             ),
             const SizedBox(height: 16),
 
-            // Last 30 days histogram
             Card(
               elevation: 0,
               color: Theme.of(context).colorScheme.surface,
@@ -847,111 +615,136 @@ class _TrackerPageState extends State<TrackerPage> {
                     ),
                     const SizedBox(height: 16),
                     SizedBox(
-                      height: 300,
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        reverse: true,
-                        child: SizedBox(
-                          width: 900,
-                          child: BarChart(
-                            BarChartData(
-                              minY: 0,
-                              maxY: maxY,
-                              alignment: BarChartAlignment.spaceBetween,
-                              gridData: FlGridData(
-                                drawVerticalLine: false,
-                                horizontalInterval: yInterval,
-                                getDrawingHorizontalLine: (_) => FlLine(
-                                  color: Theme.of(context).colorScheme.onSurface
-                                      .withValues(alpha: 0.12),
-                                  strokeWidth: 1,
-                                ),
+                      height: 200,
+                      width: double.infinity,
+                      child: LineChart(
+                        LineChartData(
+                          minX: 0,
+                          maxX: 30,
+                          minY: 0,
+                          maxY: maxY,
+                          clipData: const FlClipData.all(),
+                          gridData: FlGridData(
+                            drawVerticalLine: false,
+                            horizontalInterval: yInterval,
+                            getDrawingHorizontalLine: (_) => FlLine(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.12),
+                              strokeWidth: 1,
+                            ),
+                          ),
+                          borderData: FlBorderData(show: false),
+                          lineTouchData: LineTouchData(
+                            touchTooltipData: LineTouchTooltipData(
+                              getTooltipItems: (touchedSpots) {
+                                return touchedSpots.map((t) {
+                                  final day = t.x.round().clamp(0, 29);
+                                  final d = histogramStart.add(
+                                    Duration(days: day),
+                                  );
+                                  return LineTooltipItem(
+                                    '${_histogramDateLabel.format(d)} · €${t.y.toStringAsFixed(2)}',
+                                    const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  );
+                                }).toList();
+                              },
+                            ),
+                          ),
+                          titlesData: FlTitlesData(
+                            topTitles: const AxisTitles(
+                              sideTitles: SideTitles(showTitles: false),
+                            ),
+                            leftTitles: AxisTitles(
+                              sideTitles: SideTitles(showTitles: false),
+                            ),
+                            rightTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 44,
+                                interval: yInterval,
+                                getTitlesWidget: (value, _) {
+                                  if (value < 0 || value > maxY + 1e-6) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  final label = yInterval >= 1
+                                      ? '€${value.round()}'
+                                      : '€${value.toStringAsFixed(1)}';
+                                  return Text(
+                                    label,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withValues(alpha: 0.75),
+                                    ),
+                                  );
+                                },
                               ),
-                              borderData: FlBorderData(show: false),
-                              barTouchData: BarTouchData(
-                                enabled: true,
-                                touchTooltipData: BarTouchTooltipData(
-                                  getTooltipItem: (group, _, rod, _) =>
-                                      BarTooltipItem(
-                                        '€${rod.toY.toStringAsFixed(2)}',
-                                        const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                ),
-                              ),
-                              titlesData: FlTitlesData(
-                                topTitles: const AxisTitles(
-                                  sideTitles: SideTitles(showTitles: false),
-                                ),
-                                leftTitles: AxisTitles(
-                                  sideTitles: SideTitles(showTitles: false),
-                                ),
-                                rightTitles: AxisTitles(
-                                  sideTitles: SideTitles(
-                                    showTitles: true,
-                                    reservedSize: 44,
-                                    interval: yInterval,
-                                    getTitlesWidget: (value, _) => Text(
-                                      '€${value.toInt()}',
+                            ),
+                            bottomTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 28,
+                                interval: 5,
+                                getTitlesWidget: (value, _) {
+                                  final i = value.toInt();
+                                  if (i < 0 || i >= 30) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  if (i % 10 != 0 && i != 29) {
+                                    return const SizedBox.shrink();
+                                  }
+                                  final d = histogramStart.add(
+                                    Duration(days: i),
+                                  );
+                                  return Padding(
+                                    padding: const EdgeInsets.only(top: 6),
+                                    child: Text(
+                                      _histogramDateLabel.format(d),
                                       style: TextStyle(
-                                        fontSize: 12,
+                                        fontSize: 11,
                                         color: Theme.of(context)
                                             .colorScheme
                                             .onSurface
                                             .withValues(alpha: 0.75),
                                       ),
                                     ),
-                                  ),
-                                ),
-                                bottomTitles: AxisTitles(
-                                  sideTitles: SideTitles(
-                                    showTitles: true,
-                                    reservedSize: 28,
-                                    getTitlesWidget: (value, _) {
-                                      final i = value.toInt();
-                                      if (i < 0 || i >= 30) {
-                                        return const SizedBox.shrink();
-                                      }
-                                      if (i % 5 != 0 && i != 29) {
-                                        return const SizedBox.shrink();
-                                      }
-                                      final d = histogramStart.add(
-                                        Duration(days: i),
-                                      );
-                                      return Padding(
-                                        padding: const EdgeInsets.only(top: 6),
-                                        child: Text(
-                                          '${d.day}/${d.month}',
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onSurface
-                                                .withValues(alpha: 0.75),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
+                                  );
+                                },
                               ),
-                              barGroups: List.generate(30, (i) {
-                                return BarChartGroupData(
-                                  x: i,
-                                  barRods: [
-                                    BarChartRodData(
-                                      toY: last30DailySpend[i],
-                                      width: 10,
-                                      borderRadius: BorderRadius.circular(3),
-                                      color: const Color(0xFF3e7f3f),
-                                    ),
-                                  ],
-                                );
-                              }),
                             ),
                           ),
+                          lineBarsData: [
+                            LineChartBarData(
+                              spots: lineSpots,
+                              color: const Color(0xFF3e7f3f),
+                              barWidth: 3,
+                              isCurved: true,
+                              curveSmoothness: 0.35,
+                              dotData: FlDotData(
+                                show: true,
+                                getDotPainter: (spot, _, bar, _) {
+                                  return FlDotCirclePainter(
+                                    radius: 4,
+                                    color: bar.color ?? Colors.green,
+                                    strokeWidth: 2,
+                                    strokeColor: Colors.white,
+                                  );
+                                },
+                              ),
+                              belowBarData: BarAreaData(
+                                show: true,
+                                color: const Color(
+                                  0xFF3e7f3f,
+                                ).withValues(alpha: 0.12),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -961,7 +754,6 @@ class _TrackerPageState extends State<TrackerPage> {
             ),
             const SizedBox(height: 16),
 
-            // Chart
             if (txs.isNotEmpty) ...[
               Card(
                 elevation: 0,
@@ -1089,7 +881,6 @@ class _TrackerPageState extends State<TrackerPage> {
               const SizedBox(height: 16),
             ],
 
-            // History
             Card(
               elevation: 0,
               color: Theme.of(context).colorScheme.surface,
@@ -1165,8 +956,7 @@ class _TrackerPageState extends State<TrackerPage> {
                         separatorBuilder: (_, _) => const Divider(height: 1),
                         itemBuilder: (ctx, i) {
                           final globalI = pageStart + i;
-                          final idx = txs.length - 1 - globalI;
-                          final tx = txs[idx];
+                          final tx = txs[globalI];
                           final cat = catFor(tx.category);
                           return ListTile(
                             isThreeLine: true,
@@ -1196,7 +986,10 @@ class _TrackerPageState extends State<TrackerPage> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
-                                  '${cat.name} · ${_fmt(tx.date)}',
+                                  tx.title.trim().toLowerCase() ==
+                                          cat.name.trim().toLowerCase()
+                                      ? _fmt(tx.date)
+                                      : '${cat.name} · ${_fmt(tx.date)}',
                                   style: TextStyle(
                                     fontSize: 14,
                                     color: Theme.of(context)
@@ -1226,8 +1019,11 @@ class _TrackerPageState extends State<TrackerPage> {
                                       ),
                                       const SizedBox(width: 4),
                                       OutlinedButton.icon(
-                                        onPressed: () =>
-                                            _deleteDialog(txP, idx, tx.amount),
+                                        onPressed: () => _deleteDialog(
+                                          txP,
+                                          globalI,
+                                          tx.amount,
+                                        ),
                                         icon: const Icon(
                                           Icons.delete_outline,
                                           size: 13,
@@ -1334,6 +1130,306 @@ class _TrackerPageState extends State<TrackerPage> {
       return 'Yesterday';
     }
     return '${d.day}/${d.month}/${d.year}';
+  }
+}
+
+class _EditTransactionSheet extends StatefulWidget {
+  const _EditTransactionSheet({
+    required this.tx,
+    required this.provider,
+    required this.categoriesLoading,
+    required this.messengerContext,
+  });
+
+  final Transaction tx;
+  final TransactionProvider provider;
+  final bool categoriesLoading;
+  final BuildContext messengerContext;
+
+  @override
+  State<_EditTransactionSheet> createState() => _EditTransactionSheetState();
+}
+
+class _EditTransactionSheetState extends State<_EditTransactionSheet> {
+  late final TextEditingController _title;
+  late final TextEditingController _amount;
+  late final TextEditingController _date;
+  late DateTime _selectedDate;
+  ExpenseCategory? _selectedCategory;
+
+  @override
+  void initState() {
+    super.initState();
+    final tx = widget.tx;
+    _title = TextEditingController(text: tx.title);
+    _amount = TextEditingController(text: tx.amount.toStringAsFixed(2));
+    _selectedDate = DateTime(tx.date.year, tx.date.month, tx.date.day);
+    _date = TextEditingController(
+      text: '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+    );
+    final match = dynamicCategories.where((c) => c.name == tx.category);
+    _selectedCategory = match.isNotEmpty
+        ? match.first
+        : (dynamicCategories.isNotEmpty ? dynamicCategories.first : null);
+  }
+
+  @override
+  void dispose() {
+    _title.dispose();
+    _amount.dispose();
+    _date.dispose();
+    super.dispose();
+  }
+
+  Widget _editField(TextEditingController c, String label, String? prefix) {
+    return TextField(
+      controller: c,
+      keyboardType: prefix != null
+          ? const TextInputType.numberWithOptions(decimal: true)
+          : TextInputType.text,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixText: prefix,
+        filled: true,
+        fillColor: Theme.of(context).colorScheme.surface,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 14,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 16,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: SafeArea(
+          top: false,
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Edit expense',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Category',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.8),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  if (widget.categoriesLoading)
+                    const Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 20),
+                        child: CircularProgressIndicator(
+                          color: Color(0xFF3e7f3f),
+                        ),
+                      ),
+                    )
+                  else if (dynamicCategories.isEmpty)
+                    Text(
+                      'No categories loaded',
+                      style: TextStyle(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.75),
+                      ),
+                    )
+                  else
+                    SizedBox(
+                      height: 40,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: dynamicCategories.length,
+                        separatorBuilder: (_, _) => const SizedBox(width: 8),
+                        itemBuilder: (_, i) {
+                          final cat = dynamicCategories[i];
+                          final sel =
+                              _selectedCategory != null &&
+                              cat.name == _selectedCategory!.name;
+                          return GestureDetector(
+                            onTap: () =>
+                                setState(() => _selectedCategory = cat),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: sel
+                                    ? cat.color
+                                    : cat.color.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    cat.icon,
+                                    size: 15,
+                                    color: sel ? Colors.white : cat.color,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    cat.name,
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      color: sel ? Colors.white : cat.color,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _editField(_title, 'Label (optional)', null),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(child: _editField(_amount, 'Amount', '€')),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _date,
+                    readOnly: true,
+                    onTap: () async {
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: _selectedDate,
+                        firstDate: DateTime(2020),
+                        lastDate: DateTime.now().add(const Duration(days: 365)),
+                      );
+                      if (picked != null) {
+                        setState(() {
+                          _selectedDate = DateTime(
+                            picked.year,
+                            picked.month,
+                            picked.day,
+                          );
+                          _date.text =
+                              '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}';
+                        });
+                      }
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'Edit Date',
+                      filled: true,
+                      fillColor: Theme.of(context).colorScheme.surface,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 14,
+                      ),
+                      suffixIcon: const Icon(Icons.calendar_today_outlined),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      onPressed: () async {
+                        final parsedAmount = double.tryParse(
+                          _amount.text.trim(),
+                        );
+                        final trimmedTitle = _title.text.trim();
+                        if (_selectedCategory == null ||
+                            parsedAmount == null ||
+                            parsedAmount <= 0) {
+                          return;
+                        }
+                        final safeTitle = trimmedTitle.isEmpty
+                            ? _selectedCategory!.name
+                            : trimmedTitle;
+                        try {
+                          await widget.provider.updateTransaction(
+                            id: widget.tx.id,
+                            title: safeTitle,
+                            amount: parsedAmount,
+                            date: _selectedDate,
+                            categoryId: _selectedCategory!.id,
+                            categoryName: _selectedCategory!.name,
+                          );
+                          if (!context.mounted) return;
+                          Navigator.pop(context);
+                        } catch (_) {
+                          if (!context.mounted) return;
+                          Navigator.pop(context);
+                          if (widget.messengerContext.mounted) {
+                            ScaffoldMessenger.of(
+                              widget.messengerContext,
+                            ).showSnackBar(
+                              const SnackBar(
+                                content: Text('Failed to update transaction.'),
+                              ),
+                            );
+                          }
+                        }
+                      },
+                      style: FilledButton.styleFrom(
+                        backgroundColor: const Color(0xFF3e7f3f),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      icon: const Icon(Icons.save_outlined),
+                      label: const Text(
+                        'Save Changes',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
