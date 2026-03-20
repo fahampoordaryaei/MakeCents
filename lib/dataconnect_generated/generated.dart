@@ -3,11 +3,7 @@ import 'package:firebase_data_connect/firebase_data_connect.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 
-part 'seed_full_data.dart';
-
-part 'seed_products_only.dart';
-
-part 'seed_onboarding_data.dart';
+part 'seed_data.dart';
 
 part 'list_institutions.dart';
 
@@ -43,6 +39,12 @@ part 'init_points_balance.dart';
 
 part 'update_points_balance.dart';
 
+part 'get_login_status.dart';
+
+part 'record_failed_login.dart';
+
+part 'reset_login_attempts.dart';
+
 
 
 
@@ -52,18 +54,8 @@ part 'update_points_balance.dart';
 class ExampleConnector {
   
   
-  SeedFullDataVariablesBuilder seedFullData () {
-    return SeedFullDataVariablesBuilder(dataConnect, );
-  }
-  
-  
-  SeedProductsOnlyVariablesBuilder seedProductsOnly () {
-    return SeedProductsOnlyVariablesBuilder(dataConnect, );
-  }
-  
-  
-  SeedOnboardingDataVariablesBuilder seedOnboardingData () {
-    return SeedOnboardingDataVariablesBuilder(dataConnect, );
+  SeedDataVariablesBuilder seedData () {
+    return SeedDataVariablesBuilder(dataConnect, );
   }
   
   
@@ -149,6 +141,21 @@ class ExampleConnector {
   
   UpdatePointsBalanceVariablesBuilder updatePointsBalance ({required String id, required int totalPoints, }) {
     return UpdatePointsBalanceVariablesBuilder(dataConnect, id: id,totalPoints: totalPoints,);
+  }
+  
+  
+  GetLoginStatusVariablesBuilder getLoginStatus ({required String email, }) {
+    return GetLoginStatusVariablesBuilder(dataConnect, email: email,);
+  }
+  
+  
+  RecordFailedLoginVariablesBuilder recordFailedLogin ({required String username, required int failedAttempts, }) {
+    return RecordFailedLoginVariablesBuilder(dataConnect, username: username,failedAttempts: failedAttempts,);
+  }
+  
+  
+  ResetLoginAttemptsVariablesBuilder resetLoginAttempts ({required String username, }) {
+    return ResetLoginAttemptsVariablesBuilder(dataConnect, username: username,);
   }
   
 

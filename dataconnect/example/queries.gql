@@ -220,3 +220,33 @@ mutation UpdatePointsBalance(
     updatedAt_expr: "request.time"
   })
 }
+
+# Get login lock status for a user by email
+query GetLoginStatus($email: String!) @auth(level: PUBLIC) {
+  users(where: {email: {eq: $email}}) {
+    username
+    failedAttempts
+    lockedUntil
+  }
+}
+
+# Record a failed login attempt
+mutation RecordFailedLogin($username: String!, $failedAttempts: Int!, $lockedUntil: Timestamp) @auth(level: PUBLIC) {
+  user_update(
+    key: {username: $username},
+    data: {
+      failedAttempts: $failedAttempts,
+      lockedUntil: $lockedUntil
+    }
+  )
+}
+
+# Reset login attempts on successful login
+mutation ResetLoginAttempts($username: String!) @auth(level: PUBLIC) {
+  user_update(
+    key: {username: $username},
+    data: {
+      failedAttempts: 0
+    }
+  )
+}

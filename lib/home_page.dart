@@ -343,114 +343,98 @@ class _HomePageState extends State<HomePage> {
               ),
               const SizedBox(height: 28),
 
-              Text(
-                'Your discounts',
-                style: TextStyle(
-                  fontSize: 21,
-                  fontWeight: FontWeight.w700,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
-              const SizedBox(height: 12),
-              if (_isLoadingHomeFeeds)
+              if (_isLoadingHomeFeeds || _unredeemedDeals.isNotEmpty) ...[
                 Text(
-                  'Loading discounts...',
+                  'Your discounts',
                   style: TextStyle(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.75),
+                    fontSize: 21,
+                    fontWeight: FontWeight.w700,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
-                )
-              else if (_unredeemedDeals.isEmpty)
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Text(
-                    'No unredeemed discounts available.',
+                ),
+                const SizedBox(height: 12),
+                if (_isLoadingHomeFeeds)
+                  Text(
+                    'Loading discounts...',
                     style: TextStyle(
                       color: Theme.of(
                         context,
                       ).colorScheme.onSurface.withValues(alpha: 0.75),
                     ),
-                  ),
-                )
-              else
-                ..._unredeemedDeals.map((p) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: GestureDetector(
-                      onTap: () => _showDiscountDetails(context, p),
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surface,
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              margin: const EdgeInsets.only(right: 12),
-                              child: buildProductImage(
-                                p.id,
-                                size: 44,
-                                radius: 12,
-                                fallbackColor: Colors.grey.shade300,
-                                fallbackChild: const Icon(
-                                  Icons.image_outlined,
-                                  color: Colors.grey,
-                                  size: 20,
+                  )
+                else
+                  ..._unredeemedDeals.map((p) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: GestureDetector(
+                        onTap: () => _showDiscountDetails(context, p),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surface,
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                margin: const EdgeInsets.only(right: 12),
+                                child: buildProductImage(
+                                  p.id,
+                                  size: 44,
+                                  radius: 12,
+                                  fallbackColor: Colors.grey.shade300,
+                                  fallbackChild: const Icon(
+                                    Icons.image_outlined,
+                                    color: Colors.grey,
+                                    size: 20,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    p.name,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 17,
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onSurface,
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      p.name,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 17,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Text(
-                                    p.storeName,
-                                    style: TextStyle(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurface
-                                          .withValues(alpha: 0.75),
-                                      fontSize: 16,
+                                    const SizedBox(height: 5),
+                                    Text(
+                                      p.storeName,
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface
+                                            .withValues(alpha: 0.75),
+                                        fontSize: 16,
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                            Text(
-                              '${p.cost} pts',
-                              style: const TextStyle(
-                                color: Color(0xFF3e7f3f),
-                                fontWeight: FontWeight.w700,
-                                fontSize: 16,
+                              Text(
+                                '${p.cost} pts',
+                                style: const TextStyle(
+                                  color: Color(0xFF3e7f3f),
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                }),
-
-              const SizedBox(height: 18),
+                    );
+                  }),
+                const SizedBox(height: 18),
+              ],
               Text(
                 'Scholarships for you',
                 style: TextStyle(

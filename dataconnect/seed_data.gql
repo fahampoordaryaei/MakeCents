@@ -1,5 +1,50 @@
-mutation SeedFullData @transaction @auth(level: USER, insecureReason: "Seed data is for initialization.") {
-  # Seed Expense Categories
+mutation seedData @transaction @auth(level: USER, insecureReason: "Seed data is for initialization.") {
+  institution_insertMany(data: [
+    { name: "University of Malta (UoM)" },
+    { name: "Malta College of Arts, Science and Technology (MCAST)" },
+    { name: "STC Higher Education" },
+    { name: "Institute of Tourism Studies (ITS)" },
+    { name: "St Martin's Institute of IT" },
+    { name: "Global College Malta" },
+    { name: "American University of Malta (AUM)" },
+    { name: "London School of Commerce Malta" },
+    { name: "Middlesex University Malta" },
+    { name: "Pegaso International" },
+    { name: "Other" }
+  ])
+  course_insertMany(data: [
+    { name: "Computer Science" },
+    { name: "Information Technology" },
+    { name: "Software Engineering" },
+    { name: "Data Science" },
+    { name: "Artificial Intelligence" },
+    { name: "Business Management" },
+    { name: "Accounting" },
+    { name: "Finance" },
+    { name: "Mechanical Engineering" },
+    { name: "Electrical Engineering" },
+    { name: "Civil Engineering" },
+    { name: "Medicine" },
+    { name: "Nursing" },
+    { name: "Health Sciences" },
+    { name: "Arts" },
+    { name: "Humanities" },
+    { name: "Media Studies" },
+    { name: "Communications" },
+    { name: "Law" },
+    { name: "Legal Studies" },
+    { name: "Science" },
+    { name: "Mathematics" },
+    { name: "Education" },
+    { name: "Teaching" },
+    { name: "Architecture" },
+    { name: "Design" },
+    { name: "Psychology" },
+    { name: "Sociology" },
+    { name: "Hospitality" },
+    { name: "Tourism" },
+    { name: "Other" }
+  ])
   expenseCategory_insertMany(data: [
     { name: "Food", iconName: "restaurant", colorHex: "#FF6B6B" },
     { name: "Transport", iconName: "directions_bus", colorHex: "#4ECDC4" },
@@ -10,8 +55,6 @@ mutation SeedFullData @transaction @auth(level: USER, insecureReason: "Seed data
     { name: "Bills", iconName: "receipt_long", colorHex: "#FC5185" },
     { name: "Other", iconName: "more_horiz", colorHex: "#B2B2B2" }
   ])
-
-  # Seed Scholarships
   scholarship_insertMany(data: [
     {
       title: "Tech Excellence Award",
@@ -68,93 +111,6 @@ mutation SeedFullData @transaction @auth(level: USER, insecureReason: "Seed data
       color: "#FF6B6B"
     }
   ])
-
-  # Seed discount products
-  product_insertMany(data: [
-    {
-      name: "Campus Bookstore Voucher",
-      description: "Save on textbooks and academic stationery.",
-      storeName: "Campus Bookstore",
-      cost: 240,
-      active: true,
-      createdAt_expr: "request.time"
-    },
-    {
-      name: "Printing Credit Pack",
-      description: "Discount on university printing and binding.",
-      storeName: "Uni Print Hub",
-      cost: 180,
-      active: true,
-      createdAt_expr: "request.time"
-    },
-    {
-      name: "Online Course Coupon",
-      description: "Redeem on selected upskilling courses.",
-      storeName: "LearnFast Academy",
-      cost: 360,
-      active: true,
-      createdAt_expr: "request.time"
-    },
-    {
-      name: "Exam Prep Bundle",
-      description: "Discounted access to mock exams and notes.",
-      storeName: "PrepMaster",
-      cost: 320,
-      active: true,
-      createdAt_expr: "request.time"
-    },
-    {
-      name: "Coffee Shop Student Deal",
-      description: "Fuel study sessions with discounted drinks.",
-      storeName: "Bean Corner",
-      cost: 140,
-      active: true,
-      createdAt_expr: "request.time"
-    },
-    {
-      name: "Grocery Saver Coupon",
-      description: "Save on weekly essentials and snacks.",
-      storeName: "FreshMart",
-      cost: 220,
-      active: true,
-      createdAt_expr: "request.time"
-    },
-    {
-      name: "Fitness Pass Discount",
-      description: "Reduced price on gym and classes.",
-      storeName: "ActiveLife Gym",
-      cost: 420,
-      active: true,
-      createdAt_expr: "request.time"
-    },
-    {
-      name: "Streaming Student Offer",
-      description: "Discount on entertainment subscription.",
-      storeName: "StreamWave",
-      cost: 280,
-      active: true,
-      createdAt_expr: "request.time"
-    },
-    {
-      name: "Phone Repair Discount",
-      description: "Lower repair costs for accidental damage.",
-      storeName: "FixPoint Mobile",
-      cost: 340,
-      active: true,
-      createdAt_expr: "request.time"
-    },
-    {
-      name: "Food Delivery Student Code",
-      description: "Discount on delivery orders near campus.",
-      storeName: "QuickBite",
-      cost: 200,
-      active: true,
-      createdAt_expr: "request.time"
-    }
-  ])
-}
-
-mutation SeedProductsOnly @transaction @auth(level: USER, insecureReason: "Seed product data is for initialization.") {
   product_insertMany(data: [
     {
       name: "Campus Bookstore Voucher",

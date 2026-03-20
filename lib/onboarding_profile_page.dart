@@ -287,6 +287,15 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
                     ),
                   ),
                   const SizedBox(height: 16.0),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: _loadData,
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Try again'),
+                    ),
+                  ),
+                  const SizedBox(height: 16.0),
                 ] else ...[
                   Align(
                     alignment: Alignment.centerLeft,
