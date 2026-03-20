@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_data_connect/firebase_data_connect.dart';
 import 'dataconnect_generated/generated.dart';
-import 'functions.dart';
 import 'main.dart';
 import 'register_page.dart';
 import 'startup_page.dart';
@@ -44,15 +44,17 @@ class _LoginPageState extends State<LoginPage> {
       final connector = ExampleConnector.instance;
       String? username;
       try {
-        final statusResult = await connector.getLoginStatus(email: email);
-        if (statusResult.users.isNotEmpty) {
-          final user = statusResult.users.first;
+        final statusResult = await connector
+            .getLoginStatus(email: email)
+            .execute();
+        if (statusResult.data.users.isNotEmpty) {
+          final user = statusResult.data.users.first;
           username = user.username;
+          final lockedUntil = user.lockedUntil?.toDateTime();
 
-          if (user.lockedUntil != null &&
-              DateTime.now().isBefore(user.lockedUntil!)) {
+          if (lockedUntil != null && DateTime.now().isBefore(lockedUntil)) {
             final remaining =
-                user.lockedUntil!.difference(DateTime.now()).inMinutes + 1;
+                lockedUntil.difference(DateTime.now()).inMinutes + 1;
             setState(() {
               _error =
                   'Account locked. Try again in $remaining minute${remaining == 1 ? '' : 's'}.';
@@ -70,7 +72,7 @@ class _LoginPageState extends State<LoginPage> {
 
       if (username != null) {
         try {
-          await connector.resetLoginAttempts(username: username);
+          await connector.resetLoginAttempts(username: username).execute();
         } catch (_) {}
       }
 
@@ -105,22 +107,28 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _recordFailure(String email) async {
     try {
       final connector = ExampleConnector.instance;
-      final statusResult = await connector.getLoginStatus(email: email);
+      final statusResult = await connector
+          .getLoginStatus(email: email)
+          .execute();
 
-      if (statusResult.users.isNotEmpty) {
-        final user = statusResult.users.first;
+      if (statusResult.data.users.isNotEmpty) {
+        final user = statusResult.data.users.first;
         final newCount = user.failedAttempts + 1;
 
-        DateTime? lockUntil;
+        Timestamp? lockUntil;
         if (newCount >= 3) {
-          lockUntil = DateTime.now().add(const Duration(minutes: 15));
+          final unlockAt = DateTime.now().add(const Duration(minutes: 15));
+          lockUntil = Timestamp(0, unlockAt.millisecondsSinceEpoch ~/ 1000);
         }
 
-        await connector.recordFailedLogin(
+        final recordFailureBuilder = connector.recordFailedLogin(
           username: user.username,
           failedAttempts: newCount,
-          lockedUntil: lockUntil,
         );
+        if (lockUntil != null) {
+          recordFailureBuilder.lockedUntil(lockUntil);
+        }
+        await recordFailureBuilder.execute();
 
         if (newCount >= 3) {
           setState(() {
