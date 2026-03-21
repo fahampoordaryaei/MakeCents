@@ -1,0 +1,17 @@
+🔗 Relationship Summary 
+1. User Domain
+User → School (Many-to-One)
+User → Course (Many-to-One)
+2. Finance Tracking
+User → Transaction (One-to-Many)
+Transaction → ExpenseCategory (Many-to-One)
+3. Scholarship System
+User → ScholarshipApplication (**One-to-Many`)
+ScholarshipApplication → Scholarship (Many-to-One)
+Scholarship ↔ Course (Many-to-Many via ScholarshipCourse)
+4. Points System
+User → PointsBalance (One-to-One)
+User → PointsTransaction (One-to-Many)
+5. Rewards System
+User → RedeemedProduct (One-to-Many)
+Product → RedeemedProduct (One-to-Many)
