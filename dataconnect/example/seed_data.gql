@@ -1,0 +1,196 @@
+mutation seedData @transaction @auth(level: USER, insecureReason: "Seed data is for initialization.") {
+  institution_insertMany(data: [
+    { name: "University of Malta (UoM)" },
+    { name: "Malta College of Arts, Science and Technology (MCAST)" },
+    { name: "STC Higher Education" },
+    { name: "Institute of Tourism Studies (ITS)" },
+    { name: "St Martin's Institute of IT" },
+    { name: "Global College Malta" },
+    { name: "American University of Malta (AUM)" },
+    { name: "London School of Commerce Malta" },
+    { name: "Middlesex University Malta" },
+    { name: "Pegaso International" },
+    { name: "Other" }
+  ])
+  course_insertMany(data: [
+    { name: "Computer Science" },
+    { name: "Information Technology" },
+    { name: "Software Engineering" },
+    { name: "Data Science" },
+    { name: "Artificial Intelligence" },
+    { name: "Business Management" },
+    { name: "Accounting" },
+    { name: "Finance" },
+    { name: "Mechanical Engineering" },
+    { name: "Electrical Engineering" },
+    { name: "Civil Engineering" },
+    { name: "Medicine" },
+    { name: "Nursing" },
+    { name: "Health Sciences" },
+    { name: "Arts" },
+    { name: "Humanities" },
+    { name: "Media Studies" },
+    { name: "Communications" },
+    { name: "Law" },
+    { name: "Legal Studies" },
+    { name: "Science" },
+    { name: "Mathematics" },
+    { name: "Education" },
+    { name: "Teaching" },
+    { name: "Architecture" },
+    { name: "Design" },
+    { name: "Psychology" },
+    { name: "Sociology" },
+    { name: "Hospitality" },
+    { name: "Tourism" },
+    { name: "Other" }
+  ])
+  expenseCategory_insertMany(data: [
+    { name: "Food", iconName: "restaurant", colorHex: "#FF6B6B" },
+    { name: "Transport", iconName: "directions_bus", colorHex: "#4ECDC4" },
+    { name: "Shopping", iconName: "shopping_bag", colorHex: "#FFBE0B" },
+    { name: "Health", iconName: "favorite", colorHex: "#95E1D3" },
+    { name: "Education", iconName: "school", colorHex: "#A8D8EA" },
+    { name: "Entertainment", iconName: "sports_esports", colorHex: "#AA96DA" },
+    { name: "Bills", iconName: "receipt_long", colorHex: "#FC5185" },
+    { name: "Other", iconName: "more_horiz", colorHex: "#B2B2B2" }
+  ])
+  scholarship_insertMany(data: [
+    {
+      title: "Tech Excellence Award",
+      provider: "Global Tech Malta",
+      email: "applications@globaltechmalta.org",
+      amount: 5000,
+      currency: "€",
+      description: "For high-achieving tech students based in Malta pursuing a career in software or engineering.",
+      color: "#3e7f3f"
+    },
+    {
+      title: "STEM Future Leaders",
+      provider: "EU Education Fund",
+      email: "apply@eueducationfund.eu",
+      amount: 3500,
+      currency: "€",
+      description: "Supporting the next generation of European STEM innovators with funding for tuition and research.",
+      color: "#4ECDC4"
+    },
+    {
+      title: "Creative Minds Grant",
+      provider: "Arts Council",
+      email: "grants@artscouncil.org",
+      amount: 2500,
+      currency: "€",
+      description: "Open to creative students worldwide with a passion for arts, design, and cultural expression.",
+      color: "#AA96DA"
+    },
+    {
+      title: "Business Leaders Bursary",
+      provider: "Chamber of Commerce",
+      email: "bursary@chambercommerce.mt",
+      amount: 4000,
+      currency: "€",
+      description: "Awarded to ambitious business students who demonstrate leadership and financial acumen.",
+      color: "#FFBE0B"
+    },
+    {
+      title: "Health Sciences Award",
+      provider: "National Health Foundation",
+      email: "scholarships@nhf.eu",
+      amount: 6000,
+      currency: "€",
+      description: "Supporting future healthcare professionals with exceptional academic records.",
+      color: "#FC5185"
+    },
+    {
+      title: "General Academic Merit",
+      provider: "Student Finance Malta",
+      email: "support@studentfinance.gov.mt",
+      amount: 1500,
+      currency: "€",
+      description: "Open to all students regardless of subject, based purely on academic achievement.",
+      color: "#FF6B6B"
+    }
+  ])
+  product_insertMany(data: [
+    {
+      name: "Campus Bookstore Voucher",
+      description: "Save on textbooks and academic stationery.",
+      storeName: "Campus Bookstore",
+      cost: 240,
+      active: true,
+      createdAt_expr: "request.time"
+    },
+    {
+      name: "Printing Credit Pack",
+      description: "Discount on university printing and binding.",
+      storeName: "Uni Print Hub",
+      cost: 180,
+      active: true,
+      createdAt_expr: "request.time"
+    },
+    {
+      name: "Online Course Coupon",
+      description: "Redeem on selected upskilling courses.",
+      storeName: "LearnFast Academy",
+      cost: 360,
+      active: true,
+      createdAt_expr: "request.time"
+    },
+    {
+      name: "Exam Prep Bundle",
+      description: "Discounted access to mock exams and notes.",
+      storeName: "PrepMaster",
+      cost: 320,
+      active: true,
+      createdAt_expr: "request.time"
+    },
+    {
+      name: "Coffee Shop Student Deal",
+      description: "Fuel study sessions with discounted drinks.",
+      storeName: "Bean Corner",
+      cost: 140,
+      active: true,
+      createdAt_expr: "request.time"
+    },
+    {
+      name: "Grocery Saver Coupon",
+      description: "Save on weekly essentials and snacks.",
+      storeName: "FreshMart",
+      cost: 220,
+      active: true,
+      createdAt_expr: "request.time"
+    },
+    {
+      name: "Fitness Pass Discount",
+      description: "Reduced price on gym and classes.",
+      storeName: "ActiveLife Gym",
+      cost: 420,
+      active: true,
+      createdAt_expr: "request.time"
+    },
+    {
+      name: "Streaming Student Offer",
+      description: "Discount on entertainment subscription.",
+      storeName: "StreamWave",
+      cost: 280,
+      active: true,
+      createdAt_expr: "request.time"
+    },
+    {
+      name: "Phone Repair Discount",
+      description: "Lower repair costs for accidental damage.",
+      storeName: "FixPoint Mobile",
+      cost: 340,
+      active: true,
+      createdAt_expr: "request.time"
+    },
+    {
+      name: "Food Delivery Student Code",
+      description: "Discount on delivery orders near campus.",
+      storeName: "QuickBite",
+      cost: 200,
+      active: true,
+      createdAt_expr: "request.time"
+    }
+  ])
+}

@@ -1,0 +1,11 @@
+specVersion: "v1alpha"
+serviceId: "makecents"
+location: "europe-west1"
+schema:
+  source: "./schema"
+  datasource:
+    postgresql:
+      database: "makecents-b0fb9-database"
+      cloudSql:
+        instanceId: "makecents-b0fb9-database"
+connectorDirs: ["./example"]

@@ -1,0 +1,1316 @@
+extend type Mutation {
+  """
+  ✨ Insert a single `Course` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  course_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: Course_Data!
+  ): Course_KeyOutput! @fdc_generated(from: "Course", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `ExpenseCategory` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  expenseCategory_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: ExpenseCategory_Data!
+  ): ExpenseCategory_KeyOutput! @fdc_generated(from: "ExpenseCategory", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `Institution` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  institution_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: Institution_Data!
+  ): Institution_KeyOutput! @fdc_generated(from: "Institution", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `PointsBalance` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  pointsBalance_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: PointsBalance_Data!
+  ): PointsBalance_KeyOutput! @fdc_generated(from: "PointsBalance", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `PointsTransaction` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  pointsTransaction_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: PointsTransaction_Data!
+  ): PointsTransaction_KeyOutput! @fdc_generated(from: "PointsTransaction", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `Product` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  product_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: Product_Data!
+  ): Product_KeyOutput! @fdc_generated(from: "Product", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `RedeemedProduct` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  redeemedProduct_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: RedeemedProduct_Data!
+  ): RedeemedProduct_KeyOutput! @fdc_generated(from: "RedeemedProduct", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `Scholarship` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  scholarship_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: Scholarship_Data!
+  ): Scholarship_KeyOutput! @fdc_generated(from: "Scholarship", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `ScholarshipApplication` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  scholarshipApplication_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: ScholarshipApplication_Data!
+  ): ScholarshipApplication_KeyOutput! @fdc_generated(from: "ScholarshipApplication", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `ScholarshipCourse` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  scholarshipCourse_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: ScholarshipCourse_Data!
+  ): ScholarshipCourse_KeyOutput! @fdc_generated(from: "ScholarshipCourse", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `Transaction` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  transaction_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: Transaction_Data!
+  ): Transaction_KeyOutput! @fdc_generated(from: "Transaction", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `User` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  user_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: User_Data!
+  ): User_KeyOutput! @fdc_generated(from: "User", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert `Course` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  course_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [Course_Data!]!
+  ): [Course_KeyOutput!]! @fdc_generated(from: "Course", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `ExpenseCategory` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  expenseCategory_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [ExpenseCategory_Data!]!
+  ): [ExpenseCategory_KeyOutput!]! @fdc_generated(from: "ExpenseCategory", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `Institution` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  institution_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [Institution_Data!]!
+  ): [Institution_KeyOutput!]! @fdc_generated(from: "Institution", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `PointsBalance` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  pointsBalance_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [PointsBalance_Data!]!
+  ): [PointsBalance_KeyOutput!]! @fdc_generated(from: "PointsBalance", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `PointsTransaction` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  pointsTransaction_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [PointsTransaction_Data!]!
+  ): [PointsTransaction_KeyOutput!]! @fdc_generated(from: "PointsTransaction", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `Product` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  product_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [Product_Data!]!
+  ): [Product_KeyOutput!]! @fdc_generated(from: "Product", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `RedeemedProduct` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  redeemedProduct_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [RedeemedProduct_Data!]!
+  ): [RedeemedProduct_KeyOutput!]! @fdc_generated(from: "RedeemedProduct", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `Scholarship` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  scholarship_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [Scholarship_Data!]!
+  ): [Scholarship_KeyOutput!]! @fdc_generated(from: "Scholarship", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `ScholarshipApplication` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  scholarshipApplication_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [ScholarshipApplication_Data!]!
+  ): [ScholarshipApplication_KeyOutput!]! @fdc_generated(from: "ScholarshipApplication", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `ScholarshipCourse` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  scholarshipCourse_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [ScholarshipCourse_Data!]!
+  ): [ScholarshipCourse_KeyOutput!]! @fdc_generated(from: "ScholarshipCourse", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `Transaction` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  transaction_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [Transaction_Data!]!
+  ): [Transaction_KeyOutput!]! @fdc_generated(from: "Transaction", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `User` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  user_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [User_Data!]!
+  ): [User_KeyOutput!]! @fdc_generated(from: "User", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert or update a single `Course` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Course`.
+  """
+  course_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: Course_Data!
+  ): Course_KeyOutput! @fdc_generated(from: "Course", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `ExpenseCategory` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `ExpenseCategory`.
+  """
+  expenseCategory_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: ExpenseCategory_Data!
+  ): ExpenseCategory_KeyOutput! @fdc_generated(from: "ExpenseCategory", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `Institution` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Institution`.
+  """
+  institution_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: Institution_Data!
+  ): Institution_KeyOutput! @fdc_generated(from: "Institution", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `PointsBalance` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `PointsBalance`.
+  """
+  pointsBalance_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: PointsBalance_Data!
+  ): PointsBalance_KeyOutput! @fdc_generated(from: "PointsBalance", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `PointsTransaction` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `PointsTransaction`.
+  """
+  pointsTransaction_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: PointsTransaction_Data!
+  ): PointsTransaction_KeyOutput! @fdc_generated(from: "PointsTransaction", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `Product` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Product`.
+  """
+  product_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: Product_Data!
+  ): Product_KeyOutput! @fdc_generated(from: "Product", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `RedeemedProduct` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `RedeemedProduct`.
+  """
+  redeemedProduct_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: RedeemedProduct_Data!
+  ): RedeemedProduct_KeyOutput! @fdc_generated(from: "RedeemedProduct", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `Scholarship` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Scholarship`.
+  """
+  scholarship_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: Scholarship_Data!
+  ): Scholarship_KeyOutput! @fdc_generated(from: "Scholarship", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `ScholarshipApplication` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `ScholarshipApplication`.
+  """
+  scholarshipApplication_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: ScholarshipApplication_Data!
+  ): ScholarshipApplication_KeyOutput! @fdc_generated(from: "ScholarshipApplication", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `ScholarshipCourse` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `ScholarshipCourse`.
+  """
+  scholarshipCourse_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: ScholarshipCourse_Data!
+  ): ScholarshipCourse_KeyOutput! @fdc_generated(from: "ScholarshipCourse", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `Transaction` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Transaction`.
+  """
+  transaction_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: Transaction_Data!
+  ): Transaction_KeyOutput! @fdc_generated(from: "Transaction", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `User` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `User`.
+  """
+  user_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: User_Data!
+  ): User_KeyOutput! @fdc_generated(from: "User", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update `Course` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Course`.
+  """
+  course_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [Course_Data!]!
+  ): [Course_KeyOutput!]! @fdc_generated(from: "Course", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `ExpenseCategory` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `ExpenseCategory`.
+  """
+  expenseCategory_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [ExpenseCategory_Data!]!
+  ): [ExpenseCategory_KeyOutput!]! @fdc_generated(from: "ExpenseCategory", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `Institution` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Institution`.
+  """
+  institution_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [Institution_Data!]!
+  ): [Institution_KeyOutput!]! @fdc_generated(from: "Institution", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `PointsBalance` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `PointsBalance`.
+  """
+  pointsBalance_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [PointsBalance_Data!]!
+  ): [PointsBalance_KeyOutput!]! @fdc_generated(from: "PointsBalance", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `PointsTransaction` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `PointsTransaction`.
+  """
+  pointsTransaction_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [PointsTransaction_Data!]!
+  ): [PointsTransaction_KeyOutput!]! @fdc_generated(from: "PointsTransaction", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `Product` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Product`.
+  """
+  product_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [Product_Data!]!
+  ): [Product_KeyOutput!]! @fdc_generated(from: "Product", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `RedeemedProduct` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `RedeemedProduct`.
+  """
+  redeemedProduct_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [RedeemedProduct_Data!]!
+  ): [RedeemedProduct_KeyOutput!]! @fdc_generated(from: "RedeemedProduct", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `Scholarship` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Scholarship`.
+  """
+  scholarship_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [Scholarship_Data!]!
+  ): [Scholarship_KeyOutput!]! @fdc_generated(from: "Scholarship", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `ScholarshipApplication` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `ScholarshipApplication`.
+  """
+  scholarshipApplication_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [ScholarshipApplication_Data!]!
+  ): [ScholarshipApplication_KeyOutput!]! @fdc_generated(from: "ScholarshipApplication", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `ScholarshipCourse` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `ScholarshipCourse`.
+  """
+  scholarshipCourse_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [ScholarshipCourse_Data!]!
+  ): [ScholarshipCourse_KeyOutput!]! @fdc_generated(from: "ScholarshipCourse", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `Transaction` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Transaction`.
+  """
+  transaction_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [Transaction_Data!]!
+  ): [Transaction_KeyOutput!]! @fdc_generated(from: "Transaction", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `User` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `User`.
+  """
+  user_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [User_Data!]!
+  ): [User_KeyOutput!]! @fdc_generated(from: "User", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Update a single `Course` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `Course` or `null` if not found.
+  """
+  course_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Course_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Course_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: Course_Data!
+  ): Course_KeyOutput @fdc_generated(from: "Course", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `ExpenseCategory` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `ExpenseCategory` or `null` if not found.
+  """
+  expenseCategory_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: ExpenseCategory_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: ExpenseCategory_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: ExpenseCategory_Data!
+  ): ExpenseCategory_KeyOutput @fdc_generated(from: "ExpenseCategory", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `Institution` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `Institution` or `null` if not found.
+  """
+  institution_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Institution_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Institution_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: Institution_Data!
+  ): Institution_KeyOutput @fdc_generated(from: "Institution", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `PointsBalance` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `PointsBalance` or `null` if not found.
+  """
+  pointsBalance_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: PointsBalance_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: PointsBalance_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: PointsBalance_Data!
+  ): PointsBalance_KeyOutput @fdc_generated(from: "PointsBalance", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `PointsTransaction` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `PointsTransaction` or `null` if not found.
+  """
+  pointsTransaction_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: PointsTransaction_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: PointsTransaction_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: PointsTransaction_Data!
+  ): PointsTransaction_KeyOutput @fdc_generated(from: "PointsTransaction", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `Product` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `Product` or `null` if not found.
+  """
+  product_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Product_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Product_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: Product_Data!
+  ): Product_KeyOutput @fdc_generated(from: "Product", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `RedeemedProduct` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `RedeemedProduct` or `null` if not found.
+  """
+  redeemedProduct_update(
+    """
+    The key used to identify the object.
+    """
+    key: RedeemedProduct_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: RedeemedProduct_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: RedeemedProduct_Data!
+  ): RedeemedProduct_KeyOutput @fdc_generated(from: "RedeemedProduct", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `Scholarship` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `Scholarship` or `null` if not found.
+  """
+  scholarship_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Scholarship_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Scholarship_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: Scholarship_Data!
+  ): Scholarship_KeyOutput @fdc_generated(from: "Scholarship", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `ScholarshipApplication` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `ScholarshipApplication` or `null` if not found.
+  """
+  scholarshipApplication_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: ScholarshipApplication_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: ScholarshipApplication_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: ScholarshipApplication_Data!
+  ): ScholarshipApplication_KeyOutput @fdc_generated(from: "ScholarshipApplication", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `ScholarshipCourse` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `ScholarshipCourse` or `null` if not found.
+  """
+  scholarshipCourse_update(
+    """
+    The key used to identify the object.
+    """
+    key: ScholarshipCourse_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: ScholarshipCourse_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: ScholarshipCourse_Data!
+  ): ScholarshipCourse_KeyOutput @fdc_generated(from: "ScholarshipCourse", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `Transaction` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `Transaction` or `null` if not found.
+  """
+  transaction_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Transaction_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Transaction_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: Transaction_Data!
+  ): Transaction_KeyOutput @fdc_generated(from: "Transaction", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `User` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `User` or `null` if not found.
+  """
+  user_update(
+    """
+    The key used to identify the object.
+    """
+    key: User_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: User_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: User_Data!
+  ): User_KeyOutput @fdc_generated(from: "User", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update `Course` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  course_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: Course_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: Course_Data!
+  ): Int! @fdc_generated(from: "Course", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `ExpenseCategory` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  expenseCategory_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: ExpenseCategory_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: ExpenseCategory_Data!
+  ): Int! @fdc_generated(from: "ExpenseCategory", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `Institution` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  institution_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: Institution_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: Institution_Data!
+  ): Int! @fdc_generated(from: "Institution", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `PointsBalance` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  pointsBalance_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: PointsBalance_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: PointsBalance_Data!
+  ): Int! @fdc_generated(from: "PointsBalance", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `PointsTransaction` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  pointsTransaction_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: PointsTransaction_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: PointsTransaction_Data!
+  ): Int! @fdc_generated(from: "PointsTransaction", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `Product` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  product_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: Product_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: Product_Data!
+  ): Int! @fdc_generated(from: "Product", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `RedeemedProduct` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  redeemedProduct_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: RedeemedProduct_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: RedeemedProduct_Data!
+  ): Int! @fdc_generated(from: "RedeemedProduct", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `Scholarship` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  scholarship_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: Scholarship_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: Scholarship_Data!
+  ): Int! @fdc_generated(from: "Scholarship", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `ScholarshipApplication` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  scholarshipApplication_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: ScholarshipApplication_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: ScholarshipApplication_Data!
+  ): Int! @fdc_generated(from: "ScholarshipApplication", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `ScholarshipCourse` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  scholarshipCourse_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: ScholarshipCourse_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: ScholarshipCourse_Data!
+  ): Int! @fdc_generated(from: "ScholarshipCourse", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `Transaction` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  transaction_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: Transaction_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: Transaction_Data!
+  ): Int! @fdc_generated(from: "Transaction", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `User` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  user_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: User_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: User_Data!
+  ): Int! @fdc_generated(from: "User", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Delete a single `Course` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  course_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Course_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Course_FirstRow
+  ): Course_KeyOutput @fdc_generated(from: "Course", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `ExpenseCategory` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  expenseCategory_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: ExpenseCategory_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: ExpenseCategory_FirstRow
+  ): ExpenseCategory_KeyOutput @fdc_generated(from: "ExpenseCategory", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `Institution` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  institution_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Institution_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Institution_FirstRow
+  ): Institution_KeyOutput @fdc_generated(from: "Institution", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `PointsBalance` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  pointsBalance_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: PointsBalance_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: PointsBalance_FirstRow
+  ): PointsBalance_KeyOutput @fdc_generated(from: "PointsBalance", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `PointsTransaction` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  pointsTransaction_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: PointsTransaction_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: PointsTransaction_FirstRow
+  ): PointsTransaction_KeyOutput @fdc_generated(from: "PointsTransaction", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `Product` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  product_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Product_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Product_FirstRow
+  ): Product_KeyOutput @fdc_generated(from: "Product", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `RedeemedProduct` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  redeemedProduct_delete(
+    """
+    The key used to identify the object.
+    """
+    key: RedeemedProduct_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: RedeemedProduct_FirstRow
+  ): RedeemedProduct_KeyOutput @fdc_generated(from: "RedeemedProduct", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `Scholarship` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  scholarship_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Scholarship_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Scholarship_FirstRow
+  ): Scholarship_KeyOutput @fdc_generated(from: "Scholarship", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `ScholarshipApplication` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  scholarshipApplication_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: ScholarshipApplication_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: ScholarshipApplication_FirstRow
+  ): ScholarshipApplication_KeyOutput @fdc_generated(from: "ScholarshipApplication", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `ScholarshipCourse` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  scholarshipCourse_delete(
+    """
+    The key used to identify the object.
+    """
+    key: ScholarshipCourse_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: ScholarshipCourse_FirstRow
+  ): ScholarshipCourse_KeyOutput @fdc_generated(from: "ScholarshipCourse", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `Transaction` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  transaction_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Transaction_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Transaction_FirstRow
+  ): Transaction_KeyOutput @fdc_generated(from: "Transaction", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `User` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  user_delete(
+    """
+    The key used to identify the object.
+    """
+    key: User_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: User_FirstRow
+  ): User_KeyOutput @fdc_generated(from: "User", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete `Course` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  course_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: Course_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "Course", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `ExpenseCategory` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  expenseCategory_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: ExpenseCategory_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "ExpenseCategory", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `Institution` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  institution_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: Institution_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "Institution", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `PointsBalance` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  pointsBalance_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: PointsBalance_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "PointsBalance", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `PointsTransaction` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  pointsTransaction_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: PointsTransaction_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "PointsTransaction", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `Product` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  product_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: Product_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "Product", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `RedeemedProduct` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  redeemedProduct_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: RedeemedProduct_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "RedeemedProduct", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `Scholarship` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  scholarship_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: Scholarship_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "Scholarship", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `ScholarshipApplication` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  scholarshipApplication_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: ScholarshipApplication_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "ScholarshipApplication", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `ScholarshipCourse` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  scholarshipCourse_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: ScholarshipCourse_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "ScholarshipCourse", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `Transaction` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  transaction_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: Transaction_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "Transaction", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `User` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  user_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: User_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "User", purpose: DELETE_MULTIPLE)
+}

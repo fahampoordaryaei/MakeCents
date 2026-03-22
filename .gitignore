@@ -4,6 +4,7 @@
 *.pyc
 *.swp
 .DS_Store
+node_modules/
 .atom/
 .build/
 .buildlog/
@@ -11,6 +12,7 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
+docs_txt/
 
 # IntelliJ related
 *.iml
@@ -43,3 +45,8 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Firebase Functions
+functions/node_modules/
+functions/lib/
+functions/.env
