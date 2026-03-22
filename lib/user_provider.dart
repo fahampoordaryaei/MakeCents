@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'dataconnect_generated/generated.dart';
 
 class UserProfile {
@@ -66,6 +66,7 @@ class UserProvider with ChangeNotifier {
           .getUserProfile(username: user.uid)
           .execute();
 
+      _profile = null;
       if (result.data.users.isNotEmpty) {
         final u = result.data.users.first;
         _profile = UserProfile(
@@ -77,11 +78,8 @@ class UserProvider with ChangeNotifier {
           otherSchool: u.otherSchool,
           otherCourse: u.otherCourse,
         );
-      } else {
-        _profile = null;
       }
-    } catch (e) {
-      debugPrint('Error loading profile: $e');
+    } catch (_) {
       _profile = null;
     } finally {
       _isLoading = false;

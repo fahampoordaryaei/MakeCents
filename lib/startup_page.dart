@@ -92,10 +92,12 @@ class _StartupPageState extends State<StartupPage> {
                         const SizedBox(height: 16),
                         Text(
                           s.subtitle,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 20,
-                            color: Color.fromARGB(255, 0, 0, 0),
                             height: 1.6,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.78),
                           ),
                           textAlign: TextAlign.center,
                         ),

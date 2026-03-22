@@ -1,28 +1,34 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'tracker_page.dart';
-import 'home_page.dart';
-import 'user_page.dart';
-import 'points_page.dart';
-import 'match_page.dart';
 import 'budget_page.dart';
-import 'transaction_provider.dart';
 import 'budget_provider.dart';
+import 'firebase_options.dart';
+import 'home_page.dart';
+import 'match_page.dart';
+import 'points_page.dart';
 import 'startup_page.dart';
 import 'theme_provider.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+import 'tracker_page.dart';
+import 'transaction_provider.dart';
+import 'user_page.dart';
 import 'user_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   final transactionProvider = TransactionProvider();
-  await transactionProvider.fetchTransactions();
   final budgetProvider = BudgetProvider();
-  await budgetProvider.init();
   final themeProvider = ThemeProvider();
-  await themeProvider.loadTheme();
+  try {
+    await transactionProvider.fetchTransactions();
+  } catch (_) {}
+  try {
+    await budgetProvider.init();
+  } catch (_) {}
+  try {
+    await themeProvider.loadTheme();
+  } catch (_) {}
   runApp(
     MultiProvider(
       providers: [

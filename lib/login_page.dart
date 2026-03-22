@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_data_connect/firebase_data_connect.dart';
+import 'package:flutter/material.dart';
 import 'dataconnect_generated/generated.dart';
 import 'main.dart';
 import 'onboarding_profile_page.dart';
@@ -89,30 +89,27 @@ class _LoginPageState extends State<LoginPage> {
           .getUserProfile(username: authUser.uid)
           .execute();
 
-      if (mounted) {
-        if (profileResult.data.users.isNotEmpty) {
-          Navigator.of(context).pushAndRemoveUntil(
-            PageRouteBuilder(
-              pageBuilder: (_, a, _) => const HomeScreen(),
-              transitionsBuilder: (_, a, _, child) =>
-                  FadeTransition(opacity: a, child: child),
-              transitionDuration: const Duration(milliseconds: 400),
-            ),
-            (r) => false,
-          );
-        } else {
-          final (firstName, lastName) = _splitDisplayName(authUser.displayName);
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(
-              builder: (_) => OnboardingProfilePage(
-                firstName: firstName,
-                lastName: lastName,
-              ),
-            ),
-            (r) => false,
-          );
-        }
+      if (!mounted) return;
+      if (profileResult.data.users.isNotEmpty) {
+        Navigator.of(context).pushAndRemoveUntil(
+          PageRouteBuilder(
+            pageBuilder: (_, a, _) => const HomeScreen(),
+            transitionsBuilder: (_, a, _, child) =>
+                FadeTransition(opacity: a, child: child),
+            transitionDuration: const Duration(milliseconds: 400),
+          ),
+          (r) => false,
+        );
+        return;
       }
+      final (firstName, lastName) = _splitDisplayName(authUser.displayName);
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (_) =>
+              OnboardingProfilePage(firstName: firstName, lastName: lastName),
+        ),
+        (r) => false,
+      );
     } on FirebaseAuthException catch (e) {
       if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
         await _recordFailure(email);
@@ -137,45 +134,42 @@ class _LoginPageState extends State<LoginPage> {
           .getLoginStatus(email: email)
           .execute();
 
-      if (statusResult.data.users.isNotEmpty) {
-        final user = statusResult.data.users.first;
-        final newCount = user.failedAttempts + 1;
-
-        Timestamp? lockUntil;
-        if (newCount >= 3) {
-          final unlockAt = DateTime.now().add(const Duration(minutes: 15));
-          lockUntil = Timestamp(0, unlockAt.millisecondsSinceEpoch ~/ 1000);
-        }
-
-        final recordFailureBuilder = connector.recordFailedLogin(
-          username: user.username,
-          failedAttempts: newCount,
-        );
-        if (lockUntil != null) {
-          recordFailureBuilder.lockedUntil(lockUntil);
-        }
-        await recordFailureBuilder.execute();
-
-        if (newCount >= 3) {
-          setState(() {
-            _error = 'Too many failed attempts. Account locked for 15 minutes.';
-          });
-        } else {
-          final remaining = 3 - newCount;
-          setState(() {
-            _error =
-                'Incorrect password. $remaining attempt${remaining == 1 ? '' : 's'} remaining.';
-          });
-        }
-      } else {
-        setState(() {
-          _error = 'Incorrect email or password.';
-        });
+      if (statusResult.data.users.isEmpty) {
+        setState(() => _error = 'Incorrect email or password.');
+        return;
       }
-    } catch (_) {
+
+      final user = statusResult.data.users.first;
+      final newCount = user.failedAttempts + 1;
+
+      Timestamp? lockUntil;
+      if (newCount >= 3) {
+        final unlockAt = DateTime.now().add(const Duration(minutes: 15));
+        lockUntil = Timestamp(0, unlockAt.millisecondsSinceEpoch ~/ 1000);
+      }
+
+      final recordFailureBuilder = connector.recordFailedLogin(
+        username: user.username,
+        failedAttempts: newCount,
+      );
+      if (lockUntil != null) {
+        recordFailureBuilder.lockedUntil(lockUntil);
+      }
+      await recordFailureBuilder.execute();
+
+      if (newCount >= 3) {
+        setState(() {
+          _error = 'Too many failed attempts. Account locked for 15 minutes.';
+        });
+        return;
+      }
+      final remaining = 3 - newCount;
       setState(() {
-        _error = 'Incorrect email or password.';
+        _error =
+            'Incorrect password. $remaining attempt${remaining == 1 ? '' : 's'} remaining.';
       });
+    } catch (_) {
+      setState(() => _error = 'Incorrect email or password.');
     }
   }
 
@@ -213,9 +207,146 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Align(alignment: Alignment.centerLeft, child: _backBtn()),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: GestureDetector(
+                    onTap: () {
+                      if (Navigator.of(context).canPop()) {
+                        Navigator.of(context).pop();
+                      } else {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (_) => const StartupPage(),
+                          ),
+                        );
+                      }
+                    },
+                    child: Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).scaffoldBackgroundColor,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.arrow_back,
+                        color: Color(0xFF3e7f3f),
+                        size: 18,
+                      ),
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 8),
-                _buildLogin(),
+                Column(
+                  key: const ValueKey('login'),
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF3e7f3f),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: const Icon(
+                        Icons.school,
+                        color: Colors.white,
+                        size: 40,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      'Welcome Back',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w800,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Finance tracker for students',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.75),
+                      ),
+                    ),
+                    const SizedBox(height: 28),
+                    _inputField(
+                      _emailCtrl,
+                      'Student Email',
+                      Icons.email_outlined,
+                      false,
+                    ),
+                    const SizedBox(height: 14),
+                    _inputField(
+                      _passwordCtrl,
+                      'Password',
+                      Icons.lock_outline,
+                      true,
+                    ),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton(
+                        onPressed: _signIn,
+                        style: FilledButton.styleFrom(
+                          backgroundColor: const Color(0xFF3e7f3f),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: _isLoading
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Text(
+                                'Sign In',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const RegisterPage(),
+                          ),
+                        );
+                      },
+                      child: Text.rich(
+                        TextSpan(
+                          text: "Don't have an account? ",
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.75),
+                          ),
+                          children: [
+                            TextSpan(
+                              text: 'Sign Up',
+                              style: TextStyle(
+                                color: const Color(0xFF3e7f3f),
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 if (_error.isNotEmpty) ...[
                   const SizedBox(height: 12),
                   Container(
@@ -253,119 +384,6 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
-
-  Widget _backBtn() => GestureDetector(
-    onTap: () {
-      if (Navigator.of(context).canPop()) {
-        Navigator.of(context).pop();
-      } else {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const StartupPage()),
-        );
-      }
-    },
-    child: Container(
-      width: 36,
-      height: 36,
-      decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        shape: BoxShape.circle,
-      ),
-      child: const Icon(Icons.arrow_back, color: Color(0xFF3e7f3f), size: 18),
-    ),
-  );
-
-  Widget _buildLogin() => Column(
-    key: const ValueKey('login'),
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: const Color(0xFF3e7f3f),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: const Icon(Icons.school, color: Colors.white, size: 40),
-      ),
-      const SizedBox(height: 24),
-      Text(
-        'Welcome Back',
-        style: TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.w800,
-          color: Theme.of(context).colorScheme.onSurface,
-        ),
-      ),
-      const SizedBox(height: 6),
-      Text(
-        'Finance tracker for students',
-        style: TextStyle(
-          fontSize: 16,
-          color: Theme.of(
-            context,
-          ).colorScheme.onSurface.withValues(alpha: 0.75),
-        ),
-      ),
-      const SizedBox(height: 28),
-      _inputField(_emailCtrl, 'Student Email', Icons.email_outlined, false),
-      const SizedBox(height: 14),
-      _inputField(_passwordCtrl, 'Password', Icons.lock_outline, true),
-      const SizedBox(height: 24),
-      SizedBox(
-        width: double.infinity,
-        child: FilledButton(
-          onPressed: _signIn,
-          style: FilledButton.styleFrom(
-            backgroundColor: const Color(0xFF3e7f3f),
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-          ),
-          child: _isLoading
-              ? const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                    strokeWidth: 2,
-                  ),
-                )
-              : const Text(
-                  'Sign In',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                ),
-        ),
-      ),
-      const SizedBox(height: 12),
-      TextButton(
-        onPressed: () {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (_) => const RegisterPage()));
-        },
-        child: Text.rich(
-          TextSpan(
-            text: "Don't have an account? ",
-            style: TextStyle(
-              color: Theme.of(
-                context,
-              ).colorScheme.onSurface.withValues(alpha: 0.75),
-            ),
-            children: [
-              TextSpan(
-                text: 'Sign Up',
-                style: TextStyle(
-                  color: const Color(0xFF3e7f3f),
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    ],
-  );
 
   Widget _inputField(
     TextEditingController ctrl,

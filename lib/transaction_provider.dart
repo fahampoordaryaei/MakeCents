@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
+import 'package:flutter/material.dart';
 import 'dataconnect_generated/generated.dart';
 
 class Transaction {
@@ -58,8 +58,7 @@ class TransactionProvider with ChangeNotifier {
           category: catName,
         );
       }).toList();
-    } catch (e) {
-      debugPrint('Error fetching transactions: $e');
+    } catch (_) {
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -100,31 +99,29 @@ class TransactionProvider with ChangeNotifier {
           .description(title);
 
       await mutation.execute();
-
-      try {
-        final pointsResult = await ExampleConnector.instance
-            .getUserPoints(userId: user.uid)
-            .execute();
-
-        if (pointsResult.data.pointsBalances.isNotEmpty) {
-          final existing = pointsResult.data.pointsBalances.first;
-          await ExampleConnector.instance
-              .updatePointsBalance(
-                id: existing.id,
-                totalPoints: existing.totalPoints + 10,
-              )
-              .execute();
-        }
-      } catch (e) {
-        debugPrint('Error updating points balance: $e');
-      }
-
-      await fetchTransactions();
-    } catch (e) {
-      debugPrint('Error adding transaction: $e');
+    } catch (_) {
       _transactions.removeWhere((t) => t.id == tempId);
       notifyListeners();
+      rethrow;
     }
+
+    try {
+      final pointsResult = await ExampleConnector.instance
+          .getUserPoints(userId: user.uid)
+          .execute();
+
+      if (pointsResult.data.pointsBalances.isNotEmpty) {
+        final existing = pointsResult.data.pointsBalances.first;
+        await ExampleConnector.instance
+            .updatePointsBalance(
+              id: existing.id,
+              totalPoints: existing.totalPoints + 10,
+            )
+            .execute();
+      }
+    } catch (_) {}
+
+    await fetchTransactions();
   }
 
   Future<void> removeTransaction(int index) async {
@@ -142,12 +139,28 @@ class TransactionProvider with ChangeNotifier {
       await ExampleConnector.instance
           .deleteTransaction(id: removedTx.id)
           .execute();
-    } catch (e) {
-      debugPrint('Error deleting transaction: $e');
+    } catch (_) {
       _transactions.insert(index, removedTx);
       notifyListeners();
       rethrow;
     }
+
+    try {
+      final pointsResult = await ExampleConnector.instance
+          .getUserPoints(userId: user.uid)
+          .execute();
+
+      if (pointsResult.data.pointsBalances.isNotEmpty) {
+        final existing = pointsResult.data.pointsBalances.first;
+        final next = existing.totalPoints - 10;
+        await ExampleConnector.instance
+            .updatePointsBalance(
+              id: existing.id,
+              totalPoints: next < 0 ? 0 : next,
+            )
+            .execute();
+      }
+    } catch (_) {}
   }
 
   Future<void> updateTransaction({
@@ -184,8 +197,7 @@ class TransactionProvider with ChangeNotifier {
           .description(title);
       await mutation.execute();
       await fetchTransactions();
-    } catch (e) {
-      debugPrint('Error updating transaction: $e');
+    } catch (_) {
       _transactions[index] = original;
       notifyListeners();
       rethrow;

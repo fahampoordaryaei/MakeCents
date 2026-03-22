@@ -1,16 +1,15 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'transaction_provider.dart';
+import 'package:provider/provider.dart';
 import 'budget_provider.dart';
-import 'user_provider.dart';
-import 'functions.dart';
 import 'dataconnect_generated/generated.dart';
+import 'functions.dart';
+import 'transaction_provider.dart';
+import 'user_provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
-
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -71,27 +70,25 @@ class _HomePageState extends State<HomePage> {
         _matchedScholarships = matched.take(3).toList();
         _isLoadingHomeFeeds = false;
       });
-    } catch (e) {
-      debugPrint('Error loading home feeds: $e');
+    } catch (_) {
       if (!mounted) return;
       setState(() => _isLoadingHomeFeeds = false);
     }
   }
 
   Color _scholarshipColor(String rawColor) {
-    final hex = rawColor.trim();
-    if (hex.isEmpty) return const Color(0xFF3e7f3f);
     try {
-      return Color(int.parse(hex.replaceFirst('#', '0xFF')));
+      return Color(int.parse(rawColor.trim().replaceFirst('#', '0xFF')));
     } catch (_) {
       return const Color(0xFF3e7f3f);
     }
   }
 
   void _showDiscountDetails(BuildContext context, ListProductsProducts p) {
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         title: Text(p.name),
         content: Column(
@@ -123,7 +120,10 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 8),
             Text(
               p.description,
-              style: const TextStyle(fontSize: 14, color: Colors.black87),
+              style: TextStyle(
+                fontSize: 14,
+                color: onSurface.withValues(alpha: 0.85),
+              ),
             ),
             const SizedBox(height: 12),
             Text(
@@ -138,7 +138,7 @@ class _HomePageState extends State<HomePage> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Close'),
           ),
         ],
@@ -151,9 +151,10 @@ class _HomePageState extends State<HomePage> {
     ListScholarshipsScholarships s,
   ) {
     final scholarshipColor = _scholarshipColor(s.color);
+    final onSurface = Theme.of(context).colorScheme.onSurface;
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         title: Text(s.title),
         content: Column(
@@ -169,14 +170,20 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Please email us your application letter and school records.',
-              style: TextStyle(fontSize: 14, color: Colors.black87),
+              style: TextStyle(
+                fontSize: 14,
+                color: onSurface.withValues(alpha: 0.85),
+              ),
             ),
             const SizedBox(height: 8),
             Text(
               'Contact: ${s.email}',
-              style: const TextStyle(fontSize: 14, color: Colors.black87),
+              style: TextStyle(
+                fontSize: 14,
+                color: onSurface.withValues(alpha: 0.85),
+              ),
             ),
             const SizedBox(height: 12),
             Text(
@@ -190,13 +197,16 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 8),
             Text(
               s.description,
-              style: const TextStyle(fontSize: 14, color: Colors.black87),
+              style: TextStyle(
+                fontSize: 14,
+                color: onSurface.withValues(alpha: 0.85),
+              ),
             ),
           ],
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Close'),
           ),
         ],

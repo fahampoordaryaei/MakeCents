@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:firebase_data_connect/firebase_data_connect.dart';
+import 'package:flutter/material.dart';
 import 'dataconnect_generated/generated.dart';
 
 class ExpenseCategory {
@@ -13,11 +13,20 @@ class ExpenseCategory {
 
 List<ExpenseCategory> dynamicCategories = [];
 
-ExpenseCategory catFor(String name) => dynamicCategories.firstWhere(
-  (c) => c.name == name,
-  orElse: () =>
-      const ExpenseCategory('', 'Other', Icons.more_horiz, Colors.grey),
-);
+ExpenseCategory catFor(String name) {
+  for (final c in dynamicCategories) {
+    if (c.name == name) return c;
+  }
+  return const ExpenseCategory('', 'Other', Icons.more_horiz, Colors.grey);
+}
+
+bool passwordCriteria(String pass) {
+  return pass.length >= 8 &&
+      RegExp(r'[A-Z]').hasMatch(pass) &&
+      RegExp(r'[a-z]').hasMatch(pass) &&
+      RegExp(r'[0-9]').hasMatch(pass) &&
+      RegExp(r'[^a-zA-Z0-9\s]').hasMatch(pass);
+}
 
 Widget buildProductImage(
   String id, {

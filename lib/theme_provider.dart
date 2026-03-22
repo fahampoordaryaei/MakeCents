@@ -1,54 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum ThemeType { light, darkNavy, darkAmoled }
+enum ThemeModes { light, dark }
 
-class ThemeProvider extends ChangeNotifier {
-  ThemeType _themeType = ThemeType.light;
-
-  ThemeType get themeType => _themeType;
-
-  Future<void> loadTheme() async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedTheme = prefs.getString('theme_pref_v2') ?? 'ThemeType.light';
-    _themeType = ThemeType.values.firstWhere(
-      (e) => e.toString() == savedTheme,
-      orElse: () => ThemeType.light,
-    );
-    notifyListeners();
-  }
-
-  Future<void> setTheme(ThemeType type) async {
-    _themeType = type;
-    notifyListeners();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('theme_pref_v2', type.toString());
-  }
-
-  ThemeData get currentTheme {
-    switch (_themeType) {
-      case ThemeType.darkNavy:
-        return darkNavyTheme;
-      case ThemeType.darkAmoled:
-        return darkAmoledTheme;
-      case ThemeType.light:
-        return lightTheme;
-    }
-  }
-}
-
-ThemeData _appTheme({
-  required Brightness brightness,
-  required Color scaffoldBackgroundColor,
-  required Color surface,
-}) {
+ThemeData _buildTheme(Brightness b, Color scaffold, Color surface) {
+  const seed = Color(0xFF3e7f3f);
   return ThemeData(
-    brightness: brightness,
-    primaryColor: const Color(0xFF3e7f3f),
-    scaffoldBackgroundColor: scaffoldBackgroundColor,
+    brightness: b,
+    primaryColor: seed,
+    scaffoldBackgroundColor: scaffold,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: const Color(0xFF3e7f3f),
-      brightness: brightness,
+      seedColor: seed,
+      brightness: b,
       surface: surface,
       secondary: const Color(0xFF5AB8B2),
     ),
@@ -56,20 +19,35 @@ ThemeData _appTheme({
   );
 }
 
-final ThemeData lightTheme = _appTheme(
-  brightness: Brightness.light,
-  scaffoldBackgroundColor: const Color(0xFFF4F7F5),
-  surface: Colors.white,
-);
+final _themes = [
+  _buildTheme(Brightness.light, const Color(0xFFF4F7F5), Colors.white),
+  _buildTheme(
+    Brightness.dark,
+    const Color(0xFF12151C),
+    const Color(0xFF1E222D),
+  ),
+];
 
-final ThemeData darkNavyTheme = _appTheme(
-  brightness: Brightness.dark,
-  scaffoldBackgroundColor: const Color(0xFF12151C),
-  surface: const Color(0xFF1E222D),
-);
+class ThemeProvider extends ChangeNotifier {
+  ThemeModes _mode = ThemeModes.light;
+  ThemeModes get themeMode => _mode;
 
-final ThemeData darkAmoledTheme = _appTheme(
-  brightness: Brightness.dark,
-  scaffoldBackgroundColor: Colors.black,
-  surface: const Color(0xFF121212),
-);
+  ThemeData get currentTheme => _themes[_mode.index];
+
+  Future<void> loadTheme() async {
+    final p = await SharedPreferences.getInstance();
+    _mode = _decode(p.getString('theme_mode'));
+    notifyListeners();
+  }
+
+  Future<void> setTheme(ThemeModes mode) async {
+    _mode = mode;
+    notifyListeners();
+    final p = await SharedPreferences.getInstance();
+    await p.setString('theme_mode', mode.name);
+  }
+}
+
+ThemeModes _decode(String? raw) {
+  return raw == 'dark' ? ThemeModes.dark : ThemeModes.light;
+}

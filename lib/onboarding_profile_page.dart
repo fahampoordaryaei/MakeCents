@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'onboarding_budget_page.dart';
+import 'package:flutter/material.dart';
 import 'dataconnect_generated/generated.dart';
+import 'onboarding_budget_page.dart';
 import 'startup_page.dart';
 
 class OnboardingProfilePage extends StatefulWidget {
@@ -13,7 +13,6 @@ class OnboardingProfilePage extends StatefulWidget {
     required this.firstName,
     required this.lastName,
   });
-
   @override
   State<OnboardingProfilePage> createState() => _OnboardingProfilePageState();
 }
@@ -61,7 +60,7 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
 
         _isLoading = false;
       });
-    } catch (e) {
+    } catch (_) {
       setState(() {
         _error = 'Failed to load options. Please check your connection.';
         _isLoading = false;

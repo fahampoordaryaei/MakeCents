@@ -5,7 +5,6 @@ import 'transaction_provider.dart';
 
 class BudgetPage extends StatelessWidget {
   const BudgetPage({super.key});
-
   @override
   Widget build(BuildContext context) {
     final bp = Provider.of<BudgetProvider>(context);

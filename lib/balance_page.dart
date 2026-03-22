@@ -4,7 +4,6 @@ import 'transaction_provider.dart';
 
 class BalancePage extends StatelessWidget {
   const BalancePage({super.key});
-
   @override
   Widget build(BuildContext context) {
     final transactionProvider = Provider.of<TransactionProvider>(context);

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dataconnect_generated/generated.dart';
-import 'transaction_provider.dart';
 import 'functions.dart';
+import 'transaction_provider.dart';
 
 class AddExpensePage extends StatefulWidget {
   const AddExpensePage({super.key});
-
   @override
   State<AddExpensePage> createState() => _AddExpensePageState();
 }
@@ -27,11 +26,19 @@ class _AddExpensePageState extends State<AddExpensePage> {
     _loadCategories();
   }
 
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadCategories() async {
     try {
       final result = await ExampleConnector.instance
           .listExpenseCategories()
           .execute();
+      if (!mounted) return;
       setState(() {
         _categories = result.data.expenseCategories.map((c) {
           return ExpenseCategory(
@@ -47,8 +54,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
         }
         _isLoadingCategories = false;
       });
-    } catch (e) {
-      debugPrint('Error loading categories: $e');
+    } catch (_) {
+      if (!mounted) return;
       setState(() => _isLoadingCategories = false);
     }
   }
@@ -60,10 +67,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
     );
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-      });
+    if (picked != null) {
+      setState(() => _selectedDate = picked);
     }
   }
 
@@ -94,8 +99,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
       if (!mounted) return;
       Navigator.of(context).pop();
-    } catch (e) {
-      debugPrint('Error adding transaction: $e');
+    } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to save transaction.')),
@@ -191,6 +195,13 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
               ElevatedButton(
                 onPressed: _submitData,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF3e7f3f),
+                  foregroundColor:
+                      Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white
+                      : null,
+                ),
                 child: const Text('Add Expense'),
               ),
             ],

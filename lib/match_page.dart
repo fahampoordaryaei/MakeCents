@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dataconnect_generated/generated.dart';
 
@@ -86,8 +86,7 @@ class _MatchPageState extends State<MatchPage> {
         _selectedCourseId =
             selectedCourseId ?? (courses.isNotEmpty ? courses.first.id : null);
       });
-    } catch (e) {
-      debugPrint('Error loading courses: $e');
+    } catch (_) {
       if (!mounted) return;
       setState(() {
         _coursesLoaded = true;
@@ -118,10 +117,7 @@ class _MatchPageState extends State<MatchPage> {
           );
         }).toList();
       });
-    } catch (e) {
-      debugPrint('Error loading scholarships: $e');
-      setState(() {});
-    }
+    } catch (_) {}
   }
 
   void _findMatches() {
@@ -140,6 +136,11 @@ class _MatchPageState extends State<MatchPage> {
     });
   }
 
+  List<Scholarship> get _scholarshipsForList {
+    if (_searched) return _results ?? const [];
+    return _allScholarships ?? const [];
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -148,7 +149,6 @@ class _MatchPageState extends State<MatchPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
             Text(
               'Scholarship\nMatcher',
               style: TextStyle(
@@ -159,13 +159,17 @@ class _MatchPageState extends State<MatchPage> {
               ),
             ),
             const SizedBox(height: 4),
-            const Text(
+            Text(
               'Find opportunities based on your background and course.',
-              style: TextStyle(color: Colors.black87, fontSize: 16),
+              style: TextStyle(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.85),
+                fontSize: 16,
+              ),
             ),
             const SizedBox(height: 24),
 
-            // Profile input card
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -192,13 +196,14 @@ class _MatchPageState extends State<MatchPage> {
                   ),
                   const SizedBox(height: 20),
 
-                  // Course dropdown
-                  const Text(
+                  Text(
                     'COURSE',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: Colors.black87,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.85),
                       letterSpacing: 0.8,
                     ),
                   ),
@@ -209,7 +214,9 @@ class _MatchPageState extends State<MatchPage> {
                     Text(
                       'No courses available.',
                       style: TextStyle(
-                        color: Colors.black87,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.85),
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                       ),
@@ -243,13 +250,16 @@ class _MatchPageState extends State<MatchPage> {
                     ),
                   const SizedBox(height: 20),
 
-                  // Find button
                   SizedBox(
                     width: double.infinity,
                     child: FilledButton.icon(
                       onPressed: _findMatches,
                       style: FilledButton.styleFrom(
                         backgroundColor: const Color(0xFF3e7f3f),
+                        foregroundColor:
+                            Theme.of(context).brightness == Brightness.dark
+                            ? Colors.white
+                            : null,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
@@ -270,7 +280,6 @@ class _MatchPageState extends State<MatchPage> {
             ),
             const SizedBox(height: 28),
 
-            // Results
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -329,17 +338,22 @@ class _MatchPageState extends State<MatchPage> {
                         ),
                       ),
                       const SizedBox(height: 4),
-                      const Text(
+                      Text(
                         'Try a different course to see more scholarships.',
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.black87, fontSize: 15),
+                        style: TextStyle(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.85),
+                          fontSize: 15,
+                        ),
                       ),
                     ],
                   ),
                 ),
               )
             else
-              ...(_searched ? (_results ?? []) : (_allScholarships ?? [])).map(
+              ..._scholarshipsForList.map(
                 (s) => _ScholarshipCard(scholarship: s),
               ),
           ],
@@ -406,20 +420,24 @@ class _ScholarshipCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 6),
-                  const Text(
+                  Text(
                     'Please email us your application letter and school records.',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.black87,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.85),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                   const SizedBox(height: 10),
                   Text(
                     s.description,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
-                      color: Colors.black87,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.85),
                       height: 1.4,
                     ),
                   ),
@@ -485,12 +503,22 @@ class _ScholarshipCard extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               s.description,
-              style: const TextStyle(color: Colors.black87, fontSize: 18),
+              style: TextStyle(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.85),
+                fontSize: 18,
+              ),
             ),
             const SizedBox(height: 12),
-            const Text(
+            Text(
               'Please email us your application letter and school records.',
-              style: TextStyle(fontSize: 16, color: Colors.black87),
+              style: TextStyle(
+                fontSize: 16,
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.85),
+              ),
             ),
           ],
         ),
@@ -501,32 +529,33 @@ class _ScholarshipCard extends StatelessWidget {
           ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: s.color),
-            onPressed: () => _launchApplyEmail(context, s),
+            onPressed: () async {
+              final uri = Uri(
+                scheme: 'mailto',
+                path: s.email,
+                queryParameters: {
+                  'subject': 'Scholarship Application - ${s.title}',
+                  'body':
+                      'Please email us your application letter and school records.',
+                },
+              );
+              final launched = await launchUrl(
+                uri,
+                mode: LaunchMode.externalApplication,
+              );
+              if (!launched && context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Could not open your email app.'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
             child: const Text('Open Email', style: TextStyle(fontSize: 20)),
           ),
         ],
       ),
     );
-  }
-
-  Future<void> _launchApplyEmail(BuildContext context, Scholarship s) async {
-    final uri = Uri(
-      scheme: 'mailto',
-      path: s.email,
-      queryParameters: {
-        'subject': 'Scholarship Application - ${s.title}',
-        'body': 'Please email us your application letter and school records.',
-      },
-    );
-
-    final launched = await launchUrl(uri);
-    if (!launched && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Could not open your email app.'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
   }
 }

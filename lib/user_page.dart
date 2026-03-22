@@ -1,176 +1,22 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'login_page.dart';
 import 'budget_provider.dart';
-import 'transaction_provider.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'dataconnect_generated/generated.dart';
+import 'functions.dart';
+import 'login_page.dart';
 import 'theme_provider.dart';
+import 'transaction_provider.dart';
 import 'user_provider.dart';
 
 class UserPage extends StatelessWidget {
   final VoidCallback onNavigateToBudget;
   const UserPage({super.key, required this.onNavigateToBudget});
 
-  bool _isValidPassword(String pass) {
-    return pass.length >= 8 &&
-        RegExp(r'[A-Z]').hasMatch(pass) &&
-        RegExp(r'[a-z]').hasMatch(pass) &&
-        RegExp(r'[0-9]').hasMatch(pass) &&
-        RegExp(r'[^a-zA-Z0-9\s]').hasMatch(pass);
-  }
-
   Future<void> _showChangePasswordDialog(BuildContext context) async {
-    final newPasswordCtrl = TextEditingController();
-    final confirmPasswordCtrl = TextEditingController();
-    bool obscureNew = true;
-    bool obscureConfirm = true;
-    String dialogError = '';
-
-    await showDialog(
+    await showDialog<void>(
       context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) => AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          title: const Text('Change password'),
-          content: SizedBox(
-            width: 420,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: newPasswordCtrl,
-                  obscureText: obscureNew,
-                  autofocus: true,
-                  decoration: InputDecoration(
-                    labelText: 'New password',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        obscureNew
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined,
-                      ),
-                      onPressed: () =>
-                          setDialogState(() => obscureNew = !obscureNew),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: confirmPasswordCtrl,
-                  obscureText: obscureConfirm,
-                  decoration: InputDecoration(
-                    labelText: 'Confirm new password',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        obscureConfirm
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined,
-                      ),
-                      onPressed: () => setDialogState(
-                        () => obscureConfirm = !obscureConfirm,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Password must contain:\n'
-                    '• Min 8 characters\n'
-                    '• 1 uppercase letter\n'
-                    '• 1 lowercase letter\n'
-                    '• 1 number\n'
-                    '• 1 special character',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(
-                        ctx,
-                      ).colorScheme.onSurface.withValues(alpha: 0.8),
-                      height: 1.35,
-                    ),
-                  ),
-                ),
-                if (dialogError.isNotEmpty) ...[
-                  const SizedBox(height: 10),
-                  Text(
-                    dialogError,
-                    style: const TextStyle(color: Colors.red, fontSize: 16),
-                  ),
-                ],
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () async {
-                final newPass = newPasswordCtrl.text;
-                final confirmPass = confirmPasswordCtrl.text;
-                if (newPass.isEmpty || confirmPass.isEmpty) {
-                  setDialogState(
-                    () => dialogError = 'Please fill out all fields.',
-                  );
-                  return;
-                }
-                if (!_isValidPassword(newPass)) {
-                  setDialogState(
-                    () => dialogError = 'Password does not meet requirements.',
-                  );
-                  return;
-                }
-                if (newPass != confirmPass) {
-                  setDialogState(() => dialogError = 'Passwords do not match.');
-                  return;
-                }
-
-                try {
-                  final user = FirebaseAuth.instance.currentUser;
-                  if (user == null) {
-                    setDialogState(() => dialogError = 'No active user found.');
-                    return;
-                  }
-                  await user.updatePassword(newPass);
-                  if (!ctx.mounted) return;
-                  Navigator.pop(ctx);
-                  if (!context.mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Password updated.')),
-                  );
-                } on FirebaseAuthException catch (e) {
-                  if (e.code == 'requires-recent-login') {
-                    setDialogState(
-                      () => dialogError =
-                          'Please log in again before changing password.',
-                    );
-                  } else {
-                    setDialogState(
-                      () => dialogError = 'Could not update password.',
-                    );
-                  }
-                } catch (_) {
-                  setDialogState(
-                    () => dialogError = 'Could not update password.',
-                  );
-                }
-              },
-              child: const Text('Save'),
-            ),
-          ],
-        ),
-      ),
+      builder: (_) => _ChangePasswordDialog(parentContext: context),
     );
   }
 
@@ -186,57 +32,9 @@ class UserPage extends StatelessWidget {
   }
 
   Future<void> _confirmDeleteAccount(BuildContext context) async {
-    final passwordCtrl = TextEditingController();
-    bool obscure = true;
     final password = await showDialog<String>(
       context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDialogState) => AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          title: const Text('Delete account?'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('This will permanently remove your account.'),
-              const SizedBox(height: 12),
-              TextField(
-                controller: passwordCtrl,
-                obscureText: obscure,
-                autofocus: true,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      obscure
-                          ? Icons.visibility_outlined
-                          : Icons.visibility_off_outlined,
-                    ),
-                    onPressed: () => setDialogState(() => obscure = !obscure),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFFFF6B6B),
-              ),
-              onPressed: () => Navigator.pop(ctx, passwordCtrl.text.trim()),
-              child: const Text('Delete'),
-            ),
-          ],
-        ),
-      ),
+      builder: (_) => const _DeleteAccountPasswordDialog(),
     );
 
     if (!context.mounted) return;
@@ -273,11 +71,6 @@ class UserPage extends StatelessWidget {
         MaterialPageRoute(builder: (_) => const LoginPage()),
         (r) => false,
       );
-    } on FirebaseAuthException {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not delete account.')),
-      );
     } catch (_) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -288,160 +81,10 @@ class UserPage extends StatelessWidget {
 
   Future<void> _editBudgetDialog(BuildContext context) async {
     final bp = Provider.of<BudgetProvider>(context, listen: false);
-    final initialValue = bp.budget.amount;
-    final ctrl = TextEditingController(text: initialValue.toStringAsFixed(0));
-    double sliderVal = initialValue.clamp(0.0, 10000.0);
-    String dialogError = '';
-
-    await showDialog(
+    await showDialog<void>(
       context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (context, setDialogState) {
-          void onTextChanged() {
-            final val = double.tryParse(ctrl.text.trim());
-            if (val != null && val >= 0 && val <= 10000) {
-              if (sliderVal != val) {
-                setDialogState(() => sliderVal = val);
-              }
-            } else if (val != null && val > 10000) {
-              setDialogState(() => sliderVal = 10000);
-            }
-          }
-
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(22),
-            ),
-            title: const Text(
-              'Update Monthly Budget',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (dialogError.isNotEmpty) ...[
-                  Text(
-                    dialogError,
-                    style: const TextStyle(color: Colors.red, fontSize: 14),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 12),
-                ],
-                TextField(
-                  controller: ctrl,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  textAlign: TextAlign.center,
-                  onChanged: (_) => onTextChanged(),
-                  style: const TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w900,
-                  ),
-                  decoration: InputDecoration(
-                    prefixText: '€',
-                    prefixStyle: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontSize: 32,
-                      fontWeight: FontWeight.w900,
-                    ),
-                    filled: true,
-                    fillColor: Theme.of(context).scaffoldBackgroundColor,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 20),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                SliderTheme(
-                  data: SliderTheme.of(context).copyWith(
-                    activeTrackColor: const Color(0xFF3e7f3f),
-                    inactiveTrackColor: const Color(
-                      0xFF3e7f3f,
-                    ).withValues(alpha: 0.2),
-                    thumbColor: const Color(0xFF3e7f3f),
-                    trackHeight: 6.0,
-                  ),
-                  child: Slider(
-                    value: sliderVal,
-                    min: 0,
-                    max: 10000,
-                    divisions: 100,
-                    onChanged: (v) {
-                      setDialogState(() {
-                        sliderVal = v;
-                        ctrl.text = v.toInt().toString();
-                      });
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '€0',
-                        style: TextStyle(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.75),
-                          fontSize: 14,
-                        ),
-                      ),
-                      Text(
-                        '€10k',
-                        style: TextStyle(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.75),
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx),
-                child: const Text('Cancel'),
-              ),
-              FilledButton(
-                style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFF3e7f3f),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                onPressed: () async {
-                  final v = double.tryParse(ctrl.text.trim());
-                  if (v == null || v <= 0) {
-                    setDialogState(
-                      () => dialogError = 'Please enter a valid amount.',
-                    );
-                    return;
-                  }
-                  if (v > 10000) {
-                    setDialogState(
-                      () => dialogError = 'Max budget is €10,000.',
-                    );
-                    return;
-                  }
-                  await bp.setBudget(v);
-                  if (!ctx.mounted) return;
-                  Navigator.pop(ctx);
-                },
-                child: const Text('Save Changes'),
-              ),
-            ],
-          );
-        },
-      ),
+      builder: (_) =>
+          _EditBudgetDialog(bp: bp, initialAmount: bp.budget.amount),
     );
   }
 
@@ -451,7 +94,7 @@ class UserPage extends StatelessWidget {
     final bp = Provider.of<BudgetProvider>(context);
     final tp = Provider.of<ThemeProvider>(context);
     final up = Provider.of<UserProvider>(context);
-    final isDarkMode = tp.themeType != ThemeType.light;
+    final isDarkMode = tp.themeMode != ThemeModes.light;
     final totalSpent = txP.monthlySpent;
 
     final user = FirebaseAuth.instance.currentUser;
@@ -495,7 +138,8 @@ class UserPage extends StatelessWidget {
                       ).colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
-                  if (up.profile?.institution != null) ...[
+                  if (up.profile != null &&
+                      up.profile!.displayInstitution != 'Not set') ...[
                     const SizedBox(height: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -507,7 +151,7 @@ class UserPage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        up.profile!.institution!,
+                        up.profile!.displayInstitution,
                         style: const TextStyle(
                           color: Color(0xFF3e7f3f),
                           fontSize: 14,
@@ -571,12 +215,12 @@ class UserPage extends StatelessWidget {
               trailing: Switch(
                 value: isDarkMode,
                 onChanged: (val) {
-                  tp.setTheme(val ? ThemeType.darkNavy : ThemeType.light);
+                  tp.setTheme(val ? ThemeModes.dark : ThemeModes.light);
                 },
                 activeThumbColor: const Color(0xFF3e7f3f),
               ),
               onTap: () {
-                tp.setTheme(isDarkMode ? ThemeType.light : ThemeType.darkNavy);
+                tp.setTheme(isDarkMode ? ThemeModes.light : ThemeModes.dark);
               },
             ),
             const SizedBox(height: 8),
@@ -610,6 +254,410 @@ class UserPage extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _ChangePasswordDialog extends StatefulWidget {
+  final BuildContext parentContext;
+
+  const _ChangePasswordDialog({required this.parentContext});
+
+  @override
+  State<_ChangePasswordDialog> createState() => _ChangePasswordDialogState();
+}
+
+class _ChangePasswordDialogState extends State<_ChangePasswordDialog> {
+  late final TextEditingController _newPasswordCtrl;
+  late final TextEditingController _confirmPasswordCtrl;
+  bool _obscureNew = true;
+  bool _obscureConfirm = true;
+  String _dialogError = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _newPasswordCtrl = TextEditingController();
+    _confirmPasswordCtrl = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _newPasswordCtrl.dispose();
+    _confirmPasswordCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      title: const Text('Change password'),
+      content: SizedBox(
+        width: 420,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _newPasswordCtrl,
+              obscureText: _obscureNew,
+              autofocus: true,
+              decoration: InputDecoration(
+                labelText: 'New password',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscureNew
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
+                  ),
+                  onPressed: () => setState(() => _obscureNew = !_obscureNew),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _confirmPasswordCtrl,
+              obscureText: _obscureConfirm,
+              decoration: InputDecoration(
+                labelText: 'Confirm new password',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscureConfirm
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
+                  ),
+                  onPressed: () =>
+                      setState(() => _obscureConfirm = !_obscureConfirm),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Password must contain:\n'
+                '• Min 8 characters\n'
+                '• 1 uppercase letter\n'
+                '• 1 lowercase letter\n'
+                '• 1 number\n'
+                '• 1 special character',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.8),
+                  height: 1.35,
+                ),
+              ),
+            ),
+            if (_dialogError.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              Text(
+                _dialogError,
+                style: const TextStyle(color: Colors.red, fontSize: 16),
+              ),
+            ],
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          onPressed: () async {
+            final newPass = _newPasswordCtrl.text;
+            final confirmPass = _confirmPasswordCtrl.text;
+            if (newPass.isEmpty || confirmPass.isEmpty) {
+              setState(() => _dialogError = 'Please fill out all fields.');
+              return;
+            }
+            if (!passwordCriteria(newPass)) {
+              setState(
+                () => _dialogError = 'Password does not meet requirements.',
+              );
+              return;
+            }
+            if (newPass != confirmPass) {
+              setState(() => _dialogError = 'Passwords do not match.');
+              return;
+            }
+
+            try {
+              final user = FirebaseAuth.instance.currentUser;
+              if (user == null) {
+                setState(() => _dialogError = 'No active user found.');
+                return;
+              }
+              await user.updatePassword(newPass);
+              if (!context.mounted) return;
+              Navigator.pop(context);
+              if (!widget.parentContext.mounted) return;
+              ScaffoldMessenger.of(widget.parentContext).showSnackBar(
+                const SnackBar(content: Text('Password updated.')),
+              );
+            } catch (e) {
+              if (!mounted) return;
+              setState(() {
+                _dialogError =
+                    e is FirebaseAuthException &&
+                        e.code == 'requires-recent-login'
+                    ? 'Please log in again before changing password.'
+                    : 'Could not update password.';
+              });
+            }
+          },
+          child: const Text('Save'),
+        ),
+      ],
+    );
+  }
+}
+
+class _DeleteAccountPasswordDialog extends StatefulWidget {
+  const _DeleteAccountPasswordDialog();
+
+  @override
+  State<_DeleteAccountPasswordDialog> createState() =>
+      _DeleteAccountPasswordDialogState();
+}
+
+class _DeleteAccountPasswordDialogState
+    extends State<_DeleteAccountPasswordDialog> {
+  late final TextEditingController _passwordCtrl;
+  bool _obscure = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _passwordCtrl = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _passwordCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      title: const Text('Delete account?'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('This will permanently remove your account.'),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _passwordCtrl,
+            obscureText: _obscure,
+            autofocus: true,
+            decoration: InputDecoration(
+              labelText: 'Password',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              suffixIcon: IconButton(
+                icon: Icon(
+                  _obscure
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                ),
+                onPressed: () => setState(() => _obscure = !_obscure),
+              ),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          style: FilledButton.styleFrom(
+            backgroundColor: const Color(0xFFFF6B6B),
+          ),
+          onPressed: () => Navigator.pop(context, _passwordCtrl.text.trim()),
+          child: const Text('Delete'),
+        ),
+      ],
+    );
+  }
+}
+
+class _EditBudgetDialog extends StatefulWidget {
+  final BudgetProvider bp;
+  final double initialAmount;
+
+  const _EditBudgetDialog({required this.bp, required this.initialAmount});
+
+  @override
+  State<_EditBudgetDialog> createState() => _EditBudgetDialogState();
+}
+
+class _EditBudgetDialogState extends State<_EditBudgetDialog> {
+  late final TextEditingController _ctrl;
+  late double _sliderVal;
+  String _dialogError = '';
+
+  @override
+  void initState() {
+    super.initState();
+    final v = widget.initialAmount;
+    _ctrl = TextEditingController(text: v.toStringAsFixed(0));
+    _sliderVal = v.clamp(0.0, 10000.0);
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  void _onTextChanged() {
+    final val = double.tryParse(_ctrl.text.trim());
+    setState(() {
+      if (val != null && val >= 0 && val <= 10000) {
+        if (_sliderVal != val) {
+          _sliderVal = val;
+        }
+      } else if (val != null && val > 10000) {
+        _sliderVal = 10000;
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+      title: const Text(
+        'Update Monthly Budget',
+        textAlign: TextAlign.center,
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (_dialogError.isNotEmpty) ...[
+            Text(
+              _dialogError,
+              style: const TextStyle(color: Colors.red, fontSize: 14),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+          ],
+          TextField(
+            controller: _ctrl,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            textAlign: TextAlign.center,
+            onChanged: (_) => _onTextChanged(),
+            style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900),
+            decoration: InputDecoration(
+              prefixText: '€',
+              prefixStyle: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontSize: 32,
+                fontWeight: FontWeight.w900,
+              ),
+              filled: true,
+              fillColor: Theme.of(context).scaffoldBackgroundColor,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide.none,
+              ),
+              contentPadding: const EdgeInsets.symmetric(vertical: 20),
+            ),
+          ),
+          const SizedBox(height: 24),
+          SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              activeTrackColor: const Color(0xFF3e7f3f),
+              inactiveTrackColor: const Color(
+                0xFF3e7f3f,
+              ).withValues(alpha: 0.2),
+              thumbColor: const Color(0xFF3e7f3f),
+              trackHeight: 6.0,
+            ),
+            child: Slider(
+              value: _sliderVal,
+              min: 0,
+              max: 10000,
+              divisions: 100,
+              onChanged: (v) {
+                setState(() {
+                  _sliderVal = v;
+                  _ctrl.text = v.toInt().toString();
+                });
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '€0',
+                  style: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.75),
+                    fontSize: 14,
+                  ),
+                ),
+                Text(
+                  '€10k',
+                  style: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.75),
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          style: FilledButton.styleFrom(
+            backgroundColor: const Color(0xFF3e7f3f),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          onPressed: () async {
+            final v = double.tryParse(_ctrl.text.trim());
+            if (v == null || v <= 0) {
+              setState(() => _dialogError = 'Please enter a valid amount.');
+              return;
+            }
+            if (v > 10000) {
+              setState(() => _dialogError = 'Max budget is €10,000.');
+              return;
+            }
+            await widget.bp.setBudget(v);
+            if (!context.mounted) return;
+            Navigator.pop(context);
+          },
+          child: const Text('Save Changes'),
+        ),
+      ],
     );
   }
 }

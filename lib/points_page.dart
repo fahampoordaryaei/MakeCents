@@ -1,13 +1,12 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'dataconnect_generated/generated.dart';
 import 'functions.dart';
 
 class PointsPage extends StatefulWidget {
   const PointsPage({super.key});
-
   @override
   State<PointsPage> createState() => _PointsPageState();
 }
@@ -42,8 +41,7 @@ class _PointsPageState extends State<PointsPage> {
       if (result.data.pointsBalances.isNotEmpty) {
         _points = result.data.pointsBalances.first.totalPoints;
       }
-    } catch (e) {
-      debugPrint('Error loading cloud points: $e');
+    } catch (_) {
     } finally {
       if (mounted) setState(() => _isLoadingPoints = false);
     }
@@ -74,8 +72,7 @@ class _PointsPageState extends State<PointsPage> {
         _products = productsResult.data.products;
         _redeemedByProductId = redeemedMap;
       });
-    } catch (e) {
-      debugPrint('Error loading products/redeemed products: $e');
+    } catch (_) {
     } finally {
       if (mounted) setState(() => _isLoadingProducts = false);
     }
@@ -248,7 +245,7 @@ class _PointsPageState extends State<PointsPage> {
                                     onPressed: null,
                                     child: const Text('Redeemed'),
                                   )
-                                : !isRedeemed && points >= product.cost
+                                : points >= product.cost
                                 ? FilledButton(
                                     onPressed: redeeming
                                         ? null
@@ -268,6 +265,11 @@ class _PointsPageState extends State<PointsPage> {
                                           },
                                     style: FilledButton.styleFrom(
                                       backgroundColor: const Color(0xFF3e7f3f),
+                                      foregroundColor:
+                                          Theme.of(context).brightness ==
+                                              Brightness.dark
+                                          ? Colors.white
+                                          : null,
                                     ),
                                     child: redeeming
                                         ? const SizedBox(
@@ -370,9 +372,14 @@ class _PointsPageState extends State<PointsPage> {
               ),
             ),
             const SizedBox(height: 4),
-            const Text(
+            Text(
               'Earn points by tracking your spending',
-              style: TextStyle(color: Colors.black87, fontSize: 16),
+              style: TextStyle(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.85),
+                fontSize: 16,
+              ),
             ),
             const SizedBox(height: 24),
 
@@ -527,7 +534,12 @@ class _PointsPageState extends State<PointsPage> {
             else if (products.isEmpty)
               Text(
                 'No products available right now.',
-                style: const TextStyle(color: Colors.black87, fontSize: 14),
+                style: TextStyle(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.85),
+                  fontSize: 14,
+                ),
               )
             else
               ...products.map((p) {

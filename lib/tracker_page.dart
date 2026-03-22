@@ -1,14 +1,37 @@
-import 'package:flutter/material.dart';
-import 'dataconnect_generated/generated.dart';
+import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'dart:math' as math;
-import 'transaction_provider.dart';
 import 'budget_provider.dart';
+import 'dataconnect_generated/generated.dart';
 import 'functions.dart';
+import 'transaction_provider.dart';
 
-final DateFormat _histogramDateLabel = DateFormat('d/MMM');
+Widget _trackerTextField(
+  BuildContext context,
+  TextEditingController controller,
+  String label,
+  String? prefix,
+) {
+  return TextField(
+    controller: controller,
+    keyboardType: prefix != null
+        ? const TextInputType.numberWithOptions(decimal: true)
+        : TextInputType.text,
+    decoration: InputDecoration(
+      labelText: label,
+      prefixText: prefix,
+      filled: true,
+      fillColor: Theme.of(context).colorScheme.surface,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+    ),
+  );
+}
 
 class TrackerPage extends StatefulWidget {
   const TrackerPage({super.key});
@@ -25,23 +48,24 @@ class _TrackerPageState extends State<TrackerPage> {
   bool _isLoadingCategories = true;
   int _historyPage = 0;
 
-  String _dayKey(DateTime d) {
-    final y = d.year.toString().padLeft(4, '0');
-    final m = d.month.toString().padLeft(2, '0');
-    final day = d.day.toString().padLeft(2, '0');
-    return '$y-$m-$day';
-  }
-
   @override
   void initState() {
     super.initState();
     _loadCategories();
   }
 
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _labelController.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadCategories() async {
     try {
       final connector = ExampleConnector.instance;
       final result = await connector.listExpenseCategories().execute();
+      if (!mounted) return;
       setState(() {
         dynamicCategories = result.data.expenseCategories.map((c) {
           return ExpenseCategory(
@@ -57,8 +81,8 @@ class _TrackerPageState extends State<TrackerPage> {
         }
         _isLoadingCategories = false;
       });
-    } catch (e) {
-      debugPrint('Error loading categories: $e');
+    } catch (_) {
+      if (!mounted) return;
       setState(() => _isLoadingCategories = false);
     }
   }
@@ -73,8 +97,7 @@ class _TrackerPageState extends State<TrackerPage> {
         categoryName: _selectedCat!.name,
         categoryId: _selectedCat!.id,
       );
-    } catch (e) {
-      debugPrint('Failure adding transaction: $e');
+    } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to add transaction.')),
@@ -113,9 +136,9 @@ class _TrackerPageState extends State<TrackerPage> {
 
     if (_showOverBudgetWarning && budget > 0 && currentExp + amount > budget) {
       await _overBudgetDialog(amount, budget, currentExp, label);
-    } else {
-      await _addAndNotify(label, amount);
+      return;
     }
+    await _addAndNotify(label, amount);
   }
 
   Future<void> _overBudgetDialog(
@@ -195,9 +218,16 @@ class _TrackerPageState extends State<TrackerPage> {
           ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Colors.redAccent),
-            onPressed: () {
-              p.removeTransaction(idx);
+            onPressed: () async {
               Navigator.pop(context);
+              try {
+                await p.removeTransaction(idx);
+              } catch (_) {
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Could not delete expense.')),
+                );
+              }
             },
             child: const Text('Delete'),
           ),
@@ -269,40 +299,35 @@ class _TrackerPageState extends State<TrackerPage> {
     final groupedEntries = groupedCatTotals.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
-    final today = DateTime.now();
-    final histogramStart = DateTime(
-      today.year,
-      today.month,
-      today.day,
-    ).subtract(const Duration(days: 29));
-    final histogramByDay = <String, double>{};
-    for (final t in txs) {
-      final dayKey = _dayKey(t.date);
-      histogramByDay[dayKey] = (histogramByDay[dayKey] ?? 0) + t.amount;
+    final year = now.year;
+    final month = now.month;
+    final todayDayOfMonth = now.day;
+    final dailySpendByDayOfMonth = <int, double>{};
+    for (final t in monthTxs) {
+      final dayOfMonth = t.date.day;
+      dailySpendByDayOfMonth[dayOfMonth] =
+          (dailySpendByDayOfMonth[dayOfMonth] ?? 0) + t.amount;
     }
-    final last30DailySpend = List<double>.generate(30, (i) {
-      final day = histogramStart.add(Duration(days: i));
-      return histogramByDay[_dayKey(day)] ?? 0.0;
-    });
-    final maxDaily = last30DailySpend.fold<double>(0.0, math.max);
+    final lineSpots = <FlSpot>[const FlSpot(0, 0)];
+    double cumulativeRun = 0;
+    for (var dayOfMonth = 1; dayOfMonth <= todayDayOfMonth; dayOfMonth++) {
+      cumulativeRun += dailySpendByDayOfMonth[dayOfMonth] ?? 0;
+      lineSpots.add(FlSpot(dayOfMonth.toDouble(), cumulativeRun));
+    }
+    final maxCumulative = lineSpots.fold<double>(
+      0.0,
+      (m, s) => math.max(m, s.y),
+    );
     final double maxY;
     final double yInterval;
-    if (maxDaily <= 0 || !maxDaily.isFinite) {
+    if (maxCumulative <= 0 || !maxCumulative.isFinite) {
       maxY = 20.0;
       yInterval = 5.0;
     } else {
-      maxY = maxDaily * 1.05;
+      maxY = maxCumulative * 1.05;
       yInterval = maxY / 5;
     }
-    final total30Days = last30DailySpend.fold(0.0, (sum, v) => sum + v);
-    const lineStep = 5;
-    final lineSpots = <FlSpot>[];
-    for (var day = 0; day < 30; day += lineStep) {
-      lineSpots.add(FlSpot(day.toDouble(), last30DailySpend[day]));
-    }
-    if (lineSpots.isEmpty || lineSpots.last.x < 29) {
-      lineSpots.add(FlSpot(29, last30DailySpend[29]));
-    }
+    final chartMaxX = todayDayOfMonth.toDouble();
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -544,7 +569,8 @@ class _TrackerPageState extends State<TrackerPage> {
                     Row(
                       children: [
                         Expanded(
-                          child: _field(
+                          child: _trackerTextField(
+                            context,
                             _labelController,
                             'Label (optional)',
                             null,
@@ -552,7 +578,12 @@ class _TrackerPageState extends State<TrackerPage> {
                         ),
                         const SizedBox(width: 10),
                         Expanded(
-                          child: _field(_amountController, 'Amount', '€'),
+                          child: _trackerTextField(
+                            context,
+                            _amountController,
+                            'Amount',
+                            '€',
+                          ),
                         ),
                       ],
                     ),
@@ -563,6 +594,10 @@ class _TrackerPageState extends State<TrackerPage> {
                         onPressed: _submit,
                         style: FilledButton.styleFrom(
                           backgroundColor: const Color(0xFF3e7f3f),
+                          foregroundColor:
+                              Theme.of(context).brightness == Brightness.dark
+                              ? Colors.white
+                              : null,
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -596,7 +631,7 @@ class _TrackerPageState extends State<TrackerPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Last 30 Days Spending',
+                      'Spent this month',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -605,7 +640,7 @@ class _TrackerPageState extends State<TrackerPage> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Total: €${total30Days.toStringAsFixed(2)}',
+                      '€${expenses.toStringAsFixed(2)}',
                       style: TextStyle(
                         fontSize: 14,
                         color: Theme.of(
@@ -615,12 +650,12 @@ class _TrackerPageState extends State<TrackerPage> {
                     ),
                     const SizedBox(height: 16),
                     SizedBox(
-                      height: 200,
+                      height: 140,
                       width: double.infinity,
                       child: LineChart(
                         LineChartData(
                           minX: 0,
-                          maxX: 30,
+                          maxX: chartMaxX,
                           minY: 0,
                           maxY: maxY,
                           clipData: const FlClipData.all(),
@@ -639,12 +674,23 @@ class _TrackerPageState extends State<TrackerPage> {
                             touchTooltipData: LineTouchTooltipData(
                               getTooltipItems: (touchedSpots) {
                                 return touchedSpots.map((t) {
-                                  final day = t.x.round().clamp(0, 29);
-                                  final d = histogramStart.add(
-                                    Duration(days: day),
+                                  final axisDay = t.x.round();
+                                  if (axisDay <= 0) {
+                                    return LineTooltipItem(
+                                      'Month start · €0.00',
+                                      const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    );
+                                  }
+                                  final d = DateTime(
+                                    year,
+                                    month,
+                                    axisDay.clamp(1, todayDayOfMonth),
                                   );
                                   return LineTooltipItem(
-                                    '${_histogramDateLabel.format(d)} · €${t.y.toStringAsFixed(2)}',
+                                    '${DateFormat('d/MMM').format(d)} · €${t.y.toStringAsFixed(2)}',
                                     const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w700,
@@ -686,37 +732,8 @@ class _TrackerPageState extends State<TrackerPage> {
                                 },
                               ),
                             ),
-                            bottomTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                reservedSize: 28,
-                                interval: 5,
-                                getTitlesWidget: (value, _) {
-                                  final i = value.toInt();
-                                  if (i < 0 || i >= 30) {
-                                    return const SizedBox.shrink();
-                                  }
-                                  if (i % 10 != 0 && i != 29) {
-                                    return const SizedBox.shrink();
-                                  }
-                                  final d = histogramStart.add(
-                                    Duration(days: i),
-                                  );
-                                  return Padding(
-                                    padding: const EdgeInsets.only(top: 6),
-                                    child: Text(
-                                      _histogramDateLabel.format(d),
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onSurface
-                                            .withValues(alpha: 0.75),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
+                            bottomTitles: const AxisTitles(
+                              sideTitles: SideTitles(showTitles: false),
                             ),
                           ),
                           lineBarsData: [
@@ -726,17 +743,7 @@ class _TrackerPageState extends State<TrackerPage> {
                               barWidth: 3,
                               isCurved: true,
                               curveSmoothness: 0.35,
-                              dotData: FlDotData(
-                                show: true,
-                                getDotPainter: (spot, _, bar, _) {
-                                  return FlDotCirclePainter(
-                                    radius: 4,
-                                    color: bar.color ?? Colors.green,
-                                    strokeWidth: 2,
-                                    strokeColor: Colors.white,
-                                  );
-                                },
-                              ),
+                              dotData: const FlDotData(show: false),
                               belowBarData: BarAreaData(
                                 show: true,
                                 color: const Color(
@@ -1098,29 +1105,6 @@ class _TrackerPageState extends State<TrackerPage> {
     );
   }
 
-  Widget _field(TextEditingController c, String label, String? prefix) {
-    return TextField(
-      controller: c,
-      keyboardType: prefix != null
-          ? const TextInputType.numberWithOptions(decimal: true)
-          : TextInputType.text,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixText: prefix,
-        filled: true,
-        fillColor: Theme.of(context).colorScheme.surface,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 14,
-        ),
-      ),
-    );
-  }
-
   String _fmt(DateTime d) {
     final n = DateTime.now();
     if (d.year == n.year && d.month == n.month && d.day == n.day) {
@@ -1179,29 +1163,6 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
     _amount.dispose();
     _date.dispose();
     super.dispose();
-  }
-
-  Widget _editField(TextEditingController c, String label, String? prefix) {
-    return TextField(
-      controller: c,
-      keyboardType: prefix != null
-          ? const TextInputType.numberWithOptions(decimal: true)
-          : TextInputType.text,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixText: prefix,
-        filled: true,
-        fillColor: Theme.of(context).colorScheme.surface,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 14,
-        ),
-      ),
-    );
   }
 
   @override
@@ -1320,10 +1281,22 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
                   Row(
                     children: [
                       Expanded(
-                        child: _editField(_title, 'Label (optional)', null),
+                        child: _trackerTextField(
+                          context,
+                          _title,
+                          'Label (optional)',
+                          null,
+                        ),
                       ),
                       const SizedBox(width: 10),
-                      Expanded(child: _editField(_amount, 'Amount', '€')),
+                      Expanded(
+                        child: _trackerTextField(
+                          context,
+                          _amount,
+                          'Amount',
+                          '€',
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 12),

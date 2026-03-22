@@ -1,12 +1,12 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
+import 'budget_provider.dart';
 import 'dataconnect_generated/generated.dart';
 import 'main.dart';
-import 'budget_provider.dart';
-import 'user_provider.dart';
 import 'startup_page.dart';
+import 'user_provider.dart';
 
 class OnboardingBudgetPage extends StatefulWidget {
   final String? institutionId;
@@ -25,7 +25,6 @@ class OnboardingBudgetPage extends StatefulWidget {
     required this.firstName,
     required this.lastName,
   });
-
   @override
   State<OnboardingBudgetPage> createState() => _OnboardingBudgetPageState();
 }
@@ -140,8 +139,8 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
         MaterialPageRoute(builder: (_) => const HomeScreen()),
         (r) => false,
       );
-    } catch (e) {
-      setState(() => _error = 'Failed to save profile: ${e.toString()}');
+    } catch (_) {
+      setState(() => _error = 'Could not save your profile. Please try again.');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

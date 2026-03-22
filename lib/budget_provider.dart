@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'dataconnect_generated/generated.dart';
 
 class Budget {
@@ -26,9 +26,7 @@ class BudgetProvider with ChangeNotifier {
           _budget = Budget(amount: dbBudget);
         }
       }
-    } catch (e) {
-      debugPrint('Error loading budget: $e');
-    }
+    } catch (_) {}
     notifyListeners();
   }
 
@@ -45,8 +43,6 @@ class BudgetProvider with ChangeNotifier {
       await ExampleConnector.instance
           .updateUserBudget(username: user.uid, budget: amount)
           .execute();
-    } catch (e) {
-      debugPrint('Budget sync issue: $e');
-    }
+    } catch (_) {}
   }
 }

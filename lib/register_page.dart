@@ -1,11 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'onboarding_profile_page.dart';
 import 'startup_page.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
-
   @override
   State<RegisterPage> createState() => _RegisterPageState();
 }
@@ -112,7 +111,7 @@ class _RegisterPageState extends State<RegisterPage> {
       setState(
         () => _error = e.message ?? 'An error occurred during registration.',
       );
-    } catch (e) {
+    } catch (_) {
       setState(() => _error = 'An unexpected error occurred.');
     } finally {
       if (mounted) setState(() => _isLoading = false);
