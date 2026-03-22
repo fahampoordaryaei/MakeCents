@@ -3,8 +3,6 @@ import 'package:firebase_data_connect/firebase_data_connect.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 
-part 'seed_data.dart';
-
 part 'list_institutions.dart';
 
 part 'list_courses.dart';
@@ -45,6 +43,8 @@ part 'record_failed_login.dart';
 
 part 'reset_login_attempts.dart';
 
+part 'seed_data.dart';
+
 
 
 
@@ -52,11 +52,6 @@ part 'reset_login_attempts.dart';
 
 
 class ExampleConnector {
-  
-  
-  SeedDataVariablesBuilder seedData () {
-    return SeedDataVariablesBuilder(dataConnect, );
-  }
   
   
   ListInstitutionsVariablesBuilder listInstitutions () {
@@ -156,6 +151,11 @@ class ExampleConnector {
   
   ResetLoginAttemptsVariablesBuilder resetLoginAttempts ({required String username, }) {
     return ResetLoginAttemptsVariablesBuilder(dataConnect, username: username,);
+  }
+  
+  
+  SeedDataVariablesBuilder seedData () {
+    return SeedDataVariablesBuilder(dataConnect, );
   }
   
 
