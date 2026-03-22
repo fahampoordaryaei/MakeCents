@@ -75,7 +75,6 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
 
   @override
   void dispose() {
-    _budgetController.removeListener(_onTextChanged);
     _budgetController.dispose();
     super.dispose();
   }
