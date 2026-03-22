@@ -1,0 +1,90 @@
+type User @table(key: ["username"]) {
+  username: String!
+  email: String! @unique
+  firstName: String!
+  lastName: String!
+  institution: Institution
+  course: Course
+  otherSchool: String
+  otherCourse: String
+  monthlyBudget: Float
+  failedAttempts: Int! @default(value: 0)
+  lockedUntil: Timestamp
+  createdAt: Timestamp!
+}
+
+type Course @table {
+  name: String! @unique
+}
+
+type Institution @table {
+  name: String! @unique
+  location: String
+}
+
+type Transaction @table {
+  user: User!
+  category: ExpenseCategory!
+  amount: Float!
+  description: String
+  date: Date!
+  createdAt: Timestamp!
+}
+
+type ExpenseCategory @table {
+  name: String! @unique
+  iconName: String!
+  colorHex: String!
+}
+
+type Scholarship @table {
+  title: String!
+  provider: String!
+  email: String!
+  amount: Float!
+  currency: String! @default(value: "€")
+  description: String!
+  color: String!
+}
+
+type ScholarshipCourse @table(key: ["scholarship", "course"]) {
+  scholarship: Scholarship!
+  course: Course!
+}
+
+type ScholarshipApplication @table {
+  user: User!
+  scholarship: Scholarship!
+  status: String!
+  appliedAt: Timestamp!
+}
+
+type PointsBalance @table {
+  user: User!
+  totalPoints: Int!
+  lastBudgetRewardMonth: String
+  updatedAt: Timestamp!
+}
+
+type PointsTransaction @table {
+  user: User!
+  amount: Int!
+  reason: String!
+  createdAt: Timestamp!
+}
+
+type Product @table {
+  name: String!
+  description: String!
+  storeName: String!
+  cost: Int!
+  active: Boolean! @default(value: true)
+  createdAt: Timestamp!
+}
+
+type RedeemedProduct @table(key: ["user", "product"]) {
+  user: User!
+  product: Product!
+  code: String! @unique
+  redeemedAt: Timestamp!
+}
