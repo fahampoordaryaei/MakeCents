@@ -130,7 +130,7 @@ extend type Course {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "Course.id", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "Course.id", purpose: ENTITY_ID)
 }
 extend type ExpenseCategory {
   """
@@ -214,7 +214,7 @@ extend type ExpenseCategory {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "ExpenseCategory.id", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "ExpenseCategory.id", purpose: ENTITY_ID)
 }
 extend type Institution {
   """
@@ -289,7 +289,7 @@ extend type Institution {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "Institution.id", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "Institution.id", purpose: ENTITY_ID)
 }
 extend type PointsBalance {
   """
@@ -382,7 +382,7 @@ extend type PointsBalance {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "PointsBalance.id", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "PointsBalance.id", purpose: ENTITY_ID)
 }
 extend type PointsTransaction {
   """
@@ -475,7 +475,7 @@ extend type PointsTransaction {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "PointsTransaction.id", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "PointsTransaction.id", purpose: ENTITY_ID)
 }
 extend type Product {
   """
@@ -654,7 +654,7 @@ extend type Product {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "Product.id", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "Product.id", purpose: ENTITY_ID)
 }
 extend type RedeemedProduct {
   """
@@ -712,7 +712,7 @@ extend type RedeemedProduct {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "RedeemedProduct.userUsername,productId", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "RedeemedProduct.userUsername,productId", purpose: ENTITY_ID)
 }
 extend type Scholarship {
   """
@@ -926,7 +926,7 @@ extend type Scholarship {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "Scholarship.id", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "Scholarship.id", purpose: ENTITY_ID)
 }
 extend type ScholarshipApplication {
   """
@@ -993,7 +993,7 @@ extend type ScholarshipApplication {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "ScholarshipApplication.id", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "ScholarshipApplication.id", purpose: ENTITY_ID)
 }
 extend type ScholarshipCourse {
   """
@@ -1025,7 +1025,7 @@ extend type ScholarshipCourse {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "ScholarshipCourse.scholarshipId,courseId", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "ScholarshipCourse.scholarshipId,courseId", purpose: ENTITY_ID)
 }
 extend type Transaction {
   """
@@ -1144,7 +1144,7 @@ extend type Transaction {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "Transaction.id", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "Transaction.id", purpose: ENTITY_ID)
 }
 extend type User {
   """
@@ -1538,5 +1538,5 @@ extend type User {
   """
   A generated field that is used for caching results in SDKs.
   """
-  _id: ID! @fdc_generated(from: "User.username", purpose: GLOBAL_ID)
+  _id: ID! @fdc_generated(from: "User.username", purpose: ENTITY_ID)
 }
