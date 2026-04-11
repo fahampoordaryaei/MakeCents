@@ -1,3 +1,12 @@
+# Look up country by ISO code
+query GetCountryByCode($countryCode: String!) @auth(level: PUBLIC) {
+  countries(where: {countryCode: {eq: $countryCode}}, limit: 1) {
+    id
+    countryCode
+    continentCode
+  }
+}
+
 # List institutions
 query ListInstitutions @auth(level: PUBLIC) {
   institutions(orderBy: [{name: ASC}]) {
@@ -102,7 +111,8 @@ mutation StoreUserProfile(
   $courseId: UUID,
   $otherSchool: String,
   $otherCourse: String,
-  $monthlyBudget: Float
+  $monthlyBudget: Float,
+  $countryId: UUID
 ) @auth(level: USER) {
   user_upsert(data: {
     username: $username,
@@ -114,6 +124,7 @@ mutation StoreUserProfile(
     otherSchool: $otherSchool,
     otherCourse: $otherCourse,
     monthlyBudget: $monthlyBudget,
+    countryId: $countryId,
     createdAt_expr: "request.time"
   })
 }
@@ -166,6 +177,11 @@ query GetUserProfile($username: String!) @auth(level: USER) {
     course {
       id
       name
+    }
+    country {
+      id
+      countryCode
+      continentCode
     }
   }
 }

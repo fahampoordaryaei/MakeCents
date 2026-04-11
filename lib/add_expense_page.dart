@@ -120,9 +120,9 @@ class _AddExpensePageState extends State<AddExpensePage> {
             children: [
               TextFormField(
                 controller: _amountController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Amount',
-                  prefixText: '€',
+                  prefixText: currency,
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {

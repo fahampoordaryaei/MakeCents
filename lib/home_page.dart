@@ -187,7 +187,7 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(height: 12),
             Text(
-              '${s.currency}${s.amount.toStringAsFixed(0)}',
+              formatMoney(s.amount, decimals: 0, symbol: s.currency),
               style: TextStyle(
                 color: scholarshipColor,
                 fontWeight: FontWeight.w800,
@@ -288,7 +288,7 @@ class _HomePageState extends State<HomePage> {
                         Expanded(
                           child: _SummaryItem(
                             label: 'Spent this month',
-                            value: '€${expenses.toStringAsFixed(2)}',
+                            value: formatMoney(expenses),
                             icon: Icons.arrow_upward_rounded,
                           ),
                         ),
@@ -296,7 +296,7 @@ class _HomePageState extends State<HomePage> {
                         Expanded(
                           child: _SummaryItem(
                             label: 'Left in budget',
-                            value: '€${available.toStringAsFixed(2)}',
+                            value: formatMoney(available),
                             icon: Icons.savings_outlined,
                           ),
                         ),
@@ -345,8 +345,7 @@ class _HomePageState extends State<HomePage> {
                       icon: Icons.trending_down_outlined,
                       color: const Color(0xFFFF6B6B),
                       label: 'Spent today',
-                      value:
-                          '€${_todaySpend(txProvider.transactions).toStringAsFixed(2)}',
+                      value: formatMoney(_todaySpend(txProvider.transactions)),
                     ),
                   ),
                 ],
@@ -540,7 +539,11 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                             Text(
-                              '${s.currency}${s.amount.toStringAsFixed(0)}',
+                              formatMoney(
+                                s.amount,
+                                decimals: 0,
+                                symbol: s.currency,
+                              ),
                               style: TextStyle(
                                 color: scholarshipColor,
                                 fontWeight: FontWeight.w800,
@@ -628,7 +631,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                         trailing: Text(
-                          '-€${tx.amount.toStringAsFixed(2)}',
+                          '-${formatMoney(tx.amount)}',
                           style: const TextStyle(
                             color: Color(0xFFFF6B6B),
                             fontWeight: FontWeight.w700,

@@ -110,9 +110,7 @@ class _TrackerPageState extends State<TrackerPage> {
     setState(() => _historyPage = 0);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          'Added €${amount.toStringAsFixed(2)} · ${_selectedCat!.name}',
-        ),
+        content: Text('Added ${formatMoney(amount)} · ${_selectedCat!.name}'),
         backgroundColor: const Color(0xFF3e7f3f),
       ),
     );
@@ -166,7 +164,7 @@ class _TrackerPageState extends State<TrackerPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Adding this will exceed your budget by €${(current + amount - budget).toStringAsFixed(2)}.',
+                'Adding this will exceed your budget by ${formatMoney(current + amount - budget)}.',
               ),
               const SizedBox(height: 12),
               Row(
@@ -208,9 +206,7 @@ class _TrackerPageState extends State<TrackerPage> {
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         title: const Text('Delete Expense'),
-        content: Text(
-          'Remove €${amount.toStringAsFixed(2)}? This cannot be undone.',
-        ),
+        content: Text('Remove ${formatMoney(amount)}? This cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -391,9 +387,7 @@ class _TrackerPageState extends State<TrackerPage> {
                             style: TextStyle(color: Colors.white, fontSize: 15),
                           ),
                           Text(
-                            budget > 0
-                                ? '€${budget.toStringAsFixed(2)}'
-                                : 'Not set',
+                            budget > 0 ? formatMoney(budget) : 'Not set',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 26,
@@ -428,7 +422,7 @@ class _TrackerPageState extends State<TrackerPage> {
                       Expanded(
                         child: _Stat(
                           'Spent',
-                          '€${expenses.toStringAsFixed(2)}',
+                          formatMoney(expenses),
                           Icons.arrow_upward_rounded,
                         ),
                       ),
@@ -436,7 +430,7 @@ class _TrackerPageState extends State<TrackerPage> {
                       Expanded(
                         child: _Stat(
                           'Available',
-                          '€${available.toStringAsFixed(2)}',
+                          formatMoney(available),
                           Icons.savings_outlined,
                         ),
                       ),
@@ -582,7 +576,7 @@ class _TrackerPageState extends State<TrackerPage> {
                             context,
                             _amountController,
                             'Amount',
-                            '€',
+                            currency,
                           ),
                         ),
                       ],
@@ -640,7 +634,7 @@ class _TrackerPageState extends State<TrackerPage> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '€${expenses.toStringAsFixed(2)}',
+                      formatMoney(expenses),
                       style: TextStyle(
                         fontSize: 14,
                         color: Theme.of(
@@ -677,7 +671,7 @@ class _TrackerPageState extends State<TrackerPage> {
                                   final axisDay = t.x.round();
                                   if (axisDay <= 0) {
                                     return LineTooltipItem(
-                                      'Month start · €0.00',
+                                      'Month start · ${formatMoney(0)}',
                                       const TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w700,
@@ -690,7 +684,7 @@ class _TrackerPageState extends State<TrackerPage> {
                                     axisDay.clamp(1, todayDayOfMonth),
                                   );
                                   return LineTooltipItem(
-                                    '${DateFormat('d/MMM').format(d)} · €${t.y.toStringAsFixed(2)}',
+                                    '${DateFormat('d/MMM').format(d)} · ${formatMoney(t.y)}',
                                     const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w700,
@@ -717,8 +711,12 @@ class _TrackerPageState extends State<TrackerPage> {
                                     return const SizedBox.shrink();
                                   }
                                   final label = yInterval >= 1
-                                      ? '€${value.round()}'
-                                      : '€${value.toStringAsFixed(1)}';
+                                      ? formatMoney(value, symbol: currency)
+                                      : formatMoney(
+                                          value,
+                                          decimals: 1,
+                                          symbol: currency,
+                                        );
                                   return Text(
                                     label,
                                     style: TextStyle(
@@ -804,7 +802,7 @@ class _TrackerPageState extends State<TrackerPage> {
                                     ),
                                     value: available,
                                     title: pct >= labelThreshold
-                                        ? '€${available.toStringAsFixed(0)}'
+                                        ? formatMoney(available, decimals: 0)
                                         : '',
                                     radius: pct >= groupThreshold ? 60 : 55,
                                     titleStyle: TextStyle(
@@ -838,7 +836,7 @@ class _TrackerPageState extends State<TrackerPage> {
                                   color: c.color,
                                   value: e.value,
                                   title: pct >= labelThreshold
-                                      ? '€${e.value.toStringAsFixed(0)}'
+                                      ? formatMoney(e.value, decimals: 0)
                                       : '',
                                   radius: pct >= groupThreshold ? 60 : 55,
                                   titleStyle: TextStyle(
@@ -869,14 +867,14 @@ class _TrackerPageState extends State<TrackerPage> {
                           if (budget > 0)
                             _Chip(
                               Colors.green.withValues(alpha: 0.7),
-                              'Available €${available.toStringAsFixed(0)}',
+                              'Available ${formatMoney(available, decimals: 0)}',
                             ),
                           ...groupedEntries.map(
                             (e) => _Chip(
                               e.key == 'Other'
                                   ? Colors.grey
                                   : catFor(e.key).color,
-                              '${e.key} €${e.value.toStringAsFixed(0)}',
+                              '${e.key} ${formatMoney(e.value, decimals: 0)}',
                             ),
                           ),
                         ],
@@ -1053,7 +1051,7 @@ class _TrackerPageState extends State<TrackerPage> {
                               ],
                             ),
                             trailing: Text(
-                              '-€${tx.amount.toStringAsFixed(2)}',
+                              '-${formatMoney(tx.amount)}',
                               style: const TextStyle(
                                 color: Color(0xFFFF6B6B),
                                 fontWeight: FontWeight.w700,
@@ -1294,7 +1292,7 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
                           context,
                           _amount,
                           'Amount',
-                          '€',
+                          currency,
                         ),
                       ),
                     ],

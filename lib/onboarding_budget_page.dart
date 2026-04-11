@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'budget_provider.dart';
 import 'dataconnect_generated/generated.dart';
+import 'functions.dart';
 import 'main.dart';
 import 'startup_page.dart';
 import 'user_provider.dart';
@@ -92,7 +93,9 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
       return;
     }
     if (budget > 10000) {
-      setState(() => _error = 'The monthly budget cannot exceed €10,000.');
+      setState(
+        () => _error = 'The monthly budget cannot exceed ${currency}10,000.',
+      );
       return;
     }
 
@@ -282,7 +285,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                   textAlign: TextAlign.center,
                   decoration: InputDecoration(
                     hintText: '0',
-                    prefixText: '€',
+                    prefixText: currency,
                     prefixStyle: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 32,
@@ -331,14 +334,14 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '€0',
+                        '${currency}0',
                         style: TextStyle(
                           color: Colors.grey.shade500,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                       Text(
-                        '€10k+',
+                        '${currency}10k+',
                         style: TextStyle(
                           color: Colors.grey.shade500,
                           fontWeight: FontWeight.w700,

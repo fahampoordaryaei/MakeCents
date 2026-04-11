@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'functions.dart';
 import 'transaction_provider.dart';
 
 class BalancePage extends StatelessWidget {
@@ -27,7 +28,7 @@ class BalancePage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              '€${spent.toStringAsFixed(2)}',
+              formatMoney(spent),
               style: TextStyle(
                 fontSize: 36,
                 fontWeight: FontWeight.w800,

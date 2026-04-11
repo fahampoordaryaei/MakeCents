@@ -18,7 +18,7 @@ class Scholarship {
     required this.provider,
     required this.email,
     required this.amount,
-    this.currency = '€',
+    required this.currency,
     required this.courseIds,
     required this.description,
     this.color = const Color(0xFF3e7f3f),

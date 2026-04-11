@@ -118,17 +118,42 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
   Future<void> _confirmCancelRegistration() async {
     if (await showDialog<bool>(
               context: context,
-              builder: (context) => AlertDialog(
+              builder: (dialogContext) => AlertDialog(
                 title: const Text('Cancel setup?'),
-                content: const Text('Your registration will be canceled.'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: const Text('No'),
+                content: Text(
+                  'Your registration will be canceled.',
+                  style: TextStyle(
+                    color: Theme.of(dialogContext).colorScheme.onSurfaceVariant,
                   ),
-                  FilledButton(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    child: const Text('Yes, cancel'),
+                ),
+                actions: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      FilledButton(
+                        autofocus: true,
+                        onPressed: () => Navigator.of(dialogContext).pop(false),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: const Color(0xFF3e7f3f),
+                          foregroundColor: Colors.white,
+                        ),
+                        child: const Text('No'),
+                      ),
+                      const SizedBox(width: 8),
+                      OutlinedButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(true),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Theme.of(
+                            dialogContext,
+                          ).colorScheme.error,
+                          side: BorderSide(
+                            color: Theme.of(dialogContext).colorScheme.error,
+                          ),
+                        ),
+                        child: const Text('Yes, cancel'),
+                      ),
+                    ],
                   ),
                 ],
               ),

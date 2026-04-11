@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'budget_provider.dart';
+import 'functions.dart';
 import 'transaction_provider.dart';
 
 class BudgetPage extends StatelessWidget {
@@ -55,7 +56,7 @@ class BudgetPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    budget > 0 ? '€${budget.toStringAsFixed(2)}' : 'Not set',
+                    budget > 0 ? formatMoney(budget) : 'Not set',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 36,
@@ -68,7 +69,7 @@ class BudgetPage extends StatelessWidget {
                       Expanded(
                         child: _BudgetStat(
                           'Spent',
-                          '€${spent.toStringAsFixed(2)}',
+                          formatMoney(spent),
                           Colors.white,
                         ),
                       ),
@@ -76,7 +77,7 @@ class BudgetPage extends StatelessWidget {
                       Expanded(
                         child: _BudgetStat(
                           'Remaining',
-                          '€${left.toStringAsFixed(2)}',
+                          formatMoney(left),
                           Colors.white,
                         ),
                       ),

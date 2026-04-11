@@ -170,7 +170,7 @@ class UserPage extends StatelessWidget {
                 Expanded(
                   child: _StatCard(
                     'Total Spent',
-                    '€${totalSpent.toStringAsFixed(2)}',
+                    formatMoney(totalSpent),
                     Icons.arrow_upward_rounded,
                     const Color(0xFFFF6B6B),
                   ),
@@ -203,7 +203,7 @@ class UserPage extends StatelessWidget {
               icon: Icons.account_balance_wallet_outlined,
               iconColor: const Color(0xFF3e7f3f),
               title: 'Monthly Budget',
-              subtitle: '€${bp.budget.amount.toStringAsFixed(2)}',
+              subtitle: formatMoney(bp.budget.amount),
               onTap: () => _editBudgetDialog(context),
             ),
             const SizedBox(height: 8),
@@ -563,7 +563,7 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
             onChanged: (_) => _onTextChanged(),
             style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900),
             decoration: InputDecoration(
-              prefixText: '€',
+              prefixText: currency,
               prefixStyle: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface,
                 fontSize: 32,
@@ -607,7 +607,7 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '€0',
+                  '${currency}0',
                   style: TextStyle(
                     color: Theme.of(
                       context,
@@ -616,7 +616,7 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
                   ),
                 ),
                 Text(
-                  '€10k',
+                  '${currency}10k',
                   style: TextStyle(
                     color: Theme.of(
                       context,
@@ -648,7 +648,7 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
               return;
             }
             if (v > 10000) {
-              setState(() => _dialogError = 'Max budget is €10,000.');
+              setState(() => _dialogError = 'Max budget is ${currency}10,000.');
               return;
             }
             await widget.bp.setBudget(v);

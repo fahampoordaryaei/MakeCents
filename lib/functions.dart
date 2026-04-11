@@ -12,6 +12,7 @@ class ExpenseCategory {
 }
 
 List<ExpenseCategory> dynamicCategories = [];
+String currency = '€';
 
 ExpenseCategory catFor(String name) {
   for (final c in dynamicCategories) {
@@ -26,6 +27,11 @@ bool passwordCriteria(String pass) {
       RegExp(r'[a-z]').hasMatch(pass) &&
       RegExp(r'[0-9]').hasMatch(pass) &&
       RegExp(r'[^a-zA-Z0-9\s]').hasMatch(pass);
+}
+
+String formatMoney(num amount, {int decimals = 2, String? symbol}) {
+  final activeSymbol = (symbol == null || symbol.isEmpty) ? currency : symbol;
+  return '$activeSymbol${amount.toStringAsFixed(decimals)}';
 }
 
 Widget buildProductImage(
