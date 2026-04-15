@@ -25,7 +25,7 @@ Widget _trackerTextField(
       filled: true,
       fillColor: Theme.of(context).colorScheme.surface,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide.none,
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
@@ -151,7 +151,7 @@ class _TrackerPageState extends State<TrackerPage> {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, ss) => AlertDialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(8),
           ),
           title: const Row(
             children: [
@@ -180,12 +180,18 @@ class _TrackerPageState extends State<TrackerPage> {
           ),
           actions: [
             TextButton(
+              style: TextButton.styleFrom(
+                minimumSize: const Size(100, 48),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              ),
               onPressed: () => Navigator.pop(ctx),
               child: const Text('Cancel'),
             ),
             FilledButton(
               style: FilledButton.styleFrom(
                 backgroundColor: const Color(0xFF3e7f3f),
+                minimumSize: const Size(100, 48),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
               onPressed: () async {
                 if (dontShow) setState(() => _showOverBudgetWarning = false);
@@ -204,7 +210,7 @@ class _TrackerPageState extends State<TrackerPage> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         title: const Text('Delete Expense'),
         content: Text('Remove ${formatMoney(amount)}? This cannot be undone.'),
         actions: [
@@ -213,7 +219,11 @@ class _TrackerPageState extends State<TrackerPage> {
             child: const Text('Cancel'),
           ),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Colors.redAccent),
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              minimumSize: const Size(100, 48),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
             onPressed: () async {
               Navigator.pop(context);
               try {
@@ -363,7 +373,7 @@ class _TrackerPageState extends State<TrackerPage> {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(8),
                 boxShadow: [
                   BoxShadow(
                     color: (over ? Colors.redAccent : const Color(0xFF3e7f3f))
@@ -403,7 +413,7 @@ class _TrackerPageState extends State<TrackerPage> {
                         ),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           over ? '⚠ Over Budget' : '✓ On Track',
@@ -464,7 +474,7 @@ class _TrackerPageState extends State<TrackerPage> {
               elevation: 0,
               color: Theme.of(context).colorScheme.surface,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(8),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(20),
@@ -533,7 +543,7 @@ class _TrackerPageState extends State<TrackerPage> {
                                   color: sel
                                       ? cat.color
                                       : cat.color.withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(20),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -593,8 +603,9 @@ class _TrackerPageState extends State<TrackerPage> {
                               ? Colors.white
                               : null,
                           padding: const EdgeInsets.symmetric(vertical: 14),
+                          minimumSize: const Size(double.infinity, 48),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(8),
                           ),
                         ),
                         icon: const Icon(Icons.add_circle_outline),
@@ -617,7 +628,7 @@ class _TrackerPageState extends State<TrackerPage> {
               elevation: 0,
               color: Theme.of(context).colorScheme.surface,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(8),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(20),
@@ -764,7 +775,7 @@ class _TrackerPageState extends State<TrackerPage> {
                 elevation: 0,
                 color: Theme.of(context).colorScheme.surface,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(20),
@@ -890,7 +901,7 @@ class _TrackerPageState extends State<TrackerPage> {
               elevation: 0,
               color: Theme.of(context).colorScheme.surface,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(8),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(20),
@@ -975,7 +986,7 @@ class _TrackerPageState extends State<TrackerPage> {
                               height: 42,
                               decoration: BoxDecoration(
                                 color: cat.color.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(8),
                               ),
                               child: Icon(cat.icon, color: cat.color, size: 20),
                             ),
@@ -1175,7 +1186,7 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
       child: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(8),
         ),
         child: SafeArea(
           top: false,
@@ -1249,7 +1260,7 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
                                 color: sel
                                     ? cat.color
                                     : cat.color.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(20),
+                                borderRadius: BorderRadius.circular(8),
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -1325,7 +1336,7 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
                       filled: true,
                       fillColor: Theme.of(context).colorScheme.surface,
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(8),
                         borderSide: BorderSide.none,
                       ),
                       contentPadding: const EdgeInsets.symmetric(
@@ -1380,8 +1391,9 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
                       style: FilledButton.styleFrom(
                         backgroundColor: const Color(0xFF3e7f3f),
                         padding: const EdgeInsets.symmetric(vertical: 14),
+                        minimumSize: const Size(double.infinity, 48),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                       ),
                       icon: const Icon(Icons.save_outlined),

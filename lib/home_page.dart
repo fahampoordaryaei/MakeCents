@@ -89,7 +89,7 @@ class _HomePageState extends State<HomePage> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         title: Text(p.name),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -155,7 +155,7 @@ class _HomePageState extends State<HomePage> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         title: Text(s.title),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -270,7 +270,7 @@ class _HomePageState extends State<HomePage> {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
-                  borderRadius: BorderRadius.circular(22),
+                  borderRadius: BorderRadius.circular(8),
                   boxShadow: [
                     BoxShadow(
                       color: const Color(0xFF3e7f3f).withValues(alpha: 0.35),
@@ -305,7 +305,7 @@ class _HomePageState extends State<HomePage> {
                     if (budget > 0) ...[
                       const SizedBox(height: 20),
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(6),
+                        borderRadius: BorderRadius.circular(8),
                         child: LinearProgressIndicator(
                           value: spentPct,
                           minHeight: 7,
@@ -382,7 +382,7 @@ class _HomePageState extends State<HomePage> {
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
                             color: Theme.of(context).colorScheme.surface,
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
                             children: [
@@ -468,7 +468,7 @@ class _HomePageState extends State<HomePage> {
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     'No matched scholarships yet. Set your course in profile.',
@@ -494,7 +494,7 @@ class _HomePageState extends State<HomePage> {
                           border: Border.all(
                             color: scholarshipColor.withValues(alpha: 0.28),
                           ),
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
                           children: [
@@ -504,7 +504,7 @@ class _HomePageState extends State<HomePage> {
                               margin: const EdgeInsets.only(right: 12),
                               decoration: BoxDecoration(
                                 color: scholarshipColor.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(8),
                               ),
                               child: Icon(
                                 Icons.school_outlined,
@@ -573,7 +573,7 @@ class _HomePageState extends State<HomePage> {
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Center(
                     child: Text(
@@ -591,7 +591,7 @@ class _HomePageState extends State<HomePage> {
                 Container(
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: ListView.separated(
                     shrinkWrap: true,
@@ -612,7 +612,7 @@ class _HomePageState extends State<HomePage> {
                           height: 40,
                           decoration: BoxDecoration(
                             color: cat.color.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(8),
                           ),
                           child: Icon(cat.icon, color: cat.color, size: 20),
                         ),
@@ -706,7 +706,7 @@ class _QuickStatCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         children: [
@@ -715,7 +715,7 @@ class _QuickStatCard extends StatelessWidget {
             height: 40,
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, color: color, size: 20),
           ),

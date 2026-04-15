@@ -139,8 +139,9 @@ class _StartupPageState extends State<StartupPage> {
                       style: FilledButton.styleFrom(
                         backgroundColor: const Color(0xFF3e7f3f),
                         padding: const EdgeInsets.symmetric(vertical: 16),
+                        minimumSize: const Size(double.infinity, 48),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                       ),
                       child: const Text(
@@ -156,6 +157,10 @@ class _StartupPageState extends State<StartupPage> {
                   TextButton(
                     onPressed: () => Navigator.of(context).pushReplacement(
                       MaterialPageRoute(builder: (_) => const LoginPage()),
+                    ),
+                    style: TextButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 48),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                     child: const Text(
                       'Already have an account? Log in',

@@ -174,7 +174,7 @@ class _MatchPageState extends State<MatchPage> {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(8),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.05),
@@ -226,7 +226,7 @@ class _MatchPageState extends State<MatchPage> {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.surface,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
@@ -262,7 +262,7 @@ class _MatchPageState extends State<MatchPage> {
                             : null,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                       ),
                       icon: const Icon(Icons.radar_outlined),
@@ -299,7 +299,7 @@ class _MatchPageState extends State<MatchPage> {
                     ),
                     decoration: BoxDecoration(
                       color: const Color(0xFF3e7f3f).withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       '${_results!.length} found',
@@ -319,7 +319,7 @@ class _MatchPageState extends State<MatchPage> {
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: Center(
                   child: Column(
@@ -376,7 +376,7 @@ class _ScholarshipCard extends StatelessWidget {
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -393,7 +393,7 @@ class _ScholarshipCard extends StatelessWidget {
               height: 52,
               decoration: BoxDecoration(
                 color: s.color.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(Icons.school_outlined, color: s.color, size: 26),
             ),
@@ -485,7 +485,7 @@ class _ScholarshipCard extends StatelessWidget {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         title: Text(s.title),
         content: Column(
           mainAxisSize: MainAxisSize.min,

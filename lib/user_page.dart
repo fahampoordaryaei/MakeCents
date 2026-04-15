@@ -148,7 +148,7 @@ class UserPage extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: const Color(0xFF3e7f3f).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         up.profile!.displayInstitution,
@@ -291,7 +291,7 @@ class _ChangePasswordDialogState extends State<_ChangePasswordDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       title: const Text('Change password'),
       content: SizedBox(
         width: 420,
@@ -305,7 +305,7 @@ class _ChangePasswordDialogState extends State<_ChangePasswordDialog> {
               decoration: InputDecoration(
                 labelText: 'New password',
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 suffixIcon: IconButton(
                   icon: Icon(
@@ -324,7 +324,7 @@ class _ChangePasswordDialogState extends State<_ChangePasswordDialog> {
               decoration: InputDecoration(
                 labelText: 'Confirm new password',
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 suffixIcon: IconButton(
                   icon: Icon(
@@ -368,10 +368,18 @@ class _ChangePasswordDialogState extends State<_ChangePasswordDialog> {
       ),
       actions: [
         TextButton(
+          style: TextButton.styleFrom(
+            minimumSize: const Size(100, 48),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          ),
           onPressed: () => Navigator.pop(context),
           child: const Text('Cancel'),
         ),
         FilledButton(
+          style: FilledButton.styleFrom(
+            minimumSize: const Size(100, 48),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          ),
           onPressed: () async {
             final newPass = _newPasswordCtrl.text;
             final confirmPass = _confirmPasswordCtrl.text;
@@ -449,7 +457,7 @@ class _DeleteAccountPasswordDialogState
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       title: const Text('Delete account?'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -463,7 +471,7 @@ class _DeleteAccountPasswordDialogState
             decoration: InputDecoration(
               labelText: 'Password',
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(8),
               ),
               suffixIcon: IconButton(
                 icon: Icon(
@@ -479,12 +487,18 @@ class _DeleteAccountPasswordDialogState
       ),
       actions: [
         TextButton(
+          style: TextButton.styleFrom(
+            minimumSize: const Size(100, 48),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          ),
           onPressed: () => Navigator.pop(context),
           child: const Text('Cancel'),
         ),
         FilledButton(
           style: FilledButton.styleFrom(
             backgroundColor: const Color(0xFFFF6B6B),
+            minimumSize: const Size(100, 48),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           ),
           onPressed: () => Navigator.pop(context, _passwordCtrl.text.trim()),
           child: const Text('Delete'),
@@ -539,7 +553,7 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       title: const Text(
         'Update Monthly Budget',
         textAlign: TextAlign.center,
@@ -572,7 +586,7 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
               filled: true,
               fillColor: Theme.of(context).scaffoldBackgroundColor,
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide.none,
               ),
               contentPadding: const EdgeInsets.symmetric(vertical: 20),
@@ -631,14 +645,20 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
       ),
       actions: [
         TextButton(
+          style: TextButton.styleFrom(
+            minimumSize: const Size(100, 48),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          ),
           onPressed: () => Navigator.pop(context),
           child: const Text('Cancel'),
         ),
         FilledButton(
           style: FilledButton.styleFrom(
             backgroundColor: const Color(0xFF3e7f3f),
+            minimumSize: const Size(100, 48),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8),
             ),
           ),
           onPressed: () async {
@@ -672,7 +692,7 @@ class _StatCard extends StatelessWidget {
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
       color: Theme.of(context).colorScheme.surface,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(8),
     ),
     child: Row(
       children: [
@@ -681,7 +701,7 @@ class _StatCard extends StatelessWidget {
           height: 40,
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(icon, color: color, size: 20),
         ),
@@ -804,7 +824,7 @@ class _SettingsTile extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     decoration: BoxDecoration(
       color: Theme.of(context).colorScheme.surface,
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(8),
     ),
     child: ListTile(
       onTap: onTap,
@@ -813,7 +833,7 @@ class _SettingsTile extends StatelessWidget {
         height: 40,
         decoration: BoxDecoration(
           color: iconColor.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(icon, color: iconColor, size: 20),
       ),

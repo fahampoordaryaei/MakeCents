@@ -11,7 +11,7 @@ class BalancePage extends StatelessWidget {
     final spent = transactionProvider.monthlySpent;
 
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       elevation: 2,
       child: Padding(
         padding: const EdgeInsets.all(24.0),

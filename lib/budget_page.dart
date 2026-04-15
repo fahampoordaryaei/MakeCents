@@ -38,7 +38,7 @@ class BudgetPage extends StatelessWidget {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: BorderRadius.circular(22),
+                borderRadius: BorderRadius.circular(8),
                 boxShadow: [
                   BoxShadow(
                     color: const Color(0xFF3e7f3f).withValues(alpha: 0.3),

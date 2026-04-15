@@ -6,6 +6,8 @@ import 'main.dart';
 import 'onboarding_profile_page.dart';
 import 'register_page.dart';
 import 'startup_page.dart';
+import 'forgot_password_page.dart';
+import 'package:country_code_picker/country_code_picker.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -14,24 +16,44 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _emailCtrl = TextEditingController();
+  final _identityCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
+  final _codeCtrl = TextEditingController();
   String _error = '';
   bool _obscure = true;
   bool _isLoading = false;
+  bool _usePhoneLogin = false;
+  bool _codeSent = false;
+  String? _verificationId;
+  String _countryCode = '+356';
 
   @override
   void dispose() {
-    _emailCtrl.dispose();
+    _identityCtrl.dispose();
     _passwordCtrl.dispose();
+    _codeCtrl.dispose();
     super.dispose();
   }
 
   Future<void> _signIn() async {
-    final email = _emailCtrl.text.trim();
-    final pass = _passwordCtrl.text;
+    final identity = _identityCtrl.text.trim();
+    if (identity.isEmpty) {
+      setState(() => _error = 'Please fill out all fields.');
+      return;
+    }
 
-    if (email.isEmpty || pass.isEmpty) {
+    if (_usePhoneLogin) {
+      if (_codeSent) {
+        await _verifyPhoneCode();
+      } else {
+        await _sendPhoneCode(identity);
+      }
+      return;
+    }
+
+    final email = identity;
+    final pass = _passwordCtrl.text;
+    if (pass.isEmpty) {
       setState(() => _error = 'Please fill out all fields.');
       return;
     }
@@ -85,31 +107,7 @@ class _LoginPageState extends State<LoginPage> {
         } catch (_) {}
       }
 
-      final profileResult = await connector
-          .getUserProfile(username: authUser.uid)
-          .execute();
-
-      if (!mounted) return;
-      if (profileResult.data.users.isNotEmpty) {
-        Navigator.of(context).pushAndRemoveUntil(
-          PageRouteBuilder(
-            pageBuilder: (_, a, _) => const HomeScreen(),
-            transitionsBuilder: (_, a, _, child) =>
-                FadeTransition(opacity: a, child: child),
-            transitionDuration: const Duration(milliseconds: 400),
-          ),
-          (r) => false,
-        );
-        return;
-      }
-      final (firstName, lastName) = _splitDisplayName(authUser.displayName);
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(
-          builder: (_) =>
-              OnboardingProfilePage(firstName: firstName, lastName: lastName),
-        ),
-        (r) => false,
-      );
+      await _completeSignIn(authUser);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
         await _recordFailure(email);
@@ -125,6 +123,183 @@ class _LoginPageState extends State<LoginPage> {
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  Future<void> _sendPhoneCode(String phone) async {
+    final normalized = phone.replaceAll(RegExp(r'[^\d+]'), '');
+    final fullPhone = '$_countryCode$normalized';
+    if (!RegExp(r'^\+?\d{7,15}$').hasMatch(fullPhone)) {
+      setState(() => _error = 'Enter a valid phone number.');
+      return;
+    }
+
+    setState(() {
+      _error = '';
+      _isLoading = true;
+      _codeSent = false;
+      _verificationId = null;
+    });
+
+    try {
+      await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: fullPhone,
+        verificationCompleted: (credential) async {
+          try {
+            await FirebaseAuth.instance.signInWithCredential(credential);
+            final authUser = FirebaseAuth.instance.currentUser;
+            if (authUser != null && mounted) {
+              await _completeSignIn(authUser);
+            }
+          } on FirebaseAuthException catch (e) {
+            if (mounted) {
+              setState(() => _error = e.message ?? 'Phone sign-in failed.');
+            }
+          } catch (_) {
+            if (mounted) {
+              setState(() => _error = 'Phone sign-in failed.');
+            }
+          }
+        },
+        verificationFailed: (e) {
+          if (mounted) {
+            setState(() {
+              _error = e.message ?? 'Phone verification failed.';
+              _isLoading = false;
+            });
+          }
+        },
+        codeSent: (verificationId, _) {
+          if (mounted) {
+            setState(() {
+              _verificationId = verificationId;
+              _codeSent = true;
+              _isLoading = false;
+              _error = 'Verification code sent.';
+            });
+          }
+        },
+        codeAutoRetrievalTimeout: (verificationId) {
+          _verificationId = verificationId;
+        },
+      );
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _error = 'Unable to send verification code.';
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _verifyPhoneCode() async {
+    final code = _codeCtrl.text.trim();
+    if (code.isEmpty) {
+      setState(() => _error = 'Enter the verification code.');
+      return;
+    }
+    if (_verificationId == null) {
+      setState(
+        () =>
+            _error = 'Verification data is missing. Please request a new code.',
+      );
+      return;
+    }
+
+    setState(() {
+      _error = '';
+      _isLoading = true;
+    });
+
+    try {
+      final credential = PhoneAuthProvider.credential(
+        verificationId: _verificationId!,
+        smsCode: code,
+      );
+      final result = await FirebaseAuth.instance.signInWithCredential(
+        credential,
+      );
+      final authUser = result.user ?? FirebaseAuth.instance.currentUser;
+      if (authUser == null) {
+        setState(() {
+          _error = 'Phone sign-in failed.';
+        });
+        return;
+      }
+      await _completeSignIn(authUser);
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _error = e.message ?? 'Unable to verify code.';
+      });
+    } catch (_) {
+      setState(() {
+        _error = 'Unable to verify code.';
+      });
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _completeSignIn(User authUser) async {
+    final connector = ExampleConnector.instance;
+    String? username;
+    if (!_usePhoneLogin) {
+      try {
+        final statusResult = await connector
+            .getLoginStatus(email: _identityCtrl.text.trim())
+            .execute();
+        if (statusResult.data.users.isNotEmpty) {
+          final user = statusResult.data.users.first;
+          username = user.username;
+          final lockedUntil = user.lockedUntil?.toDateTime();
+          if (lockedUntil != null && DateTime.now().isBefore(lockedUntil)) {
+            final remaining =
+                lockedUntil.difference(DateTime.now()).inMinutes + 1;
+            if (mounted) {
+              setState(() {
+                _error =
+                    'Account locked. Try again in $remaining minute${remaining == 1 ? '' : 's'}.';
+                _isLoading = false;
+              });
+            }
+            return;
+          }
+        }
+      } catch (_) {}
+    }
+
+    if (username != null) {
+      try {
+        await connector.resetLoginAttempts(username: username).execute();
+      } catch (_) {}
+    }
+
+    final profileResult = await connector
+        .getUserProfile(username: authUser.uid)
+        .execute();
+
+    if (!mounted) return;
+    if (profileResult.data.users.isNotEmpty) {
+      Navigator.of(context).pushAndRemoveUntil(
+        PageRouteBuilder(
+          pageBuilder: (_, a, _) => const HomeScreen(),
+          transitionsBuilder: (_, a, _, child) =>
+              FadeTransition(opacity: a, child: child),
+          transitionDuration: const Duration(milliseconds: 400),
+        ),
+        (r) => false,
+      );
+      return;
+    }
+
+    final (firstName, lastName) = _splitDisplayName(authUser.displayName);
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (_) =>
+            OnboardingProfilePage(firstName: firstName, lastName: lastName),
+      ),
+      (r) => false,
+    );
   }
 
   Future<void> _recordFailure(String email) async {
@@ -195,7 +370,7 @@ class _LoginPageState extends State<LoginPage> {
             padding: const EdgeInsets.all(28),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.06),
@@ -245,7 +420,7 @@ class _LoginPageState extends State<LoginPage> {
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
                         color: const Color(0xFF3e7f3f),
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(
                         Icons.school,
@@ -273,19 +448,103 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 28),
-                    _inputField(
-                      _emailCtrl,
-                      'Student Email',
-                      Icons.email_outlined,
-                      false,
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () {
+                              setState(() {
+                                _usePhoneLogin = false;
+                                _codeSent = false;
+                                _verificationId = null;
+                                _codeCtrl.clear();
+                                _identityCtrl.clear();
+                                _error = '';
+                              });
+                            },
+                            style: OutlinedButton.styleFrom(
+                              backgroundColor: !_usePhoneLogin
+                                  ? const Color(0xFF3e7f3f)
+                                  : Colors.transparent,
+                              foregroundColor: !_usePhoneLogin
+                                  ? Colors.white
+                                  : Theme.of(context).colorScheme.onSurface,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: const Text('Email'),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () {
+                              setState(() {
+                                _usePhoneLogin = true;
+                                _codeSent = false;
+                                _verificationId = null;
+                                _codeCtrl.clear();
+                                _identityCtrl.clear();
+                                _error = '';
+                              });
+                            },
+                            style: OutlinedButton.styleFrom(
+                              backgroundColor: _usePhoneLogin
+                                  ? const Color(0xFF3e7f3f)
+                                  : Colors.transparent,
+                              foregroundColor: _usePhoneLogin
+                                  ? Colors.white
+                                  : Theme.of(context).colorScheme.onSurface,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: const Text('Phone'),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 14),
-                    _inputField(
-                      _passwordCtrl,
-                      'Password',
-                      Icons.lock_outline,
-                      true,
-                    ),
+                    const SizedBox(height: 16),
+                    _usePhoneLogin
+                        ? _buildPhoneInput()
+                        : _inputField(
+                            _identityCtrl,
+                            'Student Email',
+                            Icons.email_outlined,
+                            false,
+                            TextInputType.emailAddress,
+                          ),
+                    if (!_usePhoneLogin) ...[
+                      const SizedBox(height: 14),
+                      _inputField(
+                        _passwordCtrl,
+                        'Password',
+                        Icons.lock_outline,
+                        true,
+                      ),
+                    ] else if (_codeSent) ...[
+                      const SizedBox(height: 14),
+                      _inputField(
+                        _codeCtrl,
+                        'Verification code',
+                        Icons.message_outlined,
+                        false,
+                        TextInputType.number,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Enter the SMS code sent to your phone.',
+                        style: TextStyle(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.75),
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 24),
                     SizedBox(
                       width: double.infinity,
@@ -294,6 +553,7 @@ class _LoginPageState extends State<LoginPage> {
                         style: FilledButton.styleFrom(
                           backgroundColor: const Color(0xFF3e7f3f),
                           padding: const EdgeInsets.symmetric(vertical: 16),
+                          minimumSize: const Size(double.infinity, 48),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
@@ -307,9 +567,13 @@ class _LoginPageState extends State<LoginPage> {
                                   strokeWidth: 2,
                                 ),
                               )
-                            : const Text(
-                                'Sign In',
-                                style: TextStyle(
+                            : Text(
+                                _usePhoneLogin
+                                    ? _codeSent
+                                          ? 'Verify Code'
+                                          : 'Send Code'
+                                    : 'Sign In',
+                                style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -317,6 +581,25 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 12),
+                    if (!_usePhoneLogin) ...[
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const ForgotPasswordPage(),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          'Forgot Password?',
+                          style: TextStyle(
+                            color: const Color(0xFF3e7f3f),
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
                     TextButton(
                       onPressed: () {
                         Navigator.of(context).push(
@@ -353,7 +636,7 @@ class _LoginPageState extends State<LoginPage> {
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: const Color(0xFFFFECEC),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       children: [
@@ -385,15 +668,49 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  Widget _buildPhoneInput() {
+    return Row(
+      children: [
+        Container(
+          width: 100,
+          margin: const EdgeInsets.only(right: 8),
+          child: CountryCodePicker(
+            onChanged: (country) {
+              setState(() {
+                _countryCode = country.dialCode ?? '+356';
+              });
+            },
+            initialSelection: 'MT',
+            favorite: const ['+356', 'MT'],
+            showCountryOnly: false,
+            showOnlyCountryWhenClosed: false,
+            alignLeft: false,
+          ),
+        ),
+        Expanded(
+          child: _inputField(
+            _identityCtrl,
+            'Phone number',
+            Icons.phone_outlined,
+            false,
+            TextInputType.phone,
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _inputField(
     TextEditingController ctrl,
     String label,
     IconData icon,
-    bool isPass,
-  ) {
+    bool isPass, [
+    TextInputType? keyboardType,
+  ]) {
     return TextField(
       controller: ctrl,
       obscureText: isPass ? _obscure : false,
+      keyboardType: keyboardType,
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icon, size: 20),
@@ -411,7 +728,7 @@ class _LoginPageState extends State<LoginPage> {
         filled: true,
         fillColor: Theme.of(context).scaffoldBackgroundColor,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide.none,
         ),
         contentPadding: const EdgeInsets.symmetric(

@@ -202,7 +202,7 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
             filled: true,
             fillColor: Theme.of(context).scaffoldBackgroundColor,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide.none,
             ),
             contentPadding: const EdgeInsets.symmetric(
@@ -313,7 +313,7 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: const Color(0xFFFFECEC),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -387,7 +387,7 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
                         filled: true,
                         fillColor: Theme.of(context).scaffoldBackgroundColor,
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide.none,
                         ),
                         contentPadding: const EdgeInsets.symmetric(
@@ -436,7 +436,7 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
                         filled: true,
                         fillColor: Theme.of(context).scaffoldBackgroundColor,
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide.none,
                         ),
                         contentPadding: const EdgeInsets.symmetric(
@@ -456,7 +456,7 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
                         backgroundColor: const Color(0xFF3e7f3f),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                       ),
                       child: const Text(

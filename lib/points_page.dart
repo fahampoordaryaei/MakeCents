@@ -153,7 +153,7 @@ class _PointsPageState extends State<PointsPage> {
                 vertical: 24,
               ),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(22),
+                borderRadius: BorderRadius.circular(8),
               ),
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 560),
@@ -203,7 +203,7 @@ class _PointsPageState extends State<PointsPage> {
                                     color: const Color(
                                       0xFF3e7f3f,
                                     ).withValues(alpha: 0.12),
-                                    borderRadius: BorderRadius.circular(20),
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
                                     '${product.cost} pts',
@@ -299,7 +299,7 @@ class _PointsPageState extends State<PointsPage> {
                           ),
                           decoration: BoxDecoration(
                             color: Colors.grey.withValues(alpha: 0.14),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(8),
                             border: Border.all(
                               color: Colors.grey.withValues(alpha: 0.38),
                             ),
@@ -393,7 +393,7 @@ class _PointsPageState extends State<PointsPage> {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
-                  borderRadius: BorderRadius.circular(22),
+                  borderRadius: BorderRadius.circular(8),
                   boxShadow: [
                     BoxShadow(
                       color: const Color(0xFFAA96DA).withValues(alpha: 0.4),
@@ -468,7 +468,7 @@ class _PointsPageState extends State<PointsPage> {
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
                     children: [
@@ -477,7 +477,7 @@ class _PointsPageState extends State<PointsPage> {
                         height: 40,
                         decoration: BoxDecoration(
                           color: e.$4.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         child: Icon(e.$3, color: e.$4, size: 20),
                       ),
@@ -498,7 +498,7 @@ class _PointsPageState extends State<PointsPage> {
                         ),
                         decoration: BoxDecoration(
                           color: e.$4.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           e.$2,
@@ -549,13 +549,13 @@ class _PointsPageState extends State<PointsPage> {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
                   child: InkWell(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(8),
                     onTap: () => _showProductDetails(context, p),
                     child: Container(
                       padding: const EdgeInsets.all(18),
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.surface,
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -615,7 +615,7 @@ class _PointsPageState extends State<PointsPage> {
                                   color: const Color(
                                     0xFF3e7f3f,
                                   ).withValues(alpha: 0.12),
-                                  borderRadius: BorderRadius.circular(20),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
                                   '${p.cost} pts',
