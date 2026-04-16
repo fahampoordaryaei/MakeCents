@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1018177450899:android:0b8e8677d3bd944633ee66",
+        "mobilesdk_app_id": "1:1018177450899:android:759585dec6a4d81b33ee66",
         "android_client_info": {
-          "package_name": "com.example.makecents"
+          "package_name": "com.makecents.makecents"
         }
       },
       "oauth_client": [],
@@ -26,9 +26,9 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1018177450899:android:759585dec6a4d81b33ee66",
+        "mobilesdk_app_id": "1:1018177450899:android:d1709ed6896291c933ee66",
         "android_client_info": {
-          "package_name": "com.makecents.makecents"
+          "package_name": "com.makecentsteamstcmalta.makecents"
         }
       },
       "oauth_client": [],

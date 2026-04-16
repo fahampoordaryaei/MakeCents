@@ -1,4 +1,4 @@
-package com.makecents.makecents
+package com.makecentsteamstcmalta.makecents
 
 import io.flutter.embedding.android.FlutterActivity
 

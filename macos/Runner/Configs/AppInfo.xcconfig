@@ -8,7 +8,7 @@
 PRODUCT_NAME = makecents
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.makecents.makecents
+PRODUCT_BUNDLE_IDENTIFIER = com.makecentsteamstcmalta.makecents
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2026 MakeCents. All rights reserved.

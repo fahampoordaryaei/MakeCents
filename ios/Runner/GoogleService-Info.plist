@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.makecents.makecents</string>
+	<string>com.makecentsteamstcmalta.makecents</string>
 	<key>PROJECT_ID</key>
 	<string>makecents-b0fb9</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:1018177450899:ios:7371e9838a1b5dbe33ee66</string>
+	<string>1:1018177450899:ios:6974385698b8657e33ee66</string>
 </dict>
 </plist>
