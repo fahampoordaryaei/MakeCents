@@ -1,4 +1,4 @@
-package com.example.makecents
+package com.makecents.makecents
 
 import io.flutter.embedding.android.FlutterActivity
 

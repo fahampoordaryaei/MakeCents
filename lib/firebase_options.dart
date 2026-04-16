@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1018177450899',
     projectId: 'makecents-b0fb9',
     storageBucket: 'makecents-b0fb9.firebasestorage.app',
-    iosBundleId: 'com.example.makecents',
+    iosBundleId: 'com.makecents.makecents',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -60,7 +60,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1018177450899',
     projectId: 'makecents-b0fb9',
     storageBucket: 'makecents-b0fb9.firebasestorage.app',
-    iosBundleId: 'com.example.makecents',
+    iosBundleId: 'com.makecents.makecents',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
