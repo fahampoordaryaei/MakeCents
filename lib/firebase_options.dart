@@ -35,11 +35,12 @@ class DefaultFirebaseOptions {
     projectId: 'makecents-b0fb9',
     authDomain: 'makecents-b0fb9.firebaseapp.com',
     storageBucket: 'makecents-b0fb9.firebasestorage.app',
+    measurementId: 'G-8E7CNDYPBM',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCL3SNePK9ODpQHwigcIsP57XuX31KMw0M',
-    appId: '1:1018177450899:android:0b8e8677d3bd944633ee66',
+    appId: '1:1018177450899:android:759585dec6a4d81b33ee66',
     messagingSenderId: '1018177450899',
     projectId: 'makecents-b0fb9',
     storageBucket: 'makecents-b0fb9.firebasestorage.app',
@@ -47,7 +48,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyD6GbrEZeCvzORtJmF7w37edNsIg3-Xt-I',
-    appId: '1:1018177450899:ios:f7823dc16cd08ad533ee66',
+    appId: '1:1018177450899:ios:7371e9838a1b5dbe33ee66',
     messagingSenderId: '1018177450899',
     projectId: 'makecents-b0fb9',
     storageBucket: 'makecents-b0fb9.firebasestorage.app',
@@ -56,7 +57,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyD6GbrEZeCvzORtJmF7w37edNsIg3-Xt-I',
-    appId: '1:1018177450899:ios:f7823dc16cd08ad533ee66',
+    appId: '1:1018177450899:ios:7371e9838a1b5dbe33ee66',
     messagingSenderId: '1018177450899',
     projectId: 'makecents-b0fb9',
     storageBucket: 'makecents-b0fb9.firebasestorage.app',
@@ -70,5 +71,7 @@ class DefaultFirebaseOptions {
     projectId: 'makecents-b0fb9',
     authDomain: 'makecents-b0fb9.firebaseapp.com',
     storageBucket: 'makecents-b0fb9.firebasestorage.app',
+    measurementId: 'G-7XZCBRJ8S1',
   );
+
 }
