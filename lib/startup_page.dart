@@ -83,7 +83,7 @@ class _StartupPageState extends State<StartupPage> {
                         Text(
                           s.title,
                           style: TextStyle(
-                            fontSize: 32,
+                            fontSize: 28,
                             fontWeight: FontWeight.w800,
                             color: Theme.of(context).colorScheme.onSurface,
                           ),
@@ -93,7 +93,7 @@ class _StartupPageState extends State<StartupPage> {
                         Text(
                           s.subtitle,
                           style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 18,
                             height: 1.6,
                             color: Theme.of(
                               context,
@@ -147,7 +147,7 @@ class _StartupPageState extends State<StartupPage> {
                       child: const Text(
                         'Get Started',
                         style: TextStyle(
-                          fontSize: 24,
+                          fontSize: 18,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -165,7 +165,7 @@ class _StartupPageState extends State<StartupPage> {
                     child: const Text(
                       'Already have an account? Log in',
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 18,
                         color: Color(0xFF3e7f3f),
                         fontWeight: FontWeight.w600,
                       ),

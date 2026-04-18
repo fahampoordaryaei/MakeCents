@@ -112,7 +112,7 @@ class _HomePageState extends State<HomePage> {
             Text(
               p.storeName,
               style: const TextStyle(
-                fontSize: 15,
+                fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: Colors.grey,
               ),
@@ -121,7 +121,7 @@ class _HomePageState extends State<HomePage> {
             Text(
               p.description,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 16,
                 color: onSurface.withValues(alpha: 0.85),
               ),
             ),
@@ -164,7 +164,7 @@ class _HomePageState extends State<HomePage> {
             Text(
               'Provider: ${s.provider}',
               style: TextStyle(
-                fontSize: 15,
+                fontSize: 16,
                 fontWeight: FontWeight.w700,
                 color: scholarshipColor,
               ),
@@ -173,7 +173,7 @@ class _HomePageState extends State<HomePage> {
             Text(
               'Please email us your application letter and school records.',
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 16,
                 color: onSurface.withValues(alpha: 0.85),
               ),
             ),
@@ -181,7 +181,7 @@ class _HomePageState extends State<HomePage> {
             Text(
               'Contact: ${s.email}',
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 16,
                 color: onSurface.withValues(alpha: 0.85),
               ),
             ),
@@ -191,14 +191,14 @@ class _HomePageState extends State<HomePage> {
               style: TextStyle(
                 color: scholarshipColor,
                 fontWeight: FontWeight.w800,
-                fontSize: 20,
+                fontSize: 18,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               s.description,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 16,
                 color: onSurface.withValues(alpha: 0.85),
               ),
             ),
@@ -244,7 +244,7 @@ class _HomePageState extends State<HomePage> {
               Text(
                 'Hey, $displayName! 👋',
                 style: TextStyle(
-                  fontSize: 26,
+                  fontSize: 28,
                   fontWeight: FontWeight.w800,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
@@ -356,7 +356,7 @@ class _HomePageState extends State<HomePage> {
                 Text(
                   'Your discounts',
                   style: TextStyle(
-                    fontSize: 21,
+                    fontSize: 18,
                     fontWeight: FontWeight.w700,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
@@ -408,7 +408,7 @@ class _HomePageState extends State<HomePage> {
                                       p.name,
                                       style: TextStyle(
                                         fontWeight: FontWeight.w700,
-                                        fontSize: 17,
+                                        fontSize: 18,
                                         color: Theme.of(
                                           context,
                                         ).colorScheme.onSurface,
@@ -447,7 +447,7 @@ class _HomePageState extends State<HomePage> {
               Text(
                 'Scholarships for you',
                 style: TextStyle(
-                  fontSize: 21,
+                  fontSize: 18,
                   fontWeight: FontWeight.w700,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
@@ -520,7 +520,7 @@ class _HomePageState extends State<HomePage> {
                                     s.title,
                                     style: TextStyle(
                                       fontWeight: FontWeight.w700,
-                                      fontSize: 17,
+                                      fontSize: 18,
                                       color: Theme.of(
                                         context,
                                       ).colorScheme.onSurface,
@@ -531,7 +531,7 @@ class _HomePageState extends State<HomePage> {
                                     s.provider,
                                     style: TextStyle(
                                       color: scholarshipColor,
-                                      fontSize: 15,
+                                      fontSize: 16,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -626,7 +626,7 @@ class _HomePageState extends State<HomePage> {
                         subtitle: Text(
                           DateFormat('MMM d').format(tx.date),
                           style: const TextStyle(
-                            fontSize: 14,
+                            fontSize: 16,
                             color: Colors.grey,
                           ),
                         ),
@@ -681,10 +681,10 @@ class _SummaryItem extends StatelessWidget {
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w700,
-            fontSize: 24,
+            fontSize: 28,
           ),
         ),
-        Text(label, style: const TextStyle(color: Colors.white, fontSize: 20)),
+        Text(label, style: const TextStyle(color: Colors.white, fontSize: 18)),
       ],
     );
   }
@@ -739,7 +739,7 @@ class _QuickStatCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 16,
                     color: Theme.of(
                       context,
                     ).colorScheme.onSurface.withValues(alpha: 0.75),

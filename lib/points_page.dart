@@ -175,7 +175,7 @@ class _PointsPageState extends State<PointsPage> {
                                 Text(
                                   product.name,
                                   style: TextStyle(
-                                    fontSize: 22,
+                                    fontSize: 18,
                                     fontWeight: FontWeight.w800,
                                     color: Theme.of(
                                       context,
@@ -210,7 +210,7 @@ class _PointsPageState extends State<PointsPage> {
                                     style: const TextStyle(
                                       color: Color(0xFF3e7f3f),
                                       fontWeight: FontWeight.w700,
-                                      fontSize: 15,
+                                      fontSize: 16,
                                     ),
                                   ),
                                 ),
@@ -310,7 +310,7 @@ class _PointsPageState extends State<PointsPage> {
                               Text(
                                 inlineIsError ? 'Status' : 'Code',
                                 style: TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 16,
                                   fontWeight: FontWeight.w700,
                                   color: inlineIsError
                                       ? Colors.red
@@ -321,7 +321,7 @@ class _PointsPageState extends State<PointsPage> {
                               SelectableText(
                                 inlineMessage!,
                                 style: const TextStyle(
-                                  fontSize: 24,
+                                  fontSize: 28,
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: 1.4,
                                 ),
@@ -420,7 +420,7 @@ class _PointsPageState extends State<PointsPage> {
                             '$points',
                             style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 50,
+                              fontSize: 28,
                               fontWeight: FontWeight.w900,
                             ),
                           ),
@@ -429,7 +429,7 @@ class _PointsPageState extends State<PointsPage> {
                             'Total points',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 20,
+                              fontSize: 18,
                               fontWeight: FontWeight.w800,
                             ),
                           ),
@@ -505,7 +505,7 @@ class _PointsPageState extends State<PointsPage> {
                           style: TextStyle(
                             color: e.$4,
                             fontWeight: FontWeight.w700,
-                            fontSize: 14,
+                            fontSize: 16,
                           ),
                         ),
                       ),
@@ -538,7 +538,7 @@ class _PointsPageState extends State<PointsPage> {
                   color: Theme.of(
                     context,
                   ).colorScheme.onSurface.withValues(alpha: 0.85),
-                  fontSize: 14,
+                  fontSize: 16,
                 ),
               )
             else
@@ -583,7 +583,7 @@ class _PointsPageState extends State<PointsPage> {
                                     color: Theme.of(
                                       context,
                                     ).colorScheme.onSurface,
-                                    fontSize: 14,
+                                    fontSize: 16,
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
@@ -595,7 +595,7 @@ class _PointsPageState extends State<PointsPage> {
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w700,
                                       color: Color(0xFF3e7f3f),
-                                      fontSize: 14,
+                                      fontSize: 16,
                                     ),
                                   ),
                                 ],

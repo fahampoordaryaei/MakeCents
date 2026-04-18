@@ -219,7 +219,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                 Text(
                   'Set your budget',
                   style: TextStyle(
-                    fontSize: 24.0,
+                    fontSize: 28,
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
@@ -228,7 +228,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                 Text(
                   'Set a monthly budget.',
                   style: TextStyle(
-                    fontSize: 16.0,
+                    fontSize: 18,
                     color: Theme.of(
                       context,
                     ).colorScheme.onSurface.withValues(alpha: 0.75),
@@ -259,7 +259,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                             _error,
                             style: const TextStyle(
                               color: Color(0xFF8B0000),
-                              fontSize: 14,
+                              fontSize: 16,
                             ),
                           ),
                         ),
@@ -278,7 +278,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                     FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
                   ],
                   style: const TextStyle(
-                    fontSize: 32,
+                    fontSize: 28,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 1,
                   ),
@@ -288,7 +288,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                     prefixText: currency,
                     prefixStyle: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
-                      fontSize: 32,
+                      fontSize: 28,
                       fontWeight: FontWeight.w900,
                     ),
                     filled: true,
@@ -377,7 +377,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                         : const Text(
                             'Complete setup',
                             style: TextStyle(
-                              fontSize: 16.0,
+                              fontSize: 18,
                               fontWeight: FontWeight.w700,
                             ),
                           ),

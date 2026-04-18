@@ -109,7 +109,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 Text(
                   'Forgot Password',
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 28,
                     fontWeight: FontWeight.w800,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
@@ -118,7 +118,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 Text(
                   'Enter your email to reset your password',
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 18,
                     color: Theme.of(
                       context,
                     ).colorScheme.onSurface.withValues(alpha: 0.75),
@@ -128,6 +128,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 TextField(
                   controller: _emailCtrl,
                   keyboardType: TextInputType.emailAddress,
+                  style: const TextStyle(fontSize: 18),
                   decoration: InputDecoration(
                     labelText: 'Email Address',
                     prefixIcon: const Icon(Icons.email_outlined, size: 20),
@@ -168,7 +169,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         : const Text(
                             'Send Reset Email',
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: 18,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -204,7 +205,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                   ? const Color(0xFF2E7D32)
                                   : const Color(0xFF8B0000),
                               fontWeight: FontWeight.w600,
-                              fontSize: 15,
+                              fontSize: 16,
                             ),
                           ),
                         ),

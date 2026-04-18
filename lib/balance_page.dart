@@ -30,7 +30,7 @@ class BalancePage extends StatelessWidget {
             Text(
               formatMoney(spent),
               style: TextStyle(
-                fontSize: 36,
+                fontSize: 28,
                 fontWeight: FontWeight.w800,
                 color: Theme.of(context).colorScheme.primary,
               ),

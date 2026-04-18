@@ -280,7 +280,7 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
                 Text(
                   'Your profile details',
                   style: TextStyle(
-                    fontSize: 24.0,
+                    fontSize: 28,
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
@@ -289,7 +289,7 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
                 Text(
                   'Help us personalise your experience.',
                   style: TextStyle(
-                    fontSize: 16.0,
+                    fontSize: 18,
                     color: Theme.of(
                       context,
                     ).colorScheme.onSurface.withValues(alpha: 0.75),
@@ -332,7 +332,7 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
                             _error,
                             style: const TextStyle(
                               color: Color(0xFF8B0000),
-                              fontSize: 14,
+                              fontSize: 16,
                             ),
                           ),
                         ),
@@ -355,7 +355,7 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
                     child: Text(
                       'INSTITUTION',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 16,
                         fontWeight: FontWeight.w700,
                         color: Colors.grey.shade500,
                         letterSpacing: 0.8,
@@ -404,7 +404,7 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
                     child: Text(
                       'COURSE OF STUDY',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 16,
                         fontWeight: FontWeight.w700,
                         color: Colors.grey.shade500,
                         letterSpacing: 0.8,
@@ -462,7 +462,7 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
                       child: const Text(
                         'Next',
                         style: TextStyle(
-                          fontSize: 16.0,
+                          fontSize: 18,
                           fontWeight: FontWeight.w700,
                         ),
                       ),

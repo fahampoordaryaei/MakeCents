@@ -123,7 +123,7 @@ class UserPage extends StatelessWidget {
                   Text(
                     userName,
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: 28,
                       fontWeight: FontWeight.w800,
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
@@ -154,7 +154,7 @@ class UserPage extends StatelessWidget {
                         up.profile!.displayInstitution,
                         style: const TextStyle(
                           color: Color(0xFF3e7f3f),
-                          fontSize: 14,
+                          fontSize: 16,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -190,7 +190,7 @@ class UserPage extends StatelessWidget {
             Text(
               'Settings',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.w700,
                 color: Theme.of(
                   context,
@@ -348,7 +348,7 @@ class _ChangePasswordDialogState extends State<_ChangePasswordDialog> {
                 '• 1 number\n'
                 '• 1 special character',
                 style: TextStyle(
-                  fontSize: 14,
+                  fontSize: 16,
                   color: Theme.of(
                     context,
                   ).colorScheme.onSurface.withValues(alpha: 0.8),
@@ -565,7 +565,7 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
           if (_dialogError.isNotEmpty) ...[
             Text(
               _dialogError,
-              style: const TextStyle(color: Colors.red, fontSize: 14),
+              style: const TextStyle(color: Colors.red, fontSize: 16),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
@@ -575,12 +575,12 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             textAlign: TextAlign.center,
             onChanged: (_) => _onTextChanged(),
-            style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900),
+            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900),
             decoration: InputDecoration(
               prefixText: currency,
               prefixStyle: TextStyle(
                 color: Theme.of(context).colorScheme.onSurface,
-                fontSize: 32,
+                fontSize: 28,
                 fontWeight: FontWeight.w900,
               ),
               filled: true,
@@ -626,7 +626,7 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
                     color: Theme.of(
                       context,
                     ).colorScheme.onSurface.withValues(alpha: 0.75),
-                    fontSize: 14,
+                    fontSize: 16,
                   ),
                 ),
                 Text(
@@ -635,7 +635,7 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
                     color: Theme.of(
                       context,
                     ).colorScheme.onSurface.withValues(alpha: 0.75),
-                    fontSize: 14,
+                    fontSize: 16,
                   ),
                 ),
               ],
@@ -720,7 +720,7 @@ class _StatCard extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 16,
                 color: Theme.of(
                   context,
                 ).colorScheme.onSurface.withValues(alpha: 0.75),
@@ -844,7 +844,7 @@ class _SettingsTile extends StatelessWidget {
       subtitle: Text(
         subtitle,
         style: TextStyle(
-          fontSize: 14,
+          fontSize: 16,
           color: Theme.of(
             context,
           ).colorScheme.onSurface.withValues(alpha: 0.75),

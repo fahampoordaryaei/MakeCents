@@ -199,7 +199,7 @@ class _MatchPageState extends State<MatchPage> {
                   Text(
                     'COURSE',
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 16,
                       fontWeight: FontWeight.w700,
                       color: Theme.of(
                         context,
@@ -217,7 +217,7 @@ class _MatchPageState extends State<MatchPage> {
                         color: Theme.of(
                           context,
                         ).colorScheme.onSurface.withValues(alpha: 0.85),
-                        fontSize: 14,
+                        fontSize: 16,
                         fontWeight: FontWeight.w500,
                       ),
                     )
@@ -306,7 +306,7 @@ class _MatchPageState extends State<MatchPage> {
                       style: const TextStyle(
                         color: Color(0xFF3e7f3f),
                         fontWeight: FontWeight.w700,
-                        fontSize: 14,
+                        fontSize: 16,
                       ),
                     ),
                   ),
@@ -345,7 +345,7 @@ class _MatchPageState extends State<MatchPage> {
                           color: Theme.of(
                             context,
                           ).colorScheme.onSurface.withValues(alpha: 0.85),
-                          fontSize: 15,
+                          fontSize: 16,
                         ),
                       ),
                     ],
@@ -414,7 +414,7 @@ class _ScholarshipCard extends StatelessWidget {
                   Text(
                     s.provider,
                     style: TextStyle(
-                      fontSize: 15,
+                      fontSize: 16,
                       color: s.color,
                       fontWeight: FontWeight.w600,
                     ),
@@ -423,7 +423,7 @@ class _ScholarshipCard extends StatelessWidget {
                   Text(
                     'Please email us your application letter and school records.',
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 16,
                       color: Theme.of(
                         context,
                       ).colorScheme.onSurface.withValues(alpha: 0.85),
@@ -434,7 +434,7 @@ class _ScholarshipCard extends StatelessWidget {
                   Text(
                     s.description,
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 16,
                       color: Theme.of(
                         context,
                       ).colorScheme.onSurface.withValues(alpha: 0.85),
@@ -448,7 +448,7 @@ class _ScholarshipCard extends StatelessWidget {
                       Text(
                         '${s.currency}${s.amount.toStringAsFixed(0)}',
                         style: TextStyle(
-                          fontSize: 22,
+                          fontSize: 18,
                           fontWeight: FontWeight.w900,
                           color: s.color,
                         ),
@@ -462,7 +462,7 @@ class _ScholarshipCard extends StatelessWidget {
                               style: TextStyle(
                                 color: s.color,
                                 fontWeight: FontWeight.w700,
-                                fontSize: 15,
+                                fontSize: 16,
                               ),
                             ),
                             const SizedBox(width: 4),
@@ -498,7 +498,7 @@ class _ScholarshipCard extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'Amount: ${s.currency}${s.amount.toStringAsFixed(0)}',
-              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 22),
+              style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
             ),
             const SizedBox(height: 12),
             Text(
@@ -552,7 +552,7 @@ class _ScholarshipCard extends StatelessWidget {
                 );
               }
             },
-            child: const Text('Open Email', style: TextStyle(fontSize: 20)),
+            child: const Text('Open Email', style: TextStyle(fontSize: 18)),
           ),
         ],
       ),

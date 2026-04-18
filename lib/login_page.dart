@@ -148,15 +148,21 @@ class _LoginPageState extends State<LoginPage> {
             await FirebaseAuth.instance.signInWithCredential(credential);
             final authUser = FirebaseAuth.instance.currentUser;
             if (authUser != null && mounted) {
-              await _completeSignIn(authUser);
+              await _placeholderSuccess();
             }
           } on FirebaseAuthException catch (e) {
             if (mounted) {
-              setState(() => _error = e.message ?? 'Phone sign-in failed.');
+              setState(() {
+                _error = e.message ?? 'Phone sign-in failed.';
+                _isLoading = false;
+              });
             }
           } catch (_) {
             if (mounted) {
-              setState(() => _error = 'Phone sign-in failed.');
+              setState(() {
+                _error = 'Phone sign-in failed.';
+                _isLoading = false;
+              });
             }
           }
         },
@@ -174,7 +180,6 @@ class _LoginPageState extends State<LoginPage> {
               _verificationId = verificationId;
               _codeSent = true;
               _isLoading = false;
-              _error = 'Verification code sent.';
             });
           }
         },
@@ -226,7 +231,7 @@ class _LoginPageState extends State<LoginPage> {
         });
         return;
       }
-      await _completeSignIn(authUser);
+      await _placeholderSuccess();
     } on FirebaseAuthException catch (e) {
       setState(() {
         _error = e.message ?? 'Unable to verify code.';
@@ -238,6 +243,35 @@ class _LoginPageState extends State<LoginPage> {
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  /// Temporary: phone OTP success does not complete app sign-in / onboarding.
+  Future<void> _placeholderSuccess() async {
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Success'),
+        content: const Text('Your phone number was verified successfully.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+    try {
+      await FirebaseAuth.instance.signOut();
+    } catch (_) {}
+    if (!mounted) return;
+    setState(() {
+      _codeSent = false;
+      _verificationId = null;
+      _codeCtrl.clear();
+      _error = '';
+    });
   }
 
   Future<void> _completeSignIn(User authUser) async {
@@ -432,7 +466,7 @@ class _LoginPageState extends State<LoginPage> {
                     Text(
                       'Welcome Back',
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 28,
                         fontWeight: FontWeight.w800,
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
@@ -441,7 +475,7 @@ class _LoginPageState extends State<LoginPage> {
                     Text(
                       'Finance tracker for students',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 18,
                         color: Theme.of(
                           context,
                         ).colorScheme.onSurface.withValues(alpha: 0.75),
@@ -470,6 +504,10 @@ class _LoginPageState extends State<LoginPage> {
                                   ? Colors.white
                                   : Theme.of(context).colorScheme.onSurface,
                               padding: const EdgeInsets.symmetric(vertical: 16),
+                              textStyle: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
@@ -498,6 +536,10 @@ class _LoginPageState extends State<LoginPage> {
                                   ? Colors.white
                                   : Theme.of(context).colorScheme.onSurface,
                               padding: const EdgeInsets.symmetric(vertical: 16),
+                              textStyle: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
@@ -507,7 +549,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 30),
                     _usePhoneLogin
                         ? _buildPhoneInput()
                         : _inputField(
@@ -541,11 +583,11 @@ class _LoginPageState extends State<LoginPage> {
                           color: Theme.of(
                             context,
                           ).colorScheme.onSurface.withValues(alpha: 0.75),
-                          fontSize: 14,
+                          fontSize: 16,
                         ),
                       ),
                     ],
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 30),
                     SizedBox(
                       width: double.infinity,
                       child: FilledButton(
@@ -574,7 +616,7 @@ class _LoginPageState extends State<LoginPage> {
                                           : 'Send Code'
                                     : 'Sign In',
                                 style: const TextStyle(
-                                  fontSize: 16,
+                                  fontSize: 18,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
@@ -583,6 +625,12 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(height: 12),
                     if (!_usePhoneLogin) ...[
                       TextButton(
+                        style: TextButton.styleFrom(
+                          textStyle: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                         onPressed: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
@@ -590,17 +638,17 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           );
                         },
-                        child: Text(
+                        child: const Text(
                           'Forgot Password?',
-                          style: TextStyle(
-                            color: const Color(0xFF3e7f3f),
-                            fontWeight: FontWeight.w700,
-                          ),
+                          style: TextStyle(color: Color(0xFF3e7f3f)),
                         ),
                       ),
                       const SizedBox(height: 8),
                     ],
                     TextButton(
+                      style: TextButton.styleFrom(
+                        textStyle: const TextStyle(fontSize: 16),
+                      ),
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
@@ -612,15 +660,17 @@ class _LoginPageState extends State<LoginPage> {
                         TextSpan(
                           text: "Don't have an account? ",
                           style: TextStyle(
+                            fontSize: 16,
                             color: Theme.of(
                               context,
                             ).colorScheme.onSurface.withValues(alpha: 0.75),
                           ),
-                          children: [
+                          children: const [
                             TextSpan(
                               text: 'Sign Up',
                               style: TextStyle(
-                                color: const Color(0xFF3e7f3f),
+                                fontSize: 16,
+                                color: Color(0xFF3e7f3f),
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -652,7 +702,7 @@ class _LoginPageState extends State<LoginPage> {
                             style: const TextStyle(
                               color: Color(0xFF8B0000),
                               fontWeight: FontWeight.w600,
-                              fontSize: 15,
+                              fontSize: 16,
                             ),
                           ),
                         ),
@@ -672,8 +722,8 @@ class _LoginPageState extends State<LoginPage> {
     return Row(
       children: [
         Container(
-          width: 100,
-          margin: const EdgeInsets.only(right: 8),
+          width: 122,
+          margin: EdgeInsets.zero,
           child: CountryCodePicker(
             onChanged: (country) {
               setState(() {
@@ -711,6 +761,7 @@ class _LoginPageState extends State<LoginPage> {
       controller: ctrl,
       obscureText: isPass ? _obscure : false,
       keyboardType: keyboardType,
+      style: const TextStyle(fontSize: 18),
       decoration: InputDecoration(
         labelText: label,
         prefixIcon: Icon(icon, size: 20),

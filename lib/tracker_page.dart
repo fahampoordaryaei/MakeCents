@@ -1,7 +1,7 @@
-import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:provider/provider.dart';
 import 'budget_provider.dart';
 import 'dataconnect_generated/generated.dart';
@@ -150,9 +150,7 @@ class _TrackerPageState extends State<TrackerPage> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, ss) => AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           title: const Row(
             children: [
               Icon(Icons.warning_amber_rounded, color: Colors.orange),
@@ -182,7 +180,10 @@ class _TrackerPageState extends State<TrackerPage> {
             TextButton(
               style: TextButton.styleFrom(
                 minimumSize: const Size(100, 48),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
               ),
               onPressed: () => Navigator.pop(ctx),
               child: const Text('Cancel'),
@@ -191,7 +192,10 @@ class _TrackerPageState extends State<TrackerPage> {
               style: FilledButton.styleFrom(
                 backgroundColor: const Color(0xFF3e7f3f),
                 minimumSize: const Size(100, 48),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
               ),
               onPressed: () async {
                 if (dontShow) setState(() => _showOverBudgetWarning = false);
@@ -314,26 +318,15 @@ class _TrackerPageState extends State<TrackerPage> {
       dailySpendByDayOfMonth[dayOfMonth] =
           (dailySpendByDayOfMonth[dayOfMonth] ?? 0) + t.amount;
     }
-    final lineSpots = <FlSpot>[const FlSpot(0, 0)];
-    double cumulativeRun = 0;
+    final spendChartPoints = <_SpendChartPoint>[_SpendChartPoint(0, 0)];
+    double runningTotal = 0;
     for (var dayOfMonth = 1; dayOfMonth <= todayDayOfMonth; dayOfMonth++) {
-      cumulativeRun += dailySpendByDayOfMonth[dayOfMonth] ?? 0;
-      lineSpots.add(FlSpot(dayOfMonth.toDouble(), cumulativeRun));
+      runningTotal += dailySpendByDayOfMonth[dayOfMonth] ?? 0;
+      spendChartPoints.add(
+        _SpendChartPoint(dayOfMonth.toDouble(), runningTotal),
+      );
     }
-    final maxCumulative = lineSpots.fold<double>(
-      0.0,
-      (m, s) => math.max(m, s.y),
-    );
-    final double maxY;
-    final double yInterval;
-    if (maxCumulative <= 0 || !maxCumulative.isFinite) {
-      maxY = 20.0;
-      yInterval = 5.0;
-    } else {
-      maxY = maxCumulative * 1.05;
-      yInterval = maxY / 5;
-    }
-    final chartMaxX = todayDayOfMonth.toDouble();
+    final chartMaxX = todayDayOfMonth > 0 ? todayDayOfMonth.toDouble() : 1.0;
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -394,13 +387,13 @@ class _TrackerPageState extends State<TrackerPage> {
                         children: [
                           const Text(
                             'Total Budget',
-                            style: TextStyle(color: Colors.white, fontSize: 15),
+                            style: TextStyle(color: Colors.white, fontSize: 16),
                           ),
                           Text(
                             budget > 0 ? formatMoney(budget) : 'Not set',
                             style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 26,
+                              fontSize: 28,
                               fontWeight: FontWeight.w800,
                             ),
                           ),
@@ -420,7 +413,7 @@ class _TrackerPageState extends State<TrackerPage> {
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w700,
-                            fontSize: 15,
+                            fontSize: 16,
                           ),
                         ),
                       ),
@@ -462,7 +455,7 @@ class _TrackerPageState extends State<TrackerPage> {
                     const SizedBox(height: 10),
                     Text(
                       '${(pct * 100).toStringAsFixed(0)}% of budget used',
-                      style: const TextStyle(color: Colors.white, fontSize: 20),
+                      style: const TextStyle(color: Colors.white, fontSize: 18),
                     ),
                   ],
                 ],
@@ -493,7 +486,7 @@ class _TrackerPageState extends State<TrackerPage> {
                     Text(
                       'Category',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: Theme.of(
                           context,
@@ -557,7 +550,7 @@ class _TrackerPageState extends State<TrackerPage> {
                                     Text(
                                       cat.name,
                                       style: TextStyle(
-                                        fontSize: 14,
+                                        fontSize: 16,
                                         fontWeight: FontWeight.w600,
                                         color: sel ? Colors.white : cat.color,
                                       ),
@@ -647,121 +640,20 @@ class _TrackerPageState extends State<TrackerPage> {
                     Text(
                       formatMoney(expenses),
                       style: TextStyle(
-                        fontSize: 14,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.75),
+                        fontSize: 16,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 16),
                     SizedBox(
-                      height: 140,
+                      height: 168,
                       width: double.infinity,
-                      child: LineChart(
-                        LineChartData(
-                          minX: 0,
-                          maxX: chartMaxX,
-                          minY: 0,
-                          maxY: maxY,
-                          clipData: const FlClipData.all(),
-                          gridData: FlGridData(
-                            drawVerticalLine: false,
-                            horizontalInterval: yInterval,
-                            getDrawingHorizontalLine: (_) => FlLine(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurface.withValues(alpha: 0.12),
-                              strokeWidth: 1,
-                            ),
-                          ),
-                          borderData: FlBorderData(show: false),
-                          lineTouchData: LineTouchData(
-                            touchTooltipData: LineTouchTooltipData(
-                              getTooltipItems: (touchedSpots) {
-                                return touchedSpots.map((t) {
-                                  final axisDay = t.x.round();
-                                  if (axisDay <= 0) {
-                                    return LineTooltipItem(
-                                      'Month start · ${formatMoney(0)}',
-                                      const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    );
-                                  }
-                                  final d = DateTime(
-                                    year,
-                                    month,
-                                    axisDay.clamp(1, todayDayOfMonth),
-                                  );
-                                  return LineTooltipItem(
-                                    '${DateFormat('d/MMM').format(d)} · ${formatMoney(t.y)}',
-                                    const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  );
-                                }).toList();
-                              },
-                            ),
-                          ),
-                          titlesData: FlTitlesData(
-                            topTitles: const AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
-                            ),
-                            leftTitles: AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
-                            ),
-                            rightTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                reservedSize: 44,
-                                interval: yInterval,
-                                getTitlesWidget: (value, _) {
-                                  if (value < 0 || value > maxY + 1e-6) {
-                                    return const SizedBox.shrink();
-                                  }
-                                  final label = yInterval >= 1
-                                      ? formatMoney(value, symbol: currency)
-                                      : formatMoney(
-                                          value,
-                                          decimals: 1,
-                                          symbol: currency,
-                                        );
-                                  return Text(
-                                    label,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurface
-                                          .withValues(alpha: 0.75),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                            bottomTitles: const AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
-                            ),
-                          ),
-                          lineBarsData: [
-                            LineChartBarData(
-                              spots: lineSpots,
-                              color: const Color(0xFF3e7f3f),
-                              barWidth: 3,
-                              isCurved: true,
-                              curveSmoothness: 0.35,
-                              dotData: const FlDotData(show: false),
-                              belowBarData: BarAreaData(
-                                show: true,
-                                color: const Color(
-                                  0xFF3e7f3f,
-                                ).withValues(alpha: 0.12),
-                              ),
-                            ),
-                          ],
-                        ),
+                      child: _MonthSpendChart(
+                        points: spendChartPoints,
+                        chartMaxX: chartMaxX,
+                        year: year,
+                        month: month,
+                        todayDayOfMonth: todayDayOfMonth,
                       ),
                     ),
                   ],
@@ -926,7 +818,7 @@ class _TrackerPageState extends State<TrackerPage> {
                               color: Theme.of(
                                 context,
                               ).colorScheme.onSurface.withValues(alpha: 0.75),
-                              fontSize: 15,
+                              fontSize: 16,
                             ),
                           ),
                       ],
@@ -1007,7 +899,7 @@ class _TrackerPageState extends State<TrackerPage> {
                                       ? _fmt(tx.date)
                                       : '${cat.name} · ${_fmt(tx.date)}',
                                   style: TextStyle(
-                                    fontSize: 14,
+                                    fontSize: 16,
                                     color: Theme.of(context)
                                         .colorScheme
                                         .onSurface
@@ -1066,7 +958,7 @@ class _TrackerPageState extends State<TrackerPage> {
                               style: const TextStyle(
                                 color: Color(0xFFFF6B6B),
                                 fontWeight: FontWeight.w700,
-                                fontSize: 15,
+                                fontSize: 16,
                               ),
                             ),
                           );
@@ -1200,7 +1092,7 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
                   Text(
                     'Edit expense',
                     style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 18,
                       fontWeight: FontWeight.w700,
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
@@ -1274,7 +1166,7 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
                                   Text(
                                     cat.name,
                                     style: TextStyle(
-                                      fontSize: 15,
+                                      fontSize: 16,
                                       fontWeight: FontWeight.w600,
                                       color: sel ? Colors.white : cat.color,
                                     ),
@@ -1400,7 +1292,7 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
                       label: const Text(
                         'Save Changes',
                         style: TextStyle(
-                          fontSize: 17,
+                          fontSize: 18,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -1412,6 +1304,170 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _SpendChartPoint {
+  const _SpendChartPoint(this.day, this.total);
+  final double day;
+  final double total;
+}
+
+class _MonthSpendChart extends StatelessWidget {
+  const _MonthSpendChart({
+    required this.points,
+    required this.chartMaxX,
+    required this.year,
+    required this.month,
+    required this.todayDayOfMonth,
+  });
+
+  final List<_SpendChartPoint> points;
+  final double chartMaxX;
+  final int year;
+  final int month;
+  final int todayDayOfMonth;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final muted = theme.colorScheme.onSurface.withValues(alpha: 0.75);
+    final axisLabelStyle = TextStyle(fontSize: 16, color: muted);
+    final yFormat = NumberFormat.currency(symbol: currency, decimalDigits: 0);
+    final dayMonthFmt = DateFormat('dd/MM');
+
+    return SfCartesianChart(
+      plotAreaBorderWidth: 0,
+      margin: const EdgeInsets.only(bottom: 4),
+      trackballBehavior: TrackballBehavior(
+        enable: true,
+        activationMode: ActivationMode.singleTap,
+        lineType: TrackballLineType.vertical,
+        lineWidth: 1.5,
+        lineColor: const Color(0xFF3e7f3f),
+        hideDelay: 4000,
+        markerSettings: const TrackballMarkerSettings(
+          markerVisibility: TrackballVisibilityMode.visible,
+          height: 11,
+          width: 11,
+          shape: DataMarkerType.circle,
+          borderWidth: 2,
+          color: Colors.white,
+          borderColor: Color(0xFF3e7f3f),
+        ),
+        tooltipSettings: InteractiveTooltip(
+          // Theme surface so overlay matches the app; text uses same style as axis ticks.
+          color: theme.colorScheme.surfaceContainerHighest,
+          // With arrowLength 0, Syncfusion still strokes a degenerate “nose” path using
+          // border settings — a short vertical line beside the trackball. Keep stroke off.
+          borderWidth: 0,
+          borderRadius: 8,
+          // Hides the small triangular “nose” Syncfusion draws toward the chart.
+          arrowLength: 0,
+          arrowWidth: 0,
+          canShowMarker: false,
+        ),
+        builder: (BuildContext context, TrackballDetails details) {
+          final i = details.pointIndex;
+          if (i == null || i < 0 || i >= points.length) {
+            return const SizedBox.shrink();
+          }
+          final p = points[i];
+          final day = p.day.round();
+          final dateStr = day <= 0
+              ? dayMonthFmt.format(DateTime(year, month, 1))
+              : dayMonthFmt.format(
+                  DateTime(year, month, day.clamp(1, todayDayOfMonth)),
+                );
+          final amountStr = day <= 0 ? formatMoney(0) : formatMoney(p.total);
+          return ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 220),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+              child: DefaultTextStyle.merge(
+                style: axisLabelStyle.copyWith(height: 1.35),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      dateStr,
+                      style: axisLabelStyle.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    Text(
+                      amountStr,
+                      style: axisLabelStyle.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+      primaryXAxis: NumericAxis(
+        minimum: 0,
+        maximum: chartMaxX,
+        edgeLabelPlacement: EdgeLabelPlacement.shift,
+        labelIntersectAction: AxisLabelIntersectAction.rotate45,
+        labelStyle: axisLabelStyle,
+        axisLine: const AxisLine(width: 0),
+        majorTickLines: const MajorTickLines(width: 0),
+        majorGridLines: const MajorGridLines(width: 0),
+        axisLabelFormatter: (AxisLabelRenderDetails d) {
+          final day = d.value.round();
+          if (day <= 0) {
+            return ChartAxisLabel(
+              dayMonthFmt.format(DateTime(year, month, 1)),
+              d.textStyle,
+            );
+          }
+          final safeDay = day.clamp(1, todayDayOfMonth);
+          return ChartAxisLabel(
+            dayMonthFmt.format(DateTime(year, month, safeDay)),
+            d.textStyle,
+          );
+        },
+      ),
+      primaryYAxis: NumericAxis(
+        opposedPosition: true,
+        minimum: 0,
+        numberFormat: yFormat,
+        labelStyle: axisLabelStyle,
+        axisLine: const AxisLine(width: 0),
+        majorTickLines: const MajorTickLines(width: 0),
+        majorGridLines: MajorGridLines(
+          width: 1,
+          color: Theme.of(
+            context,
+          ).colorScheme.onSurface.withValues(alpha: 0.12),
+        ),
+      ),
+      series: <CartesianSeries<_SpendChartPoint, double>>[
+        SplineAreaSeries<_SpendChartPoint, double>(
+          dataSource: points,
+          xValueMapper: (p, _) => p.day,
+          yValueMapper: (p, _) => p.total,
+          splineType: SplineType.cardinal,
+          borderColor: const Color(0xFF3e7f3f),
+          borderWidth: 3,
+          gradient: LinearGradient(
+            colors: [
+              const Color(0xFF3e7f3f).withValues(alpha: 0.14),
+              const Color(0xFF3e7f3f).withValues(alpha: 0.02),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+          enableTooltip: false,
+          animationDuration: 500,
+        ),
+      ],
     );
   }
 }
@@ -1430,14 +1486,14 @@ class _Stat extends StatelessWidget {
         style: const TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.w700,
-          fontSize: 24,
+          fontSize: 28,
         ),
       ),
       Text(
         l,
         style: const TextStyle(
           color: Colors.white,
-          fontSize: 20,
+          fontSize: 18,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -1462,7 +1518,7 @@ class _Chip extends StatelessWidget {
       Text(
         label,
         style: TextStyle(
-          fontSize: 14,
+          fontSize: 16,
           fontWeight: FontWeight.w500,
           color: Theme.of(context).colorScheme.onSurface,
         ),

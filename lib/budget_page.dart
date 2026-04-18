@@ -52,14 +52,14 @@ class BudgetPage extends StatelessWidget {
                 children: [
                   const Text(
                     'Monthly Budget',
-                    style: TextStyle(color: Colors.white, fontSize: 15),
+                    style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     budget > 0 ? formatMoney(budget) : 'Not set',
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 36,
+                      fontSize: 28,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -97,7 +97,7 @@ class BudgetPage extends StatelessWidget {
                     const SizedBox(height: 6),
                     Text(
                       '${(pct * 100).toStringAsFixed(0)}% used',
-                      style: const TextStyle(color: Colors.white, fontSize: 14),
+                      style: const TextStyle(color: Colors.white, fontSize: 16),
                     ),
                   ],
                 ],
@@ -127,7 +127,7 @@ class _BudgetStat extends StatelessWidget {
       ),
       Text(
         label,
-        style: TextStyle(color: color.withValues(alpha: 0.7), fontSize: 14),
+        style: TextStyle(color: color.withValues(alpha: 0.7), fontSize: 16),
       ),
     ],
   );
