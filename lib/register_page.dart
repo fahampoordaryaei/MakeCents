@@ -1,6 +1,7 @@
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'dataconnect_generated/generated.dart';
 import 'onboarding_profile_page.dart';
 import 'startup_page.dart';
 
@@ -91,7 +92,7 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Future<void> _completePhoneRegistration(UserCredential result) async {
-    if (!mounted) return;
+    if (!mounted || !_usePhoneRegister) return;
     if (result.additionalUserInfo?.isNewUser == false) {
       await FirebaseAuth.instance.signOut();
       setState(() {
@@ -104,6 +105,7 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Future<void> _sendPhoneRegister() async {
+    if (!_usePhoneRegister) return;
     if (!_validateNames()) return;
 
     final normalized = _phoneController.text.trim().replaceAll(
@@ -127,59 +129,58 @@ class _RegisterPageState extends State<RegisterPage> {
       await FirebaseAuth.instance.verifyPhoneNumber(
         phoneNumber: fullPhone,
         verificationCompleted: (credential) async {
+          if (!mounted || !_usePhoneRegister) return;
           try {
             final result = await FirebaseAuth.instance.signInWithCredential(
               credential,
             );
-            if (mounted) await _completePhoneRegistration(result);
+            if (!mounted || !_usePhoneRegister) return;
+            await _completePhoneRegistration(result);
           } on FirebaseAuthException catch (e) {
-            if (mounted) {
-              setState(() {
-                _error = e.message ?? 'Phone registration failed.';
-                _isLoading = false;
-              });
-            }
+            if (!mounted || !_usePhoneRegister) return;
+            setState(() {
+              _error = e.message ?? 'Phone registration failed.';
+              _isLoading = false;
+            });
           } catch (_) {
-            if (mounted) {
-              setState(() {
-                _error = 'Phone registration failed.';
-                _isLoading = false;
-              });
-            }
+            if (!mounted || !_usePhoneRegister) return;
+            setState(() {
+              _error = 'Phone registration failed.';
+              _isLoading = false;
+            });
           }
         },
         verificationFailed: (e) {
-          if (mounted) {
-            setState(() {
-              _error = e.message ?? 'Phone verification failed.';
-              _isLoading = false;
-            });
-          }
+          if (!mounted || !_usePhoneRegister) return;
+          setState(() {
+            _error = e.message ?? 'Phone verification failed.';
+            _isLoading = false;
+          });
         },
         codeSent: (verificationId, _) {
-          if (mounted) {
-            setState(() {
-              _verificationId = verificationId;
-              _codeSent = true;
-              _isLoading = false;
-            });
-          }
+          if (!mounted || !_usePhoneRegister) return;
+          setState(() {
+            _verificationId = verificationId;
+            _codeSent = true;
+            _isLoading = false;
+          });
         },
         codeAutoRetrievalTimeout: (verificationId) {
+          if (!_usePhoneRegister) return;
           _verificationId = verificationId;
         },
       );
     } catch (_) {
-      if (mounted) {
-        setState(() {
-          _error = 'Unable to send verification code.';
-          _isLoading = false;
-        });
-      }
+      if (!mounted || !_usePhoneRegister) return;
+      setState(() {
+        _error = 'Unable to send verification code.';
+        _isLoading = false;
+      });
     }
   }
 
   Future<void> _verifyPhoneRegister() async {
+    if (!_usePhoneRegister) return;
     if (!_validateNames()) return;
 
     final code = _codeController.text.trim();
@@ -222,14 +223,13 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Future<void> _onRegister() async {
     if (_usePhoneRegister) {
-      if (_codeSent) {
-        await _verifyPhoneRegister();
-      } else {
-        await _sendPhoneRegister();
-      }
-      return;
+      await _registerWithPhone();
+    } else {
+      await _registerWithEmail();
     }
+  }
 
+  Future<void> _registerWithEmail() async {
     final firstName = _firstNameController.text.trim();
     final lastName = _lastNameController.text.trim();
     final email = _emailController.text.trim();
@@ -294,6 +294,58 @@ class _RegisterPageState extends State<RegisterPage> {
     setState(() => _isLoading = true);
 
     try {
+      final authMethods = await FirebaseAuth.instance
+          // ignore: deprecated_member_use
+          .fetchSignInMethodsForEmail(email);
+
+      if (authMethods.isNotEmpty) {
+        final inDb =
+            (await ExampleConnector.instance
+                    .getLoginStatus(email: email)
+                    .execute())
+                .data
+                .users
+                .isNotEmpty;
+        if (inDb) {
+          if (mounted) {
+            setState(
+              () => _error = 'This email is already in use. Sign in instead.',
+            );
+          }
+          return;
+        }
+        try {
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
+            email: email,
+            password: pass,
+          );
+        } on FirebaseAuthException catch (e) {
+          if (mounted) {
+            setState(
+              () => _error =
+                  e.code == 'wrong-password' || e.code == 'invalid-credential'
+                  ? 'Incorrect password for this account. Use Sign in.'
+                  : (e.message ?? 'Could not register with this email.'),
+            );
+          }
+          return;
+        }
+        await FirebaseAuth.instance.currentUser?.updateDisplayName(
+          '$firstName $lastName',
+        );
+        if (mounted) {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => OnboardingProfilePage(
+                firstName: firstName,
+                lastName: lastName,
+              ),
+            ),
+          );
+        }
+        return;
+      }
+
       final userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: pass);
       await userCredential.user?.updateDisplayName('$firstName $lastName');
@@ -314,6 +366,14 @@ class _RegisterPageState extends State<RegisterPage> {
       setState(() => _error = 'An unexpected error occurred.');
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _registerWithPhone() async {
+    if (_codeSent) {
+      await _verifyPhoneRegister();
+    } else {
+      await _sendPhoneRegister();
     }
   }
 

@@ -16,6 +16,8 @@ class OnboardingBudgetPage extends StatefulWidget {
   final String? otherCourse;
   final String firstName;
   final String lastName;
+  final String? countryIsoCode;
+  final String? countryDisplayName;
 
   const OnboardingBudgetPage({
     super.key,
@@ -25,6 +27,8 @@ class OnboardingBudgetPage extends StatefulWidget {
     this.otherCourse,
     required this.firstName,
     required this.lastName,
+    this.countryIsoCode,
+    this.countryDisplayName,
   });
   @override
   State<OnboardingBudgetPage> createState() => _OnboardingBudgetPageState();
@@ -105,7 +109,21 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
     });
 
     try {
-      final user = FirebaseAuth.instance.currentUser;
+      var user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        setState(() => _error = 'User not found. Please log in again.');
+        return;
+      }
+
+      final fullName = '${widget.firstName} ${widget.lastName}'.trim();
+      if (fullName.isNotEmpty && (user.displayName?.trim().isEmpty ?? true)) {
+        try {
+          await user.updateDisplayName(fullName);
+          await user.reload();
+        } on FirebaseAuthException catch (_) {}
+      }
+
+      user = FirebaseAuth.instance.currentUser;
       if (user == null) {
         setState(() => _error = 'User not found. Please log in again.');
         return;
@@ -115,7 +133,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
       await connector
           .storeUserProfile(
             username: user.uid,
-            email: user.email ?? '',
+            email: _checkEmailCredentials(user),
             firstName: widget.firstName,
             lastName: widget.lastName,
           )
@@ -390,4 +408,12 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
       ),
     );
   }
+}
+
+String _checkEmailCredentials(User user) {
+  final email = user.email?.trim();
+  if (email != null && email.isNotEmpty) return email;
+  final phone = user.phoneNumber?.trim();
+  if (phone != null && phone.isNotEmpty) return phone;
+  return '';
 }
