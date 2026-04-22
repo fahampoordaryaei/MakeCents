@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'budget_provider.dart';
 import 'functions.dart';
 import 'transaction_provider.dart';
 
@@ -8,7 +9,9 @@ class BalancePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final transactionProvider = Provider.of<TransactionProvider>(context);
-    final spent = transactionProvider.monthlySpent;
+    final bp = Provider.of<BudgetProvider>(context);
+    final spent = transactionProvider.periodSpent(isWeekly: bp.isWeekly);
+    final label = bp.isWeekly ? 'Spent this week' : 'Spent this month';
 
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -19,7 +22,7 @@ class BalancePage extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Spent this month',
+              label,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,

@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'budget_provider.dart';
 import 'dataconnect_generated/generated.dart';
 import 'functions.dart';
 
@@ -41,7 +43,8 @@ class _PointsPageState extends State<PointsPage> {
       if (result.data.pointsBalances.isNotEmpty) {
         _points = result.data.pointsBalances.first.totalPoints;
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('points: loadCloudPoints failed: $e');
     } finally {
       if (mounted) setState(() => _isLoadingPoints = false);
     }
@@ -72,7 +75,8 @@ class _PointsPageState extends State<PointsPage> {
         _products = productsResult.data.products;
         _redeemedByProductId = redeemedMap;
       });
-    } catch (_) {
+    } catch (e) {
+      debugPrint('points: loadProductsAndRedemptions failed: $e');
     } finally {
       if (mounted) setState(() => _isLoadingProducts = false);
     }
@@ -120,7 +124,8 @@ class _PointsPageState extends State<PointsPage> {
         text: 'Redeem request timed out. Please retry.',
         isError: true,
       );
-    } catch (_) {
+    } catch (e) {
+      debugPrint('points: redeemProduct failed: $e');
       return const _RedeemResult(
         text: 'Could not redeem product.',
         isError: true,
@@ -356,6 +361,11 @@ class _PointsPageState extends State<PointsPage> {
   Widget build(BuildContext context) {
     final points = _points ?? 0;
     final products = _sortedProducts();
+    final bp = Provider.of<BudgetProvider>(context);
+    final budgetRewardLabel = bp.isWeekly
+        ? 'Stay under budget (weekly)'
+        : 'Stay under budget (monthly)';
+    final budgetRewardPts = bp.isWeekly ? '+25 pts' : '+100 pts';
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -456,8 +466,8 @@ class _PointsPageState extends State<PointsPage> {
                 const Color(0xFF4ECDC4),
               ),
               (
-                'Stay under budget (monthly)',
-                '+100 pts',
+                budgetRewardLabel,
+                budgetRewardPts,
                 Icons.savings_outlined,
                 const Color(0xFF3e7f3f),
               ),

@@ -62,6 +62,7 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
         _countryError = null;
       });
     } catch (e) {
+      debugPrint('onboarding_profile: getCountryFromLocation failed: $e');
       if (!mounted) return;
       setState(() {
         _countryLoading = false;
@@ -113,7 +114,8 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
 
         _isLoading = false;
       });
-    } catch (_) {
+    } catch (e) {
+      debugPrint('onboarding_profile: load institutions/courses failed: $e');
       setState(() {
         _error = 'Failed to load options. Please check your connection.';
         _isLoading = false;
@@ -224,10 +226,15 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
     }
 
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      await user?.delete();
-    } catch (_) {}
-    await FirebaseAuth.instance.signOut();
+      await FirebaseAuth.instance.currentUser?.delete();
+    } catch (e) {
+      debugPrint('onboarding_profile: delete user failed: $e');
+    }
+    try {
+      await FirebaseAuth.instance.signOut();
+    } catch (e) {
+      debugPrint('onboarding_profile: signOut failed: $e');
+    }
     if (!mounted) return;
     Navigator.of(
       context,

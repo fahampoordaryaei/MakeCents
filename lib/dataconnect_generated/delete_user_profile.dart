@@ -1,10 +1,10 @@
 part of 'generated.dart';
 
 class DeleteUserProfileVariablesBuilder {
-  String username;
+  String userId;
 
   final FirebaseDataConnect _dataConnect;
-  DeleteUserProfileVariablesBuilder(this._dataConnect, {required  this.username,});
+  DeleteUserProfileVariablesBuilder(this._dataConnect, {required  this.userId,});
   Deserializer<DeleteUserProfileData> dataDeserializer = (dynamic json)  => DeleteUserProfileData.fromJson(jsonDecode(json));
   Serializer<DeleteUserProfileVariables> varsSerializer = (DeleteUserProfileVariables vars) => jsonEncode(vars.toJson());
   Future<OperationResult<DeleteUserProfileData, DeleteUserProfileVariables>> execute() {
@@ -12,17 +12,17 @@ class DeleteUserProfileVariablesBuilder {
   }
 
   MutationRef<DeleteUserProfileData, DeleteUserProfileVariables> ref() {
-    DeleteUserProfileVariables vars= DeleteUserProfileVariables(username: username,);
+    DeleteUserProfileVariables vars= DeleteUserProfileVariables(userId: userId,);
     return _dataConnect.mutation("DeleteUserProfile", dataDeserializer, varsSerializer, vars);
   }
 }
 
 @immutable
 class DeleteUserProfileUserDelete {
-  final String username;
+  final String userId;
   DeleteUserProfileUserDelete.fromJson(dynamic json):
   
-  username = nativeFromJson<String>(json['username']);
+  userId = nativeFromJson<String>(json['userId']);
   @override
   bool operator ==(Object other) {
     if(identical(this, other)) {
@@ -33,21 +33,21 @@ class DeleteUserProfileUserDelete {
     }
 
     final DeleteUserProfileUserDelete otherTyped = other as DeleteUserProfileUserDelete;
-    return username == otherTyped.username;
+    return userId == otherTyped.userId;
     
   }
   @override
-  int get hashCode => username.hashCode;
+  int get hashCode => userId.hashCode;
   
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
-    json['username'] = nativeToJson<String>(username);
+    json['userId'] = nativeToJson<String>(userId);
     return json;
   }
 
   DeleteUserProfileUserDelete({
-    required this.username,
+    required this.userId,
   });
 }
 
@@ -89,11 +89,11 @@ class DeleteUserProfileData {
 
 @immutable
 class DeleteUserProfileVariables {
-  final String username;
+  final String userId;
   @Deprecated('fromJson is deprecated for Variable classes as they are no longer required for deserialization.')
   DeleteUserProfileVariables.fromJson(Map<String, dynamic> json):
   
-  username = nativeFromJson<String>(json['username']);
+  userId = nativeFromJson<String>(json['userId']);
   @override
   bool operator ==(Object other) {
     if(identical(this, other)) {
@@ -104,21 +104,21 @@ class DeleteUserProfileVariables {
     }
 
     final DeleteUserProfileVariables otherTyped = other as DeleteUserProfileVariables;
-    return username == otherTyped.username;
+    return userId == otherTyped.userId;
     
   }
   @override
-  int get hashCode => username.hashCode;
+  int get hashCode => userId.hashCode;
   
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
-    json['username'] = nativeToJson<String>(username);
+    json['userId'] = nativeToJson<String>(userId);
     return json;
   }
 
   DeleteUserProfileVariables({
-    required this.username,
+    required this.userId,
   });
 }
 

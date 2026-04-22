@@ -19,12 +19,12 @@ class GetLoginStatusVariablesBuilder {
 
 @immutable
 class GetLoginStatusUsers {
-  final String username;
+  final String userId;
   final int failedAttempts;
   final Timestamp? lockedUntil;
   GetLoginStatusUsers.fromJson(dynamic json):
   
-  username = nativeFromJson<String>(json['username']),
+  userId = nativeFromJson<String>(json['userId']),
   failedAttempts = nativeFromJson<int>(json['failedAttempts']),
   lockedUntil = json['lockedUntil'] == null ? null : Timestamp.fromJson(json['lockedUntil']);
   @override
@@ -37,18 +37,18 @@ class GetLoginStatusUsers {
     }
 
     final GetLoginStatusUsers otherTyped = other as GetLoginStatusUsers;
-    return username == otherTyped.username && 
+    return userId == otherTyped.userId && 
     failedAttempts == otherTyped.failedAttempts && 
     lockedUntil == otherTyped.lockedUntil;
     
   }
   @override
-  int get hashCode => Object.hashAll([username.hashCode, failedAttempts.hashCode, lockedUntil.hashCode]);
+  int get hashCode => Object.hashAll([userId.hashCode, failedAttempts.hashCode, lockedUntil.hashCode]);
   
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
-    json['username'] = nativeToJson<String>(username);
+    json['userId'] = nativeToJson<String>(userId);
     json['failedAttempts'] = nativeToJson<int>(failedAttempts);
     if (lockedUntil != null) {
       json['lockedUntil'] = lockedUntil!.toJson();
@@ -57,7 +57,7 @@ class GetLoginStatusUsers {
   }
 
   GetLoginStatusUsers({
-    required this.username,
+    required this.userId,
     required this.failedAttempts,
     this.lockedUntil,
   });

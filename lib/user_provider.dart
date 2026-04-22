@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'dataconnect_generated/generated.dart';
+import 'functions.dart';
 
 class UserProfile {
   final String firstName;
@@ -62,9 +63,7 @@ class UserProvider with ChangeNotifier {
 
     try {
       final connector = ExampleConnector.instance;
-      final result = await connector
-          .getUserProfile(username: user.uid)
-          .execute();
+      final result = await connector.getUserProfile(userId: user.uid).execute();
 
       _profile = null;
       if (result.data.users.isNotEmpty) {
@@ -78,8 +77,12 @@ class UserProvider with ChangeNotifier {
           otherSchool: u.otherSchool,
           otherCourse: u.otherCourse,
         );
+        if (u.currency != null) {
+          setGlobalCurrency(sign: u.currency!.sign, id: u.currency!.id);
+        }
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('user_provider: loadProfile failed: $e');
       _profile = null;
     } finally {
       _isLoading = false;

@@ -1,5 +1,81 @@
 extend type Query {
   """
+  ✨ Look up a single `CategoryBudget` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  categoryBudget(
+    """
+    The key used to identify the object.
+    """
+    key: CategoryBudget_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: CategoryBudget_FirstRow
+  ): CategoryBudget @fdc_generated(from: "CategoryBudget", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `Continent` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  continent(
+    """
+    The unique ID of the object.
+    """
+    id: Int
+
+    """
+    ✨ `_expr` server value variant of `id` (The unique ID of the object.)
+    """
+    id_expr: Int_Expr
+
+    """
+    The key used to identify the object.
+    """
+    key: Continent_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Continent_FirstRow
+  ): Continent @fdc_generated(from: "Continent", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `Country` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  country(
+    """
+    The unique ID of the object.
+    """
+    id: Int
+
+    """
+    ✨ `_expr` server value variant of `id` (The unique ID of the object.)
+    """
+    id_expr: Int_Expr
+
+    """
+    The key used to identify the object.
+    """
+    key: Country_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Country_FirstRow
+  ): Country @fdc_generated(from: "Country", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `CountryContinent` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  countryContinent(
+    """
+    The key used to identify the object.
+    """
+    key: CountryContinent_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: CountryContinent_FirstRow
+  ): CountryContinent @fdc_generated(from: "CountryContinent", purpose: QUERY_SINGLE)
+  """
   ✨ Look up a single `Course` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
   """
   course(
@@ -212,6 +288,142 @@ extend type Query {
     """
     first: User_FirstRow
   ): User @fdc_generated(from: "User", purpose: QUERY_SINGLE)
+  """
+  ✨ List `CategoryBudget` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  categoryBudgets(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: CategoryBudget_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [CategoryBudget_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: CategoryBudget_Having
+  ): [CategoryBudget!]! @fdc_generated(from: "CategoryBudget", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `Continent` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  continents(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Continent_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Continent_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Continent_Having
+  ): [Continent!]! @fdc_generated(from: "Continent", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `Country` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  countries(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Country_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Country_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Country_Having
+  ): [Country!]! @fdc_generated(from: "Country", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `CountryContinent` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  countryContinents(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: CountryContinent_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [CountryContinent_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: CountryContinent_Having
+  ): [CountryContinent!]! @fdc_generated(from: "CountryContinent", purpose: QUERY_MULTIPLE)
   """
   ✨ List `Course` objects in the table and return selected fields, optionally filtered by `where` conditions
   """

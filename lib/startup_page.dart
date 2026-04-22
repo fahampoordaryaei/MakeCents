@@ -66,7 +66,12 @@ class _StartupPageState extends State<StartupPage> {
                 itemBuilder: (_, i) {
                   final s = _slides[i];
                   return Padding(
-                    padding: const EdgeInsets.all(32),
+                    padding: const EdgeInsets.only(
+                      left: 36,
+                      right: 36,
+                      top: 32,
+                      bottom: 32,
+                    ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -108,7 +113,7 @@ class _StartupPageState extends State<StartupPage> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+              padding: const EdgeInsets.fromLTRB(36, 0, 36, 32),
               child: Column(
                 children: [
                   Row(
@@ -147,7 +152,7 @@ class _StartupPageState extends State<StartupPage> {
                       child: const Text(
                         'Get Started',
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 24,
                           fontWeight: FontWeight.w700,
                         ),
                       ),

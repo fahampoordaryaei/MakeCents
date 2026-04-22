@@ -8,4 +8,5 @@ schema:
       database: "makecents-b0fb9-database"
       cloudSql:
         instanceId: "makecents-b0fb9-database"
+        schemaValidation: "COMPATIBLE"
 connectorDirs: ["./example"]

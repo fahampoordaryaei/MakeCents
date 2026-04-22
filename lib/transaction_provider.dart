@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart' as auth;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dataconnect_generated/generated.dart';
 
@@ -31,6 +32,19 @@ class TransactionProvider with ChangeNotifier {
         .fold(0.0, (sum, item) => sum + item.amount);
   }
 
+  double get weeklySpent {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    // monday
+    final weekStart = today.subtract(Duration(days: today.weekday - 1));
+    return _transactions
+        .where((t) => !t.date.isBefore(weekStart))
+        .fold(0.0, (sum, item) => sum + item.amount);
+  }
+
+  double periodSpent({required bool isWeekly}) =>
+      isWeekly ? weeklySpent : monthlySpent;
+
   Future<void> fetchTransactions() async {
     final user = auth.FirebaseAuth.instance.currentUser;
     if (user == null) {
@@ -58,7 +72,8 @@ class TransactionProvider with ChangeNotifier {
           category: catName,
         );
       }).toList();
-    } catch (_) {
+    } catch (e) {
+      debugPrint('transaction_provider: fetchTransactions failed: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -99,7 +114,8 @@ class TransactionProvider with ChangeNotifier {
           .description(title);
 
       await mutation.execute();
-    } catch (_) {
+    } catch (e) {
+      debugPrint('transaction_provider: addTransaction mutation failed: $e');
       _transactions.removeWhere((t) => t.id == tempId);
       notifyListeners();
       rethrow;
@@ -119,7 +135,9 @@ class TransactionProvider with ChangeNotifier {
             )
             .execute();
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('transaction_provider: points increment failed: $e');
+    }
 
     await fetchTransactions();
   }
@@ -139,7 +157,8 @@ class TransactionProvider with ChangeNotifier {
       await ExampleConnector.instance
           .deleteTransaction(id: removedTx.id)
           .execute();
-    } catch (_) {
+    } catch (e) {
+      debugPrint('transaction_provider: deleteTransaction failed: $e');
       _transactions.insert(index, removedTx);
       notifyListeners();
       rethrow;
@@ -160,7 +179,9 @@ class TransactionProvider with ChangeNotifier {
             )
             .execute();
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('transaction_provider: points decrement failed: $e');
+    }
   }
 
   Future<void> updateTransaction({
@@ -197,7 +218,8 @@ class TransactionProvider with ChangeNotifier {
           .description(title);
       await mutation.execute();
       await fetchTransactions();
-    } catch (_) {
+    } catch (e) {
+      debugPrint('transaction_provider: updateTransaction mutation failed: $e');
       _transactions[index] = original;
       notifyListeners();
       rethrow;

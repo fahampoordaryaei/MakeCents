@@ -1,10 +1,10 @@
 part of 'generated.dart';
 
 class ResetLoginAttemptsVariablesBuilder {
-  String username;
+  String userId;
 
   final FirebaseDataConnect _dataConnect;
-  ResetLoginAttemptsVariablesBuilder(this._dataConnect, {required  this.username,});
+  ResetLoginAttemptsVariablesBuilder(this._dataConnect, {required  this.userId,});
   Deserializer<ResetLoginAttemptsData> dataDeserializer = (dynamic json)  => ResetLoginAttemptsData.fromJson(jsonDecode(json));
   Serializer<ResetLoginAttemptsVariables> varsSerializer = (ResetLoginAttemptsVariables vars) => jsonEncode(vars.toJson());
   Future<OperationResult<ResetLoginAttemptsData, ResetLoginAttemptsVariables>> execute() {
@@ -12,17 +12,17 @@ class ResetLoginAttemptsVariablesBuilder {
   }
 
   MutationRef<ResetLoginAttemptsData, ResetLoginAttemptsVariables> ref() {
-    ResetLoginAttemptsVariables vars= ResetLoginAttemptsVariables(username: username,);
+    ResetLoginAttemptsVariables vars= ResetLoginAttemptsVariables(userId: userId,);
     return _dataConnect.mutation("ResetLoginAttempts", dataDeserializer, varsSerializer, vars);
   }
 }
 
 @immutable
 class ResetLoginAttemptsUserUpdate {
-  final String username;
+  final String userId;
   ResetLoginAttemptsUserUpdate.fromJson(dynamic json):
   
-  username = nativeFromJson<String>(json['username']);
+  userId = nativeFromJson<String>(json['userId']);
   @override
   bool operator ==(Object other) {
     if(identical(this, other)) {
@@ -33,21 +33,21 @@ class ResetLoginAttemptsUserUpdate {
     }
 
     final ResetLoginAttemptsUserUpdate otherTyped = other as ResetLoginAttemptsUserUpdate;
-    return username == otherTyped.username;
+    return userId == otherTyped.userId;
     
   }
   @override
-  int get hashCode => username.hashCode;
+  int get hashCode => userId.hashCode;
   
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
-    json['username'] = nativeToJson<String>(username);
+    json['userId'] = nativeToJson<String>(userId);
     return json;
   }
 
   ResetLoginAttemptsUserUpdate({
-    required this.username,
+    required this.userId,
   });
 }
 
@@ -89,11 +89,11 @@ class ResetLoginAttemptsData {
 
 @immutable
 class ResetLoginAttemptsVariables {
-  final String username;
+  final String userId;
   @Deprecated('fromJson is deprecated for Variable classes as they are no longer required for deserialization.')
   ResetLoginAttemptsVariables.fromJson(Map<String, dynamic> json):
   
-  username = nativeFromJson<String>(json['username']);
+  userId = nativeFromJson<String>(json['userId']);
   @override
   bool operator ==(Object other) {
     if(identical(this, other)) {
@@ -104,21 +104,21 @@ class ResetLoginAttemptsVariables {
     }
 
     final ResetLoginAttemptsVariables otherTyped = other as ResetLoginAttemptsVariables;
-    return username == otherTyped.username;
+    return userId == otherTyped.userId;
     
   }
   @override
-  int get hashCode => username.hashCode;
+  int get hashCode => userId.hashCode;
   
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
-    json['username'] = nativeToJson<String>(username);
+    json['userId'] = nativeToJson<String>(userId);
     return json;
   }
 
   ResetLoginAttemptsVariables({
-    required this.username,
+    required this.userId,
   });
 }
 

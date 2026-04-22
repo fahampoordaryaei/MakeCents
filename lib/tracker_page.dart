@@ -81,7 +81,8 @@ class _TrackerPageState extends State<TrackerPage> {
         }
         _isLoadingCategories = false;
       });
-    } catch (_) {
+    } catch (e) {
+      debugPrint('tracker: loadCategories failed: $e');
       if (!mounted) return;
       setState(() => _isLoadingCategories = false);
     }
@@ -97,7 +98,8 @@ class _TrackerPageState extends State<TrackerPage> {
         categoryName: _selectedCat!.name,
         categoryId: _selectedCat!.id,
       );
-    } catch (_) {
+    } catch (e) {
+      debugPrint('tracker: addTransaction failed: $e');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to add transaction.')),
@@ -125,12 +127,10 @@ class _TrackerPageState extends State<TrackerPage> {
     final label = _labelController.text.trim().isEmpty
         ? _selectedCat!.name
         : _labelController.text.trim();
-    final budget = Provider.of<BudgetProvider>(
-      context,
-      listen: false,
-    ).budget.amount;
+    final bp = Provider.of<BudgetProvider>(context, listen: false);
+    final budget = bp.budget.amount;
     final txProvider = Provider.of<TransactionProvider>(context, listen: false);
-    final currentExp = txProvider.monthlySpent;
+    final currentExp = txProvider.periodSpent(isWeekly: bp.isWeekly);
 
     if (_showOverBudgetWarning && budget > 0 && currentExp + amount > budget) {
       await _overBudgetDialog(amount, budget, currentExp, label);
@@ -232,7 +232,8 @@ class _TrackerPageState extends State<TrackerPage> {
               Navigator.pop(context);
               try {
                 await p.removeTransaction(idx);
-              } catch (_) {
+              } catch (e) {
+                debugPrint('tracker: removeTransaction failed: $e');
                 if (!mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Could not delete expense.')),
@@ -262,7 +263,8 @@ class _TrackerPageState extends State<TrackerPage> {
 
   @override
   Widget build(BuildContext context) {
-    final budget = Provider.of<BudgetProvider>(context).budget.amount;
+    final bp = Provider.of<BudgetProvider>(context);
+    final budget = bp.budget.amount;
     final txP = Provider.of<TransactionProvider>(context);
     final txs = txP.transactions;
     final totalPages = txs.isEmpty
@@ -276,18 +278,22 @@ class _TrackerPageState extends State<TrackerPage> {
         ? txs.length
         : (pageStart + _historyPageSize);
     final now = DateTime.now();
-    final monthTxs = txs
-        .where((t) => t.date.month == now.month && t.date.year == now.year)
-        .toList();
-    final expenses = txP.monthlySpent;
+    final isWeekly = bp.isWeekly;
+    final today = DateTime(now.year, now.month, now.day);
+    final periodStart = isWeekly
+        ? today.subtract(Duration(days: today.weekday - 1))
+        : DateTime(now.year, now.month, 1);
+    final periodTxs = txs.where((t) => !t.date.isBefore(periodStart)).toList();
+    final expenses = txP.periodSpent(isWeekly: isWeekly);
     final available = budget > 0
         ? (budget - expenses).clamp(0.0, double.infinity)
         : 0.0;
     final over = budget > 0 && expenses > budget;
     final pct = budget > 0 ? (expenses / budget).clamp(0.0, 1.0) : 0.0;
+    final spentLabel = isWeekly ? 'Spent this week' : 'Spent this month';
 
     final Map<String, double> catTotals = {};
-    for (final t in monthTxs) {
+    for (final t in periodTxs) {
       catTotals[t.category] = (catTotals[t.category] ?? 0) + t.amount;
     }
     const groupThreshold = 0.10;
@@ -309,24 +315,20 @@ class _TrackerPageState extends State<TrackerPage> {
     final groupedEntries = groupedCatTotals.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
-    final year = now.year;
-    final month = now.month;
-    final todayDayOfMonth = now.day;
-    final dailySpendByDayOfMonth = <int, double>{};
-    for (final t in monthTxs) {
-      final dayOfMonth = t.date.day;
-      dailySpendByDayOfMonth[dayOfMonth] =
-          (dailySpendByDayOfMonth[dayOfMonth] ?? 0) + t.amount;
+    final daysIntoPeriod = isWeekly ? now.weekday : now.day;
+    final dailySpend = <int, double>{};
+    for (final t in periodTxs) {
+      final dayIdx = t.date.difference(periodStart).inDays + 1;
+      if (dayIdx < 1 || dayIdx > daysIntoPeriod) continue;
+      dailySpend[dayIdx] = (dailySpend[dayIdx] ?? 0) + t.amount;
     }
     final spendChartPoints = <_SpendChartPoint>[_SpendChartPoint(0, 0)];
     double runningTotal = 0;
-    for (var dayOfMonth = 1; dayOfMonth <= todayDayOfMonth; dayOfMonth++) {
-      runningTotal += dailySpendByDayOfMonth[dayOfMonth] ?? 0;
-      spendChartPoints.add(
-        _SpendChartPoint(dayOfMonth.toDouble(), runningTotal),
-      );
+    for (var d = 1; d <= daysIntoPeriod; d++) {
+      runningTotal += dailySpend[d] ?? 0;
+      spendChartPoints.add(_SpendChartPoint(d.toDouble(), runningTotal));
     }
-    final chartMaxX = todayDayOfMonth > 0 ? todayDayOfMonth.toDouble() : 1.0;
+    final chartMaxX = daysIntoPeriod > 0 ? daysIntoPeriod.toDouble() : 1.0;
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -629,7 +631,7 @@ class _TrackerPageState extends State<TrackerPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Spent this month',
+                      spentLabel,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -648,12 +650,10 @@ class _TrackerPageState extends State<TrackerPage> {
                     SizedBox(
                       height: 168,
                       width: double.infinity,
-                      child: _MonthSpendChart(
+                      child: _SpendChart(
                         points: spendChartPoints,
                         chartMaxX: chartMaxX,
-                        year: year,
-                        month: month,
-                        todayDayOfMonth: todayDayOfMonth,
+                        periodStart: periodStart,
                       ),
                     ),
                   ],
@@ -1266,7 +1266,8 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
                           );
                           if (!context.mounted) return;
                           Navigator.pop(context);
-                        } catch (_) {
+                        } catch (e) {
+                          debugPrint('tracker: updateTransaction failed: $e');
                           if (!context.mounted) return;
                           Navigator.pop(context);
                           if (widget.messengerContext.mounted) {
@@ -1314,20 +1315,16 @@ class _SpendChartPoint {
   final double total;
 }
 
-class _MonthSpendChart extends StatelessWidget {
-  const _MonthSpendChart({
+class _SpendChart extends StatelessWidget {
+  const _SpendChart({
     required this.points,
     required this.chartMaxX,
-    required this.year,
-    required this.month,
-    required this.todayDayOfMonth,
+    required this.periodStart,
   });
 
   final List<_SpendChartPoint> points;
   final double chartMaxX;
-  final int year;
-  final int month;
-  final int todayDayOfMonth;
+  final DateTime periodStart;
 
   @override
   Widget build(BuildContext context) {
@@ -1375,11 +1372,8 @@ class _MonthSpendChart extends StatelessWidget {
           }
           final p = points[i];
           final day = p.day.round();
-          final dateStr = day <= 0
-              ? dayMonthFmt.format(DateTime(year, month, 1))
-              : dayMonthFmt.format(
-                  DateTime(year, month, day.clamp(1, todayDayOfMonth)),
-                );
+          final date = periodStart.add(Duration(days: day <= 0 ? 0 : day - 1));
+          final dateStr = dayMonthFmt.format(date);
           final amountStr = day <= 0 ? formatMoney(0) : formatMoney(p.total);
           return ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 220),
@@ -1421,17 +1415,8 @@ class _MonthSpendChart extends StatelessWidget {
         majorGridLines: const MajorGridLines(width: 0),
         axisLabelFormatter: (AxisLabelRenderDetails d) {
           final day = d.value.round();
-          if (day <= 0) {
-            return ChartAxisLabel(
-              dayMonthFmt.format(DateTime(year, month, 1)),
-              d.textStyle,
-            );
-          }
-          final safeDay = day.clamp(1, todayDayOfMonth);
-          return ChartAxisLabel(
-            dayMonthFmt.format(DateTime(year, month, safeDay)),
-            d.textStyle,
-          );
+          final date = periodStart.add(Duration(days: day <= 0 ? 0 : day - 1));
+          return ChartAxisLabel(dayMonthFmt.format(date), d.textStyle);
         },
       ),
       primaryYAxis: NumericAxis(

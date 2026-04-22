@@ -1,5 +1,8 @@
 import { onSchedule } from "firebase-functions/v2/scheduler";
 import { onCall, HttpsError } from "firebase-functions/v2/https";
+import * as functions from "firebase-functions/v1";
+import { getFirestore } from "firebase-admin/firestore";
+import { getMessaging } from "firebase-admin/messaging";
 import { Connector, IpAddressTypes, AuthTypes } from "@google-cloud/cloud-sql-connector";
 import pg from "pg";
 
@@ -53,33 +56,31 @@ export const monthlyBudgetReward = onSchedule(
 
         try {
             const now = new Date();
-            const prevYear = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
-            const prevMonth = now.getMonth() === 0 ? 12 : now.getMonth();
-            const monthKey = `${prevYear}-${String(prevMonth).padStart(2, "0")}`;
-
-            const firstDay = `${prevYear}-${String(prevMonth).padStart(2, "0")}-01`;
-            const nextMonth = prevMonth === 12 ? 1 : prevMonth + 1;
-            const nextYear = prevMonth === 12 ? prevYear + 1 : prevYear;
-            const lastDay = `${nextYear}-${String(nextMonth).padStart(2, "0")}-01`;
+            const firstOfPrev = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1));
+            const firstOfThis = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+            const firstDay = firstOfPrev.toISOString().slice(0, 10);
+            const lastDay = firstOfThis.toISOString().slice(0, 10);
+            const monthKey = firstDay.slice(0, 7);
 
             const result = await pool.query(`
         SELECT
-          u.username,
-          u.monthly_budget,
+          u.user_id,
+          u.budget,
           pb.id AS pb_id,
           pb.total_points,
           COALESCE(SUM(t.amount), 0) AS month_spent
         FROM "user" u
-        JOIN points_balance pb ON pb.user_username = u.username
+        JOIN points_balance pb ON pb.user_user_id = u.user_id
         LEFT JOIN "transaction" t
-          ON t.user_username = u.username
+          ON t.user_user_id = u.user_id
           AND t.date >= $1::date
           AND t.date < $2::date
-        WHERE u.monthly_budget > 0
+        WHERE u.budget > 0
+          AND u.is_weekly = false
           AND (pb.last_budget_reward_month IS NULL OR pb.last_budget_reward_month != $3)
-        GROUP BY u.username, u.monthly_budget, pb.id, pb.total_points
+        GROUP BY u.user_id, u.budget, pb.id, pb.total_points
         HAVING COALESCE(SUM(t.amount), 0) > 0
-          AND COALESCE(SUM(t.amount), 0) < u.monthly_budget
+          AND COALESCE(SUM(t.amount), 0) < u.budget
       `, [firstDay, lastDay, monthKey]);
 
             const REWARD = 100;
@@ -95,13 +96,77 @@ export const monthlyBudgetReward = onSchedule(
         `, [newTotal, monthKey, row.pb_id]);
 
                 console.log(
-                    `Awarded ${REWARD} pts to ${row.username} ` +
-                    `(spent ${row.month_spent}/${row.monthly_budget}, new total: ${newTotal})`
+                    `Awarded ${REWARD} pts to ${row.user_id} ` +
+                    `(spent ${row.month_spent}/${row.budget}, new total: ${newTotal})`
                 );
             }
 
         } catch (err) {
             console.error("Error in monthlyBudgetReward:", err);
+            throw err;
+        } finally {
+            await pool.end();
+            connector.close();
+        }
+    }
+);
+
+export const weeklyBudgetReward = onSchedule(
+    {
+        schedule: "0 0 * * 1",
+        timeZone: "UTC",
+        region: "europe-west1",
+    },
+    async () => {
+        const { connector, pool } = await createPool();
+
+        try {
+            const now = new Date();
+            const weekStart = new Date(now.getTime() - 7 * 24 * 3600 * 1000)
+                .toISOString().slice(0, 10);
+            const weekEnd = now.toISOString().slice(0, 10);
+
+            const result = await pool.query(`
+        SELECT
+          u.user_id,
+          u.budget,
+          pb.id AS pb_id,
+          pb.total_points,
+          COALESCE(SUM(t.amount), 0) AS week_spent
+        FROM "user" u
+        JOIN points_balance pb ON pb.user_user_id = u.user_id
+        LEFT JOIN "transaction" t
+          ON t.user_user_id = u.user_id
+          AND t.date >= $1::date
+          AND t.date < $2::date
+        WHERE u.budget > 0
+          AND u.is_weekly = true
+          AND (pb.last_budget_reward_week IS NULL OR pb.last_budget_reward_week != $3)
+        GROUP BY u.user_id, u.budget, pb.id, pb.total_points
+        HAVING COALESCE(SUM(t.amount), 0) > 0
+          AND COALESCE(SUM(t.amount), 0) < u.budget
+      `, [weekStart, weekEnd, weekStart]);
+
+            const REWARD = 25;
+
+            for (const row of result.rows) {
+                const newTotal = row.total_points + REWARD;
+                await pool.query(`
+          UPDATE points_balance
+          SET total_points = $1,
+              last_budget_reward_week = $2,
+              updated_at = NOW()
+          WHERE id = $3
+        `, [newTotal, weekStart, row.pb_id]);
+
+                console.log(
+                    `Awarded ${REWARD} pts to ${row.user_id} ` +
+                    `(spent ${row.week_spent}/${row.budget}, new total: ${newTotal})`
+                );
+            }
+
+        } catch (err) {
+            console.error("Error in weeklyBudgetReward:", err);
             throw err;
         } finally {
             await pool.end();
@@ -135,7 +200,7 @@ export const redeemProduct = onCall(
                 `
           SELECT id, total_points
           FROM points_balance
-          WHERE user_username = $1
+          WHERE user_user_id = $1
           FOR UPDATE
         `,
                 [userId]
@@ -178,7 +243,7 @@ export const redeemProduct = onCall(
             try {
                 await client.query(
                     `
-              INSERT INTO redeemed_product (user_username, product_id, code, redeemed_at)
+              INSERT INTO redeemed_product (user_user_id, product_id, code, redeemed_at)
               VALUES ($1, $2, $3, NOW())
             `,
                     [userId, productRow.id, code]
@@ -201,7 +266,7 @@ export const redeemProduct = onCall(
 
             await client.query(
                 `
-          INSERT INTO points_transaction (user_username, amount, reason, created_at)
+          INSERT INTO points_transaction (user_user_id, amount, reason, created_at)
           VALUES ($1, $2, $3, NOW())
         `,
                 [userId, -cost, `redeem:${productRow.id}`]
@@ -240,3 +305,49 @@ export const redeemProduct = onCall(
         }
     }
 );
+
+export const scheduledTestPush = onSchedule(
+    {
+        schedule: "0 19 25 * *",
+        timeZone: "UTC",
+        region: "europe-west1",
+    },
+    async () => {
+        const db = getFirestore();
+        const messaging = getMessaging();
+        const snapshot = await db.collection("users").get();
+
+        let usersNotified = 0;
+        for (const doc of snapshot.docs) {
+            const raw = doc.data().fcmTokens;
+            const tokens = Array.isArray(raw) ?
+                raw.filter((t): t is string => typeof t === "string" && t.length > 0) :
+                [];
+            if (tokens.length === 0) continue;
+
+            await messaging.sendEachForMulticast({
+                tokens,
+                notification: {
+                    title: "MakeCents",
+                    body: "Scheduled notification",
+                },
+                android: { notification: { channelId: "makecents_fcm" } },
+            });
+            usersNotified++;
+        }
+
+        console.log(`scheduledTestPush: sent to ${usersNotified} user doc(s)`);
+    }
+);
+
+export const cleanupUserFcmOnAuthDelete = functions
+    .region("europe-west1")
+    .auth.user()
+    .onDelete(async (user) => {
+        try {
+            await getFirestore().collection("users").doc(user.uid).delete();
+            console.log(`cleanupUserFcmOnAuthDelete: deleted Firestore users/${user.uid}`);
+        } catch (err) {
+            console.error("cleanupUserFcmOnAuthDelete:", err);
+        }
+    });

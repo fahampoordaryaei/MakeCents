@@ -12,7 +12,18 @@ class ExpenseCategory {
 }
 
 List<ExpenseCategory> dynamicCategories = [];
+
 String currency = '€';
+int? currencyId;
+final ValueNotifier<String> currencyNotifier = ValueNotifier<String>(currency);
+
+void setGlobalCurrency({required String sign, int? id}) {
+  currency = sign;
+  currencyId = id;
+  if (currencyNotifier.value != sign) {
+    currencyNotifier.value = sign;
+  }
+}
 
 ExpenseCategory catFor(String name) {
   for (final c in dynamicCategories) {
@@ -81,12 +92,12 @@ IconData getIconByName(String name) {
 }
 
 class GetLoginStatusUsers {
-  final String username;
+  final String userId;
   final int failedAttempts;
   final DateTime? lockedUntil;
 
   GetLoginStatusUsers.fromJson(dynamic json)
-    : username = nativeFromJson<String>(json['username']),
+    : userId = nativeFromJson<String>(json['userId']),
       failedAttempts = nativeFromJson<int>(json['failedAttempts']),
       lockedUntil = json['lockedUntil'] == null
           ? null
@@ -109,19 +120,19 @@ class _GetLoginStatusVars {
 }
 
 class _RecordFailedLoginVars {
-  final String username;
+  final String userId;
   final int failedAttempts;
   final DateTime? lockedUntil;
 
   _RecordFailedLoginVars({
-    required this.username,
+    required this.userId,
     required this.failedAttempts,
     this.lockedUntil,
   });
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{
-      'username': nativeToJson<String>(username),
+      'userId': nativeToJson<String>(userId),
       'failedAttempts': nativeToJson<int>(failedAttempts),
     };
     if (lockedUntil != null) {
@@ -132,9 +143,9 @@ class _RecordFailedLoginVars {
 }
 
 class _ResetLoginAttemptsVars {
-  final String username;
-  _ResetLoginAttemptsVars({required this.username});
-  Map<String, dynamic> toJson() => {'username': nativeToJson<String>(username)};
+  final String userId;
+  _ResetLoginAttemptsVars({required this.userId});
+  Map<String, dynamic> toJson() => {'userId': nativeToJson<String>(userId)};
 }
 
 class _EmptyData {
@@ -155,7 +166,7 @@ extension LoginLockoutExtension on ExampleConnector {
   }
 
   Future<void> recordFailedLogin({
-    required String username,
+    required String userId,
     required int failedAttempts,
     DateTime? lockedUntil,
   }) async {
@@ -165,7 +176,7 @@ extension LoginLockoutExtension on ExampleConnector {
           (dynamic json) => _EmptyData.fromJson(json),
           (_RecordFailedLoginVars vars) => jsonEncode(vars.toJson()),
           _RecordFailedLoginVars(
-            username: username,
+            userId: userId,
             failedAttempts: failedAttempts,
             lockedUntil: lockedUntil,
           ),
@@ -173,13 +184,13 @@ extension LoginLockoutExtension on ExampleConnector {
         .execute();
   }
 
-  Future<void> resetLoginAttempts({required String username}) async {
+  Future<void> resetLoginAttempts({required String userId}) async {
     await dataConnect
         .mutation(
           "ResetLoginAttempts",
           (dynamic json) => _EmptyData.fromJson(json),
           (_ResetLoginAttemptsVars vars) => jsonEncode(vars.toJson()),
-          _ResetLoginAttemptsVars(username: username),
+          _ResetLoginAttemptsVars(userId: userId),
         )
         .execute();
   }

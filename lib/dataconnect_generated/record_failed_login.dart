@@ -1,7 +1,7 @@
 part of 'generated.dart';
 
 class RecordFailedLoginVariablesBuilder {
-  String username;
+  String userId;
   int failedAttempts;
   Optional<Timestamp> _lockedUntil = Optional.optional((json) => json['lockedUntil'] = Timestamp.fromJson(json['lockedUntil']), defaultSerializer);
 
@@ -10,7 +10,7 @@ class RecordFailedLoginVariablesBuilder {
    return this;
   }
 
-  RecordFailedLoginVariablesBuilder(this._dataConnect, {required  this.username,required  this.failedAttempts,});
+  RecordFailedLoginVariablesBuilder(this._dataConnect, {required  this.userId,required  this.failedAttempts,});
   Deserializer<RecordFailedLoginData> dataDeserializer = (dynamic json)  => RecordFailedLoginData.fromJson(jsonDecode(json));
   Serializer<RecordFailedLoginVariables> varsSerializer = (RecordFailedLoginVariables vars) => jsonEncode(vars.toJson());
   Future<OperationResult<RecordFailedLoginData, RecordFailedLoginVariables>> execute() {
@@ -18,17 +18,17 @@ class RecordFailedLoginVariablesBuilder {
   }
 
   MutationRef<RecordFailedLoginData, RecordFailedLoginVariables> ref() {
-    RecordFailedLoginVariables vars= RecordFailedLoginVariables(username: username,failedAttempts: failedAttempts,lockedUntil: _lockedUntil,);
+    RecordFailedLoginVariables vars= RecordFailedLoginVariables(userId: userId,failedAttempts: failedAttempts,lockedUntil: _lockedUntil,);
     return _dataConnect.mutation("RecordFailedLogin", dataDeserializer, varsSerializer, vars);
   }
 }
 
 @immutable
 class RecordFailedLoginUserUpdate {
-  final String username;
+  final String userId;
   RecordFailedLoginUserUpdate.fromJson(dynamic json):
   
-  username = nativeFromJson<String>(json['username']);
+  userId = nativeFromJson<String>(json['userId']);
   @override
   bool operator ==(Object other) {
     if(identical(this, other)) {
@@ -39,21 +39,21 @@ class RecordFailedLoginUserUpdate {
     }
 
     final RecordFailedLoginUserUpdate otherTyped = other as RecordFailedLoginUserUpdate;
-    return username == otherTyped.username;
+    return userId == otherTyped.userId;
     
   }
   @override
-  int get hashCode => username.hashCode;
+  int get hashCode => userId.hashCode;
   
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
-    json['username'] = nativeToJson<String>(username);
+    json['userId'] = nativeToJson<String>(userId);
     return json;
   }
 
   RecordFailedLoginUserUpdate({
-    required this.username,
+    required this.userId,
   });
 }
 
@@ -95,13 +95,13 @@ class RecordFailedLoginData {
 
 @immutable
 class RecordFailedLoginVariables {
-  final String username;
+  final String userId;
   final int failedAttempts;
   late final Optional<Timestamp>lockedUntil;
   @Deprecated('fromJson is deprecated for Variable classes as they are no longer required for deserialization.')
   RecordFailedLoginVariables.fromJson(Map<String, dynamic> json):
   
-  username = nativeFromJson<String>(json['username']),
+  userId = nativeFromJson<String>(json['userId']),
   failedAttempts = nativeFromJson<int>(json['failedAttempts']) {
   
   
@@ -121,18 +121,18 @@ class RecordFailedLoginVariables {
     }
 
     final RecordFailedLoginVariables otherTyped = other as RecordFailedLoginVariables;
-    return username == otherTyped.username && 
+    return userId == otherTyped.userId && 
     failedAttempts == otherTyped.failedAttempts && 
     lockedUntil == otherTyped.lockedUntil;
     
   }
   @override
-  int get hashCode => Object.hashAll([username.hashCode, failedAttempts.hashCode, lockedUntil.hashCode]);
+  int get hashCode => Object.hashAll([userId.hashCode, failedAttempts.hashCode, lockedUntil.hashCode]);
   
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
-    json['username'] = nativeToJson<String>(username);
+    json['userId'] = nativeToJson<String>(userId);
     json['failedAttempts'] = nativeToJson<int>(failedAttempts);
     if(lockedUntil.state == OptionalState.set) {
       json['lockedUntil'] = lockedUntil.toJson();
@@ -141,7 +141,7 @@ class RecordFailedLoginVariables {
   }
 
   RecordFailedLoginVariables({
-    required this.username,
+    required this.userId,
     required this.failedAttempts,
     required this.lockedUntil,
   });

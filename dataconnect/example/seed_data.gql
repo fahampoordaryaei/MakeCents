@@ -1,16 +1,16 @@
 mutation seedData @transaction @auth(level: USER, insecureReason: "Seed data is for initialization.") {
   institution_insertMany(data: [
-    { name: "University of Malta (UoM)" },
-    { name: "Malta College of Arts, Science and Technology (MCAST)" },
-    { name: "STC Higher Education" },
-    { name: "Institute of Tourism Studies (ITS)" },
-    { name: "St Martin's Institute of IT" },
-    { name: "Global College Malta" },
-    { name: "American University of Malta (AUM)" },
-    { name: "London School of Commerce Malta" },
-    { name: "Middlesex University Malta" },
-    { name: "Pegaso International" },
-    { name: "Other" }
+    { name: "University of Malta (UoM)", country: { id: 153 } },
+    { name: "Malta College of Arts, Science and Technology (MCAST)", country: { id: 153 } },
+    { name: "STC Higher Education", country: { id: 153 } },
+    { name: "Institute of Tourism Studies (ITS)", country: { id: 153 } },
+    { name: "St Martin's Institute of IT", country: { id: 153 } },
+    { name: "Global College Malta", country: { id: 153 } },
+    { name: "American University of Malta (AUM)", country: { id: 153 } },
+    { name: "London School of Commerce Malta", country: { id: 153 } },
+    { name: "Middlesex University Malta", country: { id: 153 } },
+    { name: "Pegaso International", country: { id: 153 } },
+    { name: "Other", country: { id: 153 } }
   ])
   course_insertMany(data: [
     { name: "Computer Science" },

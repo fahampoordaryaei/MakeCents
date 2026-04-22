@@ -9,8 +9,8 @@ ExampleConnector.instance.ListProducts().execute();
 ExampleConnector.instance.ListRedeemedProducts(listRedeemedProductsVariables).execute();
 ExampleConnector.instance.AddTransaction(addTransactionVariables).execute();
 ExampleConnector.instance.StoreUserProfile(storeUserProfileVariables).execute();
-ExampleConnector.instance.DeleteTransaction(deleteTransactionVariables).execute();
-ExampleConnector.instance.UpdateTransaction(updateTransactionVariables).execute();
+ExampleConnector.instance.ListCurrencies().execute();
+ExampleConnector.instance.GetCountryIdByCode(getCountryIdByCodeVariables).execute();
 
 ```
 

@@ -40,7 +40,7 @@ class _HomePageState extends State<HomePage> {
           .listRedeemedProducts(userId: user.uid)
           .execute();
       final profileResult = await connector
-          .getUserProfile(username: user.uid)
+          .getUserProfile(userId: user.uid)
           .execute();
       final scholarshipsResult = await connector.listScholarships().execute();
 
@@ -70,7 +70,8 @@ class _HomePageState extends State<HomePage> {
         _matchedScholarships = matched.take(3).toList();
         _isLoadingHomeFeeds = false;
       });
-    } catch (_) {
+    } catch (e) {
+      debugPrint('home: loadFeeds failed: $e');
       if (!mounted) return;
       setState(() => _isLoadingHomeFeeds = false);
     }
@@ -79,7 +80,8 @@ class _HomePageState extends State<HomePage> {
   Color _scholarshipColor(String rawColor) {
     try {
       return Color(int.parse(rawColor.trim().replaceFirst('#', '0xFF')));
-    } catch (_) {
+    } catch (e) {
+      debugPrint('home: bad scholarship color "$rawColor": $e');
       return const Color(0xFF3e7f3f);
     }
   }
@@ -224,10 +226,12 @@ class _HomePageState extends State<HomePage> {
 
     final displayName = userProvider.profile?.firstName ?? 'Student';
 
-    final expenses = txProvider.monthlySpent;
+    final isWeekly = budgetProvider.isWeekly;
+    final expenses = txProvider.periodSpent(isWeekly: isWeekly);
     final budget = budgetProvider.budget.amount;
     final available = budget > 0 ? (budget - expenses).clamp(0.0, budget) : 0.0;
     final spentPct = budget > 0 ? (expenses / budget).clamp(0.0, 1.0) : 0.0;
+    final spentLabel = isWeekly ? 'Spent this week' : 'Spent this month';
     final recent = txProvider.transactions.take(3).toList();
     final monthTxCount = txProvider.transactions
         .where((t) => t.date.month == now.month && t.date.year == now.year)
@@ -287,7 +291,7 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         Expanded(
                           child: _SummaryItem(
-                            label: 'Spent this month',
+                            label: spentLabel,
                             value: formatMoney(expenses),
                             icon: Icons.arrow_upward_rounded,
                           ),

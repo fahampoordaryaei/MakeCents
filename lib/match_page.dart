@@ -71,9 +71,7 @@ class _MatchPageState extends State<MatchPage> {
         return;
       }
 
-      final result = await connector
-          .getUserProfile(username: user.uid)
-          .execute();
+      final result = await connector.getUserProfile(userId: user.uid).execute();
       final dbUser = result.data.users.isNotEmpty
           ? result.data.users.first
           : null;
@@ -86,7 +84,8 @@ class _MatchPageState extends State<MatchPage> {
         _selectedCourseId =
             selectedCourseId ?? (courses.isNotEmpty ? courses.first.id : null);
       });
-    } catch (_) {
+    } catch (e) {
+      debugPrint('match: loadCoursesAndProfileSelection failed: $e');
       if (!mounted) return;
       setState(() {
         _coursesLoaded = true;
@@ -117,7 +116,9 @@ class _MatchPageState extends State<MatchPage> {
           );
         }).toList();
       });
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('match: listScholarships failed: $e');
+    }
   }
 
   void _findMatches() {
@@ -137,7 +138,7 @@ class _MatchPageState extends State<MatchPage> {
   }
 
   List<Scholarship> get _scholarshipsForList {
-    if (_searched) return _results ?? const [];
+    if (_searched) return _results!;
     return _allScholarships ?? const [];
   }
 

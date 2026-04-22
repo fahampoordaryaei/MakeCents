@@ -65,46 +65,36 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       final connector = ExampleConnector.instance;
-      String? username;
-      try {
-        final statusResult = await connector
-            .getLoginStatus(email: email)
-            .execute();
-        if (statusResult.data.users.isNotEmpty) {
-          final user = statusResult.data.users.first;
-          username = user.username;
-          final lockedUntil = user.lockedUntil?.toDateTime();
+      String? dbUserId;
+      final statusResult = await connector
+          .getLoginStatus(email: email)
+          .execute();
+      if (statusResult.data.users.isNotEmpty) {
+        final user = statusResult.data.users.first;
+        dbUserId = user.userId;
+        final lockedUntil = user.lockedUntil?.toDateTime();
 
-          if (lockedUntil != null && DateTime.now().isBefore(lockedUntil)) {
-            final remaining =
-                lockedUntil.difference(DateTime.now()).inMinutes + 1;
-            setState(() {
-              _error =
-                  'Account locked. Try again in $remaining minute${remaining == 1 ? '' : 's'}.';
-              _isLoading = false;
-            });
-            return;
-          }
+        if (lockedUntil != null && DateTime.now().isBefore(lockedUntil)) {
+          final remaining =
+              lockedUntil.difference(DateTime.now()).inMinutes + 1;
+          setState(() {
+            _error =
+                'Account locked. Try again in $remaining minute${remaining == 1 ? '' : 's'}.';
+            _isLoading = false;
+          });
+          return;
         }
-      } catch (_) {}
+      }
 
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: pass,
       );
 
-      final authUser = FirebaseAuth.instance.currentUser;
-      if (authUser == null) {
-        setState(() {
-          _error = 'Sign in failed.';
-        });
-        return;
-      }
+      final authUser = FirebaseAuth.instance.currentUser!;
 
-      if (username != null) {
-        try {
-          await connector.resetLoginAttempts(username: username).execute();
-        } catch (_) {}
+      if (dbUserId != null) {
+        await connector.resetLoginAttempts(userId: dbUserId).execute();
       }
 
       await _completeSignIn(authUser);
@@ -116,7 +106,8 @@ class _LoginPageState extends State<LoginPage> {
           _error = e.message ?? 'Sign in failed.';
         });
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('login: signIn unexpected error: $e');
       setState(() {
         _error = 'An unexpected error occurred.';
       });
@@ -157,7 +148,8 @@ class _LoginPageState extends State<LoginPage> {
                 _isLoading = false;
               });
             }
-          } catch (_) {
+          } catch (e) {
+            debugPrint('login: verificationCompleted signIn failed: $e');
             if (mounted) {
               setState(() {
                 _error = 'Phone sign-in failed.';
@@ -187,7 +179,8 @@ class _LoginPageState extends State<LoginPage> {
           _verificationId = verificationId;
         },
       );
-    } catch (_) {
+    } catch (e) {
+      debugPrint('login: sendPhoneCode failed: $e');
       if (mounted) {
         setState(() {
           _error = 'Unable to send verification code.';
@@ -221,22 +214,14 @@ class _LoginPageState extends State<LoginPage> {
         verificationId: _verificationId!,
         smsCode: code,
       );
-      final result = await FirebaseAuth.instance.signInWithCredential(
-        credential,
-      );
-      final authUser = result.user ?? FirebaseAuth.instance.currentUser;
-      if (authUser == null) {
-        setState(() {
-          _error = 'Phone sign-in failed.';
-        });
-        return;
-      }
+      await FirebaseAuth.instance.signInWithCredential(credential);
       await _placeholderSuccess();
     } on FirebaseAuthException catch (e) {
       setState(() {
         _error = e.message ?? 'Unable to verify code.';
       });
-    } catch (_) {
+    } catch (e) {
+      debugPrint('login: verifyPhoneCode failed: $e');
       setState(() {
         _error = 'Unable to verify code.';
       });
@@ -262,9 +247,7 @@ class _LoginPageState extends State<LoginPage> {
         ],
       ),
     );
-    try {
-      await FirebaseAuth.instance.signOut();
-    } catch (_) {}
+    await FirebaseAuth.instance.signOut();
     if (!mounted) return;
     setState(() {
       _codeSent = false;
@@ -276,40 +259,36 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _completeSignIn(User authUser) async {
     final connector = ExampleConnector.instance;
-    String? username;
+    String? dbUserId;
     if (!_usePhoneLogin) {
-      try {
-        final statusResult = await connector
-            .getLoginStatus(email: _identityCtrl.text.trim())
-            .execute();
-        if (statusResult.data.users.isNotEmpty) {
-          final user = statusResult.data.users.first;
-          username = user.username;
-          final lockedUntil = user.lockedUntil?.toDateTime();
-          if (lockedUntil != null && DateTime.now().isBefore(lockedUntil)) {
-            final remaining =
-                lockedUntil.difference(DateTime.now()).inMinutes + 1;
-            if (mounted) {
-              setState(() {
-                _error =
-                    'Account locked. Try again in $remaining minute${remaining == 1 ? '' : 's'}.';
-                _isLoading = false;
-              });
-            }
-            return;
+      final statusResult = await connector
+          .getLoginStatus(email: _identityCtrl.text.trim())
+          .execute();
+      if (statusResult.data.users.isNotEmpty) {
+        final user = statusResult.data.users.first;
+        dbUserId = user.userId;
+        final lockedUntil = user.lockedUntil?.toDateTime();
+        if (lockedUntil != null && DateTime.now().isBefore(lockedUntil)) {
+          final remaining =
+              lockedUntil.difference(DateTime.now()).inMinutes + 1;
+          if (mounted) {
+            setState(() {
+              _error =
+                  'Account locked. Try again in $remaining minute${remaining == 1 ? '' : 's'}.';
+              _isLoading = false;
+            });
           }
+          return;
         }
-      } catch (_) {}
+      }
     }
 
-    if (username != null) {
-      try {
-        await connector.resetLoginAttempts(username: username).execute();
-      } catch (_) {}
+    if (dbUserId != null) {
+      await connector.resetLoginAttempts(userId: dbUserId).execute();
     }
 
     final profileResult = await connector
-        .getUserProfile(username: authUser.uid)
+        .getUserProfile(userId: authUser.uid)
         .execute();
 
     if (!mounted) return;
@@ -358,7 +337,7 @@ class _LoginPageState extends State<LoginPage> {
       }
 
       final recordFailureBuilder = connector.recordFailedLogin(
-        username: user.username,
+        userId: user.userId,
         failedAttempts: newCount,
       );
       if (lockUntil != null) {
@@ -377,7 +356,8 @@ class _LoginPageState extends State<LoginPage> {
         _error =
             'Incorrect password. $remaining attempt${remaining == 1 ? '' : 's'} remaining.';
       });
-    } catch (_) {
+    } catch (e) {
+      debugPrint('login: recordFailure failed: $e');
       setState(() => _error = 'Incorrect email or password.');
     }
   }

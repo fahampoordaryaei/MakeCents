@@ -79,9 +79,7 @@ class _RegisterPageState extends State<RegisterPage> {
         ],
       ),
     );
-    try {
-      await FirebaseAuth.instance.signOut();
-    } catch (_) {}
+    await FirebaseAuth.instance.signOut();
     if (!mounted) return;
     setState(() {
       _codeSent = false;
@@ -142,7 +140,8 @@ class _RegisterPageState extends State<RegisterPage> {
               _error = e.message ?? 'Phone registration failed.';
               _isLoading = false;
             });
-          } catch (_) {
+          } catch (e) {
+            debugPrint('register: verificationCompleted signIn failed: $e');
             if (!mounted || !_usePhoneRegister) return;
             setState(() {
               _error = 'Phone registration failed.';
@@ -170,7 +169,8 @@ class _RegisterPageState extends State<RegisterPage> {
           _verificationId = verificationId;
         },
       );
-    } catch (_) {
+    } catch (e) {
+      debugPrint('register: sendPhoneRegister failed: $e');
       if (!mounted || !_usePhoneRegister) return;
       setState(() {
         _error = 'Unable to send verification code.';
@@ -214,7 +214,8 @@ class _RegisterPageState extends State<RegisterPage> {
       if (mounted) {
         setState(() => _error = e.message ?? 'Unable to verify code.');
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('register: verifyPhoneRegister failed: $e');
       if (mounted) setState(() => _error = 'Unable to verify code.');
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -362,7 +363,8 @@ class _RegisterPageState extends State<RegisterPage> {
       setState(
         () => _error = e.message ?? 'An error occurred during registration.',
       );
-    } catch (_) {
+    } catch (e) {
+      debugPrint('register: registerWithEmail unexpected error: $e');
       setState(() => _error = 'An unexpected error occurred.');
     } finally {
       if (mounted) setState(() => _isLoading = false);

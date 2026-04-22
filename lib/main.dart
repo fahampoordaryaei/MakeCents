@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'budget_page.dart';
+import 'fcm.dart';
 import 'budget_provider.dart';
 import 'firebase_options.dart';
 import 'home_page.dart';
@@ -19,6 +20,8 @@ import 'user_provider.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  await initializeFirebaseMessaging();
 
   try {
     await FirebaseAppCheck.instance.activate(
@@ -39,13 +42,19 @@ void main() async {
   final themeProvider = ThemeProvider();
   try {
     await transactionProvider.fetchTransactions();
-  } catch (_) {}
+  } catch (e) {
+    debugPrint('main: fetchTransactions at startup failed: $e');
+  }
   try {
     await budgetProvider.init();
-  } catch (_) {}
+  } catch (e) {
+    debugPrint('main: budgetProvider.init at startup failed: $e');
+  }
   try {
     await themeProvider.loadTheme();
-  } catch (_) {}
+  } catch (e) {
+    debugPrint('main: themeProvider.loadTheme at startup failed: $e');
+  }
   runApp(
     MultiProvider(
       providers: [

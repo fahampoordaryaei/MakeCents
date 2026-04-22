@@ -1,5 +1,41 @@
 extend type Mutation {
   """
+  ✨ Insert a single `CategoryBudget` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  categoryBudget_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: CategoryBudget_Data!
+  ): CategoryBudget_KeyOutput! @fdc_generated(from: "CategoryBudget", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `Continent` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  continent_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: Continent_Data!
+  ): Continent_KeyOutput! @fdc_generated(from: "Continent", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `Country` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  country_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: Country_Data!
+  ): Country_KeyOutput! @fdc_generated(from: "Country", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `CountryContinent` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  countryContinent_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: CountryContinent_Data!
+  ): CountryContinent_KeyOutput! @fdc_generated(from: "CountryContinent", purpose: INSERT_SINGLE)
+  """
   ✨ Insert a single `Course` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
   """
   course_insert(
@@ -107,6 +143,42 @@ extend type Mutation {
     """
     data: User_Data!
   ): User_KeyOutput! @fdc_generated(from: "User", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert `CategoryBudget` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  categoryBudget_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [CategoryBudget_Data!]!
+  ): [CategoryBudget_KeyOutput!]! @fdc_generated(from: "CategoryBudget", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `Continent` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  continent_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [Continent_Data!]!
+  ): [Continent_KeyOutput!]! @fdc_generated(from: "Continent", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `Country` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  country_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [Country_Data!]!
+  ): [Country_KeyOutput!]! @fdc_generated(from: "Country", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `CountryContinent` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  countryContinent_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [CountryContinent_Data!]!
+  ): [CountryContinent_KeyOutput!]! @fdc_generated(from: "CountryContinent", purpose: INSERT_MULTIPLE)
   """
   ✨ Insert `Course` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
   """
@@ -216,6 +288,42 @@ extend type Mutation {
     data: [User_Data!]!
   ): [User_KeyOutput!]! @fdc_generated(from: "User", purpose: INSERT_MULTIPLE)
   """
+  ✨ Insert or update a single `CategoryBudget` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `CategoryBudget`.
+  """
+  categoryBudget_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: CategoryBudget_Data!
+  ): CategoryBudget_KeyOutput! @fdc_generated(from: "CategoryBudget", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `Continent` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Continent`.
+  """
+  continent_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: Continent_Data!
+  ): Continent_KeyOutput! @fdc_generated(from: "Continent", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `Country` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Country`.
+  """
+  country_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: Country_Data!
+  ): Country_KeyOutput! @fdc_generated(from: "Country", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `CountryContinent` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `CountryContinent`.
+  """
+  countryContinent_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: CountryContinent_Data!
+  ): CountryContinent_KeyOutput! @fdc_generated(from: "CountryContinent", purpose: UPSERT_SINGLE)
+  """
   ✨ Insert or update a single `Course` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Course`.
   """
   course_upsert(
@@ -324,6 +432,42 @@ extend type Mutation {
     data: User_Data!
   ): User_KeyOutput! @fdc_generated(from: "User", purpose: UPSERT_SINGLE)
   """
+  ✨ Insert or update `CategoryBudget` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `CategoryBudget`.
+  """
+  categoryBudget_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [CategoryBudget_Data!]!
+  ): [CategoryBudget_KeyOutput!]! @fdc_generated(from: "CategoryBudget", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `Continent` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Continent`.
+  """
+  continent_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [Continent_Data!]!
+  ): [Continent_KeyOutput!]! @fdc_generated(from: "Continent", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `Country` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Country`.
+  """
+  country_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [Country_Data!]!
+  ): [Country_KeyOutput!]! @fdc_generated(from: "Country", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `CountryContinent` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `CountryContinent`.
+  """
+  countryContinent_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [CountryContinent_Data!]!
+  ): [CountryContinent_KeyOutput!]! @fdc_generated(from: "CountryContinent", purpose: UPSERT_MULTIPLE)
+  """
   ✨ Insert or update `Course` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Course`.
   """
   course_upsertMany(
@@ -431,6 +575,102 @@ extend type Mutation {
     """
     data: [User_Data!]!
   ): [User_KeyOutput!]! @fdc_generated(from: "User", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Update a single `CategoryBudget` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `CategoryBudget` or `null` if not found.
+  """
+  categoryBudget_update(
+    """
+    The key used to identify the object.
+    """
+    key: CategoryBudget_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: CategoryBudget_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: CategoryBudget_Data!
+  ): CategoryBudget_KeyOutput @fdc_generated(from: "CategoryBudget", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `Continent` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `Continent` or `null` if not found.
+  """
+  continent_update(
+    """
+    The unique ID of the object.
+    """
+    id: Int
+
+    """
+    ✨ `_expr` server value variant of `id` (The unique ID of the object.)
+    """
+    id_expr: Int_Expr
+
+    """
+    The key used to identify the object.
+    """
+    key: Continent_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Continent_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: Continent_Data!
+  ): Continent_KeyOutput @fdc_generated(from: "Continent", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `Country` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `Country` or `null` if not found.
+  """
+  country_update(
+    """
+    The unique ID of the object.
+    """
+    id: Int
+
+    """
+    ✨ `_expr` server value variant of `id` (The unique ID of the object.)
+    """
+    id_expr: Int_Expr
+
+    """
+    The key used to identify the object.
+    """
+    key: Country_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Country_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: Country_Data!
+  ): Country_KeyOutput @fdc_generated(from: "Country", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `CountryContinent` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `CountryContinent` or `null` if not found.
+  """
+  countryContinent_update(
+    """
+    The key used to identify the object.
+    """
+    key: CountryContinent_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: CountryContinent_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: CountryContinent_Data!
+  ): CountryContinent_KeyOutput @fdc_generated(from: "CountryContinent", purpose: UPDATE_SINGLE)
   """
   ✨ Update a single `Course` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `Course` or `null` if not found.
   """
@@ -705,6 +945,82 @@ extend type Mutation {
     data: User_Data!
   ): User_KeyOutput @fdc_generated(from: "User", purpose: UPDATE_SINGLE)
   """
+  ✨ Update `CategoryBudget` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  categoryBudget_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: CategoryBudget_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: CategoryBudget_Data!
+  ): Int! @fdc_generated(from: "CategoryBudget", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `Continent` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  continent_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: Continent_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: Continent_Data!
+  ): Int! @fdc_generated(from: "Continent", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `Country` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  country_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: Country_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: Country_Data!
+  ): Int! @fdc_generated(from: "Country", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `CountryContinent` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  countryContinent_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: CountryContinent_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: CountryContinent_Data!
+  ): Int! @fdc_generated(from: "CountryContinent", purpose: UPDATE_MULTIPLE)
+  """
   ✨ Update `Course` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
   """
   course_updateMany(
@@ -933,6 +1249,82 @@ extend type Mutation {
     data: User_Data!
   ): Int! @fdc_generated(from: "User", purpose: UPDATE_MULTIPLE)
   """
+  ✨ Delete a single `CategoryBudget` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  categoryBudget_delete(
+    """
+    The key used to identify the object.
+    """
+    key: CategoryBudget_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: CategoryBudget_FirstRow
+  ): CategoryBudget_KeyOutput @fdc_generated(from: "CategoryBudget", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `Continent` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  continent_delete(
+    """
+    The unique ID of the object.
+    """
+    id: Int
+
+    """
+    ✨ `_expr` server value variant of `id` (The unique ID of the object.)
+    """
+    id_expr: Int_Expr
+
+    """
+    The key used to identify the object.
+    """
+    key: Continent_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Continent_FirstRow
+  ): Continent_KeyOutput @fdc_generated(from: "Continent", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `Country` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  country_delete(
+    """
+    The unique ID of the object.
+    """
+    id: Int
+
+    """
+    ✨ `_expr` server value variant of `id` (The unique ID of the object.)
+    """
+    id_expr: Int_Expr
+
+    """
+    The key used to identify the object.
+    """
+    key: Country_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Country_FirstRow
+  ): Country_KeyOutput @fdc_generated(from: "Country", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `CountryContinent` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  countryContinent_delete(
+    """
+    The key used to identify the object.
+    """
+    key: CountryContinent_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: CountryContinent_FirstRow
+  ): CountryContinent_KeyOutput @fdc_generated(from: "CountryContinent", purpose: DELETE_SINGLE)
+  """
   ✨ Delete a single `Course` based on `id`, `key` or `first` and return its key (or `null` if not found).
   """
   course_delete(
@@ -1145,6 +1537,62 @@ extend type Mutation {
     """
     first: User_FirstRow
   ): User_KeyOutput @fdc_generated(from: "User", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete `CategoryBudget` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  categoryBudget_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: CategoryBudget_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "CategoryBudget", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `Continent` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  continent_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: Continent_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "Continent", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `Country` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  country_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: Country_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "Country", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `CountryContinent` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  countryContinent_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: CountryContinent_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "CountryContinent", purpose: DELETE_MULTIPLE)
   """
   ✨ Delete `Course` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
   """

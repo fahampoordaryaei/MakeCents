@@ -14,10 +14,67 @@ class UserPage extends StatelessWidget {
   const UserPage({super.key, required this.onNavigateToBudget});
 
   Future<void> _showChangePasswordDialog(BuildContext context) async {
-    await showDialog<void>(
+    final user = FirebaseAuth.instance.currentUser;
+    final email = user?.email;
+    if (email == null || email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No email associated with this account.')),
+      );
+      return;
+    }
+
+    final confirmed = await showDialog<bool>(
       context: context,
-      builder: (_) => _ChangePasswordDialog(parentContext: context),
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        title: const Text('Change password'),
+        content: Text(
+          'We will email a password reset link to:\n$email\n\n'
+          'Open it to set a new password.',
+          style: const TextStyle(fontSize: 16),
+        ),
+        actions: [
+          TextButton(
+            style: TextButton.styleFrom(
+              minimumSize: const Size(100, 48),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFF3e7f3f),
+              minimumSize: const Size(100, 48),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('Send email'),
+          ),
+        ],
+      ),
     );
+
+    if (confirmed != true || !context.mounted) return;
+
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Password reset email sent to $email.')),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message ?? 'Failed to send reset email.')),
+      );
+    } catch (e) {
+      debugPrint('user: sendPasswordResetEmail unexpected error: $e');
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to send reset email.')),
+      );
+    }
   }
 
   Future<void> _openSettingsMenu(BuildContext context) async {
@@ -60,7 +117,7 @@ class UserPage extends StatelessWidget {
       await user.reauthenticateWithCredential(credential);
 
       await ExampleConnector.instance
-          .deleteUserProfile(username: user.uid)
+          .deleteUserProfile(userId: user.uid)
           .execute();
 
       await user.delete();
@@ -71,7 +128,8 @@ class UserPage extends StatelessWidget {
         MaterialPageRoute(builder: (_) => const LoginPage()),
         (r) => false,
       );
-    } catch (_) {
+    } catch (e) {
+      debugPrint('user_page: deleteAccount failed: $e');
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Could not delete account.')),
@@ -95,7 +153,7 @@ class UserPage extends StatelessWidget {
     final tp = Provider.of<ThemeProvider>(context);
     final up = Provider.of<UserProvider>(context);
     final isDarkMode = tp.themeMode != ThemeModes.light;
-    final totalSpent = txP.monthlySpent;
+    final totalSpent = txP.periodSpent(isWeekly: bp.isWeekly);
 
     final user = FirebaseAuth.instance.currentUser;
     final userEmail = up.profile?.email ?? user?.email ?? '';
@@ -202,7 +260,7 @@ class UserPage extends StatelessWidget {
             _SettingsTile(
               icon: Icons.account_balance_wallet_outlined,
               iconColor: const Color(0xFF3e7f3f),
-              title: 'Monthly Budget',
+              title: '${bp.periodLabel} Budget',
               subtitle: formatMoney(bp.budget.amount),
               onTap: () => _editBudgetDialog(context),
             ),
@@ -254,177 +312,6 @@ class UserPage extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _ChangePasswordDialog extends StatefulWidget {
-  final BuildContext parentContext;
-
-  const _ChangePasswordDialog({required this.parentContext});
-
-  @override
-  State<_ChangePasswordDialog> createState() => _ChangePasswordDialogState();
-}
-
-class _ChangePasswordDialogState extends State<_ChangePasswordDialog> {
-  late final TextEditingController _newPasswordCtrl;
-  late final TextEditingController _confirmPasswordCtrl;
-  bool _obscureNew = true;
-  bool _obscureConfirm = true;
-  String _dialogError = '';
-
-  @override
-  void initState() {
-    super.initState();
-    _newPasswordCtrl = TextEditingController();
-    _confirmPasswordCtrl = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _newPasswordCtrl.dispose();
-    _confirmPasswordCtrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      title: const Text('Change password'),
-      content: SizedBox(
-        width: 420,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: _newPasswordCtrl,
-              obscureText: _obscureNew,
-              autofocus: true,
-              decoration: InputDecoration(
-                labelText: 'New password',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _obscureNew
-                        ? Icons.visibility_outlined
-                        : Icons.visibility_off_outlined,
-                  ),
-                  onPressed: () => setState(() => _obscureNew = !_obscureNew),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _confirmPasswordCtrl,
-              obscureText: _obscureConfirm,
-              decoration: InputDecoration(
-                labelText: 'Confirm new password',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _obscureConfirm
-                        ? Icons.visibility_outlined
-                        : Icons.visibility_off_outlined,
-                  ),
-                  onPressed: () =>
-                      setState(() => _obscureConfirm = !_obscureConfirm),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Password must contain:\n'
-                '• Min 8 characters\n'
-                '• 1 uppercase letter\n'
-                '• 1 lowercase letter\n'
-                '• 1 number\n'
-                '• 1 special character',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.8),
-                  height: 1.35,
-                ),
-              ),
-            ),
-            if (_dialogError.isNotEmpty) ...[
-              const SizedBox(height: 10),
-              Text(
-                _dialogError,
-                style: const TextStyle(color: Colors.red, fontSize: 16),
-              ),
-            ],
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          style: TextButton.styleFrom(
-            minimumSize: const Size(100, 48),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          ),
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(
-          style: FilledButton.styleFrom(
-            minimumSize: const Size(100, 48),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          ),
-          onPressed: () async {
-            final newPass = _newPasswordCtrl.text;
-            final confirmPass = _confirmPasswordCtrl.text;
-            if (newPass.isEmpty || confirmPass.isEmpty) {
-              setState(() => _dialogError = 'Please fill out all fields.');
-              return;
-            }
-            if (!passwordCriteria(newPass)) {
-              setState(
-                () => _dialogError = 'Password does not meet requirements.',
-              );
-              return;
-            }
-            if (newPass != confirmPass) {
-              setState(() => _dialogError = 'Passwords do not match.');
-              return;
-            }
-
-            try {
-              final user = FirebaseAuth.instance.currentUser;
-              if (user == null) {
-                setState(() => _dialogError = 'No active user found.');
-                return;
-              }
-              await user.updatePassword(newPass);
-              if (!context.mounted) return;
-              Navigator.pop(context);
-              if (!widget.parentContext.mounted) return;
-              ScaffoldMessenger.of(widget.parentContext).showSnackBar(
-                const SnackBar(content: Text('Password updated.')),
-              );
-            } catch (e) {
-              if (!mounted) return;
-              setState(() {
-                _dialogError =
-                    e is FirebaseAuthException &&
-                        e.code == 'requires-recent-login'
-                    ? 'Please log in again before changing password.'
-                    : 'Could not update password.';
-              });
-            }
-          },
-          child: const Text('Save'),
-        ),
-      ],
     );
   }
 }
@@ -521,6 +408,7 @@ class _EditBudgetDialog extends StatefulWidget {
 class _EditBudgetDialogState extends State<_EditBudgetDialog> {
   late final TextEditingController _ctrl;
   late double _sliderVal;
+  late bool _isWeekly;
   String _dialogError = '';
 
   @override
@@ -528,7 +416,8 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
     super.initState();
     final v = widget.initialAmount;
     _ctrl = TextEditingController(text: v.toStringAsFixed(0));
-    _sliderVal = v.clamp(0.0, 10000.0);
+    _sliderVal = v.clamp(10.0, 10000.0);
+    _isWeekly = widget.bp.isWeekly;
   }
 
   @override
@@ -540,7 +429,7 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
   void _onTextChanged() {
     final val = double.tryParse(_ctrl.text.trim());
     setState(() {
-      if (val != null && val >= 0 && val <= 10000) {
+      if (val != null && val >= 10 && val <= 10000) {
         if (_sliderVal != val) {
           _sliderVal = val;
         }
@@ -552,12 +441,13 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final periodWord = _isWeekly ? 'Weekly' : 'Monthly';
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      title: const Text(
-        'Update Monthly Budget',
+      title: Text(
+        'Update $periodWord Budget',
         textAlign: TextAlign.center,
-        style: TextStyle(fontWeight: FontWeight.bold),
+        style: const TextStyle(fontWeight: FontWeight.bold),
       ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -570,6 +460,29 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
             ),
             const SizedBox(height: 12),
           ],
+          SegmentedButton<bool>(
+            segments: const [
+              ButtonSegment<bool>(value: false, label: Text('Monthly')),
+              ButtonSegment<bool>(value: true, label: Text('Weekly')),
+            ],
+            selected: {_isWeekly},
+            onSelectionChanged: (s) => setState(() => _isWeekly = s.first),
+            style: ButtonStyle(
+              backgroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return const Color(0xFF3e7f3f);
+                }
+                return null;
+              }),
+              foregroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return Colors.white;
+                }
+                return null;
+              }),
+            ),
+          ),
+          const SizedBox(height: 16),
           TextField(
             controller: _ctrl,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -604,7 +517,7 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
             ),
             child: Slider(
               value: _sliderVal,
-              min: 0,
+              min: 10,
               max: 10000,
               divisions: 100,
               onChanged: (v) {
@@ -621,7 +534,7 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '${currency}0',
+                  '${currency}10',
                   style: TextStyle(
                     color: Theme.of(
                       context,
@@ -663,15 +576,17 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
           ),
           onPressed: () async {
             final v = double.tryParse(_ctrl.text.trim());
-            if (v == null || v <= 0) {
-              setState(() => _dialogError = 'Please enter a valid amount.');
+            if (v == null || v < 10) {
+              setState(
+                () => _dialogError = 'The minimum budget is ${currency}10.',
+              );
               return;
             }
             if (v > 10000) {
               setState(() => _dialogError = 'Max budget is ${currency}10,000.');
               return;
             }
-            await widget.bp.setBudget(v);
+            await widget.bp.setBudget(v, isWeekly: _isWeekly);
             if (!context.mounted) return;
             Navigator.pop(context);
           },
@@ -783,14 +698,19 @@ class _SettingsPage extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 24),
-              _SettingsTile(
-                icon: Icons.lock_outline,
-                iconColor: const Color(0xFF4ECDC4),
-                title: 'Change password',
-                subtitle: 'Update account password',
-                onTap: () => onChangePassword(context),
-              ),
-              const SizedBox(height: 8),
+              if (FirebaseAuth.instance.currentUser?.providerData.any(
+                    (p) => p.providerId == 'password',
+                  ) ??
+                  false) ...[
+                _SettingsTile(
+                  icon: Icons.lock_outline,
+                  iconColor: const Color(0xFF4ECDC4),
+                  title: 'Change password',
+                  subtitle: 'Send a password reset email',
+                  onTap: () => onChangePassword(context),
+                ),
+                const SizedBox(height: 8),
+              ],
               _SettingsTile(
                 icon: Icons.delete_outline,
                 iconColor: const Color(0xFFFF6B6B),

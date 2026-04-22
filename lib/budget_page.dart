@@ -10,19 +10,20 @@ class BudgetPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final bp = Provider.of<BudgetProvider>(context);
     final txProvider = Provider.of<TransactionProvider>(context);
-    final spent = txProvider.monthlySpent;
+    final spent = txProvider.periodSpent(isWeekly: bp.isWeekly);
     final budget = bp.budget.amount;
     final left = (budget - spent).clamp(0.0, double.infinity);
     final pct = budget > 0 ? (spent / budget).clamp(0.0, 1.0) : 0.0;
+    final periodLabel = bp.periodLabel;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
-        title: const Text(
-          'Monthly Budget',
-          style: TextStyle(fontWeight: FontWeight.w700),
+        title: Text(
+          '$periodLabel Budget',
+          style: const TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
       body: SingleChildScrollView(
@@ -50,9 +51,9 @@ class BudgetPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Monthly Budget',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  Text(
+                    '$periodLabel Budget',
+                    style: const TextStyle(color: Colors.white, fontSize: 16),
                   ),
                   const SizedBox(height: 8),
                   Text(

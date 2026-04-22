@@ -1,5 +1,28 @@
-type User @table(key: ["username"]) {
-  username: String!
+type Country @table(key: ["id"], name: "country") {
+  id: Int! @col(dataType: "serial")
+  countryCode: String! @unique @col(name: "country_code", dataType: "char(2)")
+  name: String!
+}
+
+type Continent @table(key: ["id"], name: "continent") {
+  id: Int! @col(dataType: "serial")
+  code: String! @unique @col(dataType: "varchar(3)")
+  name: String!
+}
+
+type CountryContinent @table(key: ["country", "continent"], name: "country_continent") {
+  country: Country!
+  continent: Continent!
+}
+
+type Currency @table(key: ["id"], name: "currency") {
+  id: Int! @col(dataType: "serial")
+  code: String! @unique @col(dataType: "char(3)")
+  sign: String! @col(dataType: "varchar(8)")
+}
+
+type User @table(key: ["userId"]) {
+  userId: String!
   email: String! @unique
   firstName: String!
   lastName: String!
@@ -7,10 +30,16 @@ type User @table(key: ["username"]) {
   course: Course
   otherSchool: String
   otherCourse: String
-  monthlyBudget: Float
+  budget: Float
   failedAttempts: Int! @default(value: 0)
   lockedUntil: Timestamp
   createdAt: Timestamp!
+  prefix: String
+  phoneNumber: String @unique @col(name: "phone_number", dataType: "varchar(20)")
+  country: Country
+  currency: Currency
+  isWeekly: Boolean! @default(value: false) @col(name: "is_weekly")
+  hasMfa: Boolean! @default(value: false) @col(name: "has_mfa")
 }
 
 type Course @table {
@@ -19,7 +48,7 @@ type Course @table {
 
 type Institution @table {
   name: String! @unique
-  location: String
+  country: Country!
 }
 
 type Transaction @table {
@@ -37,6 +66,12 @@ type ExpenseCategory @table {
   colorHex: String!
 }
 
+type CategoryBudget @table(key: ["user", "category"], name: "category_budget") {
+  user: User!
+  category: ExpenseCategory!
+  budgetAmount: Int!
+}
+
 type Scholarship @table {
   title: String!
   provider: String!
@@ -45,6 +80,8 @@ type Scholarship @table {
   currency: String! @default(value: "€")
   description: String!
   color: String!
+  country: Country
+  continent: Continent
 }
 
 type ScholarshipCourse @table(key: ["scholarship", "course"]) {
@@ -57,12 +94,15 @@ type ScholarshipApplication @table {
   scholarship: Scholarship!
   status: String!
   appliedAt: Timestamp!
+  message: String @col(dataType: "varchar(2000)")
+  documentId: String @col(name: "document_id", dataType: "varchar(128)")
 }
 
 type PointsBalance @table {
   user: User!
   totalPoints: Int!
   lastBudgetRewardMonth: String
+  lastBudgetRewardWeek: String
   updatedAt: Timestamp!
 }
 

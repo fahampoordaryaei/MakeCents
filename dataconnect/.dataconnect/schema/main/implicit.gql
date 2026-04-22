@@ -1,3 +1,23 @@
+extend type CategoryBudget {
+  """
+  ✨ Implicit foreign key field based on `CategoryBudget`.`user`. It must match the value of `User`.`userId`. See `@ref` for how to customize it.
+  """
+  userUserId: String! @fdc_generated(from: "CategoryBudget.user", purpose: IMPLICIT_REF_FIELD)
+  """
+  ✨ Implicit foreign key field based on `CategoryBudget`.`category`. It must match the value of `ExpenseCategory`.`id`. See `@ref` for how to customize it.
+  """
+  categoryId: UUID! @fdc_generated(from: "CategoryBudget.category", purpose: IMPLICIT_REF_FIELD)
+}
+extend type CountryContinent {
+  """
+  ✨ Implicit foreign key field based on `CountryContinent`.`country`. It must match the value of `Country`.`id`. See `@ref` for how to customize it.
+  """
+  countryId: Int! @fdc_generated(from: "CountryContinent.country", purpose: IMPLICIT_REF_FIELD)
+  """
+  ✨ Implicit foreign key field based on `CountryContinent`.`continent`. It must match the value of `Continent`.`id`. See `@ref` for how to customize it.
+  """
+  continentId: Int! @fdc_generated(from: "CountryContinent.continent", purpose: IMPLICIT_REF_FIELD)
+}
 extend type Course {
   """
   ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
@@ -22,9 +42,9 @@ extend type PointsBalance {
   """
   id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "PointsBalance", purpose: IMPLICIT_KEY_FIELD)
   """
-  ✨ Implicit foreign key field based on `PointsBalance`.`user`. It must match the value of `User`.`username`. See `@ref` for how to customize it.
+  ✨ Implicit foreign key field based on `PointsBalance`.`user`. It must match the value of `User`.`userId`. See `@ref` for how to customize it.
   """
-  userUsername: String! @fdc_generated(from: "PointsBalance.user", purpose: IMPLICIT_REF_FIELD)
+  userUserId: String! @fdc_generated(from: "PointsBalance.user", purpose: IMPLICIT_REF_FIELD)
 }
 extend type PointsTransaction {
   """
@@ -32,9 +52,9 @@ extend type PointsTransaction {
   """
   id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "PointsTransaction", purpose: IMPLICIT_KEY_FIELD)
   """
-  ✨ Implicit foreign key field based on `PointsTransaction`.`user`. It must match the value of `User`.`username`. See `@ref` for how to customize it.
+  ✨ Implicit foreign key field based on `PointsTransaction`.`user`. It must match the value of `User`.`userId`. See `@ref` for how to customize it.
   """
-  userUsername: String! @fdc_generated(from: "PointsTransaction.user", purpose: IMPLICIT_REF_FIELD)
+  userUserId: String! @fdc_generated(from: "PointsTransaction.user", purpose: IMPLICIT_REF_FIELD)
 }
 extend type Product {
   """
@@ -44,9 +64,9 @@ extend type Product {
 }
 extend type RedeemedProduct {
   """
-  ✨ Implicit foreign key field based on `RedeemedProduct`.`user`. It must match the value of `User`.`username`. See `@ref` for how to customize it.
+  ✨ Implicit foreign key field based on `RedeemedProduct`.`user`. It must match the value of `User`.`userId`. See `@ref` for how to customize it.
   """
-  userUsername: String! @fdc_generated(from: "RedeemedProduct.user", purpose: IMPLICIT_REF_FIELD)
+  userUserId: String! @fdc_generated(from: "RedeemedProduct.user", purpose: IMPLICIT_REF_FIELD)
   """
   ✨ Implicit foreign key field based on `RedeemedProduct`.`product`. It must match the value of `Product`.`id`. See `@ref` for how to customize it.
   """
@@ -57,6 +77,14 @@ extend type Scholarship {
   ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
   """
   id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "Scholarship", purpose: IMPLICIT_KEY_FIELD)
+  """
+  ✨ Implicit foreign key field based on `Scholarship`.`continent`. It must match the value of `Continent`.`id`. See `@ref` for how to customize it.
+  """
+  continentId: Int @fdc_generated(from: "Scholarship.continent", purpose: IMPLICIT_REF_FIELD)
+  """
+  ✨ Implicit foreign key field based on `Scholarship`.`country`. It must match the value of `Country`.`id`. See `@ref` for how to customize it.
+  """
+  countryId: Int @fdc_generated(from: "Scholarship.country", purpose: IMPLICIT_REF_FIELD)
 }
 extend type ScholarshipApplication {
   """
@@ -68,9 +96,9 @@ extend type ScholarshipApplication {
   """
   scholarshipId: UUID! @fdc_generated(from: "ScholarshipApplication.scholarship", purpose: IMPLICIT_REF_FIELD)
   """
-  ✨ Implicit foreign key field based on `ScholarshipApplication`.`user`. It must match the value of `User`.`username`. See `@ref` for how to customize it.
+  ✨ Implicit foreign key field based on `ScholarshipApplication`.`user`. It must match the value of `User`.`userId`. See `@ref` for how to customize it.
   """
-  userUsername: String! @fdc_generated(from: "ScholarshipApplication.user", purpose: IMPLICIT_REF_FIELD)
+  userUserId: String! @fdc_generated(from: "ScholarshipApplication.user", purpose: IMPLICIT_REF_FIELD)
 }
 extend type ScholarshipCourse {
   """
@@ -92,11 +120,15 @@ extend type Transaction {
   """
   categoryId: UUID! @fdc_generated(from: "Transaction.category", purpose: IMPLICIT_REF_FIELD)
   """
-  ✨ Implicit foreign key field based on `Transaction`.`user`. It must match the value of `User`.`username`. See `@ref` for how to customize it.
+  ✨ Implicit foreign key field based on `Transaction`.`user`. It must match the value of `User`.`userId`. See `@ref` for how to customize it.
   """
-  userUsername: String! @fdc_generated(from: "Transaction.user", purpose: IMPLICIT_REF_FIELD)
+  userUserId: String! @fdc_generated(from: "Transaction.user", purpose: IMPLICIT_REF_FIELD)
 }
 extend type User {
+  """
+  ✨ Implicit foreign key field based on `User`.`country`. It must match the value of `Country`.`id`. See `@ref` for how to customize it.
+  """
+  countryId: Int @fdc_generated(from: "User.country", purpose: IMPLICIT_REF_FIELD)
   """
   ✨ Implicit foreign key field based on `User`.`course`. It must match the value of `Course`.`id`. See `@ref` for how to customize it.
   """

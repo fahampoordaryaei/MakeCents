@@ -50,3 +50,5 @@ app.*.map.json
 functions/node_modules/
 functions/lib/
 functions/.env
+functions/scripts/service-account.json
+functions/scripts/*-adminsdk-*.json

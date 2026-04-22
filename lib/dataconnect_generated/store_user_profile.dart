@@ -1,7 +1,7 @@
 part of 'generated.dart';
 
 class StoreUserProfileVariablesBuilder {
-  String username;
+  String userId;
   String email;
   String firstName;
   String lastName;
@@ -9,7 +9,10 @@ class StoreUserProfileVariablesBuilder {
   Optional<String> _courseId = Optional.optional(nativeFromJson, nativeToJson);
   Optional<String> _otherSchool = Optional.optional(nativeFromJson, nativeToJson);
   Optional<String> _otherCourse = Optional.optional(nativeFromJson, nativeToJson);
-  Optional<double> _monthlyBudget = Optional.optional(nativeFromJson, nativeToJson);
+  Optional<double> _budget = Optional.optional(nativeFromJson, nativeToJson);
+  Optional<int> _countryId = Optional.optional(nativeFromJson, nativeToJson);
+  Optional<int> _currencyId = Optional.optional(nativeFromJson, nativeToJson);
+  Optional<bool> _isWeekly = Optional.optional(nativeFromJson, nativeToJson);
 
   final FirebaseDataConnect _dataConnect;  StoreUserProfileVariablesBuilder institutionId(String? t) {
    _institutionId.value = t;
@@ -27,12 +30,24 @@ class StoreUserProfileVariablesBuilder {
    _otherCourse.value = t;
    return this;
   }
-  StoreUserProfileVariablesBuilder monthlyBudget(double? t) {
-   _monthlyBudget.value = t;
+  StoreUserProfileVariablesBuilder budget(double? t) {
+   _budget.value = t;
+   return this;
+  }
+  StoreUserProfileVariablesBuilder countryId(int? t) {
+   _countryId.value = t;
+   return this;
+  }
+  StoreUserProfileVariablesBuilder currencyId(int? t) {
+   _currencyId.value = t;
+   return this;
+  }
+  StoreUserProfileVariablesBuilder isWeekly(bool? t) {
+   _isWeekly.value = t;
    return this;
   }
 
-  StoreUserProfileVariablesBuilder(this._dataConnect, {required  this.username,required  this.email,required  this.firstName,required  this.lastName,});
+  StoreUserProfileVariablesBuilder(this._dataConnect, {required  this.userId,required  this.email,required  this.firstName,required  this.lastName,});
   Deserializer<StoreUserProfileData> dataDeserializer = (dynamic json)  => StoreUserProfileData.fromJson(jsonDecode(json));
   Serializer<StoreUserProfileVariables> varsSerializer = (StoreUserProfileVariables vars) => jsonEncode(vars.toJson());
   Future<OperationResult<StoreUserProfileData, StoreUserProfileVariables>> execute() {
@@ -40,17 +55,17 @@ class StoreUserProfileVariablesBuilder {
   }
 
   MutationRef<StoreUserProfileData, StoreUserProfileVariables> ref() {
-    StoreUserProfileVariables vars= StoreUserProfileVariables(username: username,email: email,firstName: firstName,lastName: lastName,institutionId: _institutionId,courseId: _courseId,otherSchool: _otherSchool,otherCourse: _otherCourse,monthlyBudget: _monthlyBudget,);
+    StoreUserProfileVariables vars= StoreUserProfileVariables(userId: userId,email: email,firstName: firstName,lastName: lastName,institutionId: _institutionId,courseId: _courseId,otherSchool: _otherSchool,otherCourse: _otherCourse,budget: _budget,countryId: _countryId,currencyId: _currencyId,isWeekly: _isWeekly,);
     return _dataConnect.mutation("StoreUserProfile", dataDeserializer, varsSerializer, vars);
   }
 }
 
 @immutable
 class StoreUserProfileUserUpsert {
-  final String username;
+  final String userId;
   StoreUserProfileUserUpsert.fromJson(dynamic json):
   
-  username = nativeFromJson<String>(json['username']);
+  userId = nativeFromJson<String>(json['userId']);
   @override
   bool operator ==(Object other) {
     if(identical(this, other)) {
@@ -61,21 +76,21 @@ class StoreUserProfileUserUpsert {
     }
 
     final StoreUserProfileUserUpsert otherTyped = other as StoreUserProfileUserUpsert;
-    return username == otherTyped.username;
+    return userId == otherTyped.userId;
     
   }
   @override
-  int get hashCode => username.hashCode;
+  int get hashCode => userId.hashCode;
   
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
-    json['username'] = nativeToJson<String>(username);
+    json['userId'] = nativeToJson<String>(userId);
     return json;
   }
 
   StoreUserProfileUserUpsert({
-    required this.username,
+    required this.userId,
   });
 }
 
@@ -115,7 +130,7 @@ class StoreUserProfileData {
 
 @immutable
 class StoreUserProfileVariables {
-  final String username;
+  final String userId;
   final String email;
   final String firstName;
   final String lastName;
@@ -123,11 +138,14 @@ class StoreUserProfileVariables {
   late final Optional<String>courseId;
   late final Optional<String>otherSchool;
   late final Optional<String>otherCourse;
-  late final Optional<double>monthlyBudget;
+  late final Optional<double>budget;
+  late final Optional<int>countryId;
+  late final Optional<int>currencyId;
+  late final Optional<bool>isWeekly;
   @Deprecated('fromJson is deprecated for Variable classes as they are no longer required for deserialization.')
   StoreUserProfileVariables.fromJson(Map<String, dynamic> json):
   
-  username = nativeFromJson<String>(json['username']),
+  userId = nativeFromJson<String>(json['userId']),
   email = nativeFromJson<String>(json['email']),
   firstName = nativeFromJson<String>(json['firstName']),
   lastName = nativeFromJson<String>(json['lastName']) {
@@ -153,8 +171,20 @@ class StoreUserProfileVariables {
     otherCourse.value = json['otherCourse'] == null ? null : nativeFromJson<String>(json['otherCourse']);
   
   
-    monthlyBudget = Optional.optional(nativeFromJson, nativeToJson);
-    monthlyBudget.value = json['monthlyBudget'] == null ? null : nativeFromJson<double>(json['monthlyBudget']);
+    budget = Optional.optional(nativeFromJson, nativeToJson);
+    budget.value = json['budget'] == null ? null : nativeFromJson<double>(json['budget']);
+  
+  
+    countryId = Optional.optional(nativeFromJson, nativeToJson);
+    countryId.value = json['countryId'] == null ? null : nativeFromJson<int>(json['countryId']);
+  
+  
+    currencyId = Optional.optional(nativeFromJson, nativeToJson);
+    currencyId.value = json['currencyId'] == null ? null : nativeFromJson<int>(json['currencyId']);
+  
+  
+    isWeekly = Optional.optional(nativeFromJson, nativeToJson);
+    isWeekly.value = json['isWeekly'] == null ? null : nativeFromJson<bool>(json['isWeekly']);
   
   }
   @override
@@ -167,7 +197,7 @@ class StoreUserProfileVariables {
     }
 
     final StoreUserProfileVariables otherTyped = other as StoreUserProfileVariables;
-    return username == otherTyped.username && 
+    return userId == otherTyped.userId && 
     email == otherTyped.email && 
     firstName == otherTyped.firstName && 
     lastName == otherTyped.lastName && 
@@ -175,16 +205,19 @@ class StoreUserProfileVariables {
     courseId == otherTyped.courseId && 
     otherSchool == otherTyped.otherSchool && 
     otherCourse == otherTyped.otherCourse && 
-    monthlyBudget == otherTyped.monthlyBudget;
+    budget == otherTyped.budget && 
+    countryId == otherTyped.countryId && 
+    currencyId == otherTyped.currencyId && 
+    isWeekly == otherTyped.isWeekly;
     
   }
   @override
-  int get hashCode => Object.hashAll([username.hashCode, email.hashCode, firstName.hashCode, lastName.hashCode, institutionId.hashCode, courseId.hashCode, otherSchool.hashCode, otherCourse.hashCode, monthlyBudget.hashCode]);
+  int get hashCode => Object.hashAll([userId.hashCode, email.hashCode, firstName.hashCode, lastName.hashCode, institutionId.hashCode, courseId.hashCode, otherSchool.hashCode, otherCourse.hashCode, budget.hashCode, countryId.hashCode, currencyId.hashCode, isWeekly.hashCode]);
   
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
-    json['username'] = nativeToJson<String>(username);
+    json['userId'] = nativeToJson<String>(userId);
     json['email'] = nativeToJson<String>(email);
     json['firstName'] = nativeToJson<String>(firstName);
     json['lastName'] = nativeToJson<String>(lastName);
@@ -200,14 +233,23 @@ class StoreUserProfileVariables {
     if(otherCourse.state == OptionalState.set) {
       json['otherCourse'] = otherCourse.toJson();
     }
-    if(monthlyBudget.state == OptionalState.set) {
-      json['monthlyBudget'] = monthlyBudget.toJson();
+    if(budget.state == OptionalState.set) {
+      json['budget'] = budget.toJson();
+    }
+    if(countryId.state == OptionalState.set) {
+      json['countryId'] = countryId.toJson();
+    }
+    if(currencyId.state == OptionalState.set) {
+      json['currencyId'] = currencyId.toJson();
+    }
+    if(isWeekly.state == OptionalState.set) {
+      json['isWeekly'] = isWeekly.toJson();
     }
     return json;
   }
 
   StoreUserProfileVariables({
-    required this.username,
+    required this.userId,
     required this.email,
     required this.firstName,
     required this.lastName,
@@ -215,7 +257,10 @@ class StoreUserProfileVariables {
     required this.courseId,
     required this.otherSchool,
     required this.otherCourse,
-    required this.monthlyBudget,
+    required this.budget,
+    required this.countryId,
+    required this.currencyId,
+    required this.isWeekly,
   });
 }
 

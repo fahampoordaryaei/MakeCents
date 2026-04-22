@@ -42,7 +42,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         _message = e.message ?? 'Failed to send reset email.';
         _isLoading = false;
       });
-    } catch (_) {
+    } catch (e) {
+      debugPrint('forgot_password: sendReset unexpected error: $e');
       setState(() {
         _message = 'An unexpected error occurred.';
         _isLoading = false;
