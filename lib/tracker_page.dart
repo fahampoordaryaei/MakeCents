@@ -81,8 +81,7 @@ class _TrackerPageState extends State<TrackerPage> {
         }
         _isLoadingCategories = false;
       });
-    } catch (e) {
-      debugPrint('tracker: loadCategories failed: $e');
+    } catch (_) {
       if (!mounted) return;
       setState(() => _isLoadingCategories = false);
     }
@@ -98,8 +97,7 @@ class _TrackerPageState extends State<TrackerPage> {
         categoryName: _selectedCat!.name,
         categoryId: _selectedCat!.id,
       );
-    } catch (e) {
-      debugPrint('tracker: addTransaction failed: $e');
+    } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to add transaction.')),
@@ -232,8 +230,7 @@ class _TrackerPageState extends State<TrackerPage> {
               Navigator.pop(context);
               try {
                 await p.removeTransaction(idx);
-              } catch (e) {
-                debugPrint('tracker: removeTransaction failed: $e');
+              } catch (_) {
                 if (!mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Could not delete expense.')),
@@ -1266,8 +1263,7 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
                           );
                           if (!context.mounted) return;
                           Navigator.pop(context);
-                        } catch (e) {
-                          debugPrint('tracker: updateTransaction failed: $e');
+                        } catch (_) {
                           if (!context.mounted) return;
                           Navigator.pop(context);
                           if (widget.messengerContext.mounted) {

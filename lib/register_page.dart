@@ -1,7 +1,6 @@
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'dataconnect_generated/generated.dart';
 import 'onboarding_profile_page.dart';
 import 'startup_page.dart';
 
@@ -62,33 +61,6 @@ class _RegisterPageState extends State<RegisterPage> {
     return true;
   }
 
-  /// Same as login: phone OTP success does not complete registration / onboarding.
-  Future<void> _placeholderSuccess() async {
-    if (!mounted) return;
-    setState(() => _isLoading = false);
-    await showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Success'),
-        content: const Text('Your phone number was verified successfully.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-    await FirebaseAuth.instance.signOut();
-    if (!mounted) return;
-    setState(() {
-      _codeSent = false;
-      _verificationId = null;
-      _codeController.clear();
-      _error = '';
-    });
-  }
-
   Future<void> _completePhoneRegistration(UserCredential result) async {
     if (!mounted || !_usePhoneRegister) return;
     if (result.additionalUserInfo?.isNewUser == false) {
@@ -99,7 +71,21 @@ class _RegisterPageState extends State<RegisterPage> {
       });
       return;
     }
-    await _placeholderSuccess();
+    final phoneDigits = _phoneController.text.trim().replaceAll(
+      RegExp(r'[^\d]'),
+      '',
+    );
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (_) => OnboardingProfilePage(
+          firstName: _firstNameController.text.trim(),
+          lastName: _lastNameController.text.trim(),
+          phonePrefix: _countryCode,
+          phoneNumber: phoneDigits,
+        ),
+      ),
+      (r) => false,
+    );
   }
 
   Future<void> _sendPhoneRegister() async {
@@ -141,7 +127,6 @@ class _RegisterPageState extends State<RegisterPage> {
               _isLoading = false;
             });
           } catch (e) {
-            debugPrint('register: verificationCompleted signIn failed: $e');
             if (!mounted || !_usePhoneRegister) return;
             setState(() {
               _error = 'Phone registration failed.';
@@ -170,7 +155,6 @@ class _RegisterPageState extends State<RegisterPage> {
         },
       );
     } catch (e) {
-      debugPrint('register: sendPhoneRegister failed: $e');
       if (!mounted || !_usePhoneRegister) return;
       setState(() {
         _error = 'Unable to send verification code.';
@@ -215,7 +199,6 @@ class _RegisterPageState extends State<RegisterPage> {
         setState(() => _error = e.message ?? 'Unable to verify code.');
       }
     } catch (e) {
-      debugPrint('register: verifyPhoneRegister failed: $e');
       if (mounted) setState(() => _error = 'Unable to verify code.');
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -295,58 +278,6 @@ class _RegisterPageState extends State<RegisterPage> {
     setState(() => _isLoading = true);
 
     try {
-      final authMethods = await FirebaseAuth.instance
-          // ignore: deprecated_member_use
-          .fetchSignInMethodsForEmail(email);
-
-      if (authMethods.isNotEmpty) {
-        final inDb =
-            (await ExampleConnector.instance
-                    .getLoginStatus(email: email)
-                    .execute())
-                .data
-                .users
-                .isNotEmpty;
-        if (inDb) {
-          if (mounted) {
-            setState(
-              () => _error = 'This email is already in use. Sign in instead.',
-            );
-          }
-          return;
-        }
-        try {
-          await FirebaseAuth.instance.signInWithEmailAndPassword(
-            email: email,
-            password: pass,
-          );
-        } on FirebaseAuthException catch (e) {
-          if (mounted) {
-            setState(
-              () => _error =
-                  e.code == 'wrong-password' || e.code == 'invalid-credential'
-                  ? 'Incorrect password for this account. Use Sign in.'
-                  : (e.message ?? 'Could not register with this email.'),
-            );
-          }
-          return;
-        }
-        await FirebaseAuth.instance.currentUser?.updateDisplayName(
-          '$firstName $lastName',
-        );
-        if (mounted) {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => OnboardingProfilePage(
-                firstName: firstName,
-                lastName: lastName,
-              ),
-            ),
-          );
-        }
-        return;
-      }
-
       final userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: pass);
       await userCredential.user?.updateDisplayName('$firstName $lastName');
@@ -364,7 +295,6 @@ class _RegisterPageState extends State<RegisterPage> {
         () => _error = e.message ?? 'An error occurred during registration.',
       );
     } catch (e) {
-      debugPrint('register: registerWithEmail unexpected error: $e');
       setState(() => _error = 'An unexpected error occurred.');
     } finally {
       if (mounted) setState(() => _isLoading = false);

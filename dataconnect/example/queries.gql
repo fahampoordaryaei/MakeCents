@@ -105,7 +105,9 @@ mutation StoreUserProfile(
   $budget: Float,
   $countryId: Int,
   $currencyId: Int,
-  $isWeekly: Boolean
+  $isWeekly: Boolean,
+  $prefix: String,
+  $phoneNumber: String
 ) @auth(level: USER) {
   user_upsert(data: {
     userId: $userId,
@@ -120,6 +122,8 @@ mutation StoreUserProfile(
     countryId: $countryId,
     currencyId: $currencyId,
     isWeekly: $isWeekly,
+    prefix: $prefix,
+    phoneNumber: $phoneNumber,
     createdAt_expr: "request.time"
   })
 }

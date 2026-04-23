@@ -84,8 +84,7 @@ class _MatchPageState extends State<MatchPage> {
         _selectedCourseId =
             selectedCourseId ?? (courses.isNotEmpty ? courses.first.id : null);
       });
-    } catch (e) {
-      debugPrint('match: loadCoursesAndProfileSelection failed: $e');
+    } catch (_) {
       if (!mounted) return;
       setState(() {
         _coursesLoaded = true;
@@ -116,9 +115,7 @@ class _MatchPageState extends State<MatchPage> {
           );
         }).toList();
       });
-    } catch (e) {
-      debugPrint('match: listScholarships failed: $e');
-    }
+    } catch (_) {}
   }
 
   void _findMatches() {

@@ -742,6 +742,14 @@ class StoreUserProfileVariablesBuilder {
    _isWeekly.value = t;
    return this;
   }
+  StoreUserProfileVariablesBuilder prefix(String? t) {
+   _prefix.value = t;
+   return this;
+  }
+  StoreUserProfileVariablesBuilder phoneNumber(String? t) {
+   _phoneNumber.value = t;
+   return this;
+  }
 
   ...
 }
@@ -759,6 +767,8 @@ ExampleConnector.instance.storeUserProfile(
 .countryId(countryId)
 .currencyId(currencyId)
 .isWeekly(isWeekly)
+.prefix(prefix)
+.phoneNumber(phoneNumber)
 .execute();
 ```
 

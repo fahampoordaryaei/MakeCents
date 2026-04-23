@@ -43,9 +43,7 @@ class _PointsPageState extends State<PointsPage> {
       if (result.data.pointsBalances.isNotEmpty) {
         _points = result.data.pointsBalances.first.totalPoints;
       }
-    } catch (e) {
-      debugPrint('points: loadCloudPoints failed: $e');
-    } finally {
+    } catch (_) {} finally {
       if (mounted) setState(() => _isLoadingPoints = false);
     }
   }
@@ -75,9 +73,7 @@ class _PointsPageState extends State<PointsPage> {
         _products = productsResult.data.products;
         _redeemedByProductId = redeemedMap;
       });
-    } catch (e) {
-      debugPrint('points: loadProductsAndRedemptions failed: $e');
-    } finally {
+    } catch (_) {} finally {
       if (mounted) setState(() => _isLoadingProducts = false);
     }
   }
@@ -124,8 +120,7 @@ class _PointsPageState extends State<PointsPage> {
         text: 'Redeem request timed out. Please retry.',
         isError: true,
       );
-    } catch (e) {
-      debugPrint('points: redeemProduct failed: $e');
+    } catch (_) {
       return const _RedeemResult(
         text: 'Could not redeem product.',
         isError: true,

@@ -54,8 +54,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
         }
         _isLoadingCategories = false;
       });
-    } catch (e) {
-      debugPrint('add_expense: loadCategories failed: $e');
+    } catch (_) {
       if (!mounted) return;
       setState(() => _isLoadingCategories = false);
     }
@@ -100,8 +99,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
       if (!mounted) return;
       Navigator.of(context).pop();
-    } catch (e) {
-      debugPrint('add_expense: submit transaction failed: $e');
+    } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to save transaction.')),

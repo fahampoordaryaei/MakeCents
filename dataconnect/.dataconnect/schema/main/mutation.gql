@@ -45,6 +45,15 @@ extend type Mutation {
     data: Course_Data!
   ): Course_KeyOutput! @fdc_generated(from: "Course", purpose: INSERT_SINGLE)
   """
+  ✨ Insert a single `Currency` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  currency_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: Currency_Data!
+  ): Currency_KeyOutput! @fdc_generated(from: "Currency", purpose: INSERT_SINGLE)
+  """
   ✨ Insert a single `ExpenseCategory` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
   """
   expenseCategory_insert(
@@ -188,6 +197,15 @@ extend type Mutation {
     """
     data: [Course_Data!]!
   ): [Course_KeyOutput!]! @fdc_generated(from: "Course", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `Currency` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  currency_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [Currency_Data!]!
+  ): [Currency_KeyOutput!]! @fdc_generated(from: "Currency", purpose: INSERT_MULTIPLE)
   """
   ✨ Insert `ExpenseCategory` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
   """
@@ -333,6 +351,15 @@ extend type Mutation {
     data: Course_Data!
   ): Course_KeyOutput! @fdc_generated(from: "Course", purpose: UPSERT_SINGLE)
   """
+  ✨ Insert or update a single `Currency` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Currency`.
+  """
+  currency_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: Currency_Data!
+  ): Currency_KeyOutput! @fdc_generated(from: "Currency", purpose: UPSERT_SINGLE)
+  """
   ✨ Insert or update a single `ExpenseCategory` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `ExpenseCategory`.
   """
   expenseCategory_upsert(
@@ -476,6 +503,15 @@ extend type Mutation {
     """
     data: [Course_Data!]!
   ): [Course_KeyOutput!]! @fdc_generated(from: "Course", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `Currency` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Currency`.
+  """
+  currency_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [Currency_Data!]!
+  ): [Currency_KeyOutput!]! @fdc_generated(from: "Currency", purpose: UPSERT_MULTIPLE)
   """
   ✨ Insert or update `ExpenseCategory` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `ExpenseCategory`.
   """
@@ -695,6 +731,35 @@ extend type Mutation {
     """
     data: Course_Data!
   ): Course_KeyOutput @fdc_generated(from: "Course", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `Currency` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `Currency` or `null` if not found.
+  """
+  currency_update(
+    """
+    The unique ID of the object.
+    """
+    id: Int
+
+    """
+    ✨ `_expr` server value variant of `id` (The unique ID of the object.)
+    """
+    id_expr: Int_Expr
+
+    """
+    The key used to identify the object.
+    """
+    key: Currency_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Currency_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: Currency_Data!
+  ): Currency_KeyOutput @fdc_generated(from: "Currency", purpose: UPDATE_SINGLE)
   """
   ✨ Update a single `ExpenseCategory` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `ExpenseCategory` or `null` if not found.
   """
@@ -1040,6 +1105,25 @@ extend type Mutation {
     data: Course_Data!
   ): Int! @fdc_generated(from: "Course", purpose: UPDATE_MULTIPLE)
   """
+  ✨ Update `Currency` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  currency_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: Currency_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: Currency_Data!
+  ): Int! @fdc_generated(from: "Currency", purpose: UPDATE_MULTIPLE)
+  """
   ✨ Update `ExpenseCategory` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
   """
   expenseCategory_updateMany(
@@ -1344,6 +1428,30 @@ extend type Mutation {
     first: Course_FirstRow
   ): Course_KeyOutput @fdc_generated(from: "Course", purpose: DELETE_SINGLE)
   """
+  ✨ Delete a single `Currency` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  currency_delete(
+    """
+    The unique ID of the object.
+    """
+    id: Int
+
+    """
+    ✨ `_expr` server value variant of `id` (The unique ID of the object.)
+    """
+    id_expr: Int_Expr
+
+    """
+    The key used to identify the object.
+    """
+    key: Currency_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Currency_FirstRow
+  ): Currency_KeyOutput @fdc_generated(from: "Currency", purpose: DELETE_SINGLE)
+  """
   ✨ Delete a single `ExpenseCategory` based on `id`, `key` or `first` and return its key (or `null` if not found).
   """
   expenseCategory_delete(
@@ -1607,6 +1715,20 @@ extend type Mutation {
     """
     all: Boolean = false
   ): Int! @fdc_generated(from: "Course", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `Currency` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  currency_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: Currency_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "Currency", purpose: DELETE_MULTIPLE)
   """
   ✨ Delete `ExpenseCategory` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
   """

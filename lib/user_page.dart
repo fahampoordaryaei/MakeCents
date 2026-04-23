@@ -68,8 +68,7 @@ class UserPage extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(e.message ?? 'Failed to send reset email.')),
       );
-    } catch (e) {
-      debugPrint('user: sendPasswordResetEmail unexpected error: $e');
+    } catch (_) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to send reset email.')),
@@ -89,31 +88,45 @@ class UserPage extends StatelessWidget {
   }
 
   Future<void> _confirmDeleteAccount(BuildContext context) async {
-    final password = await showDialog<String>(
-      context: context,
-      builder: (_) => const _DeleteAccountPasswordDialog(),
-    );
-
-    if (!context.mounted) return;
-    if (password == null || password.isEmpty) return;
-
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
-        if (!context.mounted) return;
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text('No active user found.')));
         return;
       }
 
-      final email = user.email;
-      if (email == null || email.isEmpty) return;
+      AuthCredential? credential;
+      if (user.phoneNumber?.isNotEmpty ?? false) {
+        credential = await showDialog<PhoneAuthCredential>(
+          context: context,
+          builder: (_) =>
+              _DeleteAccountPhoneCodeDialog(phoneNumber: user.phoneNumber!),
+        );
+        if (credential == null) return;
+      } else {
+        final password = await showDialog<String>(
+          context: context,
+          builder: (_) => const _DeleteAccountPasswordDialog(),
+        );
+        if (password == null || password.isEmpty) return;
+        final email = user.email;
+        if (email == null || email.isEmpty) {
+          if (!context.mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('No email associated with this account.'),
+            ),
+          );
+          return;
+        }
+        credential = EmailAuthProvider.credential(
+          email: email,
+          password: password,
+        );
+      }
 
-      final credential = EmailAuthProvider.credential(
-        email: email,
-        password: password,
-      );
       await user.reauthenticateWithCredential(credential);
 
       await ExampleConnector.instance
@@ -128,8 +141,7 @@ class UserPage extends StatelessWidget {
         MaterialPageRoute(builder: (_) => const LoginPage()),
         (r) => false,
       );
-    } catch (e) {
-      debugPrint('user_page: deleteAccount failed: $e');
+    } catch (_) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Could not delete account.')),
@@ -156,7 +168,8 @@ class UserPage extends StatelessWidget {
     final totalSpent = txP.periodSpent(isWeekly: bp.isWeekly);
 
     final user = FirebaseAuth.instance.currentUser;
-    final userEmail = up.profile?.email ?? user?.email ?? '';
+    final userContact =
+        user?.phoneNumber ?? up.profile?.email ?? user?.email ?? '';
     final userName = up.profile?.fullName ?? user?.displayName ?? '';
 
     return SafeArea(
@@ -188,7 +201,7 @@ class UserPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    userEmail,
+                    userContact,
                     style: TextStyle(
                       fontSize: 16,
                       color: Theme.of(
@@ -324,6 +337,148 @@ class _DeleteAccountPasswordDialog extends StatefulWidget {
       _DeleteAccountPasswordDialogState();
 }
 
+class _DeleteAccountPhoneCodeDialog extends StatefulWidget {
+  final String phoneNumber;
+  const _DeleteAccountPhoneCodeDialog({required this.phoneNumber});
+
+  @override
+  State<_DeleteAccountPhoneCodeDialog> createState() =>
+      _DeleteAccountPhoneCodeDialogState();
+}
+
+class _DeleteAccountPhoneCodeDialogState
+    extends State<_DeleteAccountPhoneCodeDialog> {
+  final TextEditingController _codeCtrl = TextEditingController();
+  String _error = '';
+  String? _verificationId;
+
+  @override
+  void initState() {
+    super.initState();
+    _sendCode();
+  }
+
+  @override
+  void dispose() {
+    _codeCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _sendCode() async {
+    setState(() => _error = '');
+    try {
+      await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: widget.phoneNumber,
+        timeout: const Duration(seconds: 60),
+        verificationCompleted: (credential) {
+          if (!mounted) return;
+          Navigator.of(context).pop(credential);
+        },
+        verificationFailed: (e) {
+          if (!mounted) return;
+          setState(() {
+            _error = e.message ?? 'Could not send verification code.';
+          });
+        },
+        codeSent: (verificationId, _) {
+          if (!mounted) return;
+          setState(() {
+            _verificationId = verificationId;
+          });
+        },
+        codeAutoRetrievalTimeout: (verificationId) {
+          _verificationId = verificationId;
+        },
+      );
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _error = 'Could not send verification code.');
+    }
+  }
+
+  void _confirm() {
+    final code = _codeCtrl.text.trim();
+    if (code.isEmpty) {
+      setState(() => _error = 'Enter the verification code.');
+      return;
+    }
+    if (_verificationId == null) {
+      setState(() => _error = 'Verification expired. Request a new code.');
+      return;
+    }
+    final credential = PhoneAuthProvider.credential(
+      verificationId: _verificationId!,
+      smsCode: code,
+    );
+    Navigator.of(context).pop(credential);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      title: const Text('Delete account?'),
+      content: SizedBox(
+        width: 420,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Enter the SMS code sent to ${widget.phoneNumber} to confirm account deletion.',
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _codeCtrl,
+              keyboardType: TextInputType.number,
+              autofocus: true,
+              decoration: InputDecoration(
+                labelText: 'Verification code',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+            if (_error.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              Text(
+                _error,
+                style: const TextStyle(color: Colors.red, fontSize: 16),
+              ),
+            ],
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          style: TextButton.styleFrom(
+            minimumSize: const Size(100, 48),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          ),
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          style: TextButton.styleFrom(
+            minimumSize: const Size(100, 48),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          ),
+          onPressed: _sendCode,
+          child: const Text('Resend'),
+        ),
+        FilledButton(
+          style: FilledButton.styleFrom(
+            backgroundColor: const Color(0xFFFF6B6B),
+            minimumSize: const Size(100, 48),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          ),
+          onPressed: _confirm,
+          child: const Text('Delete'),
+        ),
+      ],
+    );
+  }
+}
+
 class _DeleteAccountPasswordDialogState
     extends State<_DeleteAccountPasswordDialog> {
   late final TextEditingController _passwordCtrl;
@@ -409,6 +564,8 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
   late final TextEditingController _ctrl;
   late double _sliderVal;
   late bool _isWeekly;
+  List<ListCurrenciesCurrencies> _currencies = const [];
+  ListCurrenciesCurrencies? _selectedCurrency;
   String _dialogError = '';
 
   @override
@@ -418,6 +575,7 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
     _ctrl = TextEditingController(text: v.toStringAsFixed(0));
     _sliderVal = v.clamp(10.0, 10000.0);
     _isWeekly = widget.bp.isWeekly;
+    _loadCurrencies();
   }
 
   @override
@@ -439,122 +597,142 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
     });
   }
 
+  Future<void> _loadCurrencies() async {
+    try {
+      final result = await ExampleConnector.instance.listCurrencies().execute();
+      if (!mounted) return;
+      final list = result.data.currencies;
+      if (list.isEmpty) return;
+      final selected = list.firstWhere(
+        (c) => c.id == currencyId,
+        orElse: () => list.firstWhere(
+          (c) => c.code.trim().toUpperCase() == 'EUR',
+          orElse: () => list.first,
+        ),
+      );
+      setState(() {
+        _currencies = list;
+        _selectedCurrency = selected;
+      });
+    } catch (_) {}
+  }
+
+  void _onCurrencyChanged(ListCurrenciesCurrencies c) {
+    setState(() => _selectedCurrency = c);
+    setGlobalCurrency(sign: c.sign, id: c.id);
+  }
+
+  String get _sign => _selectedCurrency?.sign ?? currency;
+
   @override
   Widget build(BuildContext context) {
-    final periodWord = _isWeekly ? 'Weekly' : 'Monthly';
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      title: Text(
-        'Update $periodWord Budget',
+      title: const Text(
+        'Update Budget',
         textAlign: TextAlign.center,
-        style: const TextStyle(fontWeight: FontWeight.bold),
+        style: TextStyle(fontWeight: FontWeight.bold),
       ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (_dialogError.isNotEmpty) ...[
-            Text(
-              _dialogError,
-              style: const TextStyle(color: Colors.red, fontSize: 16),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 12),
-          ],
-          SegmentedButton<bool>(
-            segments: const [
-              ButtonSegment<bool>(value: false, label: Text('Monthly')),
-              ButtonSegment<bool>(value: true, label: Text('Weekly')),
+      content: SizedBox(
+        width: 420,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (_dialogError.isNotEmpty) ...[
+              Text(
+                _dialogError,
+                style: const TextStyle(color: Colors.red, fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
             ],
-            selected: {_isWeekly},
-            onSelectionChanged: (s) => setState(() => _isWeekly = s.first),
-            style: ButtonStyle(
-              backgroundColor: WidgetStateProperty.resolveWith((states) {
-                if (states.contains(WidgetState.selected)) {
-                  return const Color(0xFF3e7f3f);
-                }
-                return null;
-              }),
-              foregroundColor: WidgetStateProperty.resolveWith((states) {
-                if (states.contains(WidgetState.selected)) {
-                  return Colors.white;
-                }
-                return null;
-              }),
-            ),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _ctrl,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            textAlign: TextAlign.center,
-            onChanged: (_) => _onTextChanged(),
-            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900),
-            decoration: InputDecoration(
-              prefixText: currency,
-              prefixStyle: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
-                fontSize: 28,
-                fontWeight: FontWeight.w900,
-              ),
-              filled: true,
-              fillColor: Theme.of(context).scaffoldBackgroundColor,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 20),
-            ),
-          ),
-          const SizedBox(height: 24),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: const Color(0xFF3e7f3f),
-              inactiveTrackColor: const Color(
-                0xFF3e7f3f,
-              ).withValues(alpha: 0.2),
-              thumbColor: const Color(0xFF3e7f3f),
-              trackHeight: 6.0,
-            ),
-            child: Slider(
-              value: _sliderVal,
-              min: 10,
-              max: 10000,
-              divisions: 100,
-              onChanged: (v) {
-                setState(() {
-                  _sliderVal = v;
-                  _ctrl.text = v.toInt().toString();
-                });
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '${currency}10',
-                  style: TextStyle(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.75),
-                    fontSize: 16,
-                  ),
-                ),
-                Text(
-                  '${currency}10k',
-                  style: TextStyle(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.75),
-                    fontSize: 16,
-                  ),
-                ),
+            SegmentedButton<bool>(
+              segments: const [
+                ButtonSegment<bool>(value: false, label: Text('Monthly')),
+                ButtonSegment<bool>(value: true, label: Text('Weekly')),
               ],
+              selected: {_isWeekly},
+              onSelectionChanged: (s) => setState(() => _isWeekly = s.first),
             ),
-          ),
-        ],
+            const SizedBox(height: 16),
+            TextField(
+              controller: _ctrl,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              textAlign: TextAlign.center,
+              onChanged: (_) => _onTextChanged(),
+              style: const TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1,
+              ),
+              decoration: InputDecoration(
+                hintText: '0',
+                prefix: _buildCurrencyDropdown(context),
+                filled: true,
+                fillColor: Theme.of(context).scaffoldBackgroundColor,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            SliderTheme(
+              data: SliderTheme.of(context).copyWith(
+                activeTrackColor: const Color(0xFF3e7f3f),
+                inactiveTrackColor: const Color(
+                  0xFF3e7f3f,
+                ).withValues(alpha: 0.2),
+                thumbColor: const Color(0xFF3e7f3f),
+                trackHeight: 6.0,
+              ),
+              child: Slider(
+                value: _sliderVal,
+                min: 10,
+                max: 10000,
+                divisions: 100,
+                onChanged: (v) {
+                  setState(() {
+                    _sliderVal = v;
+                    _ctrl.text = v.toInt().toString();
+                  });
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '${_sign}10',
+                    style: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.75),
+                      fontSize: 16,
+                    ),
+                  ),
+                  Text(
+                    '${_sign}10,000',
+                    style: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.75),
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
       actions: [
         TextButton(
@@ -578,13 +756,23 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
             final v = double.tryParse(_ctrl.text.trim());
             if (v == null || v < 10) {
               setState(
-                () => _dialogError = 'The minimum budget is ${currency}10.',
+                () => _dialogError = 'The minimum budget is ${_sign}10.',
               );
               return;
             }
             if (v > 10000) {
-              setState(() => _dialogError = 'Max budget is ${currency}10,000.');
+              setState(() => _dialogError = 'Max budget is ${_sign}10,000.');
               return;
+            }
+            final selectedCurrencyId = _selectedCurrency?.id;
+            final userId = FirebaseAuth.instance.currentUser?.uid;
+            if (selectedCurrencyId != null && userId != null) {
+              await ExampleConnector.instance
+                  .updateUserCurrency(
+                    userId: userId,
+                    currencyId: selectedCurrencyId,
+                  )
+                  .execute();
             }
             await widget.bp.setBudget(v, isWeekly: _isWeekly);
             if (!context.mounted) return;
@@ -593,6 +781,77 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
           child: const Text('Save Changes'),
         ),
       ],
+    );
+  }
+
+  Widget _buildCurrencyDropdown(BuildContext context) {
+    final textStyle = TextStyle(
+      color: Theme.of(context).colorScheme.onSurface,
+      fontSize: 32,
+      fontWeight: FontWeight.w900,
+    );
+
+    final divider = Container(
+      width: 3,
+      height: 32,
+      margin: const EdgeInsets.only(left: 8, right: 12),
+      color: const Color(0xFF7B7B7B),
+    );
+
+    if (_currencies.length < 2) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(_sign, style: textStyle),
+          divider,
+        ],
+      );
+    }
+
+    return PopupMenuButton<ListCurrenciesCurrencies>(
+      tooltip: 'Change currency',
+      position: PopupMenuPosition.under,
+      onSelected: _onCurrencyChanged,
+      itemBuilder: (context) => [
+        for (final c in _currencies)
+          PopupMenuItem<ListCurrenciesCurrencies>(
+            value: c,
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 24,
+                  child: Text(
+                    c.sign,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(c.code.trim()),
+                if (c.id == _selectedCurrency?.id) ...[
+                  const Spacer(),
+                  const Icon(Icons.check, size: 18, color: Color(0xFF3e7f3f)),
+                ],
+              ],
+            ),
+          ),
+      ],
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(_sign, style: textStyle),
+          Icon(
+            Icons.arrow_drop_down,
+            size: 36,
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.6),
+          ),
+          divider,
+        ],
+      ),
     );
   }
 }

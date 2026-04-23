@@ -7,11 +7,6 @@ class Budget {
   final double amount;
   final bool isWeekly;
   const Budget({required this.amount, this.isWeekly = false});
-
-  Budget copyWith({double? amount, bool? isWeekly}) => Budget(
-    amount: amount ?? this.amount,
-    isWeekly: isWeekly ?? this.isWeekly,
-  );
 }
 
 class BudgetProvider with ChangeNotifier {
@@ -36,16 +31,17 @@ class BudgetProvider with ChangeNotifier {
           setGlobalCurrency(sign: u.currency!.sign, id: u.currency!.id);
         }
       }
-    } catch (e) {
-      debugPrint('budget_provider: init failed: $e');
-    }
+    } catch (_) {}
     notifyListeners();
   }
 
   Future<void> setBudget(double amount, {bool? isWeekly}) async {
     if (amount <= 0 || amount > 10000) return;
 
-    _budget = _budget.copyWith(amount: amount, isWeekly: isWeekly);
+    _budget = Budget(
+      amount: amount,
+      isWeekly: isWeekly ?? _budget.isWeekly,
+    );
     notifyListeners();
 
     final user = FirebaseAuth.instance.currentUser;
@@ -60,8 +56,6 @@ class BudgetProvider with ChangeNotifier {
         req.isWeekly(isWeekly);
       }
       await req.execute();
-    } catch (e) {
-      debugPrint('budget_provider: setBudget failed: $e');
-    }
+    } catch (_) {}
   }
 }

@@ -18,6 +18,8 @@ class OnboardingBudgetPage extends StatefulWidget {
   final String lastName;
   final String? countryIsoCode;
   final String? countryDisplayName;
+  final String? phonePrefix;
+  final String? phoneNumber;
 
   const OnboardingBudgetPage({
     super.key,
@@ -29,6 +31,8 @@ class OnboardingBudgetPage extends StatefulWidget {
     required this.lastName,
     this.countryIsoCode,
     this.countryDisplayName,
+    this.phonePrefix,
+    this.phoneNumber,
   });
   @override
   State<OnboardingBudgetPage> createState() => _OnboardingBudgetPageState();
@@ -68,9 +72,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
         _selectedCurrency = defaultCurrency;
       });
       setGlobalCurrency(sign: defaultCurrency.sign, id: defaultCurrency.id);
-    } catch (e) {
-      debugPrint('onboarding_budget: listCurrencies failed: $e');
-    }
+    } catch (_) {}
   }
 
   void _onCurrencyChanged(ListCurrenciesCurrencies c) {
@@ -153,9 +155,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
         try {
           await user.updateDisplayName(fullName);
           await user.reload();
-        } on FirebaseAuthException catch (e) {
-          debugPrint('onboarding_budget: updateDisplayName failed: $e');
-        }
+        } on FirebaseAuthException catch (_) {}
       }
 
       final connector = ExampleConnector.instance;
@@ -180,6 +180,8 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
           .countryId(countryId)
           .currencyId(_selectedCurrency?.id)
           .isWeekly(_isWeekly)
+          .prefix(widget.phonePrefix)
+          .phoneNumber(widget.phoneNumber)
           .execute();
 
       await connector
@@ -197,8 +199,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
         MaterialPageRoute(builder: (_) => const HomeScreen()),
         (r) => false,
       );
-    } catch (e) {
-      debugPrint('onboarding_budget: onFinish failed: $e');
+    } catch (_) {
       setState(() => _error = 'Could not save your profile. Please try again.');
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -215,12 +216,10 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
       final result = await connector.getCountryIdByCode(code: code).execute();
       final matches = result.data.countries;
       if (matches.isEmpty) {
-        debugPrint('onboarding_budget: no country row for ISO "$code"');
         return null;
       }
       return matches.first.id;
-    } catch (e) {
-      debugPrint('onboarding_budget: getCountryIdByCode("$code") failed: $e');
+    } catch (_) {
       return null;
     }
   }

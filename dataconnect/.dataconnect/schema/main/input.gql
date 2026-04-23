@@ -29,6 +29,12 @@ It has the same format as `Course_Key`, but is only used as mutation return valu
 """
 scalar Course_KeyOutput
 """
+✨ `Currency_KeyOutput` returns the primary key fields of table type `Currency`.
+
+It has the same format as `Currency_Key`, but is only used as mutation return value.
+"""
+scalar Currency_KeyOutput
+"""
 ✨ `ExpenseCategory_KeyOutput` returns the primary key fields of table type `ExpenseCategory`.
 
 It has the same format as `ExpenseCategory_Key`, but is only used as mutation return value.
@@ -610,6 +616,10 @@ input Country_Filter {
   """
   countryContinents_on_country: CountryContinent_ListFilter
   """
+  ✨ Generated from Field `Country`.`institutions_on_country` of type `[Institution!]!`
+  """
+  institutions_on_country: Institution_ListFilter
+  """
   ✨ Generated from Field `Country`.`scholarships_on_country` of type `[Scholarship!]!`
   """
   scholarships_on_country: Scholarship_ListFilter
@@ -1166,6 +1176,213 @@ input Course_Order {
   name_count: OrderDirection
 }
 """
+✨ Generated data input type for table 'Currency'. It includes all necessary fields for creating or upserting rows into table.
+"""
+input Currency_Data {
+  """
+  ✨ Generated from Field `Currency`.`id` of type `Int!`
+  """
+  id: Int
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `Currency`.`id` of type `Int!`)
+  """
+  id_expr: Int_Expr @fdc_forbiddenInVariables
+  """
+  ✨ `_update` server value variant of `id` (✨ Generated from Field `Currency`.`id` of type `Int!`)
+  """
+  id_update: [Int_Update!] @fdc_forbiddenInVariables
+  """
+  ✨ Generated from Field `Currency`.`code` of type `String!`
+  """
+  code: String
+  """
+  ✨ `_expr` server value variant of `code` (✨ Generated from Field `Currency`.`code` of type `String!`)
+  """
+  code_expr: String_Expr @fdc_forbiddenInVariables
+  """
+  ✨ Generated from Field `Currency`.`sign` of type `String!`
+  """
+  sign: String
+  """
+  ✨ `_expr` server value variant of `sign` (✨ Generated from Field `Currency`.`sign` of type `String!`)
+  """
+  sign_expr: String_Expr @fdc_forbiddenInVariables
+}
+"""
+✨ Generated filter input type for table 'Currency'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input Currency_Filter {
+  """
+  Apply multiple filter conditions using `AND` logic.
+  """
+  _and: [Currency_Filter!]
+  """
+  Negate the result of the provided filter condition.
+  """
+  _not: Currency_Filter
+  """
+  Apply multiple filter conditions using `OR` logic.
+  """
+  _or: [Currency_Filter!]
+  """
+  ✨ Generated from Field `Currency`.`id` of type `Int!`
+  """
+  id: Int_Filter
+  """
+  ✨ Generated from Field `Currency`.`code` of type `String!`
+  """
+  code: String_Filter
+  """
+  ✨ Generated from Field `Currency`.`sign` of type `String!`
+  """
+  sign: String_Filter
+  """
+  ✨ Generated from Field `Currency`.`users_on_currency` of type `[User!]!`
+  """
+  users_on_currency: User_ListFilter
+}
+"""
+✨ Generated first-row input type for table 'Currency'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
+"""
+input Currency_FirstRow {
+  """
+  Order the result by the specified fields.
+  """
+  orderBy: [Currency_Order!]
+  """
+  Filters rows based on the specified conditions.
+  """
+  where: Currency_Filter
+}
+"""
+✨ Generated having input type for table 'Currency'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input Currency_Having {
+  """
+  Apply multiple Having conditions using `AND` logic.
+  """
+  _and: [Currency_Having!]
+  """
+  Whether to apply DISTINCT to the aggregate function.
+  """
+  _distinct: Boolean
+  """
+  Negate the result of the provided Having condition.
+  """
+  _not: Currency_Having
+  """
+  Apply multiple Having conditions using `OR` logic.
+  """
+  _or: [Currency_Having!]
+  """
+  ✨ Generated from Field `Currency`.`_count` of type `Int!`
+  """
+  _count: Int_Filter
+  """
+  ✨ Generated from Field `Currency`.`code_count` of type `Int!`
+  """
+  code_count: Int_Filter
+  """
+  ✨ Generated from Field `Currency`.`id_count` of type `Int!`
+  """
+  id_count: Int_Filter
+  """
+  ✨ Generated from Field `Currency`.`sign_count` of type `Int!`
+  """
+  sign_count: Int_Filter
+  """
+  ✨ Generated from Field `Currency`.`id_sum` of type `Int`
+  """
+  id_sum: Int_Filter
+  """
+  ✨ Generated from Field `Currency`.`id_avg` of type `Float`
+  """
+  id_avg: Float_Filter
+  """
+  ✨ Generated from Field `Currency`.`id_min` of type `Int`
+  """
+  id_min: Int_Filter
+  """
+  ✨ Generated from Field `Currency`.`id_max` of type `Int`
+  """
+  id_max: Int_Filter
+}
+"""
+✨ Generated key input type for table 'Currency'. It represents the primary key fields used to uniquely identify a row in the table.
+"""
+input Currency_Key {
+  """
+  ✨ Generated from Field `Currency`.`id` of type `Int!`
+  """
+  id: Int
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `Currency`.`id` of type `Int!`)
+  """
+  id_expr: Int_Expr @fdc_forbiddenInVariables
+}
+"""
+✨ Generated list filter input type for table 'Currency'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
+"""
+input Currency_ListFilter {
+  """
+  The desired number of objects that match the condition (defaults to at least one).
+  """
+  count: Int_Filter = {gt:0}
+  """
+  Condition of the related objects to filter for.
+  """
+  exist: Currency_Filter
+}
+"""
+✨ Generated order input type for table 'Currency'. This input defines the sorting order of rows in query results based on one or more fields.
+"""
+input Currency_Order {
+  """
+  ✨ Generated from Field `Currency`.`id` of type `Int!`
+  """
+  id: OrderDirection
+  """
+  ✨ Generated from Field `Currency`.`code` of type `String!`
+  """
+  code: OrderDirection
+  """
+  ✨ Generated from Field `Currency`.`sign` of type `String!`
+  """
+  sign: OrderDirection
+  """
+  ✨ Generated from Field `Currency`.`_count` of type `Int!`
+  """
+  _count: OrderDirection
+  """
+  ✨ Generated from Field `Currency`.`code_count` of type `Int!`
+  """
+  code_count: OrderDirection
+  """
+  ✨ Generated from Field `Currency`.`id_count` of type `Int!`
+  """
+  id_count: OrderDirection
+  """
+  ✨ Generated from Field `Currency`.`sign_count` of type `Int!`
+  """
+  sign_count: OrderDirection
+  """
+  ✨ Generated from Field `Currency`.`id_sum` of type `Int`
+  """
+  id_sum: OrderDirection
+  """
+  ✨ Generated from Field `Currency`.`id_avg` of type `Float`
+  """
+  id_avg: OrderDirection
+  """
+  ✨ Generated from Field `Currency`.`id_min` of type `Int`
+  """
+  id_min: OrderDirection
+  """
+  ✨ Generated from Field `Currency`.`id_max` of type `Int`
+  """
+  id_max: OrderDirection
+}
+"""
 ✨ Generated data input type for table 'ExpenseCategory'. It includes all necessary fields for creating or upserting rows into table.
 """
 input ExpenseCategory_Data {
@@ -1381,13 +1598,21 @@ input Institution_Data {
   """
   id_expr: UUID_Expr @fdc_forbiddenInVariables
   """
-  ✨ Generated from Field `Institution`.`location` of type `String`
+  ✨ Generated from Field `Institution`.`countryId` of type `Int!`
   """
-  location: String
+  countryId: Int
   """
-  ✨ `_expr` server value variant of `location` (✨ Generated from Field `Institution`.`location` of type `String`)
+  ✨ `_expr` server value variant of `countryId` (✨ Generated from Field `Institution`.`countryId` of type `Int!`)
   """
-  location_expr: String_Expr @fdc_forbiddenInVariables
+  countryId_expr: Int_Expr @fdc_forbiddenInVariables
+  """
+  ✨ `_update` server value variant of `countryId` (✨ Generated from Field `Institution`.`countryId` of type `Int!`)
+  """
+  countryId_update: [Int_Update!] @fdc_forbiddenInVariables
+  """
+  ✨ Generated from Field `Institution`.`country` of type `Country!`
+  """
+  country: Country_Key @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `Institution`.`name` of type `String!`
   """
@@ -1418,9 +1643,13 @@ input Institution_Filter {
   """
   id: UUID_Filter
   """
-  ✨ Generated from Field `Institution`.`location` of type `String`
+  ✨ Generated from Field `Institution`.`countryId` of type `Int!`
   """
-  location: String_Filter
+  countryId: Int_Filter
+  """
+  ✨ Generated from Field `Institution`.`country` of type `Country!`
+  """
+  country: Country_Filter
   """
   ✨ Generated from Field `Institution`.`name` of type `String!`
   """
@@ -1468,17 +1697,33 @@ input Institution_Having {
   """
   _count: Int_Filter
   """
+  ✨ Generated from Field `Institution`.`countryId_count` of type `Int!`
+  """
+  countryId_count: Int_Filter
+  """
   ✨ Generated from Field `Institution`.`id_count` of type `Int!`
   """
   id_count: Int_Filter
   """
-  ✨ Generated from Field `Institution`.`location_count` of type `Int!`
-  """
-  location_count: Int_Filter
-  """
   ✨ Generated from Field `Institution`.`name_count` of type `Int!`
   """
   name_count: Int_Filter
+  """
+  ✨ Generated from Field `Institution`.`countryId_sum` of type `Int`
+  """
+  countryId_sum: Int_Filter
+  """
+  ✨ Generated from Field `Institution`.`countryId_avg` of type `Float`
+  """
+  countryId_avg: Float_Filter
+  """
+  ✨ Generated from Field `Institution`.`countryId_min` of type `Int`
+  """
+  countryId_min: Int_Filter
+  """
+  ✨ Generated from Field `Institution`.`countryId_max` of type `Int`
+  """
+  countryId_max: Int_Filter
 }
 """
 ✨ Generated key input type for table 'Institution'. It represents the primary key fields used to uniquely identify a row in the table.
@@ -1515,9 +1760,13 @@ input Institution_Order {
   """
   id: OrderDirection
   """
-  ✨ Generated from Field `Institution`.`location` of type `String`
+  ✨ Generated from Field `Institution`.`countryId` of type `Int!`
   """
-  location: OrderDirection
+  countryId: OrderDirection
+  """
+  ✨ Generated from Field `Institution`.`country` of type `Country!`
+  """
+  country: Country_Order
   """
   ✨ Generated from Field `Institution`.`name` of type `String!`
   """
@@ -1527,17 +1776,33 @@ input Institution_Order {
   """
   _count: OrderDirection
   """
+  ✨ Generated from Field `Institution`.`countryId_count` of type `Int!`
+  """
+  countryId_count: OrderDirection
+  """
   ✨ Generated from Field `Institution`.`id_count` of type `Int!`
   """
   id_count: OrderDirection
   """
-  ✨ Generated from Field `Institution`.`location_count` of type `Int!`
-  """
-  location_count: OrderDirection
-  """
   ✨ Generated from Field `Institution`.`name_count` of type `Int!`
   """
   name_count: OrderDirection
+  """
+  ✨ Generated from Field `Institution`.`countryId_sum` of type `Int`
+  """
+  countryId_sum: OrderDirection
+  """
+  ✨ Generated from Field `Institution`.`countryId_avg` of type `Float`
+  """
+  countryId_avg: OrderDirection
+  """
+  ✨ Generated from Field `Institution`.`countryId_min` of type `Int`
+  """
+  countryId_min: OrderDirection
+  """
+  ✨ Generated from Field `Institution`.`countryId_max` of type `Int`
+  """
+  countryId_max: OrderDirection
 }
 """
 ✨ Generated data input type for table 'PointsBalance'. It includes all necessary fields for creating or upserting rows into table.
@@ -1571,6 +1836,14 @@ input PointsBalance_Data {
   ✨ `_expr` server value variant of `lastBudgetRewardMonth` (✨ Generated from Field `PointsBalance`.`lastBudgetRewardMonth` of type `String`)
   """
   lastBudgetRewardMonth_expr: String_Expr @fdc_forbiddenInVariables
+  """
+  ✨ Generated from Field `PointsBalance`.`lastBudgetRewardWeek` of type `String`
+  """
+  lastBudgetRewardWeek: String
+  """
+  ✨ `_expr` server value variant of `lastBudgetRewardWeek` (✨ Generated from Field `PointsBalance`.`lastBudgetRewardWeek` of type `String`)
+  """
+  lastBudgetRewardWeek_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `PointsBalance`.`totalPoints` of type `Int!`
   """
@@ -1633,6 +1906,10 @@ input PointsBalance_Filter {
   """
   lastBudgetRewardMonth: String_Filter
   """
+  ✨ Generated from Field `PointsBalance`.`lastBudgetRewardWeek` of type `String`
+  """
+  lastBudgetRewardWeek: String_Filter
+  """
   ✨ Generated from Field `PointsBalance`.`totalPoints` of type `Int!`
   """
   totalPoints: Int_Filter
@@ -1686,6 +1963,10 @@ input PointsBalance_Having {
   ✨ Generated from Field `PointsBalance`.`lastBudgetRewardMonth_count` of type `Int!`
   """
   lastBudgetRewardMonth_count: Int_Filter
+  """
+  ✨ Generated from Field `PointsBalance`.`lastBudgetRewardWeek_count` of type `Int!`
+  """
+  lastBudgetRewardWeek_count: Int_Filter
   """
   ✨ Generated from Field `PointsBalance`.`totalPoints_count` of type `Int!`
   """
@@ -1770,6 +2051,10 @@ input PointsBalance_Order {
   """
   lastBudgetRewardMonth: OrderDirection
   """
+  ✨ Generated from Field `PointsBalance`.`lastBudgetRewardWeek` of type `String`
+  """
+  lastBudgetRewardWeek: OrderDirection
+  """
   ✨ Generated from Field `PointsBalance`.`totalPoints` of type `Int!`
   """
   totalPoints: OrderDirection
@@ -1789,6 +2074,10 @@ input PointsBalance_Order {
   ✨ Generated from Field `PointsBalance`.`lastBudgetRewardMonth_count` of type `Int!`
   """
   lastBudgetRewardMonth_count: OrderDirection
+  """
+  ✨ Generated from Field `PointsBalance`.`lastBudgetRewardWeek_count` of type `Int!`
+  """
+  lastBudgetRewardWeek_count: OrderDirection
   """
   ✨ Generated from Field `PointsBalance`.`totalPoints_count` of type `Int!`
   """
@@ -4060,6 +4349,18 @@ input User_Data {
   """
   courseId_expr: UUID_Expr @fdc_forbiddenInVariables
   """
+  ✨ Generated from Field `User`.`currencyId` of type `Int`
+  """
+  currencyId: Int
+  """
+  ✨ `_expr` server value variant of `currencyId` (✨ Generated from Field `User`.`currencyId` of type `Int`)
+  """
+  currencyId_expr: Int_Expr @fdc_forbiddenInVariables
+  """
+  ✨ `_update` server value variant of `currencyId` (✨ Generated from Field `User`.`currencyId` of type `Int`)
+  """
+  currencyId_update: [Int_Update!] @fdc_forbiddenInVariables
+  """
   ✨ Generated from Field `User`.`institutionId` of type `UUID`
   """
   institutionId: UUID
@@ -4076,9 +4377,25 @@ input User_Data {
   """
   course: Course_Key @fdc_forbiddenInVariables
   """
+  ✨ Generated from Field `User`.`currency` of type `Currency`
+  """
+  currency: Currency_Key @fdc_forbiddenInVariables
+  """
   ✨ Generated from Field `User`.`institution` of type `Institution`
   """
   institution: Institution_Key @fdc_forbiddenInVariables
+  """
+  ✨ Generated from Field `User`.`budget` of type `Float`
+  """
+  budget: Float
+  """
+  ✨ `_expr` server value variant of `budget` (✨ Generated from Field `User`.`budget` of type `Float`)
+  """
+  budget_expr: Float_Expr @fdc_forbiddenInVariables
+  """
+  ✨ `_update` server value variant of `budget` (✨ Generated from Field `User`.`budget` of type `Float`)
+  """
+  budget_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `User`.`createdAt` of type `Timestamp!`
   """
@@ -4132,14 +4449,6 @@ input User_Data {
   """
   hasMfa_expr: Boolean_Expr @fdc_forbiddenInVariables
   """
-  ✨ Generated from Field `User`.`hasNotifications` of type `Boolean!`
-  """
-  hasNotifications: Boolean
-  """
-  ✨ `_expr` server value variant of `hasNotifications` (✨ Generated from Field `User`.`hasNotifications` of type `Boolean!`)
-  """
-  hasNotifications_expr: Boolean_Expr @fdc_forbiddenInVariables
-  """
   ✨ Generated from Field `User`.`isWeekly` of type `Boolean!`
   """
   isWeekly: Boolean
@@ -4171,18 +4480,6 @@ input User_Data {
   ✨ `_update` server value variant of `lockedUntil` (✨ Generated from Field `User`.`lockedUntil` of type `Timestamp`)
   """
   lockedUntil_update: [Timestamp_Update!] @fdc_forbiddenInVariables
-  """
-  ✨ Generated from Field `User`.`monthlyBudget` of type `Float`
-  """
-  monthlyBudget: Float
-  """
-  ✨ `_expr` server value variant of `monthlyBudget` (✨ Generated from Field `User`.`monthlyBudget` of type `Float`)
-  """
-  monthlyBudget_expr: Float_Expr @fdc_forbiddenInVariables
-  """
-  ✨ `_update` server value variant of `monthlyBudget` (✨ Generated from Field `User`.`monthlyBudget` of type `Float`)
-  """
-  monthlyBudget_update: [Float_Update!] @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `User`.`otherCourse` of type `String`
   """
@@ -4245,6 +4542,10 @@ input User_Filter {
   """
   courseId: UUID_Filter
   """
+  ✨ Generated from Field `User`.`currencyId` of type `Int`
+  """
+  currencyId: Int_Filter
+  """
   ✨ Generated from Field `User`.`institutionId` of type `UUID`
   """
   institutionId: UUID_Filter
@@ -4257,9 +4558,17 @@ input User_Filter {
   """
   course: Course_Filter
   """
+  ✨ Generated from Field `User`.`currency` of type `Currency`
+  """
+  currency: Currency_Filter
+  """
   ✨ Generated from Field `User`.`institution` of type `Institution`
   """
   institution: Institution_Filter
+  """
+  ✨ Generated from Field `User`.`budget` of type `Float`
+  """
+  budget: Float_Filter
   """
   ✨ Generated from Field `User`.`createdAt` of type `Timestamp!`
   """
@@ -4281,10 +4590,6 @@ input User_Filter {
   """
   hasMfa: Boolean_Filter
   """
-  ✨ Generated from Field `User`.`hasNotifications` of type `Boolean!`
-  """
-  hasNotifications: Boolean_Filter
-  """
   ✨ Generated from Field `User`.`isWeekly` of type `Boolean!`
   """
   isWeekly: Boolean_Filter
@@ -4296,10 +4601,6 @@ input User_Filter {
   ✨ Generated from Field `User`.`lockedUntil` of type `Timestamp`
   """
   lockedUntil: Timestamp_Filter
-  """
-  ✨ Generated from Field `User`.`monthlyBudget` of type `Float`
-  """
-  monthlyBudget: Float_Filter
   """
   ✨ Generated from Field `User`.`otherCourse` of type `String`
   """
@@ -4387,6 +4688,10 @@ input User_Having {
   """
   _count: Int_Filter
   """
+  ✨ Generated from Field `User`.`budget_count` of type `Int!`
+  """
+  budget_count: Int_Filter
+  """
   ✨ Generated from Field `User`.`countryId_count` of type `Int!`
   """
   countryId_count: Int_Filter
@@ -4398,6 +4703,10 @@ input User_Having {
   ✨ Generated from Field `User`.`createdAt_count` of type `Int!`
   """
   createdAt_count: Int_Filter
+  """
+  ✨ Generated from Field `User`.`currencyId_count` of type `Int!`
+  """
+  currencyId_count: Int_Filter
   """
   ✨ Generated from Field `User`.`email_count` of type `Int!`
   """
@@ -4415,10 +4724,6 @@ input User_Having {
   """
   hasMfa_count: Int_Filter
   """
-  ✨ Generated from Field `User`.`hasNotifications_count` of type `Int!`
-  """
-  hasNotifications_count: Int_Filter
-  """
   ✨ Generated from Field `User`.`institutionId_count` of type `Int!`
   """
   institutionId_count: Int_Filter
@@ -4434,10 +4739,6 @@ input User_Having {
   ✨ Generated from Field `User`.`lockedUntil_count` of type `Int!`
   """
   lockedUntil_count: Int_Filter
-  """
-  ✨ Generated from Field `User`.`monthlyBudget_count` of type `Int!`
-  """
-  monthlyBudget_count: Int_Filter
   """
   ✨ Generated from Field `User`.`otherCourse_count` of type `Int!`
   """
@@ -4459,29 +4760,41 @@ input User_Having {
   """
   userId_count: Int_Filter
   """
+  ✨ Generated from Field `User`.`budget_sum` of type `Float`
+  """
+  budget_sum: Float_Filter
+  """
   ✨ Generated from Field `User`.`countryId_sum` of type `Int`
   """
   countryId_sum: Int_Filter
+  """
+  ✨ Generated from Field `User`.`currencyId_sum` of type `Int`
+  """
+  currencyId_sum: Int_Filter
   """
   ✨ Generated from Field `User`.`failedAttempts_sum` of type `Int`
   """
   failedAttempts_sum: Int_Filter
   """
-  ✨ Generated from Field `User`.`monthlyBudget_sum` of type `Float`
+  ✨ Generated from Field `User`.`budget_avg` of type `Float`
   """
-  monthlyBudget_sum: Float_Filter
+  budget_avg: Float_Filter
   """
   ✨ Generated from Field `User`.`countryId_avg` of type `Float`
   """
   countryId_avg: Float_Filter
   """
+  ✨ Generated from Field `User`.`currencyId_avg` of type `Float`
+  """
+  currencyId_avg: Float_Filter
+  """
   ✨ Generated from Field `User`.`failedAttempts_avg` of type `Float`
   """
   failedAttempts_avg: Float_Filter
   """
-  ✨ Generated from Field `User`.`monthlyBudget_avg` of type `Float`
+  ✨ Generated from Field `User`.`budget_min` of type `Float`
   """
-  monthlyBudget_avg: Float_Filter
+  budget_min: Float_Filter
   """
   ✨ Generated from Field `User`.`countryId_min` of type `Int`
   """
@@ -4491,6 +4804,10 @@ input User_Having {
   """
   createdAt_min: Timestamp_Filter
   """
+  ✨ Generated from Field `User`.`currencyId_min` of type `Int`
+  """
+  currencyId_min: Int_Filter
+  """
   ✨ Generated from Field `User`.`failedAttempts_min` of type `Int`
   """
   failedAttempts_min: Int_Filter
@@ -4499,9 +4816,9 @@ input User_Having {
   """
   lockedUntil_min: Timestamp_Filter
   """
-  ✨ Generated from Field `User`.`monthlyBudget_min` of type `Float`
+  ✨ Generated from Field `User`.`budget_max` of type `Float`
   """
-  monthlyBudget_min: Float_Filter
+  budget_max: Float_Filter
   """
   ✨ Generated from Field `User`.`countryId_max` of type `Int`
   """
@@ -4511,6 +4828,10 @@ input User_Having {
   """
   createdAt_max: Timestamp_Filter
   """
+  ✨ Generated from Field `User`.`currencyId_max` of type `Int`
+  """
+  currencyId_max: Int_Filter
+  """
   ✨ Generated from Field `User`.`failedAttempts_max` of type `Int`
   """
   failedAttempts_max: Int_Filter
@@ -4518,10 +4839,6 @@ input User_Having {
   ✨ Generated from Field `User`.`lockedUntil_max` of type `Timestamp`
   """
   lockedUntil_max: Timestamp_Filter
-  """
-  ✨ Generated from Field `User`.`monthlyBudget_max` of type `Float`
-  """
-  monthlyBudget_max: Float_Filter
 }
 """
 ✨ Generated key input type for table 'User'. It represents the primary key fields used to uniquely identify a row in the table.
@@ -4566,6 +4883,10 @@ input User_Order {
   """
   courseId: OrderDirection
   """
+  ✨ Generated from Field `User`.`currencyId` of type `Int`
+  """
+  currencyId: OrderDirection
+  """
   ✨ Generated from Field `User`.`institutionId` of type `UUID`
   """
   institutionId: OrderDirection
@@ -4578,9 +4899,17 @@ input User_Order {
   """
   course: Course_Order
   """
+  ✨ Generated from Field `User`.`currency` of type `Currency`
+  """
+  currency: Currency_Order
+  """
   ✨ Generated from Field `User`.`institution` of type `Institution`
   """
   institution: Institution_Order
+  """
+  ✨ Generated from Field `User`.`budget` of type `Float`
+  """
+  budget: OrderDirection
   """
   ✨ Generated from Field `User`.`createdAt` of type `Timestamp!`
   """
@@ -4602,10 +4931,6 @@ input User_Order {
   """
   hasMfa: OrderDirection
   """
-  ✨ Generated from Field `User`.`hasNotifications` of type `Boolean!`
-  """
-  hasNotifications: OrderDirection
-  """
   ✨ Generated from Field `User`.`isWeekly` of type `Boolean!`
   """
   isWeekly: OrderDirection
@@ -4617,10 +4942,6 @@ input User_Order {
   ✨ Generated from Field `User`.`lockedUntil` of type `Timestamp`
   """
   lockedUntil: OrderDirection
-  """
-  ✨ Generated from Field `User`.`monthlyBudget` of type `Float`
-  """
-  monthlyBudget: OrderDirection
   """
   ✨ Generated from Field `User`.`otherCourse` of type `String`
   """
@@ -4642,6 +4963,10 @@ input User_Order {
   """
   _count: OrderDirection
   """
+  ✨ Generated from Field `User`.`budget_count` of type `Int!`
+  """
+  budget_count: OrderDirection
+  """
   ✨ Generated from Field `User`.`countryId_count` of type `Int!`
   """
   countryId_count: OrderDirection
@@ -4653,6 +4978,10 @@ input User_Order {
   ✨ Generated from Field `User`.`createdAt_count` of type `Int!`
   """
   createdAt_count: OrderDirection
+  """
+  ✨ Generated from Field `User`.`currencyId_count` of type `Int!`
+  """
+  currencyId_count: OrderDirection
   """
   ✨ Generated from Field `User`.`email_count` of type `Int!`
   """
@@ -4670,10 +4999,6 @@ input User_Order {
   """
   hasMfa_count: OrderDirection
   """
-  ✨ Generated from Field `User`.`hasNotifications_count` of type `Int!`
-  """
-  hasNotifications_count: OrderDirection
-  """
   ✨ Generated from Field `User`.`institutionId_count` of type `Int!`
   """
   institutionId_count: OrderDirection
@@ -4689,10 +5014,6 @@ input User_Order {
   ✨ Generated from Field `User`.`lockedUntil_count` of type `Int!`
   """
   lockedUntil_count: OrderDirection
-  """
-  ✨ Generated from Field `User`.`monthlyBudget_count` of type `Int!`
-  """
-  monthlyBudget_count: OrderDirection
   """
   ✨ Generated from Field `User`.`otherCourse_count` of type `Int!`
   """
@@ -4714,29 +5035,41 @@ input User_Order {
   """
   userId_count: OrderDirection
   """
+  ✨ Generated from Field `User`.`budget_sum` of type `Float`
+  """
+  budget_sum: OrderDirection
+  """
   ✨ Generated from Field `User`.`countryId_sum` of type `Int`
   """
   countryId_sum: OrderDirection
+  """
+  ✨ Generated from Field `User`.`currencyId_sum` of type `Int`
+  """
+  currencyId_sum: OrderDirection
   """
   ✨ Generated from Field `User`.`failedAttempts_sum` of type `Int`
   """
   failedAttempts_sum: OrderDirection
   """
-  ✨ Generated from Field `User`.`monthlyBudget_sum` of type `Float`
+  ✨ Generated from Field `User`.`budget_avg` of type `Float`
   """
-  monthlyBudget_sum: OrderDirection
+  budget_avg: OrderDirection
   """
   ✨ Generated from Field `User`.`countryId_avg` of type `Float`
   """
   countryId_avg: OrderDirection
   """
+  ✨ Generated from Field `User`.`currencyId_avg` of type `Float`
+  """
+  currencyId_avg: OrderDirection
+  """
   ✨ Generated from Field `User`.`failedAttempts_avg` of type `Float`
   """
   failedAttempts_avg: OrderDirection
   """
-  ✨ Generated from Field `User`.`monthlyBudget_avg` of type `Float`
+  ✨ Generated from Field `User`.`budget_min` of type `Float`
   """
-  monthlyBudget_avg: OrderDirection
+  budget_min: OrderDirection
   """
   ✨ Generated from Field `User`.`countryId_min` of type `Int`
   """
@@ -4746,6 +5079,10 @@ input User_Order {
   """
   createdAt_min: OrderDirection
   """
+  ✨ Generated from Field `User`.`currencyId_min` of type `Int`
+  """
+  currencyId_min: OrderDirection
+  """
   ✨ Generated from Field `User`.`failedAttempts_min` of type `Int`
   """
   failedAttempts_min: OrderDirection
@@ -4754,9 +5091,9 @@ input User_Order {
   """
   lockedUntil_min: OrderDirection
   """
-  ✨ Generated from Field `User`.`monthlyBudget_min` of type `Float`
+  ✨ Generated from Field `User`.`budget_max` of type `Float`
   """
-  monthlyBudget_min: OrderDirection
+  budget_max: OrderDirection
   """
   ✨ Generated from Field `User`.`countryId_max` of type `Int`
   """
@@ -4766,6 +5103,10 @@ input User_Order {
   """
   createdAt_max: OrderDirection
   """
+  ✨ Generated from Field `User`.`currencyId_max` of type `Int`
+  """
+  currencyId_max: OrderDirection
+  """
   ✨ Generated from Field `User`.`failedAttempts_max` of type `Int`
   """
   failedAttempts_max: OrderDirection
@@ -4773,8 +5114,4 @@ input User_Order {
   ✨ Generated from Field `User`.`lockedUntil_max` of type `Timestamp`
   """
   lockedUntil_max: OrderDirection
-  """
-  ✨ Generated from Field `User`.`monthlyBudget_max` of type `Float`
-  """
-  monthlyBudget_max: OrderDirection
 }

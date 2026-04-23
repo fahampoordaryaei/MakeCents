@@ -9,11 +9,15 @@ import 'startup_page.dart';
 class OnboardingProfilePage extends StatefulWidget {
   final String firstName;
   final String lastName;
+  final String? phonePrefix;
+  final String? phoneNumber;
 
   const OnboardingProfilePage({
     super.key,
     required this.firstName,
     required this.lastName,
+    this.phonePrefix,
+    this.phoneNumber,
   });
   @override
   State<OnboardingProfilePage> createState() => _OnboardingProfilePageState();
@@ -62,7 +66,6 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
         _countryError = null;
       });
     } catch (e) {
-      debugPrint('onboarding_profile: getCountryFromLocation failed: $e');
       if (!mounted) return;
       setState(() {
         _countryLoading = false;
@@ -115,7 +118,6 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
         _isLoading = false;
       });
     } catch (e) {
-      debugPrint('onboarding_profile: load institutions/courses failed: $e');
       setState(() {
         _error = 'Failed to load options. Please check your connection.';
         _isLoading = false;
@@ -172,6 +174,8 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
           lastName: widget.lastName,
           countryIsoCode: _countryResult?.isoCountryCode,
           countryDisplayName: _countryResult?.displayName,
+          phonePrefix: widget.phonePrefix,
+          phoneNumber: widget.phoneNumber,
         ),
       ),
     );
@@ -227,14 +231,10 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
 
     try {
       await FirebaseAuth.instance.currentUser?.delete();
-    } catch (e) {
-      debugPrint('onboarding_profile: delete user failed: $e');
-    }
+    } catch (_) {}
     try {
       await FirebaseAuth.instance.signOut();
-    } catch (e) {
-      debugPrint('onboarding_profile: signOut failed: $e');
-    }
+    } catch (_) {}
     if (!mounted) return;
     Navigator.of(
       context,

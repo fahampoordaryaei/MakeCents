@@ -1,8 +1,11 @@
 library dataconnect_generated;
-
 import 'package:firebase_data_connect/firebase_data_connect.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
+
+part 'seed_data.dart';
+
+part 'seed_location_data.dart';
 
 part 'list_institutions.dart';
 
@@ -56,218 +59,154 @@ part 'upsert_category_budget.dart';
 
 part 'delete_category_budget.dart';
 
-part 'seed_data.dart';
 
-part 'seed_location_data.dart';
+
+
+
+
 
 class ExampleConnector {
-  ListInstitutionsVariablesBuilder listInstitutions() {
-    return ListInstitutionsVariablesBuilder(dataConnect);
+  
+  
+  SeedDataVariablesBuilder seedData () {
+    return SeedDataVariablesBuilder(dataConnect, );
   }
-
-  ListCoursesVariablesBuilder listCourses() {
-    return ListCoursesVariablesBuilder(dataConnect);
+  
+  
+  SeedLocationDataVariablesBuilder seedLocationData () {
+    return SeedLocationDataVariablesBuilder(dataConnect, );
   }
-
-  ListUserTransactionsVariablesBuilder listUserTransactions({
-    required String userId,
-  }) {
-    return ListUserTransactionsVariablesBuilder(dataConnect, userId: userId);
+  
+  
+  ListInstitutionsVariablesBuilder listInstitutions () {
+    return ListInstitutionsVariablesBuilder(dataConnect, );
   }
-
-  GetUserPointsVariablesBuilder getUserPoints({required String userId}) {
-    return GetUserPointsVariablesBuilder(dataConnect, userId: userId);
+  
+  
+  ListCoursesVariablesBuilder listCourses () {
+    return ListCoursesVariablesBuilder(dataConnect, );
   }
-
-  ListProductsVariablesBuilder listProducts() {
-    return ListProductsVariablesBuilder(dataConnect);
+  
+  
+  ListUserTransactionsVariablesBuilder listUserTransactions ({required String userId, }) {
+    return ListUserTransactionsVariablesBuilder(dataConnect, userId: userId,);
   }
-
-  ListRedeemedProductsVariablesBuilder listRedeemedProducts({
-    required String userId,
-  }) {
-    return ListRedeemedProductsVariablesBuilder(dataConnect, userId: userId);
+  
+  
+  GetUserPointsVariablesBuilder getUserPoints ({required String userId, }) {
+    return GetUserPointsVariablesBuilder(dataConnect, userId: userId,);
   }
-
-  AddTransactionVariablesBuilder addTransaction({
-    required String userId,
-    required String categoryId,
-    required double amount,
-    required DateTime date,
-  }) {
-    return AddTransactionVariablesBuilder(
-      dataConnect,
-      userId: userId,
-      categoryId: categoryId,
-      amount: amount,
-      date: date,
-    );
+  
+  
+  ListProductsVariablesBuilder listProducts () {
+    return ListProductsVariablesBuilder(dataConnect, );
   }
-
-  StoreUserProfileVariablesBuilder storeUserProfile({
-    required String userId,
-    required String email,
-    required String firstName,
-    required String lastName,
-  }) {
-    return StoreUserProfileVariablesBuilder(
-      dataConnect,
-      userId: userId,
-      email: email,
-      firstName: firstName,
-      lastName: lastName,
-    );
+  
+  
+  ListRedeemedProductsVariablesBuilder listRedeemedProducts ({required String userId, }) {
+    return ListRedeemedProductsVariablesBuilder(dataConnect, userId: userId,);
   }
-
-  ListCurrenciesVariablesBuilder listCurrencies() {
-    return ListCurrenciesVariablesBuilder(dataConnect);
+  
+  
+  AddTransactionVariablesBuilder addTransaction ({required String userId, required String categoryId, required double amount, required DateTime date, }) {
+    return AddTransactionVariablesBuilder(dataConnect, userId: userId,categoryId: categoryId,amount: amount,date: date,);
   }
-
-  GetCountryIdByCodeVariablesBuilder getCountryIdByCode({
-    required String code,
-  }) {
-    return GetCountryIdByCodeVariablesBuilder(dataConnect, code: code);
+  
+  
+  StoreUserProfileVariablesBuilder storeUserProfile ({required String userId, required String email, required String firstName, required String lastName, }) {
+    return StoreUserProfileVariablesBuilder(dataConnect, userId: userId,email: email,firstName: firstName,lastName: lastName,);
   }
-
-  DeleteTransactionVariablesBuilder deleteTransaction({required String id}) {
-    return DeleteTransactionVariablesBuilder(dataConnect, id: id);
+  
+  
+  ListCurrenciesVariablesBuilder listCurrencies () {
+    return ListCurrenciesVariablesBuilder(dataConnect, );
   }
-
-  UpdateTransactionVariablesBuilder updateTransaction({
-    required String id,
-    required String categoryId,
-    required double amount,
-    required DateTime date,
-  }) {
-    return UpdateTransactionVariablesBuilder(
-      dataConnect,
-      id: id,
-      categoryId: categoryId,
-      amount: amount,
-      date: date,
-    );
+  
+  
+  GetCountryIdByCodeVariablesBuilder getCountryIdByCode ({required String code, }) {
+    return GetCountryIdByCodeVariablesBuilder(dataConnect, code: code,);
   }
-
-  DeleteUserProfileVariablesBuilder deleteUserProfile({
-    required String userId,
-  }) {
-    return DeleteUserProfileVariablesBuilder(dataConnect, userId: userId);
+  
+  
+  DeleteTransactionVariablesBuilder deleteTransaction ({required String id, }) {
+    return DeleteTransactionVariablesBuilder(dataConnect, id: id,);
   }
-
-  UpdateUserBudgetVariablesBuilder updateUserBudget({
-    required String userId,
-    required double budget,
-  }) {
-    return UpdateUserBudgetVariablesBuilder(
-      dataConnect,
-      userId: userId,
-      budget: budget,
-    );
+  
+  
+  UpdateTransactionVariablesBuilder updateTransaction ({required String id, required String categoryId, required double amount, required DateTime date, }) {
+    return UpdateTransactionVariablesBuilder(dataConnect, id: id,categoryId: categoryId,amount: amount,date: date,);
   }
-
-  GetUserProfileVariablesBuilder getUserProfile({required String userId}) {
-    return GetUserProfileVariablesBuilder(dataConnect, userId: userId);
+  
+  
+  DeleteUserProfileVariablesBuilder deleteUserProfile ({required String userId, }) {
+    return DeleteUserProfileVariablesBuilder(dataConnect, userId: userId,);
   }
-
-  UpdateUserCurrencyVariablesBuilder updateUserCurrency({
-    required String userId,
-    required int currencyId,
-  }) {
-    return UpdateUserCurrencyVariablesBuilder(
-      dataConnect,
-      userId: userId,
-      currencyId: currencyId,
-    );
+  
+  
+  UpdateUserBudgetVariablesBuilder updateUserBudget ({required String userId, required double budget, }) {
+    return UpdateUserBudgetVariablesBuilder(dataConnect, userId: userId,budget: budget,);
   }
-
-  ListScholarshipsVariablesBuilder listScholarships() {
-    return ListScholarshipsVariablesBuilder(dataConnect);
+  
+  
+  GetUserProfileVariablesBuilder getUserProfile ({required String userId, }) {
+    return GetUserProfileVariablesBuilder(dataConnect, userId: userId,);
   }
-
-  ListExpenseCategoriesVariablesBuilder listExpenseCategories() {
-    return ListExpenseCategoriesVariablesBuilder(dataConnect);
+  
+  
+  UpdateUserCurrencyVariablesBuilder updateUserCurrency ({required String userId, required int currencyId, }) {
+    return UpdateUserCurrencyVariablesBuilder(dataConnect, userId: userId,currencyId: currencyId,);
   }
-
-  InitPointsBalanceVariablesBuilder initPointsBalance({
-    required String userId,
-    required int totalPoints,
-  }) {
-    return InitPointsBalanceVariablesBuilder(
-      dataConnect,
-      userId: userId,
-      totalPoints: totalPoints,
-    );
+  
+  
+  ListScholarshipsVariablesBuilder listScholarships () {
+    return ListScholarshipsVariablesBuilder(dataConnect, );
   }
-
-  UpdatePointsBalanceVariablesBuilder updatePointsBalance({
-    required String id,
-    required int totalPoints,
-  }) {
-    return UpdatePointsBalanceVariablesBuilder(
-      dataConnect,
-      id: id,
-      totalPoints: totalPoints,
-    );
+  
+  
+  ListExpenseCategoriesVariablesBuilder listExpenseCategories () {
+    return ListExpenseCategoriesVariablesBuilder(dataConnect, );
   }
-
-  GetLoginStatusVariablesBuilder getLoginStatus({required String email}) {
-    return GetLoginStatusVariablesBuilder(dataConnect, email: email);
+  
+  
+  InitPointsBalanceVariablesBuilder initPointsBalance ({required String userId, required int totalPoints, }) {
+    return InitPointsBalanceVariablesBuilder(dataConnect, userId: userId,totalPoints: totalPoints,);
   }
-
-  RecordFailedLoginVariablesBuilder recordFailedLogin({
-    required String userId,
-    required int failedAttempts,
-  }) {
-    return RecordFailedLoginVariablesBuilder(
-      dataConnect,
-      userId: userId,
-      failedAttempts: failedAttempts,
-    );
+  
+  
+  UpdatePointsBalanceVariablesBuilder updatePointsBalance ({required String id, required int totalPoints, }) {
+    return UpdatePointsBalanceVariablesBuilder(dataConnect, id: id,totalPoints: totalPoints,);
   }
-
-  ResetLoginAttemptsVariablesBuilder resetLoginAttempts({
-    required String userId,
-  }) {
-    return ResetLoginAttemptsVariablesBuilder(dataConnect, userId: userId);
+  
+  
+  GetLoginStatusVariablesBuilder getLoginStatus ({required String email, }) {
+    return GetLoginStatusVariablesBuilder(dataConnect, email: email,);
   }
-
-  ListUserCategoryBudgetsVariablesBuilder listUserCategoryBudgets({
-    required String userId,
-  }) {
-    return ListUserCategoryBudgetsVariablesBuilder(dataConnect, userId: userId);
+  
+  
+  RecordFailedLoginVariablesBuilder recordFailedLogin ({required String userId, required int failedAttempts, }) {
+    return RecordFailedLoginVariablesBuilder(dataConnect, userId: userId,failedAttempts: failedAttempts,);
   }
-
-  UpsertCategoryBudgetVariablesBuilder upsertCategoryBudget({
-    required String userId,
-    required String categoryId,
-    required int budgetAmount,
-  }) {
-    return UpsertCategoryBudgetVariablesBuilder(
-      dataConnect,
-      userId: userId,
-      categoryId: categoryId,
-      budgetAmount: budgetAmount,
-    );
+  
+  
+  ResetLoginAttemptsVariablesBuilder resetLoginAttempts ({required String userId, }) {
+    return ResetLoginAttemptsVariablesBuilder(dataConnect, userId: userId,);
   }
-
-  DeleteCategoryBudgetVariablesBuilder deleteCategoryBudget({
-    required String userId,
-    required String categoryId,
-  }) {
-    return DeleteCategoryBudgetVariablesBuilder(
-      dataConnect,
-      userId: userId,
-      categoryId: categoryId,
-    );
+  
+  
+  ListUserCategoryBudgetsVariablesBuilder listUserCategoryBudgets ({required String userId, }) {
+    return ListUserCategoryBudgetsVariablesBuilder(dataConnect, userId: userId,);
   }
-
-  SeedDataVariablesBuilder seedData() {
-    return SeedDataVariablesBuilder(dataConnect);
+  
+  
+  UpsertCategoryBudgetVariablesBuilder upsertCategoryBudget ({required String userId, required String categoryId, required int budgetAmount, }) {
+    return UpsertCategoryBudgetVariablesBuilder(dataConnect, userId: userId,categoryId: categoryId,budgetAmount: budgetAmount,);
   }
-
-  SeedLocationDataVariablesBuilder seedLocationData() {
-    return SeedLocationDataVariablesBuilder(dataConnect);
+  
+  
+  DeleteCategoryBudgetVariablesBuilder deleteCategoryBudget ({required String userId, required String categoryId, }) {
+    return DeleteCategoryBudgetVariablesBuilder(dataConnect, userId: userId,categoryId: categoryId,);
   }
+  
 
   static ConnectorConfig connectorConfig = ConnectorConfig(
     'europe-west1',
@@ -277,13 +216,12 @@ class ExampleConnector {
 
   ExampleConnector({required this.dataConnect});
   static ExampleConnector get instance {
+    
     return ExampleConnector(
-      dataConnect: FirebaseDataConnect.instanceFor(
-        connectorConfig: connectorConfig,
-
-        sdkType: CallerSDKType.generated,
-      ),
-    );
+        dataConnect: FirebaseDataConnect.instanceFor(
+            connectorConfig: connectorConfig,
+            
+            sdkType: CallerSDKType.generated));
   }
 
   FirebaseDataConnect dataConnect;

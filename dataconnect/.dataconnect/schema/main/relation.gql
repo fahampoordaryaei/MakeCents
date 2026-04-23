@@ -270,6 +270,40 @@ extend type Country {
     having: CountryContinent_Having
   ): [CountryContinent!]! @fdc_generated(from: "CountryContinent.country", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
   """
+  ✨ List `Institution` objects in a one-to-many relationship (where `Institution`.`country` is this object).
+  """
+  institutions_on_country(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Institution_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Institution_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Institution_Having
+  ): [Institution!]! @fdc_generated(from: "Institution.country", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
   ✨ List `Scholarship` objects in a one-to-many relationship (where `Scholarship`.`country` is this object).
   """
   scholarships_on_country(
@@ -655,6 +689,107 @@ extend type Course {
   """
   _id: ID! @fdc_generated(from: "Course.id", purpose: ENTITY_ID)
 }
+extend type Currency {
+  """
+  ✨ List `User` objects in a one-to-many relationship (where `User`.`currency` is this object).
+  """
+  users_on_currency(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: User_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [User_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: User_Having
+  ): [User!]! @fdc_generated(from: "User.currency", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "Currency", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `Currency` table.
+  """
+  _count: Int! @fdc_generated(from: "Currency.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Currency` table where the `code` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  code_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Currency.code", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Currency` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Currency.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Currency` table where the `sign` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  sign_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Currency.sign", purpose: QUERY_COUNT)
+  """
+  ✨ Sum the `id` field in the `Currency` table.
+  """
+  id_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "Currency.id", purpose: QUERY_SUM)
+  """
+  ✨ Average the `id` field in the `Currency` table.
+  """
+  id_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "Currency.id", purpose: QUERY_AVG)
+  """
+  ✨ Minimum of the `id` field in the `Currency` table.
+  """
+  id_min: Int @fdc_generated(from: "Currency.id", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `id` field in the `Currency` table.
+  """
+  id_max: Int @fdc_generated(from: "Currency.id", purpose: QUERY_MAX)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "Currency.id", purpose: ENTITY_ID)
+}
 extend type ExpenseCategory {
   """
   ✨ List `CategoryBudget` objects in a one-to-many relationship (where `CategoryBudget`.`category` is this object).
@@ -851,6 +986,15 @@ extend type Institution {
   """
   _count: Int! @fdc_generated(from: "Institution.", purpose: QUERY_COUNT)
   """
+  ✨ Count the number of rows in the `Institution` table where the `countryId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  countryId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Institution.countryId", purpose: QUERY_COUNT)
+  """
   ✨ Count the number of rows in the `Institution` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
   id_count(
@@ -860,15 +1004,6 @@ extend type Institution {
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "Institution.id", purpose: QUERY_COUNT)
   """
-  ✨ Count the number of rows in the `Institution` table where the `location` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
-  """
-  location_count(
-    """
-    Set to true to count the number of distinct values.
-    """
-    distinct: Boolean = false
-  ): Int! @fdc_generated(from: "Institution.location", purpose: QUERY_COUNT)
-  """
   ✨ Count the number of rows in the `Institution` table where the `name` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
   name_count(
@@ -877,6 +1012,32 @@ extend type Institution {
     """
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "Institution.name", purpose: QUERY_COUNT)
+  """
+  ✨ Sum the `countryId` field in the `Institution` table.
+  """
+  countryId_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "Institution.countryId", purpose: QUERY_SUM)
+  """
+  ✨ Average the `countryId` field in the `Institution` table.
+  """
+  countryId_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "Institution.countryId", purpose: QUERY_AVG)
+  """
+  ✨ Minimum of the `countryId` field in the `Institution` table.
+  """
+  countryId_min: Int @fdc_generated(from: "Institution.countryId", purpose: QUERY_MIN)
+  """
+  ✨ Maximum of the `countryId` field in the `Institution` table.
+  """
+  countryId_max: Int @fdc_generated(from: "Institution.countryId", purpose: QUERY_MAX)
   """
   A generated field that is used for caching results in SDKs.
   """
@@ -909,6 +1070,15 @@ extend type PointsBalance {
     """
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "PointsBalance.lastBudgetRewardMonth", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `PointsBalance` table where the `lastBudgetRewardWeek` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  lastBudgetRewardWeek_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "PointsBalance.lastBudgetRewardWeek", purpose: QUERY_COUNT)
   """
   ✨ Count the number of rows in the `PointsBalance` table where the `totalPoints` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
@@ -2107,6 +2277,15 @@ extend type User {
   """
   _count: Int! @fdc_generated(from: "User.", purpose: QUERY_COUNT)
   """
+  ✨ Count the number of rows in the `User` table where the `budget` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  budget_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.budget", purpose: QUERY_COUNT)
+  """
   ✨ Count the number of rows in the `User` table where the `countryId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
   countryId_count(
@@ -2133,6 +2312,15 @@ extend type User {
     """
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "User.createdAt", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `currencyId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  currencyId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.currencyId", purpose: QUERY_COUNT)
   """
   ✨ Count the number of rows in the `User` table where the `email` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
@@ -2170,15 +2358,6 @@ extend type User {
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "User.hasMfa", purpose: QUERY_COUNT)
   """
-  ✨ Count the number of rows in the `User` table where the `hasNotifications` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
-  """
-  hasNotifications_count(
-    """
-    Set to true to count the number of distinct values.
-    """
-    distinct: Boolean = false
-  ): Int! @fdc_generated(from: "User.hasNotifications", purpose: QUERY_COUNT)
-  """
   ✨ Count the number of rows in the `User` table where the `institutionId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
   institutionId_count(
@@ -2214,15 +2393,6 @@ extend type User {
     """
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "User.lockedUntil", purpose: QUERY_COUNT)
-  """
-  ✨ Count the number of rows in the `User` table where the `monthlyBudget` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
-  """
-  monthlyBudget_count(
-    """
-    Set to true to count the number of distinct values.
-    """
-    distinct: Boolean = false
-  ): Int! @fdc_generated(from: "User.monthlyBudget", purpose: QUERY_COUNT)
   """
   ✨ Count the number of rows in the `User` table where the `otherCourse` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
@@ -2269,6 +2439,15 @@ extend type User {
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "User.userId", purpose: QUERY_COUNT)
   """
+  ✨ Sum the `budget` field in the `User` table.
+  """
+  budget_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "User.budget", purpose: QUERY_SUM)
+  """
   ✨ Sum the `countryId` field in the `User` table.
   """
   countryId_sum(
@@ -2277,6 +2456,15 @@ extend type User {
     """
     distinct: Boolean = false
   ): Int @fdc_generated(from: "User.countryId", purpose: QUERY_SUM)
+  """
+  ✨ Sum the `currencyId` field in the `User` table.
+  """
+  currencyId_sum(
+    """
+    Set to true to sum the distinct values.
+    """
+    distinct: Boolean = false
+  ): Int @fdc_generated(from: "User.currencyId", purpose: QUERY_SUM)
   """
   ✨ Sum the `failedAttempts` field in the `User` table.
   """
@@ -2287,14 +2475,14 @@ extend type User {
     distinct: Boolean = false
   ): Int @fdc_generated(from: "User.failedAttempts", purpose: QUERY_SUM)
   """
-  ✨ Sum the `monthlyBudget` field in the `User` table.
+  ✨ Average the `budget` field in the `User` table.
   """
-  monthlyBudget_sum(
+  budget_avg(
     """
-    Set to true to sum the distinct values.
+    Set to true to average the distinct values.
     """
     distinct: Boolean = false
-  ): Float @fdc_generated(from: "User.monthlyBudget", purpose: QUERY_SUM)
+  ): Float @fdc_generated(from: "User.budget", purpose: QUERY_AVG)
   """
   ✨ Average the `countryId` field in the `User` table.
   """
@@ -2305,6 +2493,15 @@ extend type User {
     distinct: Boolean = false
   ): Float @fdc_generated(from: "User.countryId", purpose: QUERY_AVG)
   """
+  ✨ Average the `currencyId` field in the `User` table.
+  """
+  currencyId_avg(
+    """
+    Set to true to average the distinct values.
+    """
+    distinct: Boolean = false
+  ): Float @fdc_generated(from: "User.currencyId", purpose: QUERY_AVG)
+  """
   ✨ Average the `failedAttempts` field in the `User` table.
   """
   failedAttempts_avg(
@@ -2314,14 +2511,9 @@ extend type User {
     distinct: Boolean = false
   ): Float @fdc_generated(from: "User.failedAttempts", purpose: QUERY_AVG)
   """
-  ✨ Average the `monthlyBudget` field in the `User` table.
+  ✨ Minimum of the `budget` field in the `User` table.
   """
-  monthlyBudget_avg(
-    """
-    Set to true to average the distinct values.
-    """
-    distinct: Boolean = false
-  ): Float @fdc_generated(from: "User.monthlyBudget", purpose: QUERY_AVG)
+  budget_min: Float @fdc_generated(from: "User.budget", purpose: QUERY_MIN)
   """
   ✨ Minimum of the `countryId` field in the `User` table.
   """
@@ -2331,6 +2523,10 @@ extend type User {
   """
   createdAt_min: Timestamp @fdc_generated(from: "User.createdAt", purpose: QUERY_MIN)
   """
+  ✨ Minimum of the `currencyId` field in the `User` table.
+  """
+  currencyId_min: Int @fdc_generated(from: "User.currencyId", purpose: QUERY_MIN)
+  """
   ✨ Minimum of the `failedAttempts` field in the `User` table.
   """
   failedAttempts_min: Int @fdc_generated(from: "User.failedAttempts", purpose: QUERY_MIN)
@@ -2339,9 +2535,9 @@ extend type User {
   """
   lockedUntil_min: Timestamp @fdc_generated(from: "User.lockedUntil", purpose: QUERY_MIN)
   """
-  ✨ Minimum of the `monthlyBudget` field in the `User` table.
+  ✨ Maximum of the `budget` field in the `User` table.
   """
-  monthlyBudget_min: Float @fdc_generated(from: "User.monthlyBudget", purpose: QUERY_MIN)
+  budget_max: Float @fdc_generated(from: "User.budget", purpose: QUERY_MAX)
   """
   ✨ Maximum of the `countryId` field in the `User` table.
   """
@@ -2351,6 +2547,10 @@ extend type User {
   """
   createdAt_max: Timestamp @fdc_generated(from: "User.createdAt", purpose: QUERY_MAX)
   """
+  ✨ Maximum of the `currencyId` field in the `User` table.
+  """
+  currencyId_max: Int @fdc_generated(from: "User.currencyId", purpose: QUERY_MAX)
+  """
   ✨ Maximum of the `failedAttempts` field in the `User` table.
   """
   failedAttempts_max: Int @fdc_generated(from: "User.failedAttempts", purpose: QUERY_MAX)
@@ -2358,10 +2558,6 @@ extend type User {
   ✨ Maximum of the `lockedUntil` field in the `User` table.
   """
   lockedUntil_max: Timestamp @fdc_generated(from: "User.lockedUntil", purpose: QUERY_MAX)
-  """
-  ✨ Maximum of the `monthlyBudget` field in the `User` table.
-  """
-  monthlyBudget_max: Float @fdc_generated(from: "User.monthlyBudget", purpose: QUERY_MAX)
   """
   A generated field that is used for caching results in SDKs.
   """

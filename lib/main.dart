@@ -32,29 +32,20 @@ void main() async {
           ? AppleProvider.debug
           : AppleProvider.deviceCheck,
     );
-  } catch (e, st) {
-    debugPrint('Firebase App Check activate failed: $e');
-    debugPrint('$st');
-  }
+  } catch (_) {}
 
   final transactionProvider = TransactionProvider();
   final budgetProvider = BudgetProvider();
   final themeProvider = ThemeProvider();
   try {
     await transactionProvider.fetchTransactions();
-  } catch (e) {
-    debugPrint('main: fetchTransactions at startup failed: $e');
-  }
+  } catch (_) {}
   try {
     await budgetProvider.init();
-  } catch (e) {
-    debugPrint('main: budgetProvider.init at startup failed: $e');
-  }
+  } catch (_) {}
   try {
     await themeProvider.loadTheme();
-  } catch (e) {
-    debugPrint('main: themeProvider.loadTheme at startup failed: $e');
-  }
+  } catch (_) {}
   runApp(
     MultiProvider(
       providers: [

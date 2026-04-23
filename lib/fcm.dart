@@ -39,12 +39,8 @@ Future<void> _syncTokenToFirestore(String? token) async {
     await _saveFcmToken(user.uid, token);
     _storedUid = user.uid;
     _storedToken = token;
-  } on FirebaseException catch (e) {
-    debugPrint('fcm: persist token failed: ${e.code} ${e.message}');
-  } catch (e, st) {
-    debugPrint('fcm: persist token failed: $e');
-    debugPrint('$st');
-  }
+  } on FirebaseException catch (_) {
+  } catch (_) {}
 }
 
 Future<void> _removeTokenOnSignOut() async {
@@ -53,12 +49,8 @@ Future<void> _removeTokenOnSignOut() async {
   if (uid == null || token == null) return;
   try {
     await _deleteFcmToken(uid);
-  } on FirebaseException catch (e) {
-    debugPrint('fcm: remove token failed: ${e.code} ${e.message}');
-  } catch (e, st) {
-    debugPrint('fcm: remove token failed: $e');
-    debugPrint('$st');
-  }
+  } on FirebaseException catch (_) {
+  } catch (_) {}
   _storedUid = null;
   _storedToken = null;
 }
@@ -92,7 +84,6 @@ Future<void> initializeFirebaseMessaging() async {
   _attachAuthAndTokenFirestore(messaging);
 
   final token = await messaging.getToken();
-  debugPrint('fcm token: $token');
   await _syncTokenToFirestore(token);
 
   if (defaultTargetPlatform == TargetPlatform.android) {

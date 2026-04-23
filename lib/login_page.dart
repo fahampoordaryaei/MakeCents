@@ -107,7 +107,6 @@ class _LoginPageState extends State<LoginPage> {
         });
       }
     } catch (e) {
-      debugPrint('login: signIn unexpected error: $e');
       setState(() {
         _error = 'An unexpected error occurred.';
       });
@@ -139,7 +138,7 @@ class _LoginPageState extends State<LoginPage> {
             await FirebaseAuth.instance.signInWithCredential(credential);
             final authUser = FirebaseAuth.instance.currentUser;
             if (authUser != null && mounted) {
-              await _placeholderSuccess();
+              await _completeSignIn(authUser);
             }
           } on FirebaseAuthException catch (e) {
             if (mounted) {
@@ -149,7 +148,6 @@ class _LoginPageState extends State<LoginPage> {
               });
             }
           } catch (e) {
-            debugPrint('login: verificationCompleted signIn failed: $e');
             if (mounted) {
               setState(() {
                 _error = 'Phone sign-in failed.';
@@ -180,7 +178,6 @@ class _LoginPageState extends State<LoginPage> {
         },
       );
     } catch (e) {
-      debugPrint('login: sendPhoneCode failed: $e');
       if (mounted) {
         setState(() {
           _error = 'Unable to send verification code.';
@@ -215,13 +212,17 @@ class _LoginPageState extends State<LoginPage> {
         smsCode: code,
       );
       await FirebaseAuth.instance.signInWithCredential(credential);
-      await _placeholderSuccess();
+      final authUser = FirebaseAuth.instance.currentUser;
+      if (authUser == null) {
+        setState(() => _error = 'Sign-in failed. Please try again.');
+        return;
+      }
+      await _completeSignIn(authUser);
     } on FirebaseAuthException catch (e) {
       setState(() {
         _error = e.message ?? 'Unable to verify code.';
       });
     } catch (e) {
-      debugPrint('login: verifyPhoneCode failed: $e');
       setState(() {
         _error = 'Unable to verify code.';
       });
@@ -230,62 +231,8 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  /// Temporary: phone OTP success does not complete app sign-in / onboarding.
-  Future<void> _placeholderSuccess() async {
-    if (!mounted) return;
-    setState(() => _isLoading = false);
-    await showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Success'),
-        content: const Text('Your phone number was verified successfully.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-    await FirebaseAuth.instance.signOut();
-    if (!mounted) return;
-    setState(() {
-      _codeSent = false;
-      _verificationId = null;
-      _codeCtrl.clear();
-      _error = '';
-    });
-  }
-
   Future<void> _completeSignIn(User authUser) async {
     final connector = ExampleConnector.instance;
-    String? dbUserId;
-    if (!_usePhoneLogin) {
-      final statusResult = await connector
-          .getLoginStatus(email: _identityCtrl.text.trim())
-          .execute();
-      if (statusResult.data.users.isNotEmpty) {
-        final user = statusResult.data.users.first;
-        dbUserId = user.userId;
-        final lockedUntil = user.lockedUntil?.toDateTime();
-        if (lockedUntil != null && DateTime.now().isBefore(lockedUntil)) {
-          final remaining =
-              lockedUntil.difference(DateTime.now()).inMinutes + 1;
-          if (mounted) {
-            setState(() {
-              _error =
-                  'Account locked. Try again in $remaining minute${remaining == 1 ? '' : 's'}.';
-              _isLoading = false;
-            });
-          }
-          return;
-        }
-      }
-    }
-
-    if (dbUserId != null) {
-      await connector.resetLoginAttempts(userId: dbUserId).execute();
-    }
 
     final profileResult = await connector
         .getUserProfile(userId: authUser.uid)
@@ -306,10 +253,15 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     final (firstName, lastName) = _splitDisplayName(authUser.displayName);
+    final (phonePrefix, phoneDigits) = _splitPhoneNumber(authUser.phoneNumber);
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(
-        builder: (_) =>
-            OnboardingProfilePage(firstName: firstName, lastName: lastName),
+        builder: (_) => OnboardingProfilePage(
+          firstName: firstName,
+          lastName: lastName,
+          phonePrefix: phonePrefix,
+          phoneNumber: phoneDigits,
+        ),
       ),
       (r) => false,
     );
@@ -357,7 +309,6 @@ class _LoginPageState extends State<LoginPage> {
             'Incorrect password. $remaining attempt${remaining == 1 ? '' : 's'} remaining.';
       });
     } catch (e) {
-      debugPrint('login: recordFailure failed: $e');
       setState(() => _error = 'Incorrect email or password.');
     }
   }
@@ -371,6 +322,14 @@ class _LoginPageState extends State<LoginPage> {
         .toList();
     if (parts.length == 1) return (parts.first, 'User');
     return (parts.first, parts.sublist(1).join(' '));
+  }
+
+  (String?, String?) _splitPhoneNumber(String? number) {
+    if (number == null || number.trim().isEmpty) return (null, null);
+    final value = number.trim();
+    final match = RegExp(r'^(\+\d{1,4})(\d{5,})$').firstMatch(value);
+    if (match == null) return (null, value.replaceAll(RegExp(r'[^\d]'), ''));
+    return (match.group(1), match.group(2));
   }
 
   @override

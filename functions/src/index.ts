@@ -2,7 +2,6 @@ import { onSchedule } from "firebase-functions/v2/scheduler";
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import * as functions from "firebase-functions/v1";
 import { getFirestore } from "firebase-admin/firestore";
-import { getMessaging } from "firebase-admin/messaging";
 import { Connector, IpAddressTypes, AuthTypes } from "@google-cloud/cloud-sql-connector";
 import pg from "pg";
 
@@ -56,8 +55,8 @@ export const monthlyBudgetReward = onSchedule(
 
         try {
             const now = new Date();
-            const firstOfPrev = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 1));
-            const firstOfThis = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+            const firstOfPrev = new Date(Date.UTC(now.getFullYear(), now.getMonth() - 1, 1));
+            const firstOfThis = new Date(Date.UTC(now.getFullYear(), now.getMonth(), 1));
             const firstDay = firstOfPrev.toISOString().slice(0, 10);
             const lastDay = firstOfThis.toISOString().slice(0, 10);
             const monthKey = firstDay.slice(0, 7);
@@ -94,16 +93,7 @@ export const monthlyBudgetReward = onSchedule(
               updated_at = NOW()
           WHERE id = $3
         `, [newTotal, monthKey, row.pb_id]);
-
-                console.log(
-                    `Awarded ${REWARD} pts to ${row.user_id} ` +
-                    `(spent ${row.month_spent}/${row.budget}, new total: ${newTotal})`
-                );
             }
-
-        } catch (err) {
-            console.error("Error in monthlyBudgetReward:", err);
-            throw err;
         } finally {
             await pool.end();
             connector.close();
@@ -122,9 +112,18 @@ export const weeklyBudgetReward = onSchedule(
 
         try {
             const now = new Date();
-            const weekStart = new Date(now.getTime() - 7 * 24 * 3600 * 1000)
-                .toISOString().slice(0, 10);
-            const weekEnd = now.toISOString().slice(0, 10);
+            const currentWeekStart = new Date(Date.UTC(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate() - ((now.getDay() + 6) % 7)
+            ));
+            const previousIsoWeekStartUtc = new Date(Date.UTC(
+                currentWeekStart.getFullYear(),
+                currentWeekStart.getMonth(),
+                currentWeekStart.getDate() - 7
+            ));
+            const weekStart = previousIsoWeekStartUtc.toISOString().slice(0, 10);
+            const weekEnd = currentWeekStart.toISOString().slice(0, 10);
 
             const result = await pool.query(`
         SELECT
@@ -158,16 +157,7 @@ export const weeklyBudgetReward = onSchedule(
               updated_at = NOW()
           WHERE id = $3
         `, [newTotal, weekStart, row.pb_id]);
-
-                console.log(
-                    `Awarded ${REWARD} pts to ${row.user_id} ` +
-                    `(spent ${row.week_spent}/${row.budget}, new total: ${newTotal})`
-                );
             }
-
-        } catch (err) {
-            console.error("Error in weeklyBudgetReward:", err);
-            throw err;
         } finally {
             await pool.end();
             connector.close();
@@ -296,7 +286,6 @@ export const redeemProduct = onCall(
             if (err instanceof HttpsError) {
                 throw err;
             }
-            console.error("Error in redeemProduct:", err);
             throw new HttpsError("internal", "Could not redeem product.");
         } finally {
             client?.release();
@@ -306,48 +295,9 @@ export const redeemProduct = onCall(
     }
 );
 
-export const scheduledTestPush = onSchedule(
-    {
-        schedule: "0 19 25 * *",
-        timeZone: "UTC",
-        region: "europe-west1",
-    },
-    async () => {
-        const db = getFirestore();
-        const messaging = getMessaging();
-        const snapshot = await db.collection("users").get();
-
-        let usersNotified = 0;
-        for (const doc of snapshot.docs) {
-            const raw = doc.data().fcmTokens;
-            const tokens = Array.isArray(raw) ?
-                raw.filter((t): t is string => typeof t === "string" && t.length > 0) :
-                [];
-            if (tokens.length === 0) continue;
-
-            await messaging.sendEachForMulticast({
-                tokens,
-                notification: {
-                    title: "MakeCents",
-                    body: "Scheduled notification",
-                },
-                android: { notification: { channelId: "makecents_fcm" } },
-            });
-            usersNotified++;
-        }
-
-        console.log(`scheduledTestPush: sent to ${usersNotified} user doc(s)`);
-    }
-);
-
 export const cleanupUserFcmOnAuthDelete = functions
     .region("europe-west1")
     .auth.user()
     .onDelete(async (user) => {
-        try {
-            await getFirestore().collection("users").doc(user.uid).delete();
-            console.log(`cleanupUserFcmOnAuthDelete: deleted Firestore users/${user.uid}`);
-        } catch (err) {
-            console.error("cleanupUserFcmOnAuthDelete:", err);
-        }
+        await getFirestore().collection("users").doc(user.uid).delete();
     });

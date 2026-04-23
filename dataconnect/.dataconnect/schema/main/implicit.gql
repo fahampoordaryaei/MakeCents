@@ -35,6 +35,10 @@ extend type Institution {
   ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
   """
   id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "Institution", purpose: IMPLICIT_KEY_FIELD)
+  """
+  ✨ Implicit foreign key field based on `Institution`.`country`. It must match the value of `Country`.`id`. See `@ref` for how to customize it.
+  """
+  countryId: Int! @fdc_generated(from: "Institution.country", purpose: IMPLICIT_REF_FIELD)
 }
 extend type PointsBalance {
   """
@@ -133,6 +137,10 @@ extend type User {
   ✨ Implicit foreign key field based on `User`.`course`. It must match the value of `Course`.`id`. See `@ref` for how to customize it.
   """
   courseId: UUID @fdc_generated(from: "User.course", purpose: IMPLICIT_REF_FIELD)
+  """
+  ✨ Implicit foreign key field based on `User`.`currency`. It must match the value of `Currency`.`id`. See `@ref` for how to customize it.
+  """
+  currencyId: Int @fdc_generated(from: "User.currency", purpose: IMPLICIT_REF_FIELD)
   """
   ✨ Implicit foreign key field based on `User`.`institution`. It must match the value of `Institution`.`id`. See `@ref` for how to customize it.
   """

@@ -41,7 +41,7 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 
-# Android Studio will place build artifacts here
+# Android Studio
 /android/app/debug
 /android/app/profile
 /android/app/release
@@ -52,3 +52,5 @@ functions/lib/
 functions/.env
 functions/scripts/service-account.json
 functions/scripts/*-adminsdk-*.json
+
+dataconnect/.dataconnect/*
