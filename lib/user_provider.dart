@@ -25,20 +25,18 @@ class UserProfile {
   String get fullName => '$firstName $lastName';
 
   String get displayInstitution {
-    if (institution == null) return 'Not set';
-    if (institution == 'Other' &&
-        otherSchool != null &&
-        otherSchool!.isNotEmpty) {
+    if (otherSchool != null && otherSchool!.isNotEmpty) {
       return otherSchool!;
     }
+    if (institution == null) return 'Not set';
     return institution!;
   }
 
   String get displayCourse {
-    if (course == null) return 'Not set';
-    if (course == 'Other' && otherCourse != null && otherCourse!.isNotEmpty) {
+    if (otherCourse != null && otherCourse!.isNotEmpty) {
       return otherCourse!;
     }
+    if (course == null) return 'Not set';
     return course!;
   }
 }

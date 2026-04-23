@@ -25,11 +25,13 @@ Future<void> _saveFcmToken(String uid, String token) async {
   }, SetOptions(merge: true));
 }
 
-Future<void> _deleteFcmToken(String uid) async {
+Future<void> _deleteFcmToken(String uid, String token) async {
   final ref = FirebaseFirestore.instance.collection('users').doc(uid);
   final snap = await ref.get();
   if (!snap.exists) return;
-  await ref.update({'fcmTokens': FieldValue.delete()});
+  await ref.update({
+    'fcmTokens': FieldValue.arrayRemove([token]),
+  });
 }
 
 Future<void> _syncTokenToFirestore(String? token) async {
@@ -48,7 +50,7 @@ Future<void> _removeTokenOnSignOut() async {
   final token = _storedToken;
   if (uid == null || token == null) return;
   try {
-    await _deleteFcmToken(uid);
+    await _deleteFcmToken(uid, token);
   } on FirebaseException catch (_) {
   } catch (_) {}
   _storedUid = null;

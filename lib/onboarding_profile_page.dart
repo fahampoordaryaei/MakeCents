@@ -31,6 +31,7 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
   final TextEditingController _otherSchoolController = TextEditingController();
   final TextEditingController _otherCourseController = TextEditingController();
   String _error = '';
+  String _loadError = '';
   bool _isLoading = true;
 
   ProfileCountryResult? _countryResult;
@@ -96,6 +97,12 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
   }
 
   Future<void> _loadData() async {
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+        _loadError = '';
+      });
+    }
     try {
       final connector = ExampleConnector.instance;
 
@@ -105,21 +112,19 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
       setState(() {
         _allInstitutions = institutionsResult.data.institutions;
         _institutionNames = _allInstitutions.map((i) => i.name).toList();
-        if (!_institutionNames.contains('Other')) {
-          _institutionNames.add('Other');
-        }
+        _institutionNames.removeWhere((name) => name == 'Other');
+        _institutionNames.add('Other');
 
         _allCourses = coursesResult.data.courses;
         _courseNames = _allCourses.map((c) => c.name).toList();
-        if (!_courseNames.contains('Other')) {
-          _courseNames.add('Other');
-        }
+        _courseNames.removeWhere((name) => name == 'Other');
+        _courseNames.add('Other');
 
         _isLoading = false;
       });
-    } catch (e) {
+    } catch (_) {
       setState(() {
-        _error = 'Failed to load options. Please check your connection.';
+        _loadError = 'Failed to load options. Please check your connection.';
         _isLoading = false;
       });
     }
@@ -134,27 +139,29 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
 
   void _onContinue() {
     setState(() => _error = '');
+    final otherSchoolText = _otherSchoolController.text.trim();
+    final otherCourseText = _otherCourseController.text.trim();
+    final selectedInstitution = _selectedInstitution;
+    final selectedCourse = _selectedCourse;
 
     if (_countryLoading) {
       setState(() => _error = 'Please wait for location.');
       return;
     }
 
-    if (_selectedInstitution == null) {
+    if (selectedInstitution == null) {
       setState(() => _error = 'Please select an institution.');
       return;
     }
-    if (_selectedInstitution == 'Other' &&
-        _otherSchoolController.text.trim().isEmpty) {
+    if (selectedInstitution == 'Other' && otherSchoolText.isEmpty) {
       setState(() => _error = 'Please specify your institution.');
       return;
     }
-    if (_selectedCourse == null) {
+    if (selectedCourse == null) {
       setState(() => _error = 'Please select your course of study.');
       return;
     }
-    if (_selectedCourse == 'Other' &&
-        _otherCourseController.text.trim().isEmpty) {
+    if (selectedCourse == 'Other' && otherCourseText.isEmpty) {
       setState(() => _error = 'Please specify your course of study.');
       return;
     }
@@ -162,14 +169,12 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => OnboardingBudgetPage(
-          institutionId: _selectedInstitutionId,
-          courseId: _selectedCourseId,
-          otherSchool: _selectedInstitution == 'Other'
-              ? _otherSchoolController.text.trim()
-              : null,
-          otherCourse: _selectedCourse == 'Other'
-              ? _otherCourseController.text.trim()
-              : null,
+          institutionId: selectedInstitution == 'Other'
+              ? null
+              : _selectedInstitutionId,
+          courseId: selectedCourse == 'Other' ? null : _selectedCourseId,
+          otherSchool: selectedInstitution == 'Other' ? otherSchoolText : null,
+          otherCourse: selectedCourse == 'Other' ? otherCourseText : null,
           firstName: widget.firstName,
           lastName: widget.lastName,
           countryIsoCode: _countryResult?.isoCountryCode,
@@ -247,42 +252,28 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
     required List<String> items,
     required ValueChanged<String?> onChanged,
   }) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return DropdownMenu<String>(
-          width: constraints.maxWidth,
-          menuHeight: 200,
-          label: Text(hint),
-          initialSelection: value,
-          enableFilter: true,
-          requestFocusOnTap: true,
-          menuStyle: MenuStyle(
-            backgroundColor: WidgetStatePropertyAll(
-              Theme.of(context).scaffoldBackgroundColor,
-            ),
-            elevation: const WidgetStatePropertyAll(8),
-            surfaceTintColor: WidgetStatePropertyAll(
-              Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
-            ),
-          ),
-          inputDecorationTheme: InputDecorationTheme(
-            filled: true,
-            fillColor: Theme.of(context).scaffoldBackgroundColor,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide.none,
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
-            ),
-          ),
-          dropdownMenuEntries: items.map((String item) {
-            return DropdownMenuEntry<String>(value: item, label: item);
-          }).toList(),
-          onSelected: onChanged,
-        );
-      },
+    return DropdownButtonFormField<String>(
+      value: value,
+      isExpanded: true,
+      hint: Text(hint),
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: Theme.of(context).scaffoldBackgroundColor,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
+      ),
+      items: items
+          .map(
+            (item) => DropdownMenuItem<String>(value: item, child: Text(item)),
+          )
+          .toList(),
+      onChanged: onChanged,
     );
   }
 
@@ -374,7 +365,7 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
                       ),
                     ),
                   ),
-                ] else if (_error.isNotEmpty) ...[
+                ] else if (_loadError.isNotEmpty) ...[
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
@@ -396,7 +387,7 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            _error,
+                            _loadError,
                             style: const TextStyle(
                               color: Color(0xFF8B0000),
                               fontSize: 16,
@@ -417,6 +408,40 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
                   ),
                   const SizedBox(height: 16.0),
                 ] else ...[
+                  if (_error.isNotEmpty) ...[
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFECEC),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(top: 1.0),
+                            child: Icon(
+                              Icons.info_outline,
+                              color: Color(0xFF8B0000),
+                              size: 16,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              _error,
+                              style: const TextStyle(
+                                color: Color(0xFF8B0000),
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16.0),
+                  ],
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(

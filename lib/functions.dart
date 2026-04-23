@@ -1,7 +1,7 @@
-import 'dart:convert';
-import 'package:firebase_data_connect/firebase_data_connect.dart';
 import 'package:flutter/material.dart';
 import 'dataconnect_generated/generated.dart';
+
+typedef CurrenciesList = ListCurrenciesCurrencies;
 
 class ExpenseCategory {
   final String id;
@@ -88,110 +88,5 @@ IconData getIconByName(String name) {
       return Icons.receipt_long;
     default:
       return Icons.more_horiz;
-  }
-}
-
-class GetLoginStatusUsers {
-  final String userId;
-  final int failedAttempts;
-  final DateTime? lockedUntil;
-
-  GetLoginStatusUsers.fromJson(dynamic json)
-    : userId = nativeFromJson<String>(json['userId']),
-      failedAttempts = nativeFromJson<int>(json['failedAttempts']),
-      lockedUntil = json['lockedUntil'] == null
-          ? null
-          : DateTime.parse(json['lockedUntil']);
-}
-
-class GetLoginStatusData {
-  final List<GetLoginStatusUsers> users;
-
-  GetLoginStatusData.fromJson(dynamic json)
-    : users = (json['users'] as List<dynamic>)
-          .map((e) => GetLoginStatusUsers.fromJson(e))
-          .toList();
-}
-
-class _GetLoginStatusVars {
-  final String email;
-  _GetLoginStatusVars({required this.email});
-  Map<String, dynamic> toJson() => {'email': nativeToJson<String>(email)};
-}
-
-class _RecordFailedLoginVars {
-  final String userId;
-  final int failedAttempts;
-  final DateTime? lockedUntil;
-
-  _RecordFailedLoginVars({
-    required this.userId,
-    required this.failedAttempts,
-    this.lockedUntil,
-  });
-
-  Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{
-      'userId': nativeToJson<String>(userId),
-      'failedAttempts': nativeToJson<int>(failedAttempts),
-    };
-    if (lockedUntil != null) {
-      json['lockedUntil'] = lockedUntil!.toIso8601String();
-    }
-    return json;
-  }
-}
-
-class _ResetLoginAttemptsVars {
-  final String userId;
-  _ResetLoginAttemptsVars({required this.userId});
-  Map<String, dynamic> toJson() => {'userId': nativeToJson<String>(userId)};
-}
-
-class _EmptyData {
-  _EmptyData.fromJson(dynamic json);
-}
-
-extension LoginLockoutExtension on ExampleConnector {
-  Future<GetLoginStatusData> getLoginStatus({required String email}) async {
-    final result = await dataConnect
-        .query(
-          "GetLoginStatus",
-          (dynamic json) => GetLoginStatusData.fromJson(jsonDecode(json)),
-          (_GetLoginStatusVars vars) => jsonEncode(vars.toJson()),
-          _GetLoginStatusVars(email: email),
-        )
-        .execute();
-    return result.data;
-  }
-
-  Future<void> recordFailedLogin({
-    required String userId,
-    required int failedAttempts,
-    DateTime? lockedUntil,
-  }) async {
-    await dataConnect
-        .mutation(
-          "RecordFailedLogin",
-          (dynamic json) => _EmptyData.fromJson(json),
-          (_RecordFailedLoginVars vars) => jsonEncode(vars.toJson()),
-          _RecordFailedLoginVars(
-            userId: userId,
-            failedAttempts: failedAttempts,
-            lockedUntil: lockedUntil,
-          ),
-        )
-        .execute();
-  }
-
-  Future<void> resetLoginAttempts({required String userId}) async {
-    await dataConnect
-        .mutation(
-          "ResetLoginAttempts",
-          (dynamic json) => _EmptyData.fromJson(json),
-          (_ResetLoginAttemptsVars vars) => jsonEncode(vars.toJson()),
-          _ResetLoginAttemptsVars(userId: userId),
-        )
-        .execute();
   }
 }
