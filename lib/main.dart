@@ -38,13 +38,11 @@ void main() async {
   final budgetProvider = BudgetProvider();
   final themeProvider = ThemeProvider();
   try {
-    await transactionProvider.fetchTransactions();
-  } catch (_) {}
-  try {
-    await budgetProvider.init();
-  } catch (_) {}
-  try {
-    await themeProvider.loadTheme();
+    await Future.wait([
+      transactionProvider.fetchTransactions(),
+      budgetProvider.init(),
+      themeProvider.loadTheme(),
+    ]);
   } catch (_) {}
   runApp(
     MultiProvider(
