@@ -253,7 +253,7 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
     required ValueChanged<String?> onChanged,
   }) {
     return DropdownButtonFormField<String>(
-      value: value,
+      initialValue: value,
       isExpanded: true,
       hint: Text(hint),
       decoration: InputDecoration(
