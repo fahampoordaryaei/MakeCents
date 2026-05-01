@@ -57,13 +57,18 @@ Future<void> _removeTokenOnSignOut() async {
   _storedToken = null;
 }
 
-void _attachAuthAndTokenFirestore(FirebaseMessaging messaging) {
+void _attachAuthAndTokenFirestore(
+  FirebaseMessaging messaging, {
+  String? webVapidKey,
+}) {
   FirebaseAuth.instance.authStateChanges().listen((user) async {
     if (user == null) {
       await _removeTokenOnSignOut();
       return;
     }
-    final t = await messaging.getToken();
+    final t = webVapidKey != null
+        ? await messaging.getToken(vapidKey: webVapidKey)
+        : await messaging.getToken();
     await _syncTokenToFirestore(t);
   });
 
@@ -78,14 +83,24 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 Future<void> initializeFirebaseMessaging() async {
   if (defaultTargetPlatform == TargetPlatform.iOS) return;
 
-  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  const vapidKey = String.fromEnvironment('FIREBASE_VAPID_KEY');
+  if (kIsWeb && vapidKey.isEmpty) return;
+
+  if (!kIsWeb) {
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  }
 
   final messaging = FirebaseMessaging.instance;
   await messaging.requestPermission();
 
-  _attachAuthAndTokenFirestore(messaging);
+  _attachAuthAndTokenFirestore(
+    messaging,
+    webVapidKey: kIsWeb ? vapidKey : null,
+  );
 
-  final token = await messaging.getToken();
+  final token = kIsWeb
+      ? await messaging.getToken(vapidKey: vapidKey)
+      : await messaging.getToken();
   await _syncTokenToFirestore(token);
 
   if (defaultTargetPlatform == TargetPlatform.android) {
