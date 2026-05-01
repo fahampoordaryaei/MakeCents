@@ -43,7 +43,8 @@ class _PointsPageState extends State<PointsPage> {
       if (result.data.pointsBalances.isNotEmpty) {
         _points = result.data.pointsBalances.first.totalPoints;
       }
-    } catch (_) {} finally {
+    } catch (_) {
+    } finally {
       if (mounted) setState(() => _isLoadingPoints = false);
     }
   }
@@ -73,7 +74,8 @@ class _PointsPageState extends State<PointsPage> {
         _products = productsResult.data.products;
         _redeemedByProductId = redeemedMap;
       });
-    } catch (_) {} finally {
+    } catch (_) {
+    } finally {
       if (mounted) setState(() => _isLoadingProducts = false);
     }
   }
@@ -387,7 +389,6 @@ class _PointsPageState extends State<PointsPage> {
               ),
             ),
             const SizedBox(height: 24),
-
             Center(
               child: Container(
                 width: 240,
@@ -443,11 +444,10 @@ class _PointsPageState extends State<PointsPage> {
               ),
             ),
             const SizedBox(height: 24),
-
             Text(
               'Ways to earn points',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 20,
                 fontWeight: FontWeight.w700,
                 color: Theme.of(context).colorScheme.onSurface,
               ),
@@ -523,7 +523,7 @@ class _PointsPageState extends State<PointsPage> {
             Text(
               'Redeem discounts',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 20,
                 fontWeight: FontWeight.w700,
                 color: Theme.of(context).colorScheme.onSurface,
               ),

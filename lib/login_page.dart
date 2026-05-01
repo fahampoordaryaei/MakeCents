@@ -384,7 +384,6 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 8),
                 Column(
                   key: const ValueKey('login'),
                   mainAxisSize: MainAxisSize.min,
@@ -408,16 +407,6 @@ class _LoginPageState extends State<LoginPage> {
                         fontSize: 28,
                         fontWeight: FontWeight.w800,
                         color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Finance tracker for students',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.75),
                       ),
                     ),
                     const SizedBox(height: 28),

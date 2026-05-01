@@ -433,7 +433,6 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 8),
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
@@ -446,7 +445,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     size: 40,
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
                 Text(
                   'Create an account',
                   style: TextStyle(
@@ -455,17 +454,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  'Finance tracker for students',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.75),
-                  ),
-                ),
-                const SizedBox(height: 28),
+                const SizedBox(height: 20),
                 _inputField(
                   controller: _firstNameController,
                   label: 'First Name',
@@ -477,7 +466,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   label: 'Last Name',
                   icon: Icons.person_outline,
                 ),
-                const SizedBox(height: 28),
+                const SizedBox(height: 20),
                 Row(
                   children: [
                     Expanded(
@@ -511,7 +500,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         child: const Text('Email'),
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 20),
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () {
@@ -547,7 +536,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
                 if (!_usePhoneRegister) ...[
                   _inputField(
                     controller: _emailController,
@@ -573,8 +562,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'Password must contain:\n'
-                      '• Min 8 characters\n'
+                      '• 8 characters minimum\n'
                       '• 1 uppercase letter\n'
                       '• 1 lowercase letter\n'
                       '• 1 number\n'
@@ -610,7 +598,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                   ],
                 ],
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton(
