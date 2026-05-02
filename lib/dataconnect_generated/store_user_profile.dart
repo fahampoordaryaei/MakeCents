@@ -7,7 +7,7 @@ class StoreUserProfileVariablesBuilder {
   String lastName;
   Optional<String> _institutionId = Optional.optional(nativeFromJson, nativeToJson);
   Optional<String> _courseId = Optional.optional(nativeFromJson, nativeToJson);
-  Optional<String> _otherSchool = Optional.optional(nativeFromJson, nativeToJson);
+  Optional<String> _otherInstitution = Optional.optional(nativeFromJson, nativeToJson);
   Optional<String> _otherCourse = Optional.optional(nativeFromJson, nativeToJson);
   Optional<double> _budget = Optional.optional(nativeFromJson, nativeToJson);
   Optional<int> _countryId = Optional.optional(nativeFromJson, nativeToJson);
@@ -24,8 +24,8 @@ class StoreUserProfileVariablesBuilder {
    _courseId.value = t;
    return this;
   }
-  StoreUserProfileVariablesBuilder otherSchool(String? t) {
-   _otherSchool.value = t;
+  StoreUserProfileVariablesBuilder otherInstitution(String? t) {
+   _otherInstitution.value = t;
    return this;
   }
   StoreUserProfileVariablesBuilder otherCourse(String? t) {
@@ -65,7 +65,7 @@ class StoreUserProfileVariablesBuilder {
   }
 
   MutationRef<StoreUserProfileData, StoreUserProfileVariables> ref() {
-    StoreUserProfileVariables vars= StoreUserProfileVariables(userId: userId,email: email,firstName: firstName,lastName: lastName,institutionId: _institutionId,courseId: _courseId,otherSchool: _otherSchool,otherCourse: _otherCourse,budget: _budget,countryId: _countryId,currencyId: _currencyId,isWeekly: _isWeekly,prefix: _prefix,phoneNumber: _phoneNumber,);
+    StoreUserProfileVariables vars= StoreUserProfileVariables(userId: userId,email: email,firstName: firstName,lastName: lastName,institutionId: _institutionId,courseId: _courseId,otherInstitution: _otherInstitution,otherCourse: _otherCourse,budget: _budget,countryId: _countryId,currencyId: _currencyId,isWeekly: _isWeekly,prefix: _prefix,phoneNumber: _phoneNumber,);
     return _dataConnect.mutation("StoreUserProfile", dataDeserializer, varsSerializer, vars);
   }
 }
@@ -146,7 +146,7 @@ class StoreUserProfileVariables {
   final String lastName;
   late final Optional<String>institutionId;
   late final Optional<String>courseId;
-  late final Optional<String>otherSchool;
+  late final Optional<String>otherInstitution;
   late final Optional<String>otherCourse;
   late final Optional<double>budget;
   late final Optional<int>countryId;
@@ -175,8 +175,8 @@ class StoreUserProfileVariables {
     courseId.value = json['courseId'] == null ? null : nativeFromJson<String>(json['courseId']);
   
   
-    otherSchool = Optional.optional(nativeFromJson, nativeToJson);
-    otherSchool.value = json['otherSchool'] == null ? null : nativeFromJson<String>(json['otherSchool']);
+    otherInstitution = Optional.optional(nativeFromJson, nativeToJson);
+    otherInstitution.value = json['otherInstitution'] == null ? null : nativeFromJson<String>(json['otherInstitution']);
   
   
     otherCourse = Optional.optional(nativeFromJson, nativeToJson);
@@ -223,7 +223,7 @@ class StoreUserProfileVariables {
     lastName == otherTyped.lastName && 
     institutionId == otherTyped.institutionId && 
     courseId == otherTyped.courseId && 
-    otherSchool == otherTyped.otherSchool && 
+    otherInstitution == otherTyped.otherInstitution && 
     otherCourse == otherTyped.otherCourse && 
     budget == otherTyped.budget && 
     countryId == otherTyped.countryId && 
@@ -234,7 +234,7 @@ class StoreUserProfileVariables {
     
   }
   @override
-  int get hashCode => Object.hashAll([userId.hashCode, email.hashCode, firstName.hashCode, lastName.hashCode, institutionId.hashCode, courseId.hashCode, otherSchool.hashCode, otherCourse.hashCode, budget.hashCode, countryId.hashCode, currencyId.hashCode, isWeekly.hashCode, prefix.hashCode, phoneNumber.hashCode]);
+  int get hashCode => Object.hashAll([userId.hashCode, email.hashCode, firstName.hashCode, lastName.hashCode, institutionId.hashCode, courseId.hashCode, otherInstitution.hashCode, otherCourse.hashCode, budget.hashCode, countryId.hashCode, currencyId.hashCode, isWeekly.hashCode, prefix.hashCode, phoneNumber.hashCode]);
   
 
   Map<String, dynamic> toJson() {
@@ -249,8 +249,8 @@ class StoreUserProfileVariables {
     if(courseId.state == OptionalState.set) {
       json['courseId'] = courseId.toJson();
     }
-    if(otherSchool.state == OptionalState.set) {
-      json['otherSchool'] = otherSchool.toJson();
+    if(otherInstitution.state == OptionalState.set) {
+      json['otherInstitution'] = otherInstitution.toJson();
     }
     if(otherCourse.state == OptionalState.set) {
       json['otherCourse'] = otherCourse.toJson();
@@ -283,7 +283,7 @@ class StoreUserProfileVariables {
     required this.lastName,
     required this.institutionId,
     required this.courseId,
-    required this.otherSchool,
+    required this.otherInstitution,
     required this.otherCourse,
     required this.budget,
     required this.countryId,

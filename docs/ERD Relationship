@@ -1,6 +1,6 @@
 🔗 Relationship Summary 
 1. User Domain
-User → School (Many-to-One)
+User → Institution (Many-to-One)
 User → Course (Many-to-One)
 2. Finance Tracking
 User → Transaction (One-to-Many)

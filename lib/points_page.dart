@@ -1,5 +1,3 @@
-import 'dart:async';
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -17,7 +15,6 @@ class _PointsPageState extends State<PointsPage> {
   int? _points;
   bool _isLoadingPoints = true;
   bool _isLoadingProducts = true;
-  String? _redeemingProductId;
   List<ListProductsProducts> _products = const [];
   Map<String, _RedeemedProductInfo> _redeemedByProductId = const {};
 
@@ -29,11 +26,7 @@ class _PointsPageState extends State<PointsPage> {
   }
 
   Future<void> _loadCloudPoints() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      setState(() => _isLoadingPoints = false);
-      return;
-    }
+    final user = FirebaseAuth.instance.currentUser!;
 
     try {
       final result = await ExampleConnector.instance
@@ -50,11 +43,7 @@ class _PointsPageState extends State<PointsPage> {
   }
 
   Future<void> _loadProductsAndRedemptions() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      setState(() => _isLoadingProducts = false);
-      return;
-    }
+    final user = FirebaseAuth.instance.currentUser!;
 
     try {
       final productsResult = await ExampleConnector.instance
@@ -84,263 +73,12 @@ class _PointsPageState extends State<PointsPage> {
     await Future.wait([_loadCloudPoints(), _loadProductsAndRedemptions()]);
   }
 
-  Future<_RedeemResult> _redeemProduct(ListProductsProducts product) async {
-    setState(() => _redeemingProductId = product.id);
-    try {
-      final callable = FirebaseFunctions.instanceFor(
-        region: 'europe-west1',
-      ).httpsCallable('redeemProduct');
-      final response = await callable
-          .call(<String, dynamic>{'productId': product.id})
-          .timeout(const Duration(seconds: 20));
-
-      final data = Map<String, dynamic>.from(response.data as Map);
-      final code = (data['code'] as String?) ?? '';
-      final remainingPoints = (data['remainingPoints'] as num?)?.toInt();
-      if (mounted && remainingPoints != null) {
-        setState(() => _points = remainingPoints);
-      }
-      await _refreshRedeemData();
-
-      return _RedeemResult(
-        text: code.isNotEmpty ? code : 'REDEEMED',
-        isError: false,
-      );
-    } on FirebaseFunctionsException catch (e) {
-      final mapped = switch (e.code) {
-        'unauthenticated' => 'Please sign in and try again.',
-        'not-found' => 'This product could not be found.',
-        'failed-precondition' =>
-          e.message ?? 'This product cannot be redeemed.',
-        'aborted' =>
-          e.message ?? 'Could not generate a discount code. Try again.',
-        _ => e.message ?? 'Could not redeem product right now.',
-      };
-      return _RedeemResult(text: mapped, isError: true);
-    } on TimeoutException {
-      return const _RedeemResult(
-        text: 'Redeem request timed out. Please retry.',
-        isError: true,
-      );
-    } catch (_) {
-      return const _RedeemResult(
-        text: 'Could not redeem product.',
-        isError: true,
-      );
-    } finally {
-      if (mounted) setState(() => _redeemingProductId = null);
-    }
-  }
-
   Future<void> _showProductDetails(
     BuildContext context,
     ListProductsProducts product,
   ) async {
-    String? inlineMessage;
-    bool inlineIsError = false;
-    await showDialog<void>(
-      context: context,
-      builder: (dialogContext) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            final points = _points ?? 0;
-            final redeemed = _redeemedByProductId[product.id];
-            final isRedeemed = redeemed != null;
-            final redeeming = _redeemingProductId == product.id;
-            final needed = (product.cost - points).clamp(0, 999999);
-
-            return Dialog(
-              insetPadding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 24,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 560),
-                child: Padding(
-                  padding: const EdgeInsets.all(22),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          buildProductImage(product.id, size: 110, radius: 14),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  product.name,
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w800,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurface,
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  product.storeName,
-                                  style: TextStyle(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurface,
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 8,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: const Color(
-                                      0xFF3e7f3f,
-                                    ).withValues(alpha: 0.12),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Text(
-                                    '${product.cost} pts',
-                                    style: const TextStyle(
-                                      color: Color(0xFF3e7f3f),
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 18),
-                      Text(
-                        product.description,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
-                      ),
-                      const SizedBox(height: 22),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton(
-                              onPressed: redeeming
-                                  ? null
-                                  : () => Navigator.of(dialogContext).pop(),
-                              child: const Text('Close'),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: isRedeemed
-                                ? FilledButton(
-                                    onPressed: null,
-                                    child: const Text('Redeemed'),
-                                  )
-                                : points >= product.cost
-                                ? FilledButton(
-                                    onPressed: redeeming
-                                        ? null
-                                        : () async {
-                                            setDialogState(() {
-                                              inlineMessage = null;
-                                              inlineIsError = false;
-                                            });
-                                            final result = await _redeemProduct(
-                                              product,
-                                            );
-                                            if (!mounted) return;
-                                            setDialogState(() {
-                                              inlineMessage = result.text;
-                                              inlineIsError = result.isError;
-                                            });
-                                          },
-                                    style: FilledButton.styleFrom(
-                                      backgroundColor: const Color(0xFF3e7f3f),
-                                      foregroundColor:
-                                          Theme.of(context).brightness ==
-                                              Brightness.dark
-                                          ? Colors.white
-                                          : null,
-                                    ),
-                                    child: redeeming
-                                        ? const SizedBox(
-                                            width: 16,
-                                            height: 16,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              color: Colors.white,
-                                            ),
-                                          )
-                                        : const Text('Redeem'),
-                                  )
-                                : FilledButton(
-                                    onPressed: null,
-                                    child: Text('Need $needed pts'),
-                                  ),
-                          ),
-                        ],
-                      ),
-                      if (inlineMessage != null) ...[
-                        const SizedBox(height: 14),
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 12,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.withValues(alpha: 0.14),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: Colors.grey.withValues(alpha: 0.38),
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                inlineIsError ? 'Status' : 'Code',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  color: inlineIsError
-                                      ? Colors.red
-                                      : Color(0xFF3e7f3f),
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              SelectableText(
-                                inlineMessage!,
-                                style: const TextStyle(
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: 1.4,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
+    await showProductRedeemDialog(context, product);
+    if (mounted) await _refreshRedeemData();
   }
 
   List<ListProductsProducts> _sortedProducts() {
@@ -360,8 +98,8 @@ class _PointsPageState extends State<PointsPage> {
     final products = _sortedProducts();
     final bp = Provider.of<BudgetProvider>(context);
     final budgetRewardLabel = bp.isWeekly
-        ? 'Stay under budget (weekly)'
-        : 'Stay under budget (monthly)';
+        ? 'Within budget (week)'
+        : 'Within budget (month)';
     final budgetRewardPts = bp.isWeekly ? '+25 pts' : '+100 pts';
 
     return SafeArea(
@@ -385,7 +123,7 @@ class _PointsPageState extends State<PointsPage> {
                 color: Theme.of(
                   context,
                 ).colorScheme.onSurface.withValues(alpha: 0.85),
-                fontSize: 16,
+                fontSize: 18,
               ),
             ),
             const SizedBox(height: 24),
@@ -420,7 +158,7 @@ class _PointsPageState extends State<PointsPage> {
                           const Icon(
                             Icons.emoji_events,
                             color: Colors.white,
-                            size: 36,
+                            size: 48,
                           ),
                           Text(
                             '$points',
@@ -493,6 +231,7 @@ class _PointsPageState extends State<PointsPage> {
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
                             color: Theme.of(context).colorScheme.onSurface,
+                            fontSize: 18,
                           ),
                         ),
                       ),
@@ -510,7 +249,7 @@ class _PointsPageState extends State<PointsPage> {
                           style: TextStyle(
                             color: e.$4,
                             fontWeight: FontWeight.w700,
-                            fontSize: 16,
+                            fontSize: 18,
                           ),
                         ),
                       ),
@@ -543,7 +282,7 @@ class _PointsPageState extends State<PointsPage> {
                   color: Theme.of(
                     context,
                   ).colorScheme.onSurface.withValues(alpha: 0.85),
-                  fontSize: 16,
+                  fontSize: 18,
                 ),
               )
             else
@@ -575,7 +314,7 @@ class _PointsPageState extends State<PointsPage> {
                                   p.name,
                                   style: TextStyle(
                                     fontWeight: FontWeight.w500,
-                                    fontSize: 16,
+                                    fontSize: 18,
                                     color: Theme.of(
                                       context,
                                     ).colorScheme.onSurface,
@@ -588,7 +327,7 @@ class _PointsPageState extends State<PointsPage> {
                                     color: Theme.of(
                                       context,
                                     ).colorScheme.onSurface,
-                                    fontSize: 16,
+                                    fontSize: 18,
                                     fontWeight: FontWeight.w700,
                                   ),
                                 ),
@@ -600,7 +339,7 @@ class _PointsPageState extends State<PointsPage> {
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w700,
                                       color: Color(0xFF3e7f3f),
-                                      fontSize: 16,
+                                      fontSize: 18,
                                     ),
                                   ),
                                 ],
@@ -627,7 +366,7 @@ class _PointsPageState extends State<PointsPage> {
                                   style: const TextStyle(
                                     color: Color(0xFF3e7f3f),
                                     fontWeight: FontWeight.w700,
-                                    fontSize: 16,
+                                    fontSize: 18,
                                   ),
                                 ),
                               ),
@@ -636,7 +375,10 @@ class _PointsPageState extends State<PointsPage> {
                                 OutlinedButton(
                                   onPressed: () =>
                                       _showProductDetails(context, p),
-                                  child: const Text('View'),
+                                  child: const Text(
+                                    'View',
+                                    style: TextStyle(fontSize: 18),
+                                  ),
                                 ),
                             ],
                           ),
@@ -657,11 +399,4 @@ class _RedeemedProductInfo {
   final String code;
 
   const _RedeemedProductInfo({required this.code});
-}
-
-class _RedeemResult {
-  final String text;
-  final bool isError;
-
-  const _RedeemResult({required this.text, required this.isError});
 }

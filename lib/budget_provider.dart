@@ -38,10 +38,7 @@ class BudgetProvider with ChangeNotifier {
   Future<void> setBudget(double amount, {bool? isWeekly}) async {
     if (amount <= 0 || amount > 10000) return;
 
-    _budget = Budget(
-      amount: amount,
-      isWeekly: isWeekly ?? _budget.isWeekly,
-    );
+    _budget = Budget(amount: amount, isWeekly: isWeekly ?? _budget.isWeekly);
     notifyListeners();
 
     final user = FirebaseAuth.instance.currentUser;

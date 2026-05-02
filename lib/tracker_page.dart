@@ -350,7 +350,7 @@ class _TrackerPageState extends State<TrackerPage> {
                 color: Theme.of(
                   context,
                 ).colorScheme.onSurface.withValues(alpha: 0.75),
-                fontSize: 16,
+                fontSize: 18,
               ),
             ),
             const SizedBox(height: 20),
@@ -386,7 +386,7 @@ class _TrackerPageState extends State<TrackerPage> {
                         children: [
                           const Text(
                             'Total Budget',
-                            style: TextStyle(color: Colors.white, fontSize: 16),
+                            style: TextStyle(color: Colors.white, fontSize: 18),
                           ),
                           Text(
                             budget > 0 ? formatMoney(budget) : 'Not set',
@@ -412,7 +412,7 @@ class _TrackerPageState extends State<TrackerPage> {
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w700,
-                            fontSize: 16,
+                            fontSize: 18,
                           ),
                         ),
                       ),
@@ -485,7 +485,7 @@ class _TrackerPageState extends State<TrackerPage> {
                     Text(
                       'Category',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 18,
                         fontWeight: FontWeight.w600,
                         color: Theme.of(
                           context,
@@ -549,7 +549,7 @@ class _TrackerPageState extends State<TrackerPage> {
                                     Text(
                                       cat.name,
                                       style: TextStyle(
-                                        fontSize: 16,
+                                        fontSize: 18,
                                         fontWeight: FontWeight.w600,
                                         color: sel ? Colors.white : cat.color,
                                       ),
@@ -604,7 +604,7 @@ class _TrackerPageState extends State<TrackerPage> {
                         label: const Text(
                           'Add Expense',
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 18,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -639,7 +639,7 @@ class _TrackerPageState extends State<TrackerPage> {
                     Text(
                       formatMoney(expenses),
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 18,
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
@@ -706,7 +706,7 @@ class _TrackerPageState extends State<TrackerPage> {
                                         : '',
                                     radius: pct >= groupThreshold ? 60 : 55,
                                     titleStyle: TextStyle(
-                                      fontSize: 16,
+                                      fontSize: 18,
                                       fontWeight: FontWeight.w800,
                                       color: Colors.white,
                                       shadows: [
@@ -740,7 +740,7 @@ class _TrackerPageState extends State<TrackerPage> {
                                       : '',
                                   radius: pct >= groupThreshold ? 60 : 55,
                                   titleStyle: TextStyle(
-                                    fontSize: 16,
+                                    fontSize: 18,
                                     fontWeight: FontWeight.w800,
                                     color: Colors.white,
                                     shadows: [
@@ -815,7 +815,7 @@ class _TrackerPageState extends State<TrackerPage> {
                               color: Theme.of(
                                 context,
                               ).colorScheme.onSurface.withValues(alpha: 0.75),
-                              fontSize: 16,
+                              fontSize: 18,
                             ),
                           ),
                       ],
@@ -847,6 +847,7 @@ class _TrackerPageState extends State<TrackerPage> {
                                 style: TextStyle(
                                   color: Theme.of(context).colorScheme.onSurface
                                       .withValues(alpha: 0.75),
+                                  fontSize: 18,
                                 ),
                               ),
                             ],
@@ -883,7 +884,7 @@ class _TrackerPageState extends State<TrackerPage> {
                               tx.title,
                               style: const TextStyle(
                                 fontWeight: FontWeight.w600,
-                                fontSize: 16,
+                                fontSize: 18,
                               ),
                             ),
                             subtitle: Column(
@@ -896,7 +897,7 @@ class _TrackerPageState extends State<TrackerPage> {
                                       ? _fmt(tx.date)
                                       : '${cat.name} · ${_fmt(tx.date)}',
                                   style: TextStyle(
-                                    fontSize: 16,
+                                    fontSize: 18,
                                     color: Theme.of(context)
                                         .colorScheme
                                         .onSurface
@@ -904,48 +905,56 @@ class _TrackerPageState extends State<TrackerPage> {
                                   ),
                                 ),
                                 const SizedBox(height: 8),
-                                SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: Row(
-                                    children: [
-                                      OutlinedButton.icon(
-                                        onPressed: () => _editDialog(txP, tx),
-                                        icon: const Icon(
-                                          Icons.edit_outlined,
-                                          size: 13,
-                                        ),
-                                        label: const Text('Edit'),
-                                        style: OutlinedButton.styleFrom(
-                                          minimumSize: const Size(50, 36),
-                                          visualDensity: VisualDensity.compact,
-                                          tapTargetSize:
-                                              MaterialTapTargetSize.shrinkWrap,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 4),
-                                      OutlinedButton.icon(
-                                        onPressed: () => _deleteDialog(
-                                          txP,
-                                          globalI,
-                                          tx.amount,
-                                        ),
-                                        icon: const Icon(
-                                          Icons.delete_outline,
-                                          size: 13,
-                                        ),
-                                        label: const Text('Delete'),
-                                        style: OutlinedButton.styleFrom(
-                                          minimumSize: const Size(50, 36),
-                                          foregroundColor: Colors.redAccent,
-                                          side: const BorderSide(
-                                            color: Colors.redAccent,
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 2,
+                                  ),
+                                  child: SingleChildScrollView(
+                                    clipBehavior: Clip.none,
+                                    scrollDirection: Axis.horizontal,
+                                    child: Row(
+                                      children: [
+                                        OutlinedButton.icon(
+                                          onPressed: () => _editDialog(txP, tx),
+                                          icon: const Icon(
+                                            Icons.edit_outlined,
+                                            size: 13,
                                           ),
-                                          visualDensity: VisualDensity.compact,
-                                          tapTargetSize:
-                                              MaterialTapTargetSize.shrinkWrap,
+                                          label: const Text('Edit'),
+                                          style: OutlinedButton.styleFrom(
+                                            minimumSize: const Size(50, 36),
+                                            visualDensity:
+                                                VisualDensity.compact,
+                                            tapTargetSize: MaterialTapTargetSize
+                                                .shrinkWrap,
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                        const SizedBox(width: 4),
+                                        OutlinedButton.icon(
+                                          onPressed: () => _deleteDialog(
+                                            txP,
+                                            globalI,
+                                            tx.amount,
+                                          ),
+                                          icon: const Icon(
+                                            Icons.delete_outline,
+                                            size: 13,
+                                          ),
+                                          label: const Text('Delete'),
+                                          style: OutlinedButton.styleFrom(
+                                            minimumSize: const Size(50, 36),
+                                            foregroundColor: Colors.redAccent,
+                                            side: const BorderSide(
+                                              color: Colors.redAccent,
+                                            ),
+                                            visualDensity:
+                                                VisualDensity.compact,
+                                            tapTargetSize: MaterialTapTargetSize
+                                                .shrinkWrap,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ],
@@ -955,7 +964,7 @@ class _TrackerPageState extends State<TrackerPage> {
                               style: const TextStyle(
                                 color: Color(0xFFFF6B6B),
                                 fontWeight: FontWeight.w700,
-                                fontSize: 16,
+                                fontSize: 18,
                               ),
                             ),
                           );
@@ -1163,7 +1172,7 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
                                   Text(
                                     cat.name,
                                     style: TextStyle(
-                                      fontSize: 16,
+                                      fontSize: 18,
                                       fontWeight: FontWeight.w600,
                                       color: sel ? Colors.white : cat.color,
                                     ),
@@ -1326,7 +1335,7 @@ class _SpendChart extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final muted = theme.colorScheme.onSurface.withValues(alpha: 0.75);
-    final axisLabelStyle = TextStyle(fontSize: 16, color: muted);
+    final axisLabelStyle = TextStyle(fontSize: 18, color: muted);
     final yFormat = NumberFormat.currency(symbol: currency, decimalDigits: 0);
     final dayMonthFmt = DateFormat('dd/MM');
 
@@ -1499,7 +1508,7 @@ class _Chip extends StatelessWidget {
       Text(
         label,
         style: TextStyle(
-          fontSize: 16,
+          fontSize: 18,
           fontWeight: FontWeight.w500,
           color: Theme.of(context).colorScheme.onSurface,
         ),

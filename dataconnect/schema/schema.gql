@@ -28,7 +28,7 @@ type User @table(key: ["userId"]) {
   lastName: String!
   institution: Institution
   course: Course
-  otherSchool: String
+  otherInstitution: String @col(name: "other_institution")
   otherCourse: String
   budget: Float
   failedAttempts: Int! @default(value: 0)

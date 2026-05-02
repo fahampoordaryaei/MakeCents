@@ -33,9 +33,13 @@ part 'update_user_budget.dart';
 
 part 'get_user_profile.dart';
 
+part 'get_continents_for_country.dart';
+
 part 'update_user_currency.dart';
 
-part 'list_scholarships.dart';
+part 'list_scholarships_for_user.dart';
+
+part 'list_global_scholarships.dart';
 
 part 'list_expense_categories.dart';
 
@@ -143,13 +147,23 @@ class ExampleConnector {
   }
   
   
+  GetContinentsForCountryVariablesBuilder getContinentsForCountry ({required int countryId, }) {
+    return GetContinentsForCountryVariablesBuilder(dataConnect, countryId: countryId,);
+  }
+  
+  
   UpdateUserCurrencyVariablesBuilder updateUserCurrency ({required String userId, required int currencyId, }) {
     return UpdateUserCurrencyVariablesBuilder(dataConnect, userId: userId,currencyId: currencyId,);
   }
   
   
-  ListScholarshipsVariablesBuilder listScholarships () {
-    return ListScholarshipsVariablesBuilder(dataConnect, );
+  ListScholarshipsForUserVariablesBuilder listScholarshipsForUser ({required int countryId, required int continentId, }) {
+    return ListScholarshipsForUserVariablesBuilder(dataConnect, countryId: countryId,continentId: continentId,);
+  }
+  
+  
+  ListGlobalScholarshipsVariablesBuilder listGlobalScholarships () {
+    return ListGlobalScholarshipsVariablesBuilder(dataConnect, );
   }
   
   

@@ -136,10 +136,9 @@ class _LoginPageState extends State<LoginPage> {
         verificationCompleted: (credential) async {
           try {
             await FirebaseAuth.instance.signInWithCredential(credential);
-            final authUser = FirebaseAuth.instance.currentUser;
-            if (authUser != null && mounted) {
-              await _completeSignIn(authUser);
-            }
+            if (!mounted) return;
+            final authUser = FirebaseAuth.instance.currentUser!;
+            await _completeSignIn(authUser);
           } on FirebaseAuthException catch (e) {
             if (mounted) {
               setState(() {
@@ -212,11 +211,7 @@ class _LoginPageState extends State<LoginPage> {
         smsCode: code,
       );
       await FirebaseAuth.instance.signInWithCredential(credential);
-      final authUser = FirebaseAuth.instance.currentUser;
-      if (authUser == null) {
-        setState(() => _error = 'Sign-in failed. Please try again.');
-        return;
-      }
+      final authUser = FirebaseAuth.instance.currentUser!;
       await _completeSignIn(authUser);
     } on FirebaseAuthException catch (e) {
       setState(() {
@@ -395,7 +390,7 @@ class _LoginPageState extends State<LoginPage> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(
-                        Icons.school,
+                        Icons.school_outlined,
                         color: Colors.white,
                         size: 40,
                       ),
@@ -511,9 +506,40 @@ class _LoginPageState extends State<LoginPage> {
                           color: Theme.of(
                             context,
                           ).colorScheme.onSurface.withValues(alpha: 0.75),
-                          fontSize: 16,
+                          fontSize: 18,
                         ),
                       ),
+                    ],
+                    if (_error.isNotEmpty) ...[
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFECEC),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.info_outline,
+                              color: Color(0xFF8B0000),
+                              size: 18,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _error,
+                                style: const TextStyle(
+                                  color: Color(0xFF8B0000),
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
                     ],
                     const SizedBox(height: 30),
                     SizedBox(
@@ -555,7 +581,7 @@ class _LoginPageState extends State<LoginPage> {
                       TextButton(
                         style: TextButton.styleFrom(
                           textStyle: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 18,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -575,7 +601,7 @@ class _LoginPageState extends State<LoginPage> {
                     ],
                     TextButton(
                       style: TextButton.styleFrom(
-                        textStyle: const TextStyle(fontSize: 16),
+                        textStyle: const TextStyle(fontSize: 18),
                       ),
                       onPressed: () {
                         Navigator.of(context).push(
@@ -588,7 +614,7 @@ class _LoginPageState extends State<LoginPage> {
                         TextSpan(
                           text: "Don't have an account? ",
                           style: TextStyle(
-                            fontSize: 16,
+                            fontSize: 18,
                             color: Theme.of(
                               context,
                             ).colorScheme.onSurface.withValues(alpha: 0.75),
@@ -597,7 +623,7 @@ class _LoginPageState extends State<LoginPage> {
                             TextSpan(
                               text: 'Sign Up',
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 18,
                                 color: Color(0xFF3e7f3f),
                                 fontWeight: FontWeight.w700,
                               ),
@@ -608,36 +634,6 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ],
                 ),
-                if (_error.isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFECEC),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.info_outline,
-                          color: Color(0xFF8B0000),
-                          size: 18,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            _error,
-                            style: const TextStyle(
-                              color: Color(0xFF8B0000),
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
               ],
             ),
           ),

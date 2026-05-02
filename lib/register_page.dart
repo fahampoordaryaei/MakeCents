@@ -10,6 +10,17 @@ class RegisterPage extends StatefulWidget {
   State<RegisterPage> createState() => _RegisterPageState();
 }
 
+class _PasswordCriteria {
+  _PasswordCriteria(this.pass);
+  final String pass;
+  bool get len => pass.length >= 8;
+  bool get upper => RegExp(r'[A-Z]').hasMatch(pass);
+  bool get lower => RegExp(r'[a-z]').hasMatch(pass);
+  bool get digit => RegExp(r'[0-9]').hasMatch(pass);
+  bool get special => RegExp(r'[^a-zA-Z0-9\s]').hasMatch(pass);
+  bool get all => len && upper && lower && digit && special;
+}
+
 class _RegisterPageState extends State<RegisterPage> {
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
@@ -27,8 +38,27 @@ class _RegisterPageState extends State<RegisterPage> {
   String? _verificationId;
   String _countryCode = '+356';
 
+  bool _passwordCriteriaAttempted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _passwordController.addListener(_onPasswordChanged);
+  }
+
+  void _onPasswordChanged() {
+    if (!mounted || _usePhoneRegister) return;
+    setState(() {
+      final rules = _PasswordCriteria(_passwordController.text);
+      if (_passwordCriteriaAttempted && rules.all) {
+        _passwordCriteriaAttempted = false;
+      }
+    });
+  }
+
   @override
   void dispose() {
+    _passwordController.removeListener(_onPasswordChanged);
     _firstNameController.dispose();
     _lastNameController.dispose();
     _emailController.dispose();
@@ -248,30 +278,12 @@ class _RegisterPageState extends State<RegisterPage> {
       setState(() => _error = 'Please enter a valid email address.');
       return;
     }
-    if (pass.length < 8) {
-      setState(() => _error = 'Password must be at least 8 characters long.');
-      return;
-    }
-    if (!RegExp(r'[A-Z]').hasMatch(pass)) {
-      setState(
-        () => _error = 'Password must contain at least 1 uppercase letter.',
-      );
-      return;
-    }
-    if (!RegExp(r'[a-z]').hasMatch(pass)) {
-      setState(
-        () => _error = 'Password must contain at least 1 lowercase letter.',
-      );
-      return;
-    }
-    if (!RegExp(r'[0-9]').hasMatch(pass)) {
-      setState(() => _error = 'Password must contain at least 1 number.');
-      return;
-    }
-    if (!RegExp(r'[^a-zA-Z0-9\s]').hasMatch(pass)) {
-      setState(
-        () => _error = 'Password must contain at least 1 special character.',
-      );
+    final criteria = _PasswordCriteria(pass);
+    if (!criteria.all) {
+      setState(() {
+        _error = '';
+        _passwordCriteriaAttempted = true;
+      });
       return;
     }
 
@@ -280,7 +292,7 @@ class _RegisterPageState extends State<RegisterPage> {
     try {
       final userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: pass);
-      await userCredential.user?.updateDisplayName('$firstName $lastName');
+      await userCredential.user!.updateDisplayName('$firstName $lastName');
 
       if (mounted) {
         Navigator.of(context).push(
@@ -307,6 +319,48 @@ class _RegisterPageState extends State<RegisterPage> {
     } else {
       await _sendPhoneRegister();
     }
+  }
+
+  Widget _passwordCriteriaList(BuildContext context) {
+    final pass = _passwordController.text;
+    final rules = _PasswordCriteria(pass);
+    final scheme = Theme.of(context).colorScheme;
+    final muted = scheme.onSurface.withValues(alpha: 0.45);
+    const ok = Color(0xFF3e7f3f);
+    final err = scheme.error;
+
+    Color lineColor(bool met) {
+      if (met) return ok;
+      final showFail = pass.isNotEmpty || _passwordCriteriaAttempted;
+      if (!showFail) return muted;
+      return err;
+    }
+
+    Widget line(String text, bool met) {
+      return Text(
+        text,
+        style: TextStyle(
+          fontSize: 18,
+          height: 1.4,
+          fontWeight: FontWeight.w600,
+          color: lineColor(met),
+        ),
+      );
+    }
+
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          line('• 8 characters minimum', rules.len),
+          line('• 1 uppercase letter', rules.upper),
+          line('• 1 lowercase letter', rules.lower),
+          line('• 1 number', rules.digit),
+          line('• 1 special character', rules.special),
+        ],
+      ),
+    );
   }
 
   Widget _buildPhoneInput() {
@@ -440,7 +494,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(
-                    Icons.school,
+                    Icons.school_outlined,
                     color: Colors.white,
                     size: 40,
                   ),
@@ -479,6 +533,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             _phoneController.clear();
                             _codeController.clear();
                             _error = '';
+                            _passwordCriteriaAttempted = false;
                           });
                         },
                         style: OutlinedButton.styleFrom(
@@ -513,6 +568,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             _confirmPasswordController.clear();
                             _codeController.clear();
                             _error = '';
+                            _passwordCriteriaAttempted = false;
                           });
                         },
                         style: OutlinedButton.styleFrom(
@@ -559,23 +615,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     isPassword: true,
                   ),
                   const SizedBox(height: 12),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      '• 8 characters minimum\n'
-                      '• 1 uppercase letter\n'
-                      '• 1 lowercase letter\n'
-                      '• 1 number\n'
-                      '• 1 special character',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.5),
-                        height: 1.4,
-                      ),
-                    ),
-                  ),
+                  _passwordCriteriaList(context),
                 ] else ...[
                   _buildPhoneInput(),
                   if (_codeSent) ...[
@@ -593,12 +633,43 @@ class _RegisterPageState extends State<RegisterPage> {
                         color: Theme.of(
                           context,
                         ).colorScheme.onSurface.withValues(alpha: 0.75),
-                        fontSize: 16,
+                        fontSize: 18,
                       ),
                     ),
                   ],
                 ],
                 const SizedBox(height: 20),
+                if (_error.isNotEmpty) ...[
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFECEC),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.info_outline,
+                          color: Color(0xFF8B0000),
+                          size: 18,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _error,
+                            style: const TextStyle(
+                              color: Color(0xFF8B0000),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton(
@@ -633,36 +704,6 @@ class _RegisterPageState extends State<RegisterPage> {
                           ),
                   ),
                 ),
-                if (_error.isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFECEC),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.info_outline,
-                          color: Color(0xFF8B0000),
-                          size: 18,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            _error,
-                            style: const TextStyle(
-                              color: Color(0xFF8B0000),
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
               ],
             ),
           ),

@@ -23,22 +23,24 @@ class GetUserProfileUsers {
   final String lastName;
   final double? budget;
   final bool isWeekly;
-  final String? otherSchool;
+  final String? otherInstitution;
   final String? otherCourse;
   final GetUserProfileUsersInstitution? institution;
   final GetUserProfileUsersCourse? course;
   final GetUserProfileUsersCurrency? currency;
+  final GetUserProfileUsersCountry? country;
   GetUserProfileUsers.fromJson(dynamic json):
   
   firstName = nativeFromJson<String>(json['firstName']),
   lastName = nativeFromJson<String>(json['lastName']),
   budget = json['budget'] == null ? null : nativeFromJson<double>(json['budget']),
   isWeekly = nativeFromJson<bool>(json['isWeekly']),
-  otherSchool = json['otherSchool'] == null ? null : nativeFromJson<String>(json['otherSchool']),
+  otherInstitution = json['otherInstitution'] == null ? null : nativeFromJson<String>(json['otherInstitution']),
   otherCourse = json['otherCourse'] == null ? null : nativeFromJson<String>(json['otherCourse']),
   institution = json['institution'] == null ? null : GetUserProfileUsersInstitution.fromJson(json['institution']),
   course = json['course'] == null ? null : GetUserProfileUsersCourse.fromJson(json['course']),
-  currency = json['currency'] == null ? null : GetUserProfileUsersCurrency.fromJson(json['currency']);
+  currency = json['currency'] == null ? null : GetUserProfileUsersCurrency.fromJson(json['currency']),
+  country = json['country'] == null ? null : GetUserProfileUsersCountry.fromJson(json['country']);
   @override
   bool operator ==(Object other) {
     if(identical(this, other)) {
@@ -53,15 +55,16 @@ class GetUserProfileUsers {
     lastName == otherTyped.lastName && 
     budget == otherTyped.budget && 
     isWeekly == otherTyped.isWeekly && 
-    otherSchool == otherTyped.otherSchool && 
+    otherInstitution == otherTyped.otherInstitution && 
     otherCourse == otherTyped.otherCourse && 
     institution == otherTyped.institution && 
     course == otherTyped.course && 
-    currency == otherTyped.currency;
+    currency == otherTyped.currency && 
+    country == otherTyped.country;
     
   }
   @override
-  int get hashCode => Object.hashAll([firstName.hashCode, lastName.hashCode, budget.hashCode, isWeekly.hashCode, otherSchool.hashCode, otherCourse.hashCode, institution.hashCode, course.hashCode, currency.hashCode]);
+  int get hashCode => Object.hashAll([firstName.hashCode, lastName.hashCode, budget.hashCode, isWeekly.hashCode, otherInstitution.hashCode, otherCourse.hashCode, institution.hashCode, course.hashCode, currency.hashCode, country.hashCode]);
   
 
   Map<String, dynamic> toJson() {
@@ -72,8 +75,8 @@ class GetUserProfileUsers {
       json['budget'] = nativeToJson<double?>(budget);
     }
     json['isWeekly'] = nativeToJson<bool>(isWeekly);
-    if (otherSchool != null) {
-      json['otherSchool'] = nativeToJson<String?>(otherSchool);
+    if (otherInstitution != null) {
+      json['otherInstitution'] = nativeToJson<String?>(otherInstitution);
     }
     if (otherCourse != null) {
       json['otherCourse'] = nativeToJson<String?>(otherCourse);
@@ -87,6 +90,9 @@ class GetUserProfileUsers {
     if (currency != null) {
       json['currency'] = currency!.toJson();
     }
+    if (country != null) {
+      json['country'] = country!.toJson();
+    }
     return json;
   }
 
@@ -95,11 +101,12 @@ class GetUserProfileUsers {
     required this.lastName,
     this.budget,
     required this.isWeekly,
-    this.otherSchool,
+    this.otherInstitution,
     this.otherCourse,
     this.institution,
     this.course,
     this.currency,
+    this.country,
   });
 }
 
@@ -217,6 +224,50 @@ class GetUserProfileUsersCurrency {
     required this.id,
     required this.code,
     required this.sign,
+  });
+}
+
+@immutable
+class GetUserProfileUsersCountry {
+  final int id;
+  final String countryCode;
+  final String name;
+  GetUserProfileUsersCountry.fromJson(dynamic json):
+  
+  id = nativeFromJson<int>(json['id']),
+  countryCode = nativeFromJson<String>(json['countryCode']),
+  name = nativeFromJson<String>(json['name']);
+  @override
+  bool operator ==(Object other) {
+    if(identical(this, other)) {
+      return true;
+    }
+    if(other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    final GetUserProfileUsersCountry otherTyped = other as GetUserProfileUsersCountry;
+    return id == otherTyped.id && 
+    countryCode == otherTyped.countryCode && 
+    name == otherTyped.name;
+    
+  }
+  @override
+  int get hashCode => Object.hashAll([id.hashCode, countryCode.hashCode, name.hashCode]);
+  
+
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> json = {};
+    json['id'] = nativeToJson<int>(id);
+    json['countryCode'] = nativeToJson<String>(countryCode);
+    json['name'] = nativeToJson<String>(name);
+    return json;
+  }
+
+  GetUserProfileUsersCountry({
+    required this.id,
+    required this.countryCode,
+    required this.name,
   });
 }
 

@@ -17,7 +17,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool _isLoadingHomeFeeds = true;
   List<ListProductsProducts> _unredeemedDeals = const [];
-  List<ListScholarshipsScholarships> _matchedScholarships = const [];
+  List<ListGlobalScholarshipsScholarships> _matchedScholarships = const [];
 
   @override
   void initState() {
@@ -26,12 +26,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _loadHomeFeeds() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      if (!mounted) return;
-      setState(() => _isLoadingHomeFeeds = false);
-      return;
-    }
+    final user = FirebaseAuth.instance.currentUser!;
 
     try {
       final connector = ExampleConnector.instance;
@@ -42,7 +37,13 @@ class _HomePageState extends State<HomePage> {
       final profileResult = await connector
           .getUserProfile(userId: user.uid)
           .execute();
-      final scholarshipsResult = await connector.listScholarships().execute();
+      final countryId = profileResult.data.users.isNotEmpty
+          ? profileResult.data.users.first.country?.id
+          : null;
+      final scholarships = await fetchScholarshipsForLocation(
+        connector,
+        countryId: countryId,
+      );
 
       final redeemedIds = redeemedResult.data.redeemedProducts
           .map((r) => r.product.id)
@@ -57,8 +58,8 @@ class _HomePageState extends State<HomePage> {
           ? profileResult.data.users.first.course?.id
           : null;
       final matched = courseId == null
-          ? <ListScholarshipsScholarships>[]
-          : scholarshipsResult.data.scholarships.where((s) {
+          ? <ListGlobalScholarshipsScholarships>[]
+          : scholarships.where((s) {
               return s.courses_via_ScholarshipCourse.any(
                 (c) => c.id == courseId,
               );
@@ -84,133 +85,27 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _showDiscountDetails(BuildContext context, ListProductsProducts p) {
-    final onSurface = Theme.of(context).colorScheme.onSurface;
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        title: Text(p.name),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: buildProductImage(
-                p.id,
-                size: 110,
-                radius: 12,
-                fallbackColor: Colors.grey.shade300,
-                fallbackChild: const Icon(
-                  Icons.image_outlined,
-                  color: Colors.grey,
-                  size: 22,
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              p.storeName,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              p.description,
-              style: TextStyle(
-                fontSize: 16,
-                color: onSurface.withValues(alpha: 0.85),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              '${p.cost} pts',
-              style: const TextStyle(
-                color: Color(0xFF3e7f3f),
-                fontWeight: FontWeight.w800,
-                fontSize: 18,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
+  Future<void> _showDiscountDetails(
+    BuildContext context,
+    ListProductsProducts p,
+  ) async {
+    await showProductRedeemDialog(context, p);
+    if (mounted) await _loadHomeFeeds();
   }
 
   void _showScholarshipDetails(
     BuildContext context,
-    ListScholarshipsScholarships s,
+    ListGlobalScholarshipsScholarships s,
   ) {
-    final scholarshipColor = _scholarshipColor(s.color);
-    final onSurface = Theme.of(context).colorScheme.onSurface;
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        title: Text(s.title),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Provider: ${s.provider}',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: scholarshipColor,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Please email us your application letter and school records.',
-              style: TextStyle(
-                fontSize: 16,
-                color: onSurface.withValues(alpha: 0.85),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Contact: ${s.email}',
-              style: TextStyle(
-                fontSize: 16,
-                color: onSurface.withValues(alpha: 0.85),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              formatMoney(s.amount, decimals: 0, symbol: s.currency),
-              style: TextStyle(
-                color: scholarshipColor,
-                fontWeight: FontWeight.w800,
-                fontSize: 18,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              s.description,
-              style: TextStyle(
-                fontSize: 16,
-                color: onSurface.withValues(alpha: 0.85),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
+    showScholarshipApplyDialog(
+      context,
+      title: s.title,
+      provider: s.provider,
+      email: s.email,
+      amount: s.amount,
+      currency: s.currency,
+      description: s.description,
+      brandColor: _scholarshipColor(s.color),
     );
   }
 
@@ -337,7 +232,7 @@ class _HomePageState extends State<HomePage> {
                     child: _QuickStatCard(
                       icon: Icons.receipt_long_outlined,
                       color: const Color(0xFF4ECDC4),
-                      label: 'Transactions',
+                      label: 'This month',
                       value: '$monthTxCount',
                     ),
                   ),
@@ -346,7 +241,7 @@ class _HomePageState extends State<HomePage> {
                     child: _QuickStatCard(
                       icon: Icons.trending_down_outlined,
                       color: const Color(0xFFFF6B6B),
-                      label: 'Spent today',
+                      label: 'Today',
                       value: formatMoney(_todaySpend(txProvider.transactions)),
                     ),
                   ),
@@ -356,7 +251,7 @@ class _HomePageState extends State<HomePage> {
 
               if (_isLoadingHomeFeeds || _unredeemedDeals.isNotEmpty) ...[
                 Text(
-                  'Your discounts',
+                  'Redeem discounts',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -366,7 +261,7 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(height: 12),
                 if (_isLoadingHomeFeeds)
                   Text(
-                    'Loading discounts...',
+                    'Loading products...',
                     style: TextStyle(
                       color: Theme.of(
                         context,
@@ -424,7 +319,7 @@ class _HomePageState extends State<HomePage> {
                                             .colorScheme
                                             .onSurface
                                             .withValues(alpha: 0.75),
-                                        fontSize: 16,
+                                        fontSize: 18,
                                       ),
                                     ),
                                   ],
@@ -435,7 +330,7 @@ class _HomePageState extends State<HomePage> {
                                 style: const TextStyle(
                                   color: Color(0xFF3e7f3f),
                                   fontWeight: FontWeight.w700,
-                                  fontSize: 16,
+                                  fontSize: 18,
                                 ),
                               ),
                             ],
@@ -533,7 +428,7 @@ class _HomePageState extends State<HomePage> {
                                     s.provider,
                                     style: TextStyle(
                                       color: scholarshipColor,
-                                      fontSize: 16,
+                                      fontSize: 18,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -549,7 +444,7 @@ class _HomePageState extends State<HomePage> {
                               style: TextStyle(
                                 color: scholarshipColor,
                                 fontWeight: FontWeight.w800,
-                                fontSize: 16,
+                                fontSize: 18,
                               ),
                             ),
                           ],
@@ -579,9 +474,10 @@ class _HomePageState extends State<HomePage> {
                   ),
                   child: Center(
                     child: Text(
-                      'No transactions yet.\nAdd one using the Tracker.',
+                      'No transactions yet.\nAdd one in the Tracker.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
+                        fontSize: 18,
                         color: Theme.of(
                           context,
                         ).colorScheme.onSurface.withValues(alpha: 0.75),
@@ -622,13 +518,13 @@ class _HomePageState extends State<HomePage> {
                           tx.title,
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
-                            fontSize: 16,
+                            fontSize: 18,
                           ),
                         ),
                         subtitle: Text(
                           DateFormat('MMM d').format(tx.date),
                           style: const TextStyle(
-                            fontSize: 16,
+                            fontSize: 18,
                             color: Colors.grey,
                           ),
                         ),
@@ -637,7 +533,7 @@ class _HomePageState extends State<HomePage> {
                           style: const TextStyle(
                             color: Color(0xFFFF6B6B),
                             fontWeight: FontWeight.w700,
-                            fontSize: 16,
+                            fontSize: 18,
                           ),
                         ),
                       );
@@ -732,7 +628,7 @@ class _QuickStatCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontWeight: FontWeight.w800,
-                    fontSize: 16,
+                    fontSize: 18,
                     color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
@@ -741,7 +637,7 @@ class _QuickStatCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 18,
                     color: Theme.of(
                       context,
                     ).colorScheme.onSurface.withValues(alpha: 0.75),

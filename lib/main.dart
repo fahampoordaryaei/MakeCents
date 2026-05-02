@@ -8,7 +8,7 @@ import 'fcm.dart';
 import 'budget_provider.dart';
 import 'firebase_options.dart';
 import 'home_page.dart';
-import 'match_page.dart';
+import 'scholarships_page.dart';
 import 'points_page.dart';
 import 'startup_page.dart';
 import 'theme_provider.dart';
@@ -98,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
       const HomePage(),
       const TrackerPage(),
       const PointsPage(),
-      const MatchPage(),
+      const ScholarshipsPage(),
       UserPage(
         onNavigateToBudget: () {
           Navigator.push(
@@ -177,7 +177,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Icons.school,
                   color: Color(0xFF3e7f3f),
                 ),
-                label: 'Match',
+                label: 'Scholarships',
               ),
               NavigationDestination(
                 icon: Icon(

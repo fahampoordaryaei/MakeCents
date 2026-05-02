@@ -100,7 +100,7 @@ mutation StoreUserProfile(
   $lastName: String!,
   $institutionId: UUID,
   $courseId: UUID,
-  $otherSchool: String,
+  $otherInstitution: String,
   $otherCourse: String,
   $budget: Float,
   $prefix: String,
@@ -113,7 +113,7 @@ mutation StoreUserProfile(
     lastName: $lastName,
     institutionId: $institutionId,
     courseId: $courseId,
-    otherSchool: $otherSchool,
+    otherInstitution: $otherInstitution,
     otherCourse: $otherCourse,
     budget: $budget,
     prefix: $prefix,
@@ -162,7 +162,7 @@ query GetUserProfile($userId: String!) @auth(level: USER) {
     firstName
     lastName
     budget
-    otherSchool
+    otherInstitution
     otherCourse
     institution {
       name
@@ -171,12 +171,73 @@ query GetUserProfile($userId: String!) @auth(level: USER) {
       id
       name
     }
+    country {
+      id
+      countryCode
+      name
+    }
   }
 }
 
-# List scholarships
-query ListScholarships @auth(level: PUBLIC) {
-  scholarships(orderBy: [{amount: DESC}]) {
+# Continents linked to a country via country_continent
+query GetContinentsForCountry($countryId: Int!) @auth(level: USER) {
+  countryContinents(where: { countryId: { eq: $countryId } }) {
+    continent {
+      id
+      code
+      name
+    }
+  }
+}
+
+# List scholarships for a user
+query ListScholarshipsForUser($countryId: Int!, $continentId: Int!) @auth(level: USER) {
+  scholarships(
+    where: {
+      _or: [
+        {
+          _and: [{ countryId: { isNull: true } }, { continentId: { isNull: true } }]
+        }
+        { countryId: { eq: $countryId } }
+        {
+          _and: [{ countryId: { isNull: true } }, { continentId: { eq: $continentId } }]
+        }
+      ]
+    }
+    orderBy: [{ amount: DESC }]
+  ) {
+    id
+    title
+    provider
+    email
+    amount
+    currency
+    courses_via_ScholarshipCourse {
+      id
+      name
+    }
+    description
+    color
+    country {
+      id
+      countryCode
+      name
+    }
+    continent {
+      id
+      code
+      name
+    }
+  }
+}
+
+query ListGlobalScholarships @auth(level: USER) {
+  scholarships(
+    where: {
+      _and: [{ countryId: { isNull: true } }, { continentId: { isNull: true } }]
+    }
+    orderBy: [{ amount: DESC }]
+  ) {
     id
     title
     provider

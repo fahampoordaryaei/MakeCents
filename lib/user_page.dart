@@ -4,18 +4,40 @@ import 'package:provider/provider.dart';
 import 'budget_provider.dart';
 import 'dataconnect_generated/generated.dart';
 import 'functions.dart';
+import 'onboarding_profile_form.dart';
 import 'login_page.dart';
 import 'theme_provider.dart';
 import 'transaction_provider.dart';
 import 'user_provider.dart';
+
+String _profileStoreEmail(User user) {
+  final email = user.email?.trim();
+  if (email != null && email.isNotEmpty) return email;
+  final phone = user.phoneNumber?.trim();
+  if (phone != null && phone.isNotEmpty) return phone;
+  return '';
+}
+
+Future<int?> _getCountryId(ExampleConnector connector, String? isoCode) async {
+  final code = isoCode?.trim().toUpperCase();
+  if (code == null || code.length != 2) return null;
+  try {
+    final result = await connector.getCountryIdByCode(code: code).execute();
+    final matches = result.data.countries;
+    if (matches.isEmpty) return null;
+    return matches.first.id;
+  } catch (_) {
+    return null;
+  }
+}
 
 class UserPage extends StatelessWidget {
   final VoidCallback onNavigateToBudget;
   const UserPage({super.key, required this.onNavigateToBudget});
 
   Future<void> _showChangePasswordDialog(BuildContext context) async {
-    final user = FirebaseAuth.instance.currentUser;
-    final email = user?.email;
+    final user = FirebaseAuth.instance.currentUser!;
+    final email = user.email;
     if (email == null || email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('No email associated with this account.')),
@@ -31,7 +53,7 @@ class UserPage extends StatelessWidget {
         content: Text(
           'We will email a password reset link to:\n$email\n\n'
           'Open it to set a new password.',
-          style: const TextStyle(fontSize: 16),
+          style: const TextStyle(fontSize: 18),
         ),
         actions: [
           TextButton(
@@ -89,13 +111,7 @@ class UserPage extends StatelessWidget {
 
   Future<void> _confirmDeleteAccount(BuildContext context) async {
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('No active user found.')));
-        return;
-      }
+      final user = FirebaseAuth.instance.currentUser!;
 
       AuthCredential? credential;
       if (user.phoneNumber?.isNotEmpty ?? false) {
@@ -158,8 +174,37 @@ class UserPage extends StatelessWidget {
     );
   }
 
+  Future<void> _editInstitutionProfileDialog(BuildContext context) async {
+    final up = Provider.of<UserProvider>(context, listen: false);
+    final bp = Provider.of<BudgetProvider>(context, listen: false);
+    final profile = up.profile;
+    if (profile == null) {
+      return;
+    }
+    await showDialog<void>(
+      context: context,
+      builder: (_) => _EditInstitutionProfileDialog(profile: profile, bp: bp),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      initialData: FirebaseAuth.instance.currentUser,
+      builder: (context, snapshot) {
+        final user = snapshot.data;
+        if (user == null) {
+          return const SafeArea(
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+        return _signedInBody(context, user);
+      },
+    );
+  }
+
+  Widget _signedInBody(BuildContext context, User user) {
     final txP = Provider.of<TransactionProvider>(context);
     final bp = Provider.of<BudgetProvider>(context);
     final tp = Provider.of<ThemeProvider>(context);
@@ -167,10 +212,9 @@ class UserPage extends StatelessWidget {
     final isDarkMode = tp.themeMode != ThemeModes.light;
     final totalSpent = txP.periodSpent(isWeekly: bp.isWeekly);
 
-    final user = FirebaseAuth.instance.currentUser;
     final userContact =
-        user?.phoneNumber ?? up.profile?.email ?? user?.email ?? '';
-    final userName = up.profile?.fullName ?? user?.displayName ?? '';
+        user.phoneNumber ?? up.profile?.email ?? user.email ?? '';
+    final userName = up.profile?.fullName ?? user.displayName ?? '';
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -203,7 +247,7 @@ class UserPage extends StatelessWidget {
                   Text(
                     userContact,
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 18,
                       color: Theme.of(
                         context,
                       ).colorScheme.onSurface.withValues(alpha: 0.6),
@@ -225,7 +269,7 @@ class UserPage extends StatelessWidget {
                         up.profile!.displayInstitution,
                         style: const TextStyle(
                           color: Color(0xFF3e7f3f),
-                          fontSize: 16,
+                          fontSize: 18,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -249,7 +293,7 @@ class UserPage extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _StatCard(
-                    'Transactions',
+                    'Expenses',
                     '${txP.transactions.length}',
                     Icons.receipt_long_outlined,
                     const Color(0xFF4ECDC4),
@@ -261,7 +305,7 @@ class UserPage extends StatelessWidget {
             Text(
               'Settings',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 24,
                 fontWeight: FontWeight.w700,
                 color: Theme.of(
                   context,
@@ -270,6 +314,15 @@ class UserPage extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
+            _SettingsTile(
+              icon: Icons.school_outlined,
+              iconColor: const Color(0xFF3e7f3f),
+              title: 'Student Profile',
+              subtitle:
+                  '${up.profile!.displayInstitution} • ${up.profile!.displayCourse}',
+              onTap: () => _editInstitutionProfileDialog(context),
+            ),
+            const SizedBox(height: 8),
             _SettingsTile(
               icon: Icons.account_balance_wallet_outlined,
               iconColor: const Color(0xFF3e7f3f),
@@ -442,7 +495,7 @@ class _DeleteAccountPhoneCodeDialogState
               const SizedBox(height: 10),
               Text(
                 _error,
-                style: const TextStyle(color: Colors.red, fontSize: 16),
+                style: const TextStyle(color: Colors.red, fontSize: 18),
               ),
             ],
           ],
@@ -641,7 +694,7 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
             if (_dialogError.isNotEmpty) ...[
               Text(
                 _dialogError,
-                style: const TextStyle(color: Colors.red, fontSize: 16),
+                style: const TextStyle(color: Colors.red, fontSize: 18),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
@@ -716,7 +769,7 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
                       color: Theme.of(
                         context,
                       ).colorScheme.onSurface.withValues(alpha: 0.75),
-                      fontSize: 16,
+                      fontSize: 18,
                     ),
                   ),
                   Text(
@@ -725,7 +778,7 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
                       color: Theme.of(
                         context,
                       ).colorScheme.onSurface.withValues(alpha: 0.75),
-                      fontSize: 16,
+                      fontSize: 18,
                     ),
                   ),
                 ],
@@ -765,11 +818,10 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
               return;
             }
             final selectedCurrencyId = _selectedCurrency?.id;
-            final userId = FirebaseAuth.instance.currentUser?.uid;
-            if (selectedCurrencyId != null && userId != null) {
+            if (selectedCurrencyId != null) {
               await ExampleConnector.instance
                   .updateUserCurrency(
-                    userId: userId,
+                    userId: FirebaseAuth.instance.currentUser!.uid,
                     currencyId: selectedCurrencyId,
                   )
                   .execute();
@@ -856,6 +908,165 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
   }
 }
 
+class _EditInstitutionProfileDialog extends StatefulWidget {
+  final UserProfile profile;
+  final BudgetProvider bp;
+
+  const _EditInstitutionProfileDialog({
+    required this.profile,
+    required this.bp,
+  });
+
+  @override
+  State<_EditInstitutionProfileDialog> createState() =>
+      _EditInstitutionProfileDialogState();
+}
+
+class _EditInstitutionProfileDialogState
+    extends State<_EditInstitutionProfileDialog> {
+  final GlobalKey<OnboardingProfileFormState> _formKey =
+      GlobalKey<OnboardingProfileFormState>();
+  String _error = '';
+  bool _saving = false;
+
+  Future<void> _save() async {
+    final form = _formKey.currentState;
+    if (form == null) return;
+
+    setState(() {
+      _error = '';
+      _saving = true;
+    });
+
+    final msg = form.validate();
+    if (msg != null) {
+      if (mounted) setState(() => _saving = false);
+      return;
+    }
+
+    final selection = form.buildSelection();
+
+    try {
+      final user = FirebaseAuth.instance.currentUser!;
+      final connector = ExampleConnector.instance;
+
+      int? countryId;
+      if (selection.countryIsoCode != null) {
+        countryId = await _getCountryId(connector, selection.countryIsoCode);
+      }
+
+      final base = connector.storeUserProfile(
+        userId: user.uid,
+        email: _profileStoreEmail(user),
+        firstName: widget.profile.firstName,
+        lastName: widget.profile.lastName,
+      );
+
+      var cmd = base
+          .institutionId(selection.institutionId)
+          .courseId(selection.courseId)
+          .otherInstitution(selection.otherInstitution)
+          .otherCourse(selection.otherCourse)
+          .budget(widget.bp.budget.amount)
+          .isWeekly(widget.bp.isWeekly);
+      if (countryId != null) {
+        cmd = cmd.countryId(countryId);
+      }
+      final cid = currencyId;
+      if (cid != null) {
+        cmd = cmd.currencyId(cid);
+      }
+      await cmd.execute();
+
+      if (!mounted) return;
+      final budgetProvider = context.read<BudgetProvider>();
+      final userProvider = context.read<UserProvider>();
+      await budgetProvider.init();
+      await userProvider.loadProfile();
+
+      if (!mounted) return;
+      Navigator.pop(context);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _error = 'Could not save. Please try again.';
+        _saving = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final canSave = _formKey.currentState?.canSubmit == true && !_saving;
+
+    return AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      title: const Text(
+        'Student Profile',
+        textAlign: TextAlign.center,
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      content: SizedBox(
+        width: 420,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (_error.isNotEmpty) ...[
+                Text(
+                  _error,
+                  style: const TextStyle(color: Colors.red, fontSize: 16),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+              ],
+              OnboardingProfileForm(
+                key: _formKey,
+                initialProfile: widget.profile,
+                onUpdated: () {
+                  if (mounted) setState(() {});
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          style: TextButton.styleFrom(
+            minimumSize: const Size(100, 48),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          ),
+          onPressed: _saving ? null : () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        FilledButton(
+          style: FilledButton.styleFrom(
+            backgroundColor: const Color(0xFF3e7f3f),
+            minimumSize: const Size(100, 48),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          onPressed: canSave ? _save : null,
+          child: _saving
+              ? const SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : const Text('Save Changes'),
+        ),
+      ],
+    );
+  }
+}
+
 class _StatCard extends StatelessWidget {
   final String label, value;
   final IconData icon;
@@ -891,7 +1102,7 @@ class _StatCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontWeight: FontWeight.w800,
-                  fontSize: 16,
+                  fontSize: 18,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
@@ -900,7 +1111,7 @@ class _StatCard extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 18,
                   color: Theme.of(
                     context,
                   ).colorScheme.onSurface.withValues(alpha: 0.75),
@@ -964,10 +1175,9 @@ class _SettingsPage extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 24),
-              if (FirebaseAuth.instance.currentUser?.providerData.any(
-                    (p) => p.providerId == 'password',
-                  ) ??
-                  false) ...[
+              if (FirebaseAuth.instance.currentUser!.providerData.any(
+                (p) => p.providerId == 'password',
+              )) ...[
                 _SettingsTile(
                   icon: Icons.lock_outline,
                   iconColor: const Color(0xFF4ECDC4),
@@ -1013,6 +1223,7 @@ class _SettingsTile extends StatelessWidget {
       borderRadius: BorderRadius.circular(8),
     ),
     child: ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
       onTap: onTap,
       leading: Container(
         width: 40,
@@ -1025,12 +1236,12 @@ class _SettingsTile extends StatelessWidget {
       ),
       title: Text(
         title,
-        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
       ),
       subtitle: Text(
         subtitle,
         style: TextStyle(
-          fontSize: 16,
+          fontSize: 18,
           color: Theme.of(
             context,
           ).colorScheme.onSurface.withValues(alpha: 0.75),

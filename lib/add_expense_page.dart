@@ -145,7 +145,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
               const Text(
                 'Category',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 8),
               _isLoadingCategories

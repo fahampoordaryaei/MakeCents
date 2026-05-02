@@ -205,7 +205,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                   ? const Color(0xFF2E7D32)
                                   : const Color(0xFF8B0000),
                               fontWeight: FontWeight.w600,
-                              fontSize: 16,
+                              fontSize: 18,
                             ),
                           ),
                         ),

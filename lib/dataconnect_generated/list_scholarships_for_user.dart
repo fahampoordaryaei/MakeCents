@@ -1,35 +1,37 @@
 part of 'generated.dart';
 
-class ListScholarshipsVariablesBuilder {
-  
+class ListScholarshipsForUserVariablesBuilder {
+  int countryId;
+  int continentId;
+
   final FirebaseDataConnect _dataConnect;
-  ListScholarshipsVariablesBuilder(this._dataConnect, );
-  Deserializer<ListScholarshipsData> dataDeserializer = (dynamic json)  => ListScholarshipsData.fromJson(jsonDecode(json));
-  
-  Future<QueryResult<ListScholarshipsData, void>> execute() {
+  ListScholarshipsForUserVariablesBuilder(this._dataConnect, {required  this.countryId,required  this.continentId,});
+  Deserializer<ListScholarshipsForUserData> dataDeserializer = (dynamic json)  => ListScholarshipsForUserData.fromJson(jsonDecode(json));
+  Serializer<ListScholarshipsForUserVariables> varsSerializer = (ListScholarshipsForUserVariables vars) => jsonEncode(vars.toJson());
+  Future<QueryResult<ListScholarshipsForUserData, ListScholarshipsForUserVariables>> execute() {
     return ref().execute();
   }
 
-  QueryRef<ListScholarshipsData, void> ref() {
-    
-    return _dataConnect.query("ListScholarships", dataDeserializer, emptySerializer, null);
+  QueryRef<ListScholarshipsForUserData, ListScholarshipsForUserVariables> ref() {
+    ListScholarshipsForUserVariables vars= ListScholarshipsForUserVariables(countryId: countryId,continentId: continentId,);
+    return _dataConnect.query("ListScholarshipsForUser", dataDeserializer, varsSerializer, vars);
   }
 }
 
 @immutable
-class ListScholarshipsScholarships {
+class ListScholarshipsForUserScholarships {
   final String id;
   final String title;
   final String provider;
   final String email;
   final double amount;
   final String currency;
-  final List<ListScholarshipsScholarshipsCoursesViaScholarshipCourse> courses_via_ScholarshipCourse;
+  final List<ListScholarshipsForUserScholarshipsCoursesViaScholarshipCourse> courses_via_ScholarshipCourse;
   final String description;
   final String color;
-  final ListScholarshipsScholarshipsCountry? country;
-  final ListScholarshipsScholarshipsContinent? continent;
-  ListScholarshipsScholarships.fromJson(dynamic json):
+  final ListScholarshipsForUserScholarshipsCountry? country;
+  final ListScholarshipsForUserScholarshipsContinent? continent;
+  ListScholarshipsForUserScholarships.fromJson(dynamic json):
   
   id = nativeFromJson<String>(json['id']),
   title = nativeFromJson<String>(json['title']),
@@ -38,12 +40,12 @@ class ListScholarshipsScholarships {
   amount = nativeFromJson<double>(json['amount']),
   currency = nativeFromJson<String>(json['currency']),
   courses_via_ScholarshipCourse = (json['courses_via_ScholarshipCourse'] as List<dynamic>)
-        .map((e) => ListScholarshipsScholarshipsCoursesViaScholarshipCourse.fromJson(e))
+        .map((e) => ListScholarshipsForUserScholarshipsCoursesViaScholarshipCourse.fromJson(e))
         .toList(),
   description = nativeFromJson<String>(json['description']),
   color = nativeFromJson<String>(json['color']),
-  country = json['country'] == null ? null : ListScholarshipsScholarshipsCountry.fromJson(json['country']),
-  continent = json['continent'] == null ? null : ListScholarshipsScholarshipsContinent.fromJson(json['continent']);
+  country = json['country'] == null ? null : ListScholarshipsForUserScholarshipsCountry.fromJson(json['country']),
+  continent = json['continent'] == null ? null : ListScholarshipsForUserScholarshipsContinent.fromJson(json['continent']);
   @override
   bool operator ==(Object other) {
     if(identical(this, other)) {
@@ -53,7 +55,7 @@ class ListScholarshipsScholarships {
       return false;
     }
 
-    final ListScholarshipsScholarships otherTyped = other as ListScholarshipsScholarships;
+    final ListScholarshipsForUserScholarships otherTyped = other as ListScholarshipsForUserScholarships;
     return id == otherTyped.id && 
     title == otherTyped.title && 
     provider == otherTyped.provider && 
@@ -91,7 +93,7 @@ class ListScholarshipsScholarships {
     return json;
   }
 
-  ListScholarshipsScholarships({
+  ListScholarshipsForUserScholarships({
     required this.id,
     required this.title,
     required this.provider,
@@ -107,10 +109,10 @@ class ListScholarshipsScholarships {
 }
 
 @immutable
-class ListScholarshipsScholarshipsCoursesViaScholarshipCourse {
+class ListScholarshipsForUserScholarshipsCoursesViaScholarshipCourse {
   final String id;
   final String name;
-  ListScholarshipsScholarshipsCoursesViaScholarshipCourse.fromJson(dynamic json):
+  ListScholarshipsForUserScholarshipsCoursesViaScholarshipCourse.fromJson(dynamic json):
   
   id = nativeFromJson<String>(json['id']),
   name = nativeFromJson<String>(json['name']);
@@ -123,7 +125,7 @@ class ListScholarshipsScholarshipsCoursesViaScholarshipCourse {
       return false;
     }
 
-    final ListScholarshipsScholarshipsCoursesViaScholarshipCourse otherTyped = other as ListScholarshipsScholarshipsCoursesViaScholarshipCourse;
+    final ListScholarshipsForUserScholarshipsCoursesViaScholarshipCourse otherTyped = other as ListScholarshipsForUserScholarshipsCoursesViaScholarshipCourse;
     return id == otherTyped.id && 
     name == otherTyped.name;
     
@@ -139,18 +141,18 @@ class ListScholarshipsScholarshipsCoursesViaScholarshipCourse {
     return json;
   }
 
-  ListScholarshipsScholarshipsCoursesViaScholarshipCourse({
+  ListScholarshipsForUserScholarshipsCoursesViaScholarshipCourse({
     required this.id,
     required this.name,
   });
 }
 
 @immutable
-class ListScholarshipsScholarshipsCountry {
+class ListScholarshipsForUserScholarshipsCountry {
   final int id;
   final String countryCode;
   final String name;
-  ListScholarshipsScholarshipsCountry.fromJson(dynamic json):
+  ListScholarshipsForUserScholarshipsCountry.fromJson(dynamic json):
   
   id = nativeFromJson<int>(json['id']),
   countryCode = nativeFromJson<String>(json['countryCode']),
@@ -164,7 +166,7 @@ class ListScholarshipsScholarshipsCountry {
       return false;
     }
 
-    final ListScholarshipsScholarshipsCountry otherTyped = other as ListScholarshipsScholarshipsCountry;
+    final ListScholarshipsForUserScholarshipsCountry otherTyped = other as ListScholarshipsForUserScholarshipsCountry;
     return id == otherTyped.id && 
     countryCode == otherTyped.countryCode && 
     name == otherTyped.name;
@@ -182,7 +184,7 @@ class ListScholarshipsScholarshipsCountry {
     return json;
   }
 
-  ListScholarshipsScholarshipsCountry({
+  ListScholarshipsForUserScholarshipsCountry({
     required this.id,
     required this.countryCode,
     required this.name,
@@ -190,11 +192,11 @@ class ListScholarshipsScholarshipsCountry {
 }
 
 @immutable
-class ListScholarshipsScholarshipsContinent {
+class ListScholarshipsForUserScholarshipsContinent {
   final int id;
   final String code;
   final String name;
-  ListScholarshipsScholarshipsContinent.fromJson(dynamic json):
+  ListScholarshipsForUserScholarshipsContinent.fromJson(dynamic json):
   
   id = nativeFromJson<int>(json['id']),
   code = nativeFromJson<String>(json['code']),
@@ -208,7 +210,7 @@ class ListScholarshipsScholarshipsContinent {
       return false;
     }
 
-    final ListScholarshipsScholarshipsContinent otherTyped = other as ListScholarshipsScholarshipsContinent;
+    final ListScholarshipsForUserScholarshipsContinent otherTyped = other as ListScholarshipsForUserScholarshipsContinent;
     return id == otherTyped.id && 
     code == otherTyped.code && 
     name == otherTyped.name;
@@ -226,7 +228,7 @@ class ListScholarshipsScholarshipsContinent {
     return json;
   }
 
-  ListScholarshipsScholarshipsContinent({
+  ListScholarshipsForUserScholarshipsContinent({
     required this.id,
     required this.code,
     required this.name,
@@ -234,12 +236,12 @@ class ListScholarshipsScholarshipsContinent {
 }
 
 @immutable
-class ListScholarshipsData {
-  final List<ListScholarshipsScholarships> scholarships;
-  ListScholarshipsData.fromJson(dynamic json):
+class ListScholarshipsForUserData {
+  final List<ListScholarshipsForUserScholarships> scholarships;
+  ListScholarshipsForUserData.fromJson(dynamic json):
   
   scholarships = (json['scholarships'] as List<dynamic>)
-        .map((e) => ListScholarshipsScholarships.fromJson(e))
+        .map((e) => ListScholarshipsForUserScholarships.fromJson(e))
         .toList();
   @override
   bool operator ==(Object other) {
@@ -250,7 +252,7 @@ class ListScholarshipsData {
       return false;
     }
 
-    final ListScholarshipsData otherTyped = other as ListScholarshipsData;
+    final ListScholarshipsForUserData otherTyped = other as ListScholarshipsForUserData;
     return scholarships == otherTyped.scholarships;
     
   }
@@ -264,8 +266,48 @@ class ListScholarshipsData {
     return json;
   }
 
-  ListScholarshipsData({
+  ListScholarshipsForUserData({
     required this.scholarships,
+  });
+}
+
+@immutable
+class ListScholarshipsForUserVariables {
+  final int countryId;
+  final int continentId;
+  @Deprecated('fromJson is deprecated for Variable classes as they are no longer required for deserialization.')
+  ListScholarshipsForUserVariables.fromJson(Map<String, dynamic> json):
+  
+  countryId = nativeFromJson<int>(json['countryId']),
+  continentId = nativeFromJson<int>(json['continentId']);
+  @override
+  bool operator ==(Object other) {
+    if(identical(this, other)) {
+      return true;
+    }
+    if(other.runtimeType != runtimeType) {
+      return false;
+    }
+
+    final ListScholarshipsForUserVariables otherTyped = other as ListScholarshipsForUserVariables;
+    return countryId == otherTyped.countryId && 
+    continentId == otherTyped.continentId;
+    
+  }
+  @override
+  int get hashCode => Object.hashAll([countryId.hashCode, continentId.hashCode]);
+  
+
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> json = {};
+    json['countryId'] = nativeToJson<int>(countryId);
+    json['continentId'] = nativeToJson<int>(continentId);
+    return json;
+  }
+
+  ListScholarshipsForUserVariables({
+    required this.countryId,
+    required this.continentId,
   });
 }
 

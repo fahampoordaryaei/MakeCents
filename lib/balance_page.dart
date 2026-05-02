@@ -24,7 +24,7 @@ class BalancePage extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 18,
                 fontWeight: FontWeight.w500,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),

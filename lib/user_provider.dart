@@ -9,7 +9,9 @@ class UserProfile {
   final String email;
   final String? institution;
   final String? course;
-  final String? otherSchool;
+  final String? courseId;
+  final int? countryId;
+  final String? otherInstitution;
   final String? otherCourse;
 
   UserProfile({
@@ -18,15 +20,17 @@ class UserProfile {
     required this.email,
     this.institution,
     this.course,
-    this.otherSchool,
+    this.courseId,
+    this.countryId,
+    this.otherInstitution,
     this.otherCourse,
   });
 
   String get fullName => '$firstName $lastName';
 
   String get displayInstitution {
-    if (otherSchool != null && otherSchool!.isNotEmpty) {
-      return otherSchool!;
+    if (otherInstitution != null && otherInstitution!.isNotEmpty) {
+      return otherInstitution!;
     }
     if (institution == null) return 'Not set';
     return institution!;
@@ -39,6 +43,8 @@ class UserProfile {
     if (course == null) return 'Not set';
     return course!;
   }
+
+  bool get hasOtherCourse => (otherCourse ?? '').trim().isNotEmpty;
 }
 
 class UserProvider with ChangeNotifier {
@@ -72,7 +78,9 @@ class UserProvider with ChangeNotifier {
           email: user.email ?? '',
           institution: u.institution?.name,
           course: u.course?.name,
-          otherSchool: u.otherSchool,
+          courseId: u.course?.id,
+          countryId: u.country?.id,
+          otherInstitution: u.otherInstitution,
           otherCourse: u.otherCourse,
         );
         if (u.currency != null) {

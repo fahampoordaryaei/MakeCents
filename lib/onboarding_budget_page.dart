@@ -12,7 +12,7 @@ import 'user_provider.dart';
 class OnboardingBudgetPage extends StatefulWidget {
   final String? institutionId;
   final String? courseId;
-  final String? otherSchool;
+  final String? otherInstitution;
   final String? otherCourse;
   final String firstName;
   final String lastName;
@@ -25,7 +25,7 @@ class OnboardingBudgetPage extends StatefulWidget {
     super.key,
     this.institutionId,
     this.courseId,
-    this.otherSchool,
+    this.otherInstitution,
     this.otherCourse,
     required this.firstName,
     required this.lastName,
@@ -144,11 +144,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
     });
 
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        setState(() => _error = 'User not found. Please log in again.');
-        return;
-      }
+      final user = FirebaseAuth.instance.currentUser!;
 
       final fullName = '${widget.firstName} ${widget.lastName}'.trim();
       if (fullName.isNotEmpty && (user.displayName?.trim().isEmpty ?? true)) {
@@ -174,7 +170,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
           )
           .institutionId(widget.institutionId)
           .courseId(widget.courseId)
-          .otherSchool(widget.otherSchool)
+          .otherInstitution(widget.otherInstitution)
           .otherCourse(widget.otherCourse)
           .budget(budget)
           .countryId(countryId)
@@ -351,7 +347,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                             _error,
                             style: const TextStyle(
                               color: Color(0xFF8B0000),
-                              fontSize: 16,
+                              fontSize: 18,
                             ),
                           ),
                         ),
@@ -600,7 +596,7 @@ class _BudgetPeriodToggle extends StatelessWidget {
           child: Text(
             label,
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 18,
               fontWeight: FontWeight.w700,
               color: selected
                   ? Colors.white
