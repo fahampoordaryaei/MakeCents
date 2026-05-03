@@ -45,6 +45,26 @@ class TransactionProvider with ChangeNotifier {
   double periodSpent({required bool isWeekly}) =>
       isWeekly ? weeklySpent : monthlySpent;
 
+  Map<String, double> getCategorySpending({required bool isWeekly}) {
+    final now = DateTime.now();
+    DateTime periodStart;
+
+    if (isWeekly) {
+      final today = DateTime(now.year, now.month, now.day);
+      periodStart = today.subtract(Duration(days: today.weekday - 1));
+    } else {
+      periodStart = DateTime(now.year, now.month, 1);
+    }
+
+    final categoryTotals = <String, double>{};
+    for (final tx in _transactions.where((t) => !t.date.isBefore(periodStart))) {
+      categoryTotals[tx.category] =
+          (categoryTotals[tx.category] ?? 0) + tx.amount;
+    }
+
+    return categoryTotals;
+  }
+
   Future<void> fetchTransactions() async {
     final user = auth.FirebaseAuth.instance.currentUser;
     if (user == null) {

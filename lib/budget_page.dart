@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'budget_provider.dart';
 import 'functions.dart';
 import 'transaction_provider.dart';
@@ -15,6 +16,7 @@ class BudgetPage extends StatelessWidget {
     final left = (budget - spent).clamp(0.0, double.infinity);
     final pct = budget > 0 ? (spent / budget).clamp(0.0, 1.0) : 0.0;
     final periodLabel = bp.periodLabel;
+    final categorySpending = txProvider.getCategorySpending(isWeekly: bp.isWeekly);
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -104,10 +106,123 @@ class BudgetPage extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 24),
+            if (categorySpending.isNotEmpty) _CategorySpendingChart(
+              isWeekly: bp.isWeekly,
+              categorySpending: categorySpending,
+            ),
           ],
         ),
       ),
     );
+  }
+}
+
+class _CategorySpendingChart extends StatelessWidget {
+  final bool isWeekly;
+  final Map<String, double> categorySpending;
+
+  const _CategorySpendingChart({
+    required this.isWeekly,
+    required this.categorySpending,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final totalSpent = categorySpending.values.fold(0.0, (sum, amount) => sum + amount);
+    final sections = categorySpending.entries.map((entry) {
+      final percentage = totalSpent > 0 ? (entry.value / totalSpent) * 100 : 0;
+      return PieChartSectionData(
+        value: entry.value,
+        title: '${entry.key}\n${percentage.toStringAsFixed(1)}%',
+        color: _getCategoryColor(entry.key),
+        radius: 70,
+        titleStyle: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      );
+    }).toList();
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '${isWeekly ? 'Weekly' : 'Monthly'} Spending by Category',
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 220,
+            child: PieChart(
+              PieChartData(
+                sections: sections,
+                sectionsSpace: 2,
+                centerSpaceRadius: 40,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: categorySpending.entries.map((entry) {
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: _getCategoryColor(entry.key),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    '${entry.key}: ${formatMoney(entry.value)}',
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                ],
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _getCategoryColor(String category) {
+    final colorMap = {
+      'Food': Colors.blue,
+      'Transportation': Colors.green,
+      'Entertainment': Colors.orange,
+      'Shopping': Colors.purple,
+      'Bills': Colors.red,
+      'Healthcare': Colors.pink,
+      'Education': Colors.teal,
+      'Travel': Colors.indigo,
+      'Other': Colors.grey,
+    };
+
+    return colorMap[category] ?? Colors.primaries[category.hashCode % Colors.primaries.length];
   }
 }
 
