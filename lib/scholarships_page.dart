@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dataconnect_generated/generated.dart';
 import 'functions.dart';
+import 'scholarship_application_page.dart';
 import 'user_provider.dart';
 
 class Scholarship {
@@ -176,6 +180,21 @@ class _ScholarshipsPageState extends State<ScholarshipsPage> {
               ),
             ),
             const SizedBox(height: 24),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton.icon(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const SavedScholarshipApplicationsPage(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.folder_open_outlined),
+                label: const Text('Saved applications'),
+              ),
+            ),
+            const SizedBox(height: 12),
             if (scholarshipsLoading)
               const Padding(
                 padding: EdgeInsets.symmetric(vertical: 24),
@@ -292,7 +311,6 @@ class _ScholarshipCard extends StatelessWidget {
                           context,
                           title: s.title,
                           provider: s.provider,
-                          email: s.email,
                           amount: s.amount,
                           currency: s.currency,
                           description: s.description,
@@ -321,6 +339,113 @@ class _ScholarshipCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class SavedScholarshipApplicationsPage extends StatefulWidget {
+  const SavedScholarshipApplicationsPage({super.key});
+
+  @override
+  State<SavedScholarshipApplicationsPage> createState() =>
+      _SavedScholarshipApplicationsPageState();
+}
+
+class _SavedScholarshipApplicationsPageState
+    extends State<SavedScholarshipApplicationsPage> {
+  final List<ScholarshipApplication> _applications = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadApplications();
+  }
+
+  Future<void> _loadApplications() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedJson = prefs.getString('scholarship_applications');
+    if (savedJson != null) {
+      final items = jsonDecode(savedJson) as List<dynamic>;
+      _applications.clear();
+      _applications.addAll(
+        items.map((item) {
+          return ScholarshipApplication.fromJson(item as Map<String, dynamic>);
+        }),
+      );
+    }
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _deleteApplication(int index) async {
+    final prefs = await SharedPreferences.getInstance();
+    _applications.removeAt(index);
+    await prefs.setString(
+      'scholarship_applications',
+      jsonEncode(_applications.map((app) => app.toJson()).toList()),
+    );
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Saved Applications')),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _applications.isEmpty
+          ? Center(
+              child: Text(
+                'You have no saved scholarship applications yet.',
+                style: TextStyle(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.8),
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: _applications.length,
+              itemBuilder: (context, index) {
+                final application = _applications[index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  child: ListTile(
+                    title: Text(application.scholarshipTitle),
+                    subtitle: Text(
+                      '${application.provider} • Saved ${application.savedAt.split('T').first}',
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete_outline),
+                      onPressed: () => _deleteApplication(index),
+                    ),
+                    onTap: () async {
+                      await Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => ScholarshipApplicationPage(
+                            title: application.scholarshipTitle,
+                            provider: application.provider,
+                            amount: application.amount,
+                            currency: application.currency,
+                            description: application.description,
+                            brandColor: Theme.of(context).colorScheme.primary,
+                            initialDraft: application,
+                          ),
+                        ),
+                      );
+                      await _loadApplications();
+                    },
+                  ),
+                );
+              },
+            ),
     );
   }
 }

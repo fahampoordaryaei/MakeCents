@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'budget_provider.dart';
 import 'functions.dart';
 import 'transaction_provider.dart';
+import 'category_budget_page.dart';
 
 class BudgetPage extends StatelessWidget {
   const BudgetPage({super.key});
@@ -16,7 +17,9 @@ class BudgetPage extends StatelessWidget {
     final left = (budget - spent).clamp(0.0, double.infinity);
     final pct = budget > 0 ? (spent / budget).clamp(0.0, 1.0) : 0.0;
     final periodLabel = bp.periodLabel;
-    final categorySpending = txProvider.getCategorySpending(isWeekly: bp.isWeekly);
+    final categorySpending = txProvider.getCategorySpending(
+      isWeekly: bp.isWeekly,
+    );
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -27,6 +30,16 @@ class BudgetPage extends StatelessWidget {
           '$periodLabel Budget',
           style: const TextStyle(fontWeight: FontWeight.w700),
         ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const CategoryBudgetPage()),
+              );
+            },
+            child: const Text('Categories'),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -107,10 +120,11 @@ class BudgetPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            if (categorySpending.isNotEmpty) _CategorySpendingChart(
-              isWeekly: bp.isWeekly,
-              categorySpending: categorySpending,
-            ),
+            if (categorySpending.isNotEmpty)
+              _CategorySpendingChart(
+                isWeekly: bp.isWeekly,
+                categorySpending: categorySpending,
+              ),
           ],
         ),
       ),
@@ -129,18 +143,26 @@ class _CategorySpendingChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final totalSpent = categorySpending.values.fold(0.0, (sum, amount) => sum + amount);
+    final totalSpent = categorySpending.values.fold(
+      0.0,
+      (sum, amount) => sum + amount,
+    );
     final sections = categorySpending.entries.map((entry) {
       final percentage = totalSpent > 0 ? (entry.value / totalSpent) * 100 : 0;
       return PieChartSectionData(
         value: entry.value,
-        title: '${entry.key}\n${percentage.toStringAsFixed(1)}%',
+        title: percentage >= 10 ? entry.key : '',
         color: _getCategoryColor(entry.key),
-        radius: 70,
+        radius: 68,
         titleStyle: const TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.bold,
           color: Colors.white,
+          shadows: [Shadow(color: Colors.black26, blurRadius: 4)],
+        ),
+        borderSide: BorderSide(
+          color: Colors.white.withValues(alpha: 0.08),
+          width: 1,
         ),
       );
     }).toList();
@@ -149,12 +171,12 @@ class _CategorySpendingChart extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 14,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -163,10 +185,7 @@ class _CategorySpendingChart extends StatelessWidget {
         children: [
           Text(
             '${isWeekly ? 'Weekly' : 'Monthly'} Spending by Category',
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           SizedBox(
@@ -174,15 +193,18 @@ class _CategorySpendingChart extends StatelessWidget {
             child: PieChart(
               PieChartData(
                 sections: sections,
-                sectionsSpace: 2,
-                centerSpaceRadius: 40,
+                sectionsSpace: 4,
+                centerSpaceRadius: 48,
+                borderData: FlBorderData(show: false),
+                startDegreeOffset: -90,
+                pieTouchData: PieTouchData(enabled: false),
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
           Wrap(
-            spacing: 10,
-            runSpacing: 10,
+            spacing: 12,
+            runSpacing: 12,
             children: categorySpending.entries.map((entry) {
               return Row(
                 mainAxisSize: MainAxisSize.min,
@@ -222,7 +244,8 @@ class _CategorySpendingChart extends StatelessWidget {
       'Other': Colors.grey,
     };
 
-    return colorMap[category] ?? Colors.primaries[category.hashCode % Colors.primaries.length];
+    return colorMap[category] ??
+        Colors.primaries[category.hashCode % Colors.primaries.length];
   }
 }
 

@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import 'dataconnect_generated/generated.dart';
+import 'scholarship_application_page.dart';
 
 Future<List<ListGlobalScholarshipsScholarships>> fetchScholarshipsForLocation(
   ExampleConnector connector, {
@@ -56,97 +56,22 @@ Future<void> showScholarshipApplyDialog(
   BuildContext context, {
   required String title,
   required String provider,
-  required String email,
   required double amount,
   required String currency,
   required String description,
   required Color brandColor,
 }) async {
-  await showDialog<void>(
-    context: context,
-    builder: (dialogContext) {
-      final onSurface = Theme.of(dialogContext).colorScheme.onSurface;
-      return AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        title: Text(
-          title,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Provider: $provider',
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                fontSize: 18,
-                color: brandColor,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Amount: $currency${amount.toStringAsFixed(0)}',
-              style: TextStyle(
-                fontWeight: FontWeight.w800,
-                fontSize: 18,
-                color: brandColor,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              description,
-              style: TextStyle(
-                color: onSurface.withValues(alpha: 0.85),
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Please email us your application letter and records from your institution.',
-              style: TextStyle(
-                fontSize: 18,
-                color: onSurface.withValues(alpha: 0.85),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Close', style: TextStyle(fontSize: 18)),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: brandColor),
-            onPressed: () async {
-              final uri = Uri(
-                scheme: 'mailto',
-                path: email,
-                queryParameters: {
-                  'subject': 'Scholarship Application - $title',
-                  'body':
-                      'Please email us your application letter and records from your institution.',
-                },
-              );
-              final launched = await launchUrl(
-                uri,
-                mode: LaunchMode.externalApplication,
-              );
-              if (!launched && context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Could not open your email app.'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              }
-            },
-            child: const Text('Open Email', style: TextStyle(fontSize: 18)),
-          ),
-        ],
-      );
-    },
+  await Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (_) => ScholarshipApplicationPage(
+        title: title,
+        provider: provider,
+        amount: amount,
+        currency: currency,
+        description: description,
+        brandColor: brandColor,
+      ),
+    ),
   );
 }
 

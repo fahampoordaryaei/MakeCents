@@ -293,22 +293,44 @@ class _TrackerPageState extends State<TrackerPage> {
     for (final t in periodTxs) {
       catTotals[t.category] = (catTotals[t.category] ?? 0) + t.amount;
     }
-    const groupThreshold = 0.10;
     const labelThreshold = 0.05;
+    const groupThreshold = 0.03;
+    const maxCategoriesToShow = 8;
     final totalForPct = expenses + (budget > 0 ? available : 0);
-    final groupedCatTotals = <String, double>{};
-    double otherTotal = 0;
-    for (final e in catTotals.entries) {
-      final pct = totalForPct > 0 ? (e.value / totalForPct) : 0;
-      if (pct < groupThreshold) {
-        otherTotal += e.value;
-      } else {
-        groupedCatTotals[e.key] = e.value;
+
+    final groupedCatTotals = Map<String, double>.from(catTotals);
+    if (groupedCatTotals.length > maxCategoriesToShow) {
+      final smallCategories = groupedCatTotals.entries
+          .where(
+            (e) => totalForPct > 0
+                ? (e.value / totalForPct) < groupThreshold
+                : false,
+          )
+          .toList();
+
+      if (smallCategories.length > 1) {
+        double otherTotal = 0;
+        for (final e in smallCategories) {
+          otherTotal += e.value;
+          groupedCatTotals.remove(e.key);
+        }
+        if (otherTotal > 0) {
+          groupedCatTotals['Other'] = otherTotal;
+        }
+      }
+
+      if (groupedCatTotals.length > maxCategoriesToShow) {
+        final sortedEntries = groupedCatTotals.entries.toList()
+          ..sort((a, b) => a.value.compareTo(b.value));
+        while (groupedCatTotals.length > maxCategoriesToShow &&
+            sortedEntries.isNotEmpty) {
+          final smallest = sortedEntries.removeAt(0);
+          final existingOther = groupedCatTotals.remove('Other') ?? 0;
+          groupedCatTotals['Other'] = existingOther + smallest.value;
+        }
       }
     }
-    if (otherTotal > 0) {
-      groupedCatTotals['Other'] = otherTotal;
-    }
+
     final groupedEntries = groupedCatTotals.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
