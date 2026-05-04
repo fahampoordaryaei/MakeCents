@@ -1,7 +1,5 @@
 import { onSchedule } from "firebase-functions/v2/scheduler";
 import { onCall, HttpsError } from "firebase-functions/v2/https";
-import * as functions from "firebase-functions/v1";
-import { getFirestore } from "firebase-admin/firestore";
 import { Connector, IpAddressTypes, AuthTypes } from "@google-cloud/cloud-sql-connector";
 import pg from "pg";
 
@@ -294,10 +292,3 @@ export const redeemProduct = onCall(
         }
     }
 );
-
-export const cleanupUserFcmOnAuthDelete = functions
-    .region("europe-west1")
-    .auth.user()
-    .onDelete(async (user) => {
-        await getFirestore().collection("users").doc(user.uid).delete();
-    });

@@ -16,7 +16,6 @@ const _channel = AndroidNotificationChannel(
 final _local = FlutterLocalNotificationsPlugin();
 var _localReady = false;
 
-String? _storedUid;
 String? _storedToken;
 
 Future<void> _saveFcmToken(String uid, String token) async {
@@ -39,22 +38,36 @@ Future<void> _syncTokenToFirestore(String? token) async {
   if (user == null || token == null || token.isEmpty) return;
   try {
     await _saveFcmToken(user.uid, token);
-    _storedUid = user.uid;
     _storedToken = token;
   } on FirebaseException catch (_) {
   } catch (_) {}
 }
 
-Future<void> _removeTokenOnSignOut() async {
-  final uid = _storedUid;
-  final token = _storedToken;
-  if (uid == null || token == null) return;
+void _clearStoredFcmCredentials() {
+  _storedToken = null;
+}
+
+Future<void> clearFcmToken() async {
+  final user = FirebaseAuth.instance.currentUser;
+  if (user == null) return;
+  var token = _storedToken;
   try {
-    await _deleteFcmToken(uid, token);
+    if (kIsWeb) {
+      const vapidKey = String.fromEnvironment('FIREBASE_VAPID_KEY');
+      if (vapidKey.isEmpty) return;
+      token = await FirebaseMessaging.instance.getToken(vapidKey: vapidKey);
+    } else {
+      token = await FirebaseMessaging.instance.getToken();
+    }
+  } catch (_) {
+    return;
+  }
+  if (token == null || token.isEmpty) return;
+  try {
+    await _deleteFcmToken(user.uid, token);
   } on FirebaseException catch (_) {
   } catch (_) {}
-  _storedUid = null;
-  _storedToken = null;
+  _clearStoredFcmCredentials();
 }
 
 void _attachAuthAndTokenFirestore(
@@ -63,7 +76,7 @@ void _attachAuthAndTokenFirestore(
 }) {
   FirebaseAuth.instance.authStateChanges().listen((user) async {
     if (user == null) {
-      await _removeTokenOnSignOut();
+      _clearStoredFcmCredentials();
       return;
     }
     final t = webVapidKey != null

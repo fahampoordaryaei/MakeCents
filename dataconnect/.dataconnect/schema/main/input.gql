@@ -4489,13 +4489,13 @@ input User_Data {
   """
   otherCourse_expr: String_Expr @fdc_forbiddenInVariables
   """
-  ✨ Generated from Field `User`.`otherSchool` of type `String`
+  ✨ Generated from Field `User`.`otherInstitution` of type `String`
   """
-  otherSchool: String
+  otherInstitution: String
   """
-  ✨ `_expr` server value variant of `otherSchool` (✨ Generated from Field `User`.`otherSchool` of type `String`)
+  ✨ `_expr` server value variant of `otherInstitution` (✨ Generated from Field `User`.`otherInstitution` of type `String`)
   """
-  otherSchool_expr: String_Expr @fdc_forbiddenInVariables
+  otherInstitution_expr: String_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `User`.`phoneNumber` of type `String`
   """
@@ -4606,9 +4606,9 @@ input User_Filter {
   """
   otherCourse: String_Filter
   """
-  ✨ Generated from Field `User`.`otherSchool` of type `String`
+  ✨ Generated from Field `User`.`otherInstitution` of type `String`
   """
-  otherSchool: String_Filter
+  otherInstitution: String_Filter
   """
   ✨ Generated from Field `User`.`phoneNumber` of type `String`
   """
@@ -4744,9 +4744,9 @@ input User_Having {
   """
   otherCourse_count: Int_Filter
   """
-  ✨ Generated from Field `User`.`otherSchool_count` of type `Int!`
+  ✨ Generated from Field `User`.`otherInstitution_count` of type `Int!`
   """
-  otherSchool_count: Int_Filter
+  otherInstitution_count: Int_Filter
   """
   ✨ Generated from Field `User`.`phoneNumber_count` of type `Int!`
   """
@@ -4947,9 +4947,9 @@ input User_Order {
   """
   otherCourse: OrderDirection
   """
-  ✨ Generated from Field `User`.`otherSchool` of type `String`
+  ✨ Generated from Field `User`.`otherInstitution` of type `String`
   """
-  otherSchool: OrderDirection
+  otherInstitution: OrderDirection
   """
   ✨ Generated from Field `User`.`phoneNumber` of type `String`
   """
@@ -5019,9 +5019,9 @@ input User_Order {
   """
   otherCourse_count: OrderDirection
   """
-  ✨ Generated from Field `User`.`otherSchool_count` of type `Int!`
+  ✨ Generated from Field `User`.`otherInstitution_count` of type `Int!`
   """
-  otherSchool_count: OrderDirection
+  otherInstitution_count: OrderDirection
   """
   ✨ Generated from Field `User`.`phoneNumber_count` of type `Int!`
   """

@@ -1,4 +1,5 @@
 import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:firebase_app_installations/firebase_app_installations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -14,12 +15,21 @@ import 'startup_page.dart';
 import 'theme_provider.dart';
 import 'tracker_page.dart';
 import 'transaction_provider.dart';
-import 'user_page.dart';
+import 'profile_page.dart';
 import 'user_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  if (kDebugMode) {
+    try {
+      final installationId = await FirebaseInstallations.instance.getId();
+      debugPrint('Firebase Installation ID: $installationId');
+    } catch (e, st) {
+      debugPrint('Firebase Installation ID: failed — $e\n$st');
+    }
+  }
 
   await initializeFirebaseMessaging();
 
@@ -99,7 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
       const TrackerPage(),
       const PointsPage(),
       const ScholarshipsPage(),
-      UserPage(
+      ProfilePage(
         onNavigateToBudget: () {
           Navigator.push(
             context,

@@ -2403,14 +2403,14 @@ extend type User {
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "User.otherCourse", purpose: QUERY_COUNT)
   """
-  ✨ Count the number of rows in the `User` table where the `otherSchool` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  ✨ Count the number of rows in the `User` table where the `otherInstitution` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
-  otherSchool_count(
+  otherInstitution_count(
     """
     Set to true to count the number of distinct values.
     """
     distinct: Boolean = false
-  ): Int! @fdc_generated(from: "User.otherSchool", purpose: QUERY_COUNT)
+  ): Int! @fdc_generated(from: "User.otherInstitution", purpose: QUERY_COUNT)
   """
   ✨ Count the number of rows in the `User` table where the `phoneNumber` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """

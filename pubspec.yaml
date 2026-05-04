@@ -43,6 +43,7 @@ dependencies:
   firebase_messaging: ^15.2.7
   flutter_local_notifications: ^18.0.1
   firebase_auth: ^5.1.0
+  qr_flutter: ^4.1.0
   cloud_firestore: ^5.1.0
   firebase_data_connect: any
   cloud_functions: ^5.6.2
@@ -51,6 +52,7 @@ dependencies:
   firebase_app_check: ^0.3.2+10
   geolocator: ^13.0.4
   geocoding: ^3.0.0
+  firebase_app_installations: ^0.3.3
 
 dev_dependencies:
   flutter_test:

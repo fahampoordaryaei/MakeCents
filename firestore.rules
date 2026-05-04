@@ -2,15 +2,11 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // FCM token storage only (see lib/fcm_firestore.dart). Cloud Functions use
-    // Admin SDK and are not affected by these rules.
     match /users/{userId} {
       allow read: if request.auth != null && request.auth.uid == userId;
-
       allow create, update: if request.auth != null
         && request.auth.uid == userId
         && (
-          // After removing tokens the doc may have no fields.
           request.resource.data.keys().size() == 0
           || (
             request.resource.data.keys().hasOnly(['fcmTokens'])

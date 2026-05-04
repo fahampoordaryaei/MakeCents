@@ -1,6 +1,8 @@
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'functions.dart';
+import 'fcm.dart';
 import 'onboarding_profile_page.dart';
 import 'startup_page.dart';
 
@@ -47,7 +49,7 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void _onPasswordChanged() {
-    if (!mounted || _usePhoneRegister) return;
+    if (_usePhoneRegister) return;
     setState(() {
       final rules = _PasswordCriteria(_passwordController.text);
       if (_passwordCriteriaAttempted && rules.all) {
@@ -94,6 +96,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Future<void> _completePhoneRegistration(UserCredential result) async {
     if (!mounted || !_usePhoneRegister) return;
     if (result.additionalUserInfo?.isNewUser == false) {
+      await clearFcmToken();
       await FirebaseAuth.instance.signOut();
       setState(() {
         _error = 'An account already exists for this phone number.';
@@ -119,7 +122,6 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Future<void> _sendPhoneRegister() async {
-    if (!_usePhoneRegister) return;
     if (!_validateNames()) return;
 
     final normalized = _phoneController.text.trim().replaceAll(
@@ -194,7 +196,6 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Future<void> _verifyPhoneRegister() async {
-    if (!_usePhoneRegister) return;
     if (!_validateNames()) return;
 
     final code = _codeController.text.trim();
@@ -292,9 +293,21 @@ class _RegisterPageState extends State<RegisterPage> {
     try {
       final userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: pass);
-      await userCredential.user!.updateDisplayName('$firstName $lastName');
+      final created = userCredential.user!;
+      await sendUserEmailVerification(created);
+      try {
+        await created.updateDisplayName('$firstName $lastName');
+      } catch (e) {
+        assert(() {
+          debugPrint('updateDisplayName after signup failed: $e');
+          return true;
+        }());
+      }
 
       if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('We sent a verification link to $email.')),
+        );
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (_) =>
@@ -307,7 +320,7 @@ class _RegisterPageState extends State<RegisterPage> {
         () => _error = e.message ?? 'An error occurred during registration.',
       );
     } catch (e) {
-      setState(() => _error = 'An unexpected error occurred.');
+      setState(() => _error = 'Registration error: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

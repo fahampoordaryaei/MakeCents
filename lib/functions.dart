@@ -2,10 +2,19 @@ import 'dart:async';
 
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'dataconnect_generated/generated.dart';
+
+Future<void> sendUserEmailVerification(User user) async {
+  final projectId = Firebase.app().options.projectId;
+  final continueUrl = Uri.https('$projectId.firebaseapp.com', '/').toString();
+  await user.sendEmailVerification(
+    ActionCodeSettings(url: continueUrl, handleCodeInApp: false),
+  );
+}
 
 Future<List<ListGlobalScholarshipsScholarships>> fetchScholarshipsForLocation(
   ExampleConnector connector, {

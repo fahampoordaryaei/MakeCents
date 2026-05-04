@@ -19,6 +19,7 @@ class _LoginPageState extends State<LoginPage> {
   final _identityCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   final _codeCtrl = TextEditingController();
+  final _emailMfaCodeCtrl = TextEditingController();
   String _error = '';
   bool _obscure = true;
   bool _isLoading = false;
@@ -27,12 +28,41 @@ class _LoginPageState extends State<LoginPage> {
   String? _verificationId;
   String _countryCode = '+356';
 
+  bool _emailMfaPending = false;
+  MultiFactorResolver? _emailMfaResolver;
+  String? _pendingDbUserId;
+
   @override
   void dispose() {
     _identityCtrl.dispose();
     _passwordCtrl.dispose();
     _codeCtrl.dispose();
+    _emailMfaCodeCtrl.dispose();
     super.dispose();
+  }
+
+  void _resetEmailMfaFlow() {
+    _pendingDbUserId = null;
+    _emailMfaPending = false;
+    _emailMfaResolver = null;
+    _emailMfaCodeCtrl.clear();
+  }
+
+  String? _totpEnrollmentId(MultiFactorResolver r) {
+    final i = r.hints.indexWhere((h) => h.factorId == 'totp');
+    return i < 0 ? null : r.hints[i].uid;
+  }
+
+  void _setLoginChannel(bool phone) {
+    setState(() {
+      _usePhoneLogin = phone;
+      _codeSent = false;
+      _verificationId = null;
+      _codeCtrl.clear();
+      _identityCtrl.clear();
+      _error = '';
+      _resetEmailMfaFlow();
+    });
   }
 
   Future<void> _signIn() async {
@@ -52,6 +82,11 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     final email = identity;
+    if (_emailMfaPending) {
+      await _verifyEmailMfa();
+      return;
+    }
+
     final pass = _passwordCtrl.text;
     if (pass.isEmpty) {
       setState(() => _error = 'Please fill out all fields.');
@@ -86,6 +121,8 @@ class _LoginPageState extends State<LoginPage> {
         }
       }
 
+      _pendingDbUserId = dbUserId;
+
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: pass,
@@ -96,9 +133,19 @@ class _LoginPageState extends State<LoginPage> {
       if (dbUserId != null) {
         await connector.resetLoginAttempts(userId: dbUserId).execute();
       }
+      _resetEmailMfaFlow();
 
       await _completeSignIn(authUser);
+    } on FirebaseAuthMultiFactorException catch (e) {
+      if (mounted) {
+        setState(() {
+          _emailMfaPending = true;
+          _emailMfaResolver = e.resolver;
+          _error = '';
+        });
+      }
     } on FirebaseAuthException catch (e) {
+      _resetEmailMfaFlow();
       if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
         await _recordFailure(email);
       } else {
@@ -106,9 +153,60 @@ class _LoginPageState extends State<LoginPage> {
           _error = e.message ?? 'Sign in failed.';
         });
       }
-    } catch (e) {
+    } catch (_) {
+      _resetEmailMfaFlow();
       setState(() {
         _error = 'An unexpected error occurred.';
+      });
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _verifyEmailMfa() async {
+    final code = _emailMfaCodeCtrl.text.trim();
+    if (code.isEmpty) {
+      setState(() => _error = 'Enter the verification code.');
+      return;
+    }
+
+    final resolver = _emailMfaResolver;
+    if (resolver == null) {
+      setState(() {
+        _error = 'Session expired. Please sign in again.';
+        _resetEmailMfaFlow();
+      });
+      return;
+    }
+    final enrollmentId = _totpEnrollmentId(resolver)!;
+
+    setState(() {
+      _error = '';
+      _isLoading = true;
+    });
+
+    try {
+      final assertion = await TotpMultiFactorGenerator.getAssertionForSignIn(
+        enrollmentId,
+        code,
+      );
+      final credential = await resolver.resolveSignIn(assertion);
+      final authUser = credential.user!;
+
+      final connector = ExampleConnector.instance;
+      final dbUserId = _pendingDbUserId;
+      if (dbUserId != null) {
+        await connector.resetLoginAttempts(userId: dbUserId).execute();
+      }
+      _resetEmailMfaFlow();
+
+      if (!mounted) return;
+      await _completeSignIn(authUser);
+    } catch (e) {
+      setState(() {
+        _error = e is FirebaseAuthException
+            ? (e.message ?? 'Invalid code.')
+            : 'Unable to verify the code.';
       });
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -139,20 +237,14 @@ class _LoginPageState extends State<LoginPage> {
             if (!mounted) return;
             final authUser = FirebaseAuth.instance.currentUser!;
             await _completeSignIn(authUser);
-          } on FirebaseAuthException catch (e) {
-            if (mounted) {
-              setState(() {
-                _error = e.message ?? 'Phone sign-in failed.';
-                _isLoading = false;
-              });
-            }
           } catch (e) {
-            if (mounted) {
-              setState(() {
-                _error = 'Phone sign-in failed.';
-                _isLoading = false;
-              });
-            }
+            if (!mounted) return;
+            setState(() {
+              _error = e is FirebaseAuthException
+                  ? (e.message ?? 'Phone sign-in failed.')
+                  : 'Phone sign-in failed.';
+              _isLoading = false;
+            });
           }
         },
         verificationFailed: (e) {
@@ -192,13 +284,6 @@ class _LoginPageState extends State<LoginPage> {
       setState(() => _error = 'Enter the verification code.');
       return;
     }
-    if (_verificationId == null) {
-      setState(
-        () =>
-            _error = 'Verification data is missing. Please request a new code.',
-      );
-      return;
-    }
 
     setState(() {
       _error = '';
@@ -213,13 +298,11 @@ class _LoginPageState extends State<LoginPage> {
       await FirebaseAuth.instance.signInWithCredential(credential);
       final authUser = FirebaseAuth.instance.currentUser!;
       await _completeSignIn(authUser);
-    } on FirebaseAuthException catch (e) {
-      setState(() {
-        _error = e.message ?? 'Unable to verify code.';
-      });
     } catch (e) {
       setState(() {
-        _error = 'Unable to verify code.';
+        _error = e is FirebaseAuthException
+            ? (e.message ?? 'Unable to verify code.')
+            : 'Unable to verify code.';
       });
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -354,6 +437,13 @@ class _LoginPageState extends State<LoginPage> {
                   alignment: Alignment.centerLeft,
                   child: GestureDetector(
                     onTap: () {
+                      if (_emailMfaPending) {
+                        setState(() {
+                          _error = '';
+                          _resetEmailMfaFlow();
+                        });
+                        return;
+                      }
                       if (Navigator.of(context).canPop()) {
                         Navigator.of(context).pop();
                       } else {
@@ -409,16 +499,7 @@ class _LoginPageState extends State<LoginPage> {
                       children: [
                         Expanded(
                           child: OutlinedButton(
-                            onPressed: () {
-                              setState(() {
-                                _usePhoneLogin = false;
-                                _codeSent = false;
-                                _verificationId = null;
-                                _codeCtrl.clear();
-                                _identityCtrl.clear();
-                                _error = '';
-                              });
-                            },
+                            onPressed: () => _setLoginChannel(false),
                             style: OutlinedButton.styleFrom(
                               backgroundColor: !_usePhoneLogin
                                   ? const Color(0xFF3e7f3f)
@@ -441,16 +522,7 @@ class _LoginPageState extends State<LoginPage> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: OutlinedButton(
-                            onPressed: () {
-                              setState(() {
-                                _usePhoneLogin = true;
-                                _codeSent = false;
-                                _verificationId = null;
-                                _codeCtrl.clear();
-                                _identityCtrl.clear();
-                                _error = '';
-                              });
-                            },
+                            onPressed: () => _setLoginChannel(true),
                             style: OutlinedButton.styleFrom(
                               backgroundColor: _usePhoneLogin
                                   ? const Color(0xFF3e7f3f)
@@ -480,7 +552,8 @@ class _LoginPageState extends State<LoginPage> {
                             'Student Email',
                             Icons.email_outlined,
                             false,
-                            TextInputType.emailAddress,
+                            keyboardType: TextInputType.emailAddress,
+                            readOnly: _emailMfaPending,
                           ),
                     if (!_usePhoneLogin) ...[
                       const SizedBox(height: 14),
@@ -489,15 +562,37 @@ class _LoginPageState extends State<LoginPage> {
                         'Password',
                         Icons.lock_outline,
                         true,
+                        readOnly: _emailMfaPending,
                       ),
-                    ] else if (_codeSent) ...[
+                    ],
+                    if (!_usePhoneLogin && _emailMfaPending) ...[
+                      const SizedBox(height: 14),
+                      _inputField(
+                        _emailMfaCodeCtrl,
+                        'Authenticator code',
+                        Icons.security_outlined,
+                        false,
+                        keyboardType: TextInputType.number,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Enter the code from your authenticator app.',
+                        style: TextStyle(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.75),
+                          fontSize: 18,
+                        ),
+                      ),
+                    ],
+                    if (_usePhoneLogin && _codeSent) ...[
                       const SizedBox(height: 14),
                       _inputField(
                         _codeCtrl,
                         'Verification code',
                         Icons.message_outlined,
                         false,
-                        TextInputType.number,
+                        keyboardType: TextInputType.number,
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -511,6 +606,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ],
                     if (_error.isNotEmpty) ...[
+                      const SizedBox(height: 24),
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(12),
@@ -539,7 +635,6 @@ class _LoginPageState extends State<LoginPage> {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 12),
                     ],
                     const SizedBox(height: 30),
                     SizedBox(
@@ -568,6 +663,8 @@ class _LoginPageState extends State<LoginPage> {
                                     ? _codeSent
                                           ? 'Verify Code'
                                           : 'Send Code'
+                                    : _emailMfaPending
+                                    ? 'Verify Code'
                                     : 'Sign In',
                                 style: const TextStyle(
                                   fontSize: 18,
@@ -577,7 +674,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    if (!_usePhoneLogin) ...[
+                    if (!_usePhoneLogin && !_emailMfaPending) ...[
                       TextButton(
                         style: TextButton.styleFrom(
                           textStyle: const TextStyle(
@@ -597,7 +694,6 @@ class _LoginPageState extends State<LoginPage> {
                           style: TextStyle(color: Color(0xFF3e7f3f)),
                         ),
                       ),
-                      const SizedBox(height: 8),
                     ],
                     TextButton(
                       style: TextButton.styleFrom(
@@ -667,7 +763,7 @@ class _LoginPageState extends State<LoginPage> {
             'Phone number',
             Icons.phone_outlined,
             false,
-            TextInputType.phone,
+            keyboardType: TextInputType.phone,
           ),
         ),
       ],
@@ -678,11 +774,13 @@ class _LoginPageState extends State<LoginPage> {
     TextEditingController ctrl,
     String label,
     IconData icon,
-    bool isPass, [
+    bool isPass, {
     TextInputType? keyboardType,
-  ]) {
+    bool readOnly = false,
+  }) {
     return TextField(
       controller: ctrl,
+      readOnly: readOnly,
       obscureText: isPass ? _obscure : false,
       keyboardType: keyboardType,
       style: const TextStyle(fontSize: 18),

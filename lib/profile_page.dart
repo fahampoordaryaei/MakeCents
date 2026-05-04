@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'budget_provider.dart';
+import 'fcm.dart';
 import 'dataconnect_generated/generated.dart';
 import 'functions.dart';
 import 'onboarding_profile_form.dart';
@@ -31,9 +32,9 @@ Future<int?> _getCountryId(ExampleConnector connector, String? isoCode) async {
   }
 }
 
-class UserPage extends StatelessWidget {
+class ProfilePage extends StatelessWidget {
   final VoidCallback onNavigateToBudget;
-  const UserPage({super.key, required this.onNavigateToBudget});
+  const ProfilePage({super.key, required this.onNavigateToBudget});
 
   Future<void> _showChangePasswordDialog(BuildContext context) async {
     final user = FirebaseAuth.instance.currentUser!;
@@ -362,6 +363,7 @@ class UserPage extends StatelessWidget {
               title: 'Log Out',
               subtitle: 'Sign out of your account',
               onTap: () async {
+                await clearFcmToken();
                 await FirebaseAuth.instance.signOut();
                 if (context.mounted) {
                   Provider.of<UserProvider>(

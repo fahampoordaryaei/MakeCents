@@ -6,6 +6,7 @@ import 'budget_provider.dart';
 import 'dataconnect_generated/generated.dart';
 import 'functions.dart';
 import 'main.dart';
+import 'onboarding_mfa.dart';
 import 'startup_page.dart';
 import 'user_provider.dart';
 
@@ -49,6 +50,9 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
   ListCurrenciesCurrencies? _selectedCurrency;
 
   bool get _isWeekly => _budgetPeriod == 'weekly';
+
+  bool get _isPhoneRegistration =>
+      (widget.phoneNumber?.trim().isNotEmpty ?? false);
 
   @override
   void initState() {
@@ -191,10 +195,16 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
       await userProvider.loadProfile();
 
       if (!mounted) return;
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-        (r) => false,
-      );
+      if (_isPhoneRegistration) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const HomeScreen()),
+          (route) => false,
+        );
+      } else {
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => const OnboardingMfaPage()));
+      }
     } catch (_) {
       setState(() => _error = 'Could not save your profile. Please try again.');
     } finally {
@@ -457,9 +467,9 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                               strokeWidth: 2,
                             ),
                           )
-                        : const Text(
-                            'Complete setup',
-                            style: TextStyle(
+                        : Text(
+                            _isPhoneRegistration ? 'Complete setup' : 'Proceed',
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
                             ),

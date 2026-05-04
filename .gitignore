@@ -54,3 +54,4 @@ functions/scripts/service-account.json
 functions/scripts/*-adminsdk-*.json
 
 dataconnect/.dataconnect/*
+/functions/scripts

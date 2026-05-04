@@ -39,7 +39,6 @@ type User @table(key: ["userId"]) {
   country: Country
   currency: Currency
   isWeekly: Boolean! @default(value: false) @col(name: "is_weekly")
-  hasMfa: Boolean! @default(value: false) @col(name: "has_mfa")
 }
 
 type Course @table {
