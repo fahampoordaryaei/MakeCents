@@ -101,7 +101,6 @@ class _HomePageState extends State<HomePage> {
       context,
       title: s.title,
       provider: s.provider,
-      email: s.email,
       amount: s.amount,
       currency: s.currency,
       description: s.description,
