@@ -100,7 +100,7 @@ Widget scholarshipRegionLabel(String text, Color color) {
         Text(
           text,
           style: TextStyle(
-            fontSize: 11,
+            fontSize: 14,
             fontWeight: FontWeight.w700,
             color: color,
           ),
@@ -234,11 +234,27 @@ class _ProductRedeemBodyState extends State<_ProductRedeemBody> {
   Widget build(BuildContext context) {
     if (_loading) {
       return Dialog(
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        child: const Padding(
-          padding: EdgeInsets.all(32),
-          child: Center(
-            child: CircularProgressIndicator(color: Color(0xFF3e7f3f)),
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560),
+          child: Padding(
+            padding: const EdgeInsets.all(22),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                SizedBox(
+                  width: 28,
+                  height: 28,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Color(0xFF3e7f3f),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -272,7 +288,7 @@ class _ProductRedeemBodyState extends State<_ProductRedeemBody> {
                         Text(
                           p.name,
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 20,
                             fontWeight: FontWeight.w800,
                             color: fg,
                           ),
@@ -320,7 +336,10 @@ class _ProductRedeemBodyState extends State<_ProductRedeemBody> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: _busy ? null : () => Navigator.pop(context),
-                      child: const Text('Close'),
+                      child: const Text(
+                        'Close',
+                        style: TextStyle(fontSize: 18),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -350,11 +369,17 @@ class _ProductRedeemBodyState extends State<_ProductRedeemBody> {
                                       color: Colors.white,
                                     ),
                                   )
-                                : const Text('Redeem'),
+                                : const Text(
+                                    'Redeem',
+                                    style: TextStyle(fontSize: 18),
+                                  ),
                           )
                         : FilledButton(
                             onPressed: null,
-                            child: Text('Need $need pts'),
+                            child: Text(
+                              'Need $need pts',
+                              style: TextStyle(fontSize: 18),
+                            ),
                           ),
                   ),
                 ],
@@ -430,7 +455,7 @@ void setGlobalCurrency({required String sign, int? id}) {
   }
 }
 
-ExpenseCategory catFor(String name) {
+ExpenseCategory categoryFor(String name) {
   for (final c in dynamicCategories) {
     if (c.name == name) return c;
   }
@@ -481,8 +506,12 @@ IconData getIconByName(String name) {
       return Icons.restaurant;
     case 'directions_bus':
       return Icons.directions_bus;
+    case 'directions_car':
+      return Icons.directions_car;
     case 'shopping_bag':
       return Icons.shopping_bag;
+    case 'shopping_cart':
+      return Icons.shopping_cart;
     case 'favorite':
       return Icons.favorite;
     case 'institution':
@@ -490,9 +519,46 @@ IconData getIconByName(String name) {
       return Icons.school;
     case 'sports_esports':
       return Icons.sports_esports;
+    case 'receipt':
+      return Icons.receipt;
     case 'receipt_long':
       return Icons.receipt_long;
+    case 'movie':
+      return Icons.movie;
+    case 'local_hospital':
+      return Icons.local_hospital;
+    case 'flight':
+      return Icons.flight;
     default:
       return Icons.more_horiz;
   }
+}
+
+// I replaced hardcoded colors with database values
+Color parseColorHex(String colorHex) {
+  final h = colorHex.trim();
+  if (h.isEmpty) return Colors.grey;
+  try {
+    if (h.startsWith('0x') || h.startsWith('0X')) {
+      return Color(int.parse(h));
+    }
+    return Color(int.parse(h.replaceFirst('#', '0xFF')));
+  } catch (_) {
+    return Colors.grey;
+  }
+}
+
+void setGlobalExpenseCategoriesFromRows(
+  List<ListExpenseCategoriesExpenseCategories> rows,
+) {
+  dynamicCategories = rows
+      .map(
+        (c) => ExpenseCategory(
+          c.id,
+          c.name,
+          getIconByName(c.iconName),
+          parseColorHex(c.colorHex),
+        ),
+      )
+      .toList();
 }

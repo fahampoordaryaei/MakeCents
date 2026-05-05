@@ -245,25 +245,6 @@ class _ScholarshipApplicationPageState
     }
   }
 
-  IconData _iconForFile(String name) {
-    final extension = name.toLowerCase().split('.').last;
-    switch (extension) {
-      case 'pdf':
-        return Icons.picture_as_pdf;
-      case 'doc':
-      case 'docx':
-        return Icons.description;
-      case 'txt':
-        return Icons.notes;
-      case 'jpg':
-      case 'jpeg':
-      case 'png':
-        return Icons.image;
-      default:
-        return Icons.attach_file;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -402,7 +383,7 @@ class _ScholarshipApplicationPageState
                                 margin: const EdgeInsets.symmetric(vertical: 6),
                                 child: ListTile(
                                   leading: Icon(
-                                    _iconForFile(file.name),
+                                    Icons.attach_file,
                                     color: widget.brandColor,
                                   ),
                                   title: Text(file.name),
@@ -420,15 +401,6 @@ class _ScholarshipApplicationPageState
                             }).toList(),
                           ),
                         const SizedBox(height: 26),
-                        Text(
-                          'Your application is saved locally in the app. It will not be sent by email automatically.',
-                          style: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.75),
-                          ),
-                        ),
-                        const SizedBox(height: 18),
                         FilledButton(
                           onPressed: _isSaving ? null : _saveApplication,
                           style: FilledButton.styleFrom(
@@ -446,7 +418,7 @@ class _ScholarshipApplicationPageState
                                 )
                               : const Text(
                                   'Save Application',
-                                  style: TextStyle(fontSize: 16),
+                                  style: TextStyle(fontSize: 20),
                                 ),
                         ),
                       ],

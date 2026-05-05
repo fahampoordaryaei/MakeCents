@@ -67,14 +67,7 @@ class _TrackerPageState extends State<TrackerPage> {
       final result = await connector.listExpenseCategories().execute();
       if (!mounted) return;
       setState(() {
-        dynamicCategories = result.data.expenseCategories.map((c) {
-          return ExpenseCategory(
-            c.id,
-            c.name,
-            getIconByName(c.iconName),
-            Color(int.parse(c.colorHex.replaceFirst('#', '0xFF'))),
-          );
-        }).toList();
+        setGlobalExpenseCategoriesFromRows(result.data.expenseCategories);
 
         if (dynamicCategories.isNotEmpty) {
           _selectedCat = dynamicCategories[0];
@@ -750,7 +743,7 @@ class _TrackerPageState extends State<TrackerPage> {
                                         Icons.more_horiz,
                                         Colors.grey,
                                       )
-                                    : catFor(e.key);
+                                    : categoryFor(e.key);
                                 final pct = totalForPct > 0
                                     ? (e.value / totalForPct)
                                     : 0;
@@ -795,7 +788,7 @@ class _TrackerPageState extends State<TrackerPage> {
                             (e) => _Chip(
                               e.key == 'Other'
                                   ? Colors.grey
-                                  : catFor(e.key).color,
+                                  : categoryFor(e.key).color,
                               '${e.key} ${formatMoney(e.value, decimals: 0)}',
                             ),
                           ),
@@ -885,7 +878,7 @@ class _TrackerPageState extends State<TrackerPage> {
                         itemBuilder: (ctx, i) {
                           final globalI = pageStart + i;
                           final tx = txs[globalI];
-                          final cat = catFor(tx.category);
+                          final cat = categoryFor(tx.category);
                           return ListTile(
                             isThreeLine: true,
                             minVerticalPadding: 8,
@@ -1356,8 +1349,7 @@ class _SpendChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final muted = theme.colorScheme.onSurface.withValues(alpha: 0.75);
-    final axisLabelStyle = TextStyle(fontSize: 18, color: muted);
+    final axisLabelStyle = TextStyle(fontSize: 18);
     final yFormat = NumberFormat.currency(symbol: currency, decimalDigits: 0);
     final dayMonthFmt = DateFormat('dd/MM');
 

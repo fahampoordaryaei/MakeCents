@@ -268,7 +268,7 @@ class _ScholarshipCard extends StatelessWidget {
                     s.title,
                     style: TextStyle(
                       fontWeight: FontWeight.w800,
-                      fontSize: 18,
+                      fontSize: 20,
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),

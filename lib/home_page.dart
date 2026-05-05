@@ -498,7 +498,7 @@ class _HomePageState extends State<HomePage> {
                         const Divider(height: 1, indent: 64),
                     itemBuilder: (context, i) {
                       final tx = recent[i];
-                      final cat = catFor(tx.category);
+                      final cat = categoryFor(tx.category);
                       return ListTile(
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 16,

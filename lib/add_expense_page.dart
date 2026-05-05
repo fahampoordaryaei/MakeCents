@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dataconnect_generated/generated.dart';
+import 'theme_provider.dart';
 import 'functions.dart';
 import 'transaction_provider.dart';
 
@@ -11,7 +12,6 @@ class AddExpensePage extends StatefulWidget {
 }
 
 class _AddExpensePageState extends State<AddExpensePage> {
-  final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
   final _descriptionController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
@@ -19,6 +19,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
   List<ExpenseCategory> _categories = [];
   ExpenseCategory? _selectedCategory;
   bool _isLoadingCategories = true;
+  bool _submitAttempted = false;
 
   @override
   void initState() {
@@ -45,7 +46,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
             c.id,
             c.name,
             getIconByName(c.iconName),
-            Color(int.parse(c.colorHex.replaceFirst('#', '0xFF'))),
+            parseColorHex(c.colorHex),
           );
         }).toList();
 
@@ -73,16 +74,13 @@ class _AddExpensePageState extends State<AddExpensePage> {
   }
 
   Future<void> _submitData() async {
-    if (!_formKey.currentState!.validate()) return;
+    setState(() => _submitAttempted = true);
+    final amountText = _amountController.text.trim();
+    final parsedAmount = double.tryParse(amountText);
+    if (amountText.isEmpty || parsedAmount == null) return;
+    if (_selectedCategory == null) return;
 
-    if (_selectedCategory == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please choose a category.')),
-      );
-      return;
-    }
-
-    final enteredAmount = double.parse(_amountController.text);
+    final enteredAmount = parsedAmount;
     final enteredDescription = _descriptionController.text;
 
     try {
@@ -98,6 +96,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
       );
 
       if (!mounted) return;
+      setState(() => _submitAttempted = false);
       Navigator.of(context).pop();
     } catch (_) {
       if (!mounted) return;
@@ -109,103 +108,112 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
   @override
   Widget build(BuildContext context) {
+    final amountText = _amountController.text.trim();
+    final parsedAmount = double.tryParse(amountText);
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextFormField(
-                controller: _amountController,
-                decoration: InputDecoration(
-                  labelText: 'Amount',
-                  prefixText: currency,
-                ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter an amount';
-                  }
-                  if (double.tryParse(value) == null) {
-                    return 'Please enter a valid number';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 12),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextFormField(
+              controller: _amountController,
+              keyboardType: TextInputType.number,
+              onChanged: (_) => setState(() {}),
+              decoration: requiredField(
+                context,
+                label: 'Amount',
+                hasError:
+                    _submitAttempted &&
+                    (amountText.isEmpty || parsedAmount == null),
+              ).copyWith(prefixText: currency),
+            ),
+            const SizedBox(height: 12),
 
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(labelText: 'Description'),
-              ),
-              const SizedBox(height: 16),
+            TextFormField(
+              controller: _descriptionController,
+              decoration: const InputDecoration(labelText: 'Description'),
+            ),
+            const SizedBox(height: 16),
 
-              const Text(
-                'Category',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-              ),
-              const SizedBox(height: 8),
-              _isLoadingCategories
-                  ? const Center(child: CircularProgressIndicator())
-                  : Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: _categories.map((cat) {
-                        final isSelected = _selectedCategory?.name == cat.name;
-                        return ChoiceChip(
-                          avatar: Icon(
-                            cat.icon,
-                            size: 18,
-                            color: isSelected ? Colors.white : cat.color,
-                          ),
-                          label: Text(cat.name),
-                          selected: isSelected,
-                          selectedColor: cat.color,
-                          labelStyle: TextStyle(
-                            color: isSelected ? Colors.white : Colors.black87,
-                            fontWeight: isSelected
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                          ),
-                          onSelected: (_) {
-                            setState(() => _selectedCategory = cat);
-                          },
-                        );
-                      }).toList(),
+            const Text(
+              'Category',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+            ),
+            const SizedBox(height: 8),
+            _isLoadingCategories
+                ? const Center(child: CircularProgressIndicator())
+                : DecoratedBox(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: _submitAttempted && _selectedCategory == null
+                            ? Color(0xFF8B0000)
+                            : Colors.transparent,
+                        width: 1.5,
+                      ),
                     ),
-              const SizedBox(height: 16),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Date: ${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: _categories.map((cat) {
+                          final isSelected =
+                              _selectedCategory?.name == cat.name;
+                          return ChoiceChip(
+                            avatar: Icon(
+                              cat.icon,
+                              size: 18,
+                              color: isSelected ? Colors.white : cat.color,
+                            ),
+                            label: Text(cat.name),
+                            selected: isSelected,
+                            selectedColor: cat.color,
+                            labelStyle: TextStyle(
+                              color: isSelected ? Colors.white : Colors.black87,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                            onSelected: (_) {
+                              setState(() => _selectedCategory = cat);
+                            },
+                          );
+                        }).toList(),
+                      ),
                     ),
                   ),
-                  TextButton(
-                    onPressed: () => _selectDate(context),
-                    child: const Text('Edit date'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
+            const SizedBox(height: 16),
 
-              ElevatedButton(
-                onPressed: _submitData,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF3e7f3f),
-                  foregroundColor:
-                      Theme.of(context).brightness == Brightness.dark
-                      ? Colors.white
-                      : null,
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Date: ${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+                  ),
                 ),
-                child: const Text('Add Expense'),
+                TextButton(
+                  onPressed: () => _selectDate(context),
+                  child: const Text('Edit date'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            ElevatedButton(
+              onPressed: _submitData,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF3e7f3f),
+                foregroundColor: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white
+                    : null,
               ),
-            ],
-          ),
+              child: const Text('Add Expense'),
+            ),
+          ],
         ),
       ),
     );

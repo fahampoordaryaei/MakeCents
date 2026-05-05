@@ -4441,14 +4441,6 @@ input User_Data {
   """
   firstName_expr: String_Expr @fdc_forbiddenInVariables
   """
-  ✨ Generated from Field `User`.`hasMfa` of type `Boolean!`
-  """
-  hasMfa: Boolean
-  """
-  ✨ `_expr` server value variant of `hasMfa` (✨ Generated from Field `User`.`hasMfa` of type `Boolean!`)
-  """
-  hasMfa_expr: Boolean_Expr @fdc_forbiddenInVariables
-  """
   ✨ Generated from Field `User`.`isWeekly` of type `Boolean!`
   """
   isWeekly: Boolean
@@ -4586,10 +4578,6 @@ input User_Filter {
   """
   firstName: String_Filter
   """
-  ✨ Generated from Field `User`.`hasMfa` of type `Boolean!`
-  """
-  hasMfa: Boolean_Filter
-  """
   ✨ Generated from Field `User`.`isWeekly` of type `Boolean!`
   """
   isWeekly: Boolean_Filter
@@ -4719,10 +4707,6 @@ input User_Having {
   ✨ Generated from Field `User`.`firstName_count` of type `Int!`
   """
   firstName_count: Int_Filter
-  """
-  ✨ Generated from Field `User`.`hasMfa_count` of type `Int!`
-  """
-  hasMfa_count: Int_Filter
   """
   ✨ Generated from Field `User`.`institutionId_count` of type `Int!`
   """
@@ -4927,10 +4911,6 @@ input User_Order {
   """
   firstName: OrderDirection
   """
-  ✨ Generated from Field `User`.`hasMfa` of type `Boolean!`
-  """
-  hasMfa: OrderDirection
-  """
   ✨ Generated from Field `User`.`isWeekly` of type `Boolean!`
   """
   isWeekly: OrderDirection
@@ -4994,10 +4974,6 @@ input User_Order {
   ✨ Generated from Field `User`.`firstName_count` of type `Int!`
   """
   firstName_count: OrderDirection
-  """
-  ✨ Generated from Field `User`.`hasMfa_count` of type `Int!`
-  """
-  hasMfa_count: OrderDirection
   """
   ✨ Generated from Field `User`.`institutionId_count` of type `Int!`
   """

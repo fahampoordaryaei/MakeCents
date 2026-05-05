@@ -69,33 +69,26 @@ class _PointsPageState extends State<PointsPage> {
     }
   }
 
-  Future<void> _refreshRedeemData() async {
-    await Future.wait([_loadCloudPoints(), _loadProductsAndRedemptions()]);
-  }
-
   Future<void> _showProductDetails(
     BuildContext context,
     ListProductsProducts product,
   ) async {
     await showProductRedeemDialog(context, product);
-    if (mounted) await _refreshRedeemData();
-  }
-
-  List<ListProductsProducts> _sortedProducts() {
-    final items = [..._products];
-    items.sort((a, b) {
-      final aRedeemed = _redeemedByProductId.containsKey(a.id);
-      final bRedeemed = _redeemedByProductId.containsKey(b.id);
-      if (aRedeemed != bRedeemed) return aRedeemed ? 1 : -1;
-      return a.cost.compareTo(b.cost);
-    });
-    return items;
+    if (mounted) {
+      await Future.wait([_loadCloudPoints(), _loadProductsAndRedemptions()]);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final points = _points ?? 0;
-    final products = _sortedProducts();
+    final products = [..._products]
+      ..sort((a, b) {
+        final aRedeemed = _redeemedByProductId.containsKey(a.id);
+        final bRedeemed = _redeemedByProductId.containsKey(b.id);
+        if (aRedeemed != bRedeemed) return aRedeemed ? 1 : -1;
+        return a.cost.compareTo(b.cost);
+      });
     final bp = Provider.of<BudgetProvider>(context);
     final budgetRewardLabel = bp.isWeekly
         ? 'Within budget (week)'

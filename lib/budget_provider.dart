@@ -21,16 +21,28 @@ class BudgetProvider with ChangeNotifier {
     if (user == null) return;
 
     try {
-      final result = await ExampleConnector.instance
-          .getUserProfile(userId: user.uid)
-          .execute();
-      if (result.data.users.isNotEmpty) {
-        final u = result.data.users.first;
-        _budget = Budget(amount: u.budget ?? 0.0, isWeekly: u.isWeekly);
-        if (u.currency != null) {
-          setGlobalCurrency(sign: u.currency!.sign, id: u.currency!.id);
-        }
-      }
+      await Future.wait([
+        () async {
+          final result = await ExampleConnector.instance
+              .getUserProfile(userId: user.uid)
+              .execute();
+          if (result.data.users.isNotEmpty) {
+            final u = result.data.users.first;
+            _budget = Budget(amount: u.budget ?? 0.0, isWeekly: u.isWeekly);
+            if (u.currency != null) {
+              setGlobalCurrency(sign: u.currency!.sign, id: u.currency!.id);
+            }
+          }
+        }(),
+        () async {
+          try {
+            final cats = await ExampleConnector.instance
+                .listExpenseCategories()
+                .execute();
+            setGlobalExpenseCategoriesFromRows(cats.data.expenseCategories);
+          } catch (_) {}
+        }(),
+      ]);
     } catch (_) {}
     notifyListeners();
   }

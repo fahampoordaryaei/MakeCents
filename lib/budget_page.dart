@@ -152,7 +152,7 @@ class _CategorySpendingChart extends StatelessWidget {
       return PieChartSectionData(
         value: entry.value,
         title: percentage >= 10 ? entry.key : '',
-        color: _getCategoryColor(entry.key),
+        color: categoryFor(entry.key).color,
         radius: 68,
         titleStyle: const TextStyle(
           fontSize: 12,
@@ -213,7 +213,7 @@ class _CategorySpendingChart extends StatelessWidget {
                     width: 12,
                     height: 12,
                     decoration: BoxDecoration(
-                      color: _getCategoryColor(entry.key),
+                      color: categoryFor(entry.key).color,
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -229,23 +229,6 @@ class _CategorySpendingChart extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  Color _getCategoryColor(String category) {
-    final colorMap = {
-      'Food': Colors.blue,
-      'Transportation': Colors.green,
-      'Entertainment': Colors.orange,
-      'Shopping': Colors.purple,
-      'Bills': Colors.red,
-      'Healthcare': Colors.pink,
-      'Education': Colors.teal,
-      'Travel': Colors.indigo,
-      'Other': Colors.grey,
-    };
-
-    return colorMap[category] ??
-        Colors.primaries[category.hashCode % Colors.primaries.length];
   }
 }
 

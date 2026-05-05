@@ -5,6 +5,7 @@ enum ThemeModes { light, dark }
 
 ThemeData _buildTheme(Brightness b, Color scaffold, Color surface) {
   const seed = Color(0xFF3e7f3f);
+  final dialogBg = b == Brightness.light ? Colors.white : surface;
   return ThemeData(
     brightness: b,
     primaryColor: seed,
@@ -16,6 +17,10 @@ ThemeData _buildTheme(Brightness b, Color scaffold, Color surface) {
       secondary: const Color(0xFF5AB8B2),
     ),
     useMaterial3: true,
+    dialogTheme: DialogThemeData(
+      backgroundColor: dialogBg,
+      surfaceTintColor: Colors.transparent,
+    ),
   );
 }
 
@@ -28,6 +33,77 @@ final _themes = [
   ),
 ];
 
+InputDecoration requiredField(
+  BuildContext context, {
+  required String label,
+  bool hasError = false,
+  bool outlined = false,
+  Widget? prefixIcon,
+  Widget? suffixIcon,
+  String? counterText,
+  EdgeInsetsGeometry? contentPadding,
+}) {
+  final labelStyle = hasError
+      ? const TextStyle(color: Color(0xFF8B0000), fontWeight: FontWeight.w600)
+      : null;
+  final floatingLabelStyle = hasError
+      ? const TextStyle(color: Color(0xFF8B0000))
+      : null;
+
+  if (outlined) {
+    final base = Theme.of(context).colorScheme.outline;
+    final normal = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: BorderSide(color: base),
+    );
+    final error = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: const BorderSide(color: Color(0xFF8B0000), width: 1.5),
+    );
+    final border = hasError ? error : normal;
+    return InputDecoration(
+      labelText: label,
+      prefixIcon: prefixIcon,
+      suffixIcon: suffixIcon,
+      counterText: counterText,
+      labelStyle: labelStyle,
+      floatingLabelStyle: floatingLabelStyle,
+      enabledBorder: border,
+      focusedBorder: border,
+      disabledBorder: border,
+      border: border,
+    );
+  }
+
+  final border = hasError
+      ? const OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(8)),
+          borderSide: BorderSide(color: Color(0xFF8B0000), width: 1.5),
+        )
+      : const OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(8)),
+          borderSide: BorderSide.none,
+        );
+
+  return InputDecoration(
+    labelText: label,
+    prefixIcon: prefixIcon,
+    suffixIcon: suffixIcon,
+    counterText: counterText,
+    labelStyle: labelStyle,
+    floatingLabelStyle: floatingLabelStyle,
+    filled: true,
+    fillColor: Theme.of(context).scaffoldBackgroundColor,
+    enabledBorder: border,
+    focusedBorder: border,
+    disabledBorder: border,
+    border: border,
+    contentPadding:
+        contentPadding ??
+        const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+  );
+}
+
 class ThemeProvider extends ChangeNotifier {
   ThemeModes _mode = ThemeModes.light;
   ThemeModes get themeMode => _mode;
@@ -36,7 +112,9 @@ class ThemeProvider extends ChangeNotifier {
 
   Future<void> loadTheme() async {
     final p = await SharedPreferences.getInstance();
-    _mode = _decode(p.getString('theme_mode'));
+    _mode = p.getString('theme_mode') == 'dark'
+        ? ThemeModes.dark
+        : ThemeModes.light;
     notifyListeners();
   }
 
@@ -46,8 +124,4 @@ class ThemeProvider extends ChangeNotifier {
     final p = await SharedPreferences.getInstance();
     await p.setString('theme_mode', mode.name);
   }
-}
-
-ThemeModes _decode(String? raw) {
-  return raw == 'dark' ? ThemeModes.dark : ThemeModes.light;
 }

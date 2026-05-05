@@ -1,6 +1,7 @@
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'theme_provider.dart';
 import 'functions.dart';
 import 'fcm.dart';
 import 'onboarding_profile_page.dart';
@@ -13,13 +14,13 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _PasswordCriteria {
-  _PasswordCriteria(this.pass);
-  final String pass;
-  bool get len => pass.length >= 8;
-  bool get upper => RegExp(r'[A-Z]').hasMatch(pass);
-  bool get lower => RegExp(r'[a-z]').hasMatch(pass);
-  bool get digit => RegExp(r'[0-9]').hasMatch(pass);
-  bool get special => RegExp(r'[^a-zA-Z0-9\s]').hasMatch(pass);
+  _PasswordCriteria(this.password);
+  final String password;
+  bool get len => password.length >= 8;
+  bool get upper => RegExp(r'[A-Z]').hasMatch(password);
+  bool get lower => RegExp(r'[a-z]').hasMatch(password);
+  bool get digit => RegExp(r'[0-9]').hasMatch(password);
+  bool get special => RegExp(r'[^a-zA-Z0-9\s]').hasMatch(password);
   bool get all => len && upper && lower && digit && special;
 }
 
@@ -41,6 +42,11 @@ class _RegisterPageState extends State<RegisterPage> {
   String _countryCode = '+356';
 
   bool _passwordCriteriaAttempted = false;
+
+  bool _registerSubmitAttempted = false;
+  bool _namesSubmitAttempted = false;
+  bool _phoneCodeSubmitAttempted = false;
+  bool _phoneFieldAttempted = false;
 
   @override
   void initState() {
@@ -77,7 +83,10 @@ class _RegisterPageState extends State<RegisterPage> {
     final nameRegex = RegExp(r'^[A-Za-z]+(?: [A-Za-z]+)*$');
 
     if (firstName.isEmpty || lastName.isEmpty) {
-      setState(() => _error = 'Please fill out all fields.');
+      setState(() {
+        _namesSubmitAttempted = true;
+        _error = '';
+      });
       return false;
     }
     if (!nameRegex.hasMatch(firstName)) {
@@ -89,6 +98,9 @@ class _RegisterPageState extends State<RegisterPage> {
     if (!nameRegex.hasMatch(lastName)) {
       setState(() => _error = 'Last name can only contain letters and spaces.');
       return false;
+    }
+    if (_namesSubmitAttempted) {
+      setState(() => _namesSubmitAttempted = false);
     }
     return true;
   }
@@ -128,6 +140,13 @@ class _RegisterPageState extends State<RegisterPage> {
       RegExp(r'[^\d+]'),
       '',
     );
+    if (normalized.isEmpty) {
+      setState(() {
+        _phoneFieldAttempted = true;
+        _error = '';
+      });
+      return;
+    }
     final fullPhone = '$_countryCode$normalized';
     if (!RegExp(r'^\+?\d{7,15}$').hasMatch(fullPhone)) {
       setState(() => _error = 'Enter a valid phone number.');
@@ -135,6 +154,7 @@ class _RegisterPageState extends State<RegisterPage> {
     }
 
     setState(() {
+      _phoneFieldAttempted = false;
       _error = '';
       _isLoading = true;
       _codeSent = false;
@@ -200,7 +220,10 @@ class _RegisterPageState extends State<RegisterPage> {
 
     final code = _codeController.text.trim();
     if (code.isEmpty) {
-      setState(() => _error = 'Enter the verification code.');
+      setState(() {
+        _phoneCodeSubmitAttempted = true;
+        _error = '';
+      });
       return;
     }
     if (_verificationId == null) {
@@ -213,6 +236,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
     setState(() {
       _error = '';
+      _phoneCodeSubmitAttempted = false;
       _isLoading = true;
     });
 
@@ -248,20 +272,26 @@ class _RegisterPageState extends State<RegisterPage> {
     final firstName = _firstNameController.text.trim();
     final lastName = _lastNameController.text.trim();
     final email = _emailController.text.trim();
-    final pass = _passwordController.text;
+    final password = _passwordController.text;
     final confirmPass = _confirmPasswordController.text;
-
-    setState(() => _error = '');
 
     if (firstName.isEmpty ||
         lastName.isEmpty ||
         email.isEmpty ||
-        pass.isEmpty ||
+        password.isEmpty ||
         confirmPass.isEmpty) {
-      setState(() => _error = 'Please fill out all fields.');
+      setState(() {
+        _registerSubmitAttempted = true;
+        _error = '';
+      });
       return;
     }
-    if (pass != confirmPass) {
+
+    setState(() {
+      _error = '';
+      _registerSubmitAttempted = false;
+    });
+    if (password != confirmPass) {
       setState(() => _error = 'Passwords do not match.');
       return;
     }
@@ -279,7 +309,7 @@ class _RegisterPageState extends State<RegisterPage> {
       setState(() => _error = 'Please enter a valid email address.');
       return;
     }
-    final criteria = _PasswordCriteria(pass);
+    final criteria = _PasswordCriteria(password);
     if (!criteria.all) {
       setState(() {
         _error = '';
@@ -292,7 +322,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
     try {
       final userCredential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(email: email, password: pass);
+          .createUserWithEmailAndPassword(email: email, password: password);
       final created = userCredential.user!;
       await sendUserEmailVerification(created);
       try {
@@ -306,7 +336,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('We sent a verification link to $email.')),
+          SnackBar(content: Text('We sent a verification email to $email.')),
         );
         Navigator.of(context).push(
           MaterialPageRoute(
@@ -335,19 +365,8 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Widget _passwordCriteriaList(BuildContext context) {
-    final pass = _passwordController.text;
-    final rules = _PasswordCriteria(pass);
-    final scheme = Theme.of(context).colorScheme;
-    final muted = scheme.onSurface.withValues(alpha: 0.45);
-    const ok = Color(0xFF3e7f3f);
-    final err = scheme.error;
-
-    Color lineColor(bool met) {
-      if (met) return ok;
-      final showFail = pass.isNotEmpty || _passwordCriteriaAttempted;
-      if (!showFail) return muted;
-      return err;
-    }
+    final password = _passwordController.text;
+    final criteria = _PasswordCriteria(password);
 
     Widget line(String text, bool met) {
       return Text(
@@ -356,7 +375,7 @@ class _RegisterPageState extends State<RegisterPage> {
           fontSize: 18,
           height: 1.4,
           fontWeight: FontWeight.w600,
-          color: lineColor(met),
+          color: met ? Color(0xFF3e7f3f) : Color(0xFF8B0000),
         ),
       );
     }
@@ -366,17 +385,17 @@ class _RegisterPageState extends State<RegisterPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          line('• 8 characters minimum', rules.len),
-          line('• 1 uppercase letter', rules.upper),
-          line('• 1 lowercase letter', rules.lower),
-          line('• 1 number', rules.digit),
-          line('• 1 special character', rules.special),
+          line('• 8 characters minimum', criteria.len),
+          line('• 1 uppercase letter', criteria.upper),
+          line('• 1 lowercase letter', criteria.lower),
+          line('• 1 number', criteria.digit),
+          line('• 1 special character', criteria.special),
         ],
       ),
     );
   }
 
-  Widget _buildPhoneInput() {
+  Widget _buildPhoneInput({required bool phoneError}) {
     return Row(
       children: [
         Container(
@@ -402,6 +421,7 @@ class _RegisterPageState extends State<RegisterPage> {
             icon: Icons.phone_outlined,
             isPassword: false,
             keyboardType: TextInputType.phone,
+            hasError: phoneError,
           ),
         ),
       ],
@@ -414,14 +434,18 @@ class _RegisterPageState extends State<RegisterPage> {
     required IconData icon,
     bool isPassword = false,
     TextInputType? keyboardType,
+    bool hasError = false,
   }) {
     return TextField(
       controller: controller,
       obscureText: isPassword ? _obscure : false,
       keyboardType: keyboardType,
       style: const TextStyle(fontSize: 18),
-      decoration: InputDecoration(
-        labelText: label,
+      onChanged: (_) => setState(() {}),
+      decoration: requiredField(
+        context,
+        label: label,
+        hasError: hasError,
         prefixIcon: Icon(icon, size: 20),
         suffixIcon: isPassword
             ? IconButton(
@@ -434,22 +458,21 @@ class _RegisterPageState extends State<RegisterPage> {
                 onPressed: () => setState(() => _obscure = !_obscure),
               )
             : null,
-        filled: true,
-        fillColor: Theme.of(context).scaffoldBackgroundColor,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide.none,
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
-        ),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final firstName = _firstNameController.text.trim();
+    final lastName = _lastNameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    final emailError = !_usePhoneRegister && _registerSubmitAttempted;
+    final nameError =
+        emailError || (_usePhoneRegister && _namesSubmitAttempted);
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
@@ -526,12 +549,14 @@ class _RegisterPageState extends State<RegisterPage> {
                   controller: _firstNameController,
                   label: 'First Name',
                   icon: Icons.person_outline,
+                  hasError: nameError && firstName.isEmpty,
                 ),
                 const SizedBox(height: 14),
                 _inputField(
                   controller: _lastNameController,
                   label: 'Last Name',
                   icon: Icons.person_outline,
+                  hasError: nameError && lastName.isEmpty,
                 ),
                 const SizedBox(height: 20),
                 Row(
@@ -547,6 +572,9 @@ class _RegisterPageState extends State<RegisterPage> {
                             _codeController.clear();
                             _error = '';
                             _passwordCriteriaAttempted = false;
+                            _namesSubmitAttempted = false;
+                            _phoneCodeSubmitAttempted = false;
+                            _phoneFieldAttempted = false;
                           });
                         },
                         style: OutlinedButton.styleFrom(
@@ -582,6 +610,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             _codeController.clear();
                             _error = '';
                             _passwordCriteriaAttempted = false;
+                            _registerSubmitAttempted = false;
                           });
                         },
                         style: OutlinedButton.styleFrom(
@@ -612,6 +641,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     label: 'Email',
                     icon: Icons.email_outlined,
                     keyboardType: TextInputType.emailAddress,
+                    hasError: emailError && email.isEmpty,
                   ),
                   const SizedBox(height: 14),
                   _inputField(
@@ -619,6 +649,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     label: 'Password',
                     icon: Icons.lock_outline,
                     isPassword: true,
+                    hasError: emailError && password.isEmpty,
                   ),
                   const SizedBox(height: 14),
                   _inputField(
@@ -626,11 +657,22 @@ class _RegisterPageState extends State<RegisterPage> {
                     label: 'Confirm Password',
                     icon: Icons.lock_outline,
                     isPassword: true,
+                    hasError:
+                        emailError && _confirmPasswordController.text.isEmpty,
                   ),
                   const SizedBox(height: 12),
                   _passwordCriteriaList(context),
                 ] else ...[
-                  _buildPhoneInput(),
+                  _buildPhoneInput(
+                    phoneError:
+                        _usePhoneRegister &&
+                        !_codeSent &&
+                        _phoneFieldAttempted &&
+                        _phoneController.text
+                            .trim()
+                            .replaceAll(RegExp(r'[^\d+]'), '')
+                            .isEmpty,
+                  ),
                   if (_codeSent) ...[
                     const SizedBox(height: 14),
                     _inputField(
@@ -638,6 +680,11 @@ class _RegisterPageState extends State<RegisterPage> {
                       label: 'Verification code',
                       icon: Icons.message_outlined,
                       keyboardType: TextInputType.number,
+                      hasError:
+                          _usePhoneRegister &&
+                          _codeSent &&
+                          _phoneCodeSubmitAttempted &&
+                          _codeController.text.trim().isEmpty,
                     ),
                     const SizedBox(height: 8),
                     Text(

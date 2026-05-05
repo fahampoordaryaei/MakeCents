@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'budget_provider.dart';
 import 'fcm.dart';
@@ -10,14 +13,7 @@ import 'login_page.dart';
 import 'theme_provider.dart';
 import 'transaction_provider.dart';
 import 'user_provider.dart';
-
-String _profileStoreEmail(User user) {
-  final email = user.email?.trim();
-  if (email != null && email.isNotEmpty) return email;
-  final phone = user.phoneNumber?.trim();
-  if (phone != null && phone.isNotEmpty) return phone;
-  return '';
-}
+import 'mfa_provider.dart';
 
 Future<int?> _getCountryId(ExampleConnector connector, String? isoCode) async {
   final code = isoCode?.trim().toUpperCase();
@@ -48,34 +44,51 @@ class ProfilePage extends StatelessWidget {
 
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        title: const Text('Change password'),
-        content: Text(
-          'We will email a password reset link to:\n$email\n\n'
-          'Open it to set a new password.',
-          style: const TextStyle(fontSize: 18),
-        ),
-        actions: [
-          TextButton(
-            style: TextButton.styleFrom(
-              minimumSize: const Size(100, 48),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            ),
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+      builder: (dialogContext) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          title: const Text(
+            'Change password',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFF3e7f3f),
-              minimumSize: const Size(100, 48),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          content: SizedBox(
+            width: 420,
+            child: Text(
+              'A link to change your password will be sent to your email address:\n$email',
+              style: TextStyle(fontSize: 18, height: 1.4),
             ),
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Send email'),
           ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              style: TextButton.styleFrom(
+                minimumSize: const Size(100, 48),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+              ),
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancel', style: TextStyle(fontSize: 18)),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFF3e7f3f),
+                minimumSize: const Size(100, 48),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('Send email', style: TextStyle(fontSize: 18)),
+            ),
+          ],
+        );
+      },
     );
 
     if (confirmed != true || !context.mounted) return;
@@ -104,6 +117,7 @@ class ProfilePage extends StatelessWidget {
       MaterialPageRoute(
         builder: (_) => _SettingsPage(
           onChangePassword: _showChangePasswordDialog,
+          onMfa: (ctx) => showMfaAccountDialog(ctx),
           onDeleteAccount: _confirmDeleteAccount,
         ),
       ),
@@ -114,50 +128,54 @@ class ProfilePage extends StatelessWidget {
     try {
       final user = FirebaseAuth.instance.currentUser!;
 
-      AuthCredential? credential;
+      Future<void> deleteWith(AuthCredential credential) async {
+        await user.reauthenticateWithCredential(credential);
+        await ExampleConnector.instance
+            .deleteUserProfile(userId: user.uid)
+            .execute();
+        await user.delete();
+      }
+
+      final bool? deleted;
       if (user.phoneNumber?.isNotEmpty ?? false) {
-        credential = await showDialog<PhoneAuthCredential>(
+        deleted = await showDialog<bool>(
           context: context,
-          builder: (_) =>
-              _DeleteAccountPhoneCodeDialog(phoneNumber: user.phoneNumber!),
+          builder: (_) => _DeleteAccountPhoneCodeDialog(
+            phoneNumber: user.phoneNumber!,
+            runDeletion: deleteWith,
+          ),
         );
-        if (credential == null) return;
       } else {
-        final password = await showDialog<String>(
-          context: context,
-          builder: (_) => const _DeleteAccountPasswordDialog(),
-        );
-        if (password == null || password.isEmpty) return;
-        final email = user.email;
-        if (email == null || email.isEmpty) {
-          if (!context.mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('No email associated with this account.'),
-            ),
+        Future<void> deleteWithEmail(String password, String totpCode) async {
+          final email = user.email!.trim();
+          await reauthenticateUser(
+            user: user,
+            email: email,
+            password: password,
+            totpForSignIn: totpCode,
           );
-          return;
+          await ExampleConnector.instance
+              .deleteUserProfile(userId: user.uid)
+              .execute();
+          await user.delete();
         }
-        credential = EmailAuthProvider.credential(
-          email: email,
-          password: password,
+
+        deleted = await showDialog<bool>(
+          context: context,
+          builder: (_) => _DeleteAccountPasswordDialog(
+            emailVerified: user.emailVerified,
+            runEmailDeletion: deleteWithEmail,
+          ),
         );
       }
 
-      await user.reauthenticateWithCredential(credential);
-
-      await ExampleConnector.instance
-          .deleteUserProfile(userId: user.uid)
-          .execute();
-
-      await user.delete();
-
-      if (!context.mounted) return;
-      Provider.of<UserProvider>(context, listen: false).clearProfile();
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const LoginPage()),
-        (r) => false,
-      );
+      if (deleted == true && context.mounted) {
+        Provider.of<UserProvider>(context, listen: false).clearProfile();
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const LoginPage()),
+          (r) => false,
+        );
+      }
     } catch (_) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -320,7 +338,7 @@ class ProfilePage extends StatelessWidget {
               iconColor: const Color(0xFF3e7f3f),
               title: 'Student Profile',
               subtitle:
-                  '${up.profile!.displayInstitution} • ${up.profile!.displayCourse}',
+                  '${up.profile?.displayInstitution ?? 'Not set'} • ${up.profile?.displayCourse ?? 'Not set'}',
               onTap: () => _editInstitutionProfileDialog(context),
             ),
             const SizedBox(height: 8),
@@ -385,7 +403,14 @@ class ProfilePage extends StatelessWidget {
 }
 
 class _DeleteAccountPasswordDialog extends StatefulWidget {
-  const _DeleteAccountPasswordDialog();
+  final bool emailVerified;
+  final Future<void> Function(String password, String authenticatorCode)
+  runEmailDeletion;
+
+  const _DeleteAccountPasswordDialog({
+    required this.emailVerified,
+    required this.runEmailDeletion,
+  });
 
   @override
   State<_DeleteAccountPasswordDialog> createState() =>
@@ -394,7 +419,12 @@ class _DeleteAccountPasswordDialog extends StatefulWidget {
 
 class _DeleteAccountPhoneCodeDialog extends StatefulWidget {
   final String phoneNumber;
-  const _DeleteAccountPhoneCodeDialog({required this.phoneNumber});
+  final Future<void> Function(AuthCredential credential) runDeletion;
+
+  const _DeleteAccountPhoneCodeDialog({
+    required this.phoneNumber,
+    required this.runDeletion,
+  });
 
   @override
   State<_DeleteAccountPhoneCodeDialog> createState() =>
@@ -406,12 +436,10 @@ class _DeleteAccountPhoneCodeDialogState
   final TextEditingController _codeCtrl = TextEditingController();
   String _error = '';
   String? _verificationId;
-
-  @override
-  void initState() {
-    super.initState();
-    _sendCode();
-  }
+  bool _codeAttempted = false;
+  bool _busy = false;
+  bool _smsStep = false;
+  bool _sentCode = false;
 
   @override
   void dispose() {
@@ -419,19 +447,50 @@ class _DeleteAccountPhoneCodeDialogState
     super.dispose();
   }
 
+  void _onFirstConfirm() {
+    if (_busy) return;
+    setState(() {
+      _smsStep = true;
+    });
+    _sendCode();
+  }
+
   Future<void> _sendCode() async {
-    setState(() => _error = '');
+    if (_busy || _sentCode) return;
+    setState(() {
+      _error = '';
+      _codeAttempted = false;
+      _sentCode = true;
+      _verificationId = null;
+    });
     try {
       await FirebaseAuth.instance.verifyPhoneNumber(
         phoneNumber: widget.phoneNumber,
         timeout: const Duration(seconds: 60),
         verificationCompleted: (credential) {
-          if (!mounted) return;
-          Navigator.of(context).pop(credential);
+          Future.microtask(() async {
+            if (!mounted) return;
+            setState(() {
+              _sentCode = false;
+              _busy = true;
+            });
+            try {
+              await widget.runDeletion(credential);
+              if (!mounted) return;
+              Navigator.of(context).pop(true);
+            } catch (e) {
+              if (!mounted) return;
+              setState(() {
+                _busy = false;
+                _error = _deleteAuthErrorMessage(e);
+              });
+            }
+          });
         },
         verificationFailed: (e) {
           if (!mounted) return;
           setState(() {
+            _sentCode = false;
             _error = e.message ?? 'Could not send verification code.';
           });
         },
@@ -439,22 +498,53 @@ class _DeleteAccountPhoneCodeDialogState
           if (!mounted) return;
           setState(() {
             _verificationId = verificationId;
+            _sentCode = false;
           });
         },
         codeAutoRetrievalTimeout: (verificationId) {
-          _verificationId = verificationId;
+          if (!mounted) return;
+          setState(() {
+            _verificationId = verificationId;
+            _sentCode = false;
+          });
         },
       );
     } catch (_) {
       if (!mounted) return;
-      setState(() => _error = 'Could not send verification code.');
+      setState(() {
+        _sentCode = false;
+        _error = 'Could not send verification code.';
+      });
     }
   }
 
-  void _confirm() {
+  String _deleteAuthErrorMessage(Object e) {
+    if (e is FirebaseAuthException) {
+      switch (e.code) {
+        case 'invalid-verification-code':
+          return 'That code is incorrect. Check the SMS and try again.';
+        case 'session-expired':
+          return 'This code has expired. Tap Resend for a new code.';
+        case 'invalid-credential':
+          return 'That code is incorrect or no longer valid. Try again or tap Resend.';
+        default:
+          break;
+      }
+      if (e.message?.trim().isNotEmpty ?? false) {
+        return e.message?.trim() ?? '';
+      }
+    }
+    return 'Could not delete account. Please try again.';
+  }
+
+  Future<void> _confirmDeletion() async {
+    if (_busy) return;
     final code = _codeCtrl.text.trim();
     if (code.isEmpty) {
-      setState(() => _error = 'Enter the verification code.');
+      setState(() {
+        _codeAttempted = true;
+        _error = '';
+      });
       return;
     }
     if (_verificationId == null) {
@@ -465,71 +555,247 @@ class _DeleteAccountPhoneCodeDialogState
       verificationId: _verificationId!,
       smsCode: code,
     );
-    Navigator.of(context).pop(credential);
+    setState(() {
+      _busy = true;
+      _error = '';
+    });
+    try {
+      await widget.runDeletion(credential);
+      if (!mounted) return;
+      Navigator.of(context).pop(true);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _busy = false;
+        _error = _deleteAuthErrorMessage(e);
+      });
+    }
+  }
+
+  InputDecoration _codeDecoration(BuildContext context, bool codeFieldError) {
+    const errorRed = Color(0xFF8B0000);
+    final outline = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: codeFieldError
+          ? const BorderSide(color: errorRed, width: 1.5)
+          : BorderSide.none,
+    );
+    return InputDecoration(
+      labelText: 'Verification code',
+      labelStyle: codeFieldError
+          ? const TextStyle(color: errorRed, fontWeight: FontWeight.w600)
+          : null,
+      floatingLabelStyle: codeFieldError
+          ? const TextStyle(color: errorRed)
+          : null,
+      filled: true,
+      fillColor: Theme.of(context).scaffoldBackgroundColor,
+      enabledBorder: outline,
+      focusedBorder: outline,
+      disabledBorder: outline,
+      border: outline,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
+    final codeFieldError = _codeAttempted && _codeCtrl.text.trim().isEmpty;
+    final fieldReadOnly = _busy || _sentCode;
+    final hasCode = _verificationId != null;
+    final confirmEnabled = !_busy && !_sentCode && hasCode;
+
+    final textActionStyle = TextButton.styleFrom(
+      minimumSize: const Size(0, 48),
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+    );
+    final filledActionStyle = FilledButton.styleFrom(
+      minimumSize: const Size(0, 48),
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      title: const Text('Delete account?'),
-      content: SizedBox(
-        width: 420,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Enter the SMS code sent to ${widget.phoneNumber} to confirm account deletion.',
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _codeCtrl,
-              keyboardType: TextInputType.number,
-              autofocus: true,
-              decoration: InputDecoration(
-                labelText: 'Verification code',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
+    );
+
+    return PopScope(
+      canPop: !_busy,
+      child: AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        title: const Text(
+          'Delete account?',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        content: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (!_smsStep) ...[
+                Text(
+                  'Are you sure?\nThis action cannot be undone.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 18, height: 1.4),
                 ),
-              ),
-            ),
-            if (_error.isNotEmpty) ...[
-              const SizedBox(height: 10),
-              Text(
-                _error,
-                style: const TextStyle(color: Colors.red, fontSize: 18),
-              ),
+              ] else ...[
+                if (_sentCode)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 24),
+                    child: Center(
+                      child: SizedBox(
+                        width: 28,
+                        height: 28,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
+                  )
+                else if (hasCode) ...[
+                  Text(
+                    'An SMS code has been sent to ${widget.phoneNumber}',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 18, height: 1.4),
+                  ),
+                  const SizedBox(height: 24),
+                  TextField(
+                    controller: _codeCtrl,
+                    readOnly: fieldReadOnly,
+                    keyboardType: TextInputType.number,
+                    autofocus: true,
+                    style: const TextStyle(fontSize: 18),
+                    onChanged: (_) {
+                      setState(() {
+                        if (_error.isNotEmpty) _error = '';
+                      });
+                    },
+                    decoration: _codeDecoration(context, codeFieldError),
+                  ),
+                ],
+                if (_error.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFECEC),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(
+                          Icons.info_outline,
+                          color: Color(0xFF8B0000),
+                          size: 18,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _error,
+                            style: const TextStyle(
+                              color: Color(0xFF8B0000),
+                              fontWeight: FontWeight.w600,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+              const SizedBox(height: 24),
+              if (!_smsStep)
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        style: textActionStyle,
+                        onPressed: _busy ? null : () => Navigator.pop(context),
+                        child: const Text(
+                          'Cancel',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: FilledButton(
+                        style: filledActionStyle.copyWith(
+                          backgroundColor: const WidgetStatePropertyAll(
+                            Color(0xFF3e7f3f),
+                          ),
+                        ),
+                        onPressed: _busy ? null : _onFirstConfirm,
+                        child: const Text(
+                          'Proceed',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              else
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        style: textActionStyle,
+                        onPressed: (_busy || _sentCode)
+                            ? null
+                            : () => Navigator.pop(context),
+                        child: const Text(
+                          'Cancel',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextButton(
+                        style: textActionStyle,
+                        onPressed: (_busy || _sentCode) ? null : _sendCode,
+                        child: const Text(
+                          'Resend',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: FilledButton(
+                        style: filledActionStyle.copyWith(
+                          backgroundColor: const WidgetStatePropertyAll(
+                            Color(0xFFDD403D),
+                          ),
+                        ),
+                        onPressed: confirmEnabled ? _confirmDeletion : null,
+                        child: _busy
+                            ? const SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Text(
+                                'Confirm',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(fontSize: 18),
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
             ],
-          ],
+          ),
         ),
       ),
-      actions: [
-        TextButton(
-          style: TextButton.styleFrom(
-            minimumSize: const Size(100, 48),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          ),
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
-        ),
-        TextButton(
-          style: TextButton.styleFrom(
-            minimumSize: const Size(100, 48),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          ),
-          onPressed: _sendCode,
-          child: const Text('Resend'),
-        ),
-        FilledButton(
-          style: FilledButton.styleFrom(
-            backgroundColor: const Color(0xFFFF6B6B),
-            minimumSize: const Size(100, 48),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          ),
-          onPressed: _confirm,
-          child: const Text('Delete'),
-        ),
-      ],
     );
   }
 }
@@ -537,71 +803,185 @@ class _DeleteAccountPhoneCodeDialogState
 class _DeleteAccountPasswordDialogState
     extends State<_DeleteAccountPasswordDialog> {
   late final TextEditingController _passwordCtrl;
+  late final TextEditingController _totpCtrl;
   bool _obscure = true;
+  bool _passwordAttempted = false;
+  bool _busy = false;
 
   @override
   void initState() {
     super.initState();
     _passwordCtrl = TextEditingController();
+    _totpCtrl = TextEditingController();
   }
 
   @override
   void dispose() {
     _passwordCtrl.dispose();
+    _totpCtrl.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      title: const Text('Delete account?'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Text('This will permanently remove your account.'),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _passwordCtrl,
-            obscureText: _obscure,
-            autofocus: true,
-            decoration: InputDecoration(
-              labelText: 'Password',
-              border: OutlineInputBorder(
+    final passwordFieldError =
+        _passwordAttempted && _passwordCtrl.text.trim().isEmpty;
+    const errorRed = Color(0xFF8B0000);
+    final passwordOutline = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: passwordFieldError
+          ? const BorderSide(color: errorRed, width: 1.5)
+          : BorderSide.none,
+    );
+    final totpOutline = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: BorderSide.none,
+    );
+    return PopScope(
+      canPop: !_busy,
+      child: AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        title: const Text(
+          'Delete account?',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        content: SizedBox(
+          width: 420,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Are you sure?\nThis action cannot be undone.',
+                style: TextStyle(fontSize: 18, height: 1.4),
+              ),
+              const SizedBox(height: 24),
+              TextField(
+                controller: _passwordCtrl,
+                readOnly: _busy,
+                obscureText: _obscure,
+                autofocus: true,
+                style: const TextStyle(fontSize: 18),
+                onChanged: (_) {
+                  if (_passwordAttempted) setState(() {});
+                },
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscure
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                    ),
+                    onPressed: _busy
+                        ? null
+                        : () => setState(() => _obscure = !_obscure),
+                  ),
+                  labelStyle: passwordFieldError
+                      ? const TextStyle(
+                          color: errorRed,
+                          fontWeight: FontWeight.w600,
+                        )
+                      : null,
+                  floatingLabelStyle: passwordFieldError
+                      ? const TextStyle(color: errorRed)
+                      : null,
+                  filled: true,
+                  fillColor: Theme.of(context).scaffoldBackgroundColor,
+                  enabledBorder: passwordOutline,
+                  focusedBorder: passwordOutline,
+                  disabledBorder: passwordOutline,
+                  border: passwordOutline,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 16,
+                  ),
+                ),
+              ),
+              if (widget.emailVerified) ...[
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _totpCtrl,
+                  readOnly: _busy,
+                  keyboardType: TextInputType.number,
+                  maxLength: 6,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  style: const TextStyle(fontSize: 18),
+                  decoration: InputDecoration(
+                    labelText: 'Authenticator code',
+                    counterText: '',
+                    filled: true,
+                    fillColor: Theme.of(context).scaffoldBackgroundColor,
+                    enabledBorder: totpOutline,
+                    focusedBorder: totpOutline,
+                    disabledBorder: totpOutline,
+                    border: totpOutline,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            style: TextButton.styleFrom(
+              minimumSize: const Size(100, 48),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+            onPressed: _busy ? null : () => Navigator.pop(context),
+            child: const Text('Cancel', style: TextStyle(fontSize: 18)),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFFDD403D),
+              minimumSize: const Size(100, 48),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
-              suffixIcon: IconButton(
-                icon: Icon(
-                  _obscure
-                      ? Icons.visibility_outlined
-                      : Icons.visibility_off_outlined,
-                ),
-                onPressed: () => setState(() => _obscure = !_obscure),
-              ),
             ),
+            onPressed: _busy ? null : _submitDelete,
+            child: _busy
+                ? const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Text('Delete', style: TextStyle(fontSize: 18)),
           ),
         ],
       ),
-      actions: [
-        TextButton(
-          style: TextButton.styleFrom(
-            minimumSize: const Size(100, 48),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          ),
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(
-          style: FilledButton.styleFrom(
-            backgroundColor: const Color(0xFFFF6B6B),
-            minimumSize: const Size(100, 48),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          ),
-          onPressed: () => Navigator.pop(context, _passwordCtrl.text.trim()),
-          child: const Text('Delete'),
-        ),
-      ],
     );
+  }
+
+  Future<void> _submitDelete() async {
+    if (_busy) return;
+    final p = _passwordCtrl.text.trim();
+    if (p.isEmpty) {
+      setState(() => _passwordAttempted = true);
+      return;
+    }
+
+    setState(() => _busy = true);
+    try {
+      await widget.runEmailDeletion(p, _totpCtrl.text.trim());
+      if (!mounted) return;
+      Navigator.of(context).pop(true);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _busy = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not delete account.')),
+      );
+    }
   }
 }
 
@@ -768,18 +1148,14 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
                   Text(
                     '${_sign}10',
                     style: TextStyle(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.75),
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 18,
                     ),
                   ),
                   Text(
                     '${_sign}10,000',
                     style: TextStyle(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.75),
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 18,
                     ),
                   ),
@@ -959,7 +1335,7 @@ class _EditInstitutionProfileDialogState
 
       final base = connector.storeUserProfile(
         userId: user.uid,
-        email: _profileStoreEmail(user),
+        email: user.email?.trim() ?? '',
         firstName: widget.profile.firstName,
         lastName: widget.profile.lastName,
       );
@@ -999,8 +1375,6 @@ class _EditInstitutionProfileDialogState
 
   @override
   Widget build(BuildContext context) {
-    final canSave = _formKey.currentState?.canSubmit == true && !_saving;
-
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       title: const Text(
@@ -1041,7 +1415,7 @@ class _EditInstitutionProfileDialogState
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           ),
           onPressed: _saving ? null : () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: const Text('Cancel', style: TextStyle(fontSize: 18)),
         ),
         FilledButton(
           style: FilledButton.styleFrom(
@@ -1052,7 +1426,9 @@ class _EditInstitutionProfileDialogState
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          onPressed: canSave ? _save : null,
+          onPressed: _formKey.currentState?.canSubmit == true && !_saving
+              ? _save
+              : null,
           child: _saving
               ? const SizedBox(
                   width: 22,
@@ -1062,7 +1438,7 @@ class _EditInstitutionProfileDialogState
                     color: Colors.white,
                   ),
                 )
-              : const Text('Save Changes'),
+              : const Text('Save Changes', style: TextStyle(fontSize: 18)),
         ),
       ],
     );
@@ -1127,17 +1503,126 @@ class _StatCard extends StatelessWidget {
   );
 }
 
-class _SettingsPage extends StatelessWidget {
+class _SettingsPage extends StatefulWidget {
   final Future<void> Function(BuildContext context) onChangePassword;
+  final Future<void> Function(BuildContext context) onMfa;
   final Future<void> Function(BuildContext context) onDeleteAccount;
 
   const _SettingsPage({
     required this.onChangePassword,
+    required this.onMfa,
     required this.onDeleteAccount,
   });
 
   @override
+  State<_SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<_SettingsPage> {
+  Timer? _verifyEmailCooldownTimer;
+  int _emailCooldown = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _reloadUser());
+  }
+
+  @override
+  void dispose() {
+    _verifyEmailCooldownTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _reloadUser({bool notify = true}) async {
+    final u = FirebaseAuth.instance.currentUser;
+    if (u == null) return;
+    try {
+      await u.reload();
+    } catch (_) {}
+    if (notify && mounted) setState(() {});
+  }
+
+  void _startVerifyEmailCooldown() {
+    _verifyEmailCooldownTimer?.cancel();
+    setState(() => _emailCooldown = 60);
+    _verifyEmailCooldownTimer = Timer.periodic(const Duration(seconds: 1), (
+      t,
+    ) async {
+      if (!mounted) {
+        t.cancel();
+        return;
+      }
+      await _reloadUser(notify: false);
+      if (!mounted) {
+        t.cancel();
+        return;
+      }
+      final verified =
+          FirebaseAuth.instance.currentUser?.emailVerified ?? false;
+      if (verified) {
+        t.cancel();
+        if (mounted) {
+          setState(() => _emailCooldown = 0);
+        }
+        return;
+      }
+      setState(() {
+        if (_emailCooldown <= 1) {
+          t.cancel();
+          _emailCooldown = 0;
+        } else {
+          _emailCooldown--;
+        }
+      });
+    });
+  }
+
+  String _verifyEmailSubtitle({required bool emailVerified}) {
+    if (emailVerified) return 'Your email is verified';
+    if (_emailCooldown > 0) {
+      final s = _emailCooldown;
+      return 'Resend in $s seconds';
+    }
+    return 'Verify your email address';
+  }
+
+  Future<void> _onVerifyEmailTap(BuildContext context) async {
+    await _reloadUser();
+    if (!context.mounted) return;
+    final u = FirebaseAuth.instance.currentUser!;
+    if (u.emailVerified) return;
+    if (_emailCooldown > 0) return;
+    try {
+      await sendUserEmailVerification(u);
+      if (!context.mounted) return;
+      final email = u.email?.trim() ?? '';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('We sent a verification email to $email.')),
+      );
+      _startVerifyEmailCooldown();
+    } on FirebaseAuthException catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.message ?? 'Could not send verification email.'),
+        ),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser!;
+    final hasPassword = user.providerData.any(
+      (p) => p.providerId == 'password',
+    );
+    final email = user.email?.trim() ?? '';
+    final showVerifyEmail = email.isNotEmpty;
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
@@ -1177,15 +1662,42 @@ class _SettingsPage extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 24),
-              if (FirebaseAuth.instance.currentUser!.providerData.any(
-                (p) => p.providerId == 'password',
-              )) ...[
+              if (hasPassword) ...[
                 _SettingsTile(
                   icon: Icons.lock_outline,
                   iconColor: const Color(0xFF4ECDC4),
                   title: 'Change password',
                   subtitle: 'Send a password reset email',
-                  onTap: () => onChangePassword(context),
+                  onTap: () => widget.onChangePassword(context),
+                ),
+                const SizedBox(height: 8),
+              ],
+              if (showVerifyEmail) ...[
+                _SettingsTile(
+                  icon: Icons.mark_email_unread_outlined,
+                  iconColor: const Color(0xFF5C6BC0),
+                  title: 'Verify email',
+                  subtitle: _verifyEmailSubtitle(
+                    emailVerified: user.emailVerified,
+                  ),
+                  onTap: user.emailVerified
+                      ? null
+                      : () => _onVerifyEmailTap(context),
+                ),
+                const SizedBox(height: 8),
+              ],
+              if (hasPassword ||
+                  !user.providerData.any((p) => p.providerId == 'phone')) ...[
+                _SettingsTile(
+                  icon: Icons.shield_outlined,
+                  iconColor: const Color(0xFF3e7f3f),
+                  title: 'Multi-factor authentication',
+                  subtitle: user.emailVerified
+                      ? 'Enable/Disable MFA'
+                      : 'Verify email to enable MFA.',
+                  onTap: user.emailVerified
+                      ? () => widget.onMfa(context)
+                      : null,
                 ),
                 const SizedBox(height: 8),
               ],
@@ -1193,8 +1705,8 @@ class _SettingsPage extends StatelessWidget {
                 icon: Icons.delete_outline,
                 iconColor: const Color(0xFFFF6B6B),
                 title: 'Delete account',
-                subtitle: 'Permanently remove your account',
-                onTap: () => onDeleteAccount(context),
+                subtitle: 'Remove your account',
+                onTap: () => widget.onDeleteAccount(context),
               ),
             ],
           ),
@@ -1208,14 +1720,14 @@ class _SettingsTile extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
   final String title, subtitle;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final Widget? trailing;
   const _SettingsTile({
     required this.icon,
     required this.iconColor,
     required this.title,
     required this.subtitle,
-    required this.onTap,
+    this.onTap,
     this.trailing,
   });
   @override
@@ -1225,6 +1737,7 @@ class _SettingsTile extends StatelessWidget {
       borderRadius: BorderRadius.circular(8),
     ),
     child: ListTile(
+      enabled: onTap != null || trailing != null,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
       onTap: onTap,
       leading: Container(
@@ -1251,12 +1764,12 @@ class _SettingsTile extends StatelessWidget {
       ),
       trailing:
           trailing ??
-          Icon(
-            Icons.chevron_right,
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.75),
-          ),
+          (onTap != null
+              ? Icon(
+                  Icons.chevron_right,
+                  color: Theme.of(context).colorScheme.onSurface,
+                )
+              : null),
     ),
   );
 }

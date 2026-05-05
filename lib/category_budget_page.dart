@@ -115,64 +115,8 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
           colorHex: cat.colorHex,
         );
       }).toList();
-    } catch (e) {
-      // Fall back to mock categories if backend fails
-      _availableCategories = [
-        MockExpenseCategory(
-          id: '1',
-          name: 'Food',
-          iconName: 'restaurant',
-          colorHex: '#FF6B6B',
-        ),
-        MockExpenseCategory(
-          id: '2',
-          name: 'Transportation',
-          iconName: 'directions_car',
-          colorHex: '#4ECDC4',
-        ),
-        MockExpenseCategory(
-          id: '3',
-          name: 'Entertainment',
-          iconName: 'movie',
-          colorHex: '#45B7D1',
-        ),
-        MockExpenseCategory(
-          id: '4',
-          name: 'Shopping',
-          iconName: 'shopping_cart',
-          colorHex: '#96CEB4',
-        ),
-        MockExpenseCategory(
-          id: '5',
-          name: 'Bills',
-          iconName: 'receipt',
-          colorHex: '#FFEAA7',
-        ),
-        MockExpenseCategory(
-          id: '6',
-          name: 'Healthcare',
-          iconName: 'local_hospital',
-          colorHex: '#DDA0DD',
-        ),
-        MockExpenseCategory(
-          id: '7',
-          name: 'Education',
-          iconName: 'school',
-          colorHex: '#98D8C8',
-        ),
-        MockExpenseCategory(
-          id: '8',
-          name: 'Travel',
-          iconName: 'flight',
-          colorHex: '#F7DC6F',
-        ),
-        MockExpenseCategory(
-          id: '9',
-          name: 'Other',
-          iconName: 'category',
-          colorHex: '#BB8FCE',
-        ),
-      ];
+    } catch (_) {
+      _availableCategories = [];
     }
   }
 
@@ -311,89 +255,72 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Category Budgets')),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: _availableCategories.length,
-        itemBuilder: (context, index) {
-          final category = _availableCategories[index];
-          final existingBudget = _categoryBudgets
-              .where((cb) => cb.categoryId == category.id)
-              .firstOrNull;
-
-          return Card(
-            margin: const EdgeInsets.only(bottom: 8),
-            child: ListTile(
-              leading: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: _getCategoryColor(category.name),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  _getCategoryIcon(category.iconName),
-                  color: Colors.white,
-                ),
-              ),
-              title: Text(category.name),
-              subtitle: existingBudget != null
-                  ? Text(
-                      'Budget: ${formatMoney(existingBudget.budgetAmount.toDouble())}',
-                    )
-                  : const Text('No budget set'),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.edit),
-                    onPressed: () =>
-                        _showBudgetDialog(existingBudget, category),
+      body: _availableCategories.isEmpty
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Text(
+                  'Could not load expense categories. Check your connection and try again.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.75),
+                    fontSize: 18,
                   ),
-                  if (existingBudget != null)
-                    IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: () => _deleteBudget(category.id),
-                    ),
-                ],
+                ),
               ),
-              onTap: () => _showBudgetDialog(existingBudget, category),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: _availableCategories.length,
+              itemBuilder: (context, index) {
+                final category = _availableCategories[index];
+                final existingBudget = _categoryBudgets
+                    .where((cb) => cb.categoryId == category.id)
+                    .firstOrNull;
+
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  child: ListTile(
+                    leading: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: parseColorHex(category.colorHex),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        getIconByName(category.iconName),
+                        color: Colors.white,
+                      ),
+                    ),
+                    title: Text(category.name),
+                    subtitle: existingBudget != null
+                        ? Text(
+                            'Budget: ${formatMoney(existingBudget.budgetAmount.toDouble())}',
+                          )
+                        : const Text('No budget set'),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit),
+                          onPressed: () =>
+                              _showBudgetDialog(existingBudget, category),
+                        ),
+                        if (existingBudget != null)
+                          IconButton(
+                            icon: const Icon(Icons.delete),
+                            onPressed: () => _deleteBudget(category.id),
+                          ),
+                      ],
+                    ),
+                    onTap: () => _showBudgetDialog(existingBudget, category),
+                  ),
+                );
+              },
             ),
-          );
-        },
-      ),
     );
-  }
-
-  Color _getCategoryColor(String categoryName) {
-    final colorMap = {
-      'Food': Colors.blue,
-      'Transportation': Colors.green,
-      'Entertainment': Colors.orange,
-      'Shopping': Colors.purple,
-      'Bills': Colors.red,
-      'Healthcare': Colors.pink,
-      'Education': Colors.teal,
-      'Travel': Colors.indigo,
-      'Other': Colors.grey,
-    };
-
-    return colorMap[categoryName] ??
-        Colors.primaries[categoryName.hashCode % Colors.primaries.length];
-  }
-
-  IconData _getCategoryIcon(String? iconName) {
-    // Map icon names to Flutter icons
-    final iconMap = {
-      'restaurant': Icons.restaurant,
-      'directions_car': Icons.directions_car,
-      'movie': Icons.movie,
-      'shopping_cart': Icons.shopping_cart,
-      'receipt': Icons.receipt,
-      'local_hospital': Icons.local_hospital,
-      'school': Icons.school,
-      'flight': Icons.flight,
-    };
-
-    return iconMap[iconName] ?? Icons.category;
   }
 }

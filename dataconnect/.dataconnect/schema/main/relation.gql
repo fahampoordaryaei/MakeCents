@@ -2349,15 +2349,6 @@ extend type User {
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "User.firstName", purpose: QUERY_COUNT)
   """
-  ✨ Count the number of rows in the `User` table where the `hasMfa` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
-  """
-  hasMfa_count(
-    """
-    Set to true to count the number of distinct values.
-    """
-    distinct: Boolean = false
-  ): Int! @fdc_generated(from: "User.hasMfa", purpose: QUERY_COUNT)
-  """
   ✨ Count the number of rows in the `User` table where the `institutionId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
   institutionId_count(

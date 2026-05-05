@@ -24,11 +24,7 @@ class OnboardingProfileSelection {
 }
 
 class OnboardingProfileForm extends StatefulWidget {
-  const OnboardingProfileForm({
-    super.key,
-    this.initialProfile,
-    this.onUpdated,
-  });
+  const OnboardingProfileForm({super.key, this.initialProfile, this.onUpdated});
 
   final UserProfile? initialProfile;
   final VoidCallback? onUpdated;
@@ -154,30 +150,12 @@ class OnboardingProfileFormState extends State<OnboardingProfileForm> {
       setState(() {
         _countryLoading = false;
         _countryResult = null;
-        _countryError = _messageForCountryError(e);
+        _countryError = e is UnsupportedError
+            ? (e.message ?? 'Not supported.')
+            : 'Could not detect country.';
       });
       widget.onUpdated?.call();
     }
-  }
-
-  String _messageForCountryError(Object e) {
-    if (e is StateError) return e.message;
-    if (e is UnsupportedError) return e.message ?? 'Not supported.';
-    return 'Could not detect country.';
-  }
-
-  Widget _countryFlag(String iso3166Alpha2) {
-    final cc = CountryCode.tryFromCountryCode(iso3166Alpha2);
-    final path = cc?.flagUri;
-    if (path == null) {
-      return const Icon(Icons.flag_outlined, size: 22);
-    }
-    return Image.asset(
-      path,
-      package: 'country_code_picker',
-      width: 28,
-      fit: BoxFit.contain,
-    );
   }
 
   void _applyProfilePrefill(UserProfile p) {
@@ -338,7 +316,7 @@ class OnboardingProfileFormState extends State<OnboardingProfileForm> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,
-              color: Colors.grey.shade500,
+              color: Color(0xFF000000),
               letterSpacing: 0.8,
             ),
           ),
@@ -403,7 +381,23 @@ class OnboardingProfileFormState extends State<OnboardingProfileForm> {
                       child: Align(
                         alignment: Alignment.centerLeft,
                         widthFactor: 1,
-                        child: _countryFlag(_countryResult!.isoCountryCode),
+                        child: Builder(
+                          builder: (context) {
+                            final cc = CountryCode.tryFromCountryCode(
+                              _countryResult!.isoCountryCode,
+                            );
+                            final path = cc?.flagUri;
+                            if (path == null) {
+                              return const Icon(Icons.flag_outlined, size: 22);
+                            }
+                            return Image.asset(
+                              path,
+                              package: 'country_code_picker',
+                              width: 28,
+                              fit: BoxFit.contain,
+                            );
+                          },
+                        ),
                       ),
                     ),
                     filled: true,
@@ -435,7 +429,7 @@ class OnboardingProfileFormState extends State<OnboardingProfileForm> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,
-              color: Colors.grey.shade500,
+              color: Color(0xFF000000),
               letterSpacing: 0.8,
             ),
           ),
@@ -482,7 +476,7 @@ class OnboardingProfileFormState extends State<OnboardingProfileForm> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,
-              color: Colors.grey.shade500,
+              color: const Color(0xFF000000),
               letterSpacing: 0.8,
             ),
           ),

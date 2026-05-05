@@ -45,6 +45,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
   String _error = '';
   bool _isLoading = false;
   String _budgetPeriod = 'monthly';
+  bool _budgetSubmitAttempted = false;
 
   List<ListCurrenciesCurrencies> _currencies = const [];
   ListCurrenciesCurrencies? _selectedCurrency;
@@ -86,6 +87,9 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
 
   void _onTextChanged() {
     final textVal = _budgetController.text.trim();
+    if (textVal.isNotEmpty && _budgetSubmitAttempted) {
+      setState(() => _budgetSubmitAttempted = false);
+    }
     if (textVal.isEmpty) return;
     final val = double.tryParse(textVal);
     if (val != null && val >= 10 && val <= 10000) {
@@ -125,7 +129,10 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
   Future<void> _onFinish() async {
     final budgetText = _budgetController.text.trim();
     if (budgetText.isEmpty) {
-      setState(() => _error = 'Please enter your budget.');
+      setState(() {
+        _budgetSubmitAttempted = true;
+        _error = '';
+      });
       return;
     }
 
@@ -144,6 +151,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
 
     setState(() {
       _error = '';
+      _budgetSubmitAttempted = false;
       _isLoading = true;
     });
 
@@ -367,34 +375,62 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                   const SizedBox(height: 16.0),
                 ],
 
-                TextFormField(
-                  controller: _budgetController,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*$')),
-                  ],
-                  style: const TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1,
-                  ),
-                  textAlign: TextAlign.center,
-                  decoration: InputDecoration(
-                    hintText: '0',
-                    prefix: _buildCurrencyDropdown(context),
-                    filled: true,
-                    fillColor: Theme.of(context).scaffoldBackgroundColor,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 16,
-                    ),
-                  ),
+                Builder(
+                  builder: (context) {
+                    final border =
+                        _budgetSubmitAttempted &&
+                            _budgetController.text.trim().isEmpty
+                        ? const OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(8)),
+                            borderSide: BorderSide(
+                              color: Color(0xFF8B0000),
+                              width: 1.5,
+                            ),
+                          )
+                        : const OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(8)),
+                            borderSide: BorderSide.none,
+                          );
+                    return TextFormField(
+                      controller: _budgetController,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d*\.?\d*$'),
+                        ),
+                      ],
+                      style: const TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1,
+                      ),
+                      textAlign: TextAlign.center,
+                      decoration: InputDecoration(
+                        hintText: '0',
+                        hintStyle:
+                            _budgetSubmitAttempted &&
+                                _budgetController.text.trim().isEmpty
+                            ? const TextStyle(
+                                color: Color(0xFF8B0000),
+                                fontWeight: FontWeight.w600,
+                              )
+                            : null,
+                        prefix: _buildCurrencyDropdown(context),
+                        filled: true,
+                        fillColor: Theme.of(context).scaffoldBackgroundColor,
+                        enabledBorder: border,
+                        focusedBorder: border,
+                        disabledBorder: border,
+                        border: border,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 16,
+                        ),
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 24.0),
 
@@ -429,14 +465,14 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                       Text(
                         '${currency}10',
                         style: TextStyle(
-                          color: Colors.grey.shade500,
+                          color: Color(0xFF000000),
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                       Text(
                         '${currency}10,000',
                         style: TextStyle(
-                          color: Colors.grey.shade500,
+                          color: Color(0xFF000000),
                           fontWeight: FontWeight.w700,
                         ),
                       ),

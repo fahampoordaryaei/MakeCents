@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_data_connect/firebase_data_connect.dart';
 import 'package:flutter/material.dart';
 import 'dataconnect_generated/generated.dart';
+import 'theme_provider.dart';
 import 'forgot_password_page.dart';
 import 'main.dart';
 import 'onboarding_profile_page.dart';
@@ -20,17 +21,22 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordCtrl = TextEditingController();
   final _codeCtrl = TextEditingController();
   final _emailMfaCodeCtrl = TextEditingController();
+
   String _error = '';
+
   bool _obscure = true;
   bool _isLoading = false;
   bool _usePhoneLogin = false;
   bool _codeSent = false;
+
   String? _verificationId;
   String _countryCode = '+356';
 
   bool _emailMfaPending = false;
   MultiFactorResolver? _emailMfaResolver;
   String? _pendingDbUserId;
+
+  bool _submitAttempted = false;
 
   @override
   void dispose() {
@@ -61,6 +67,7 @@ class _LoginPageState extends State<LoginPage> {
       _codeCtrl.clear();
       _identityCtrl.clear();
       _error = '';
+      _submitAttempted = false;
       _resetEmailMfaFlow();
     });
   }
@@ -68,7 +75,10 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _signIn() async {
     final identity = _identityCtrl.text.trim();
     if (identity.isEmpty) {
-      setState(() => _error = 'Please fill out all fields.');
+      setState(() {
+        _submitAttempted = true;
+        _error = '';
+      });
       return;
     }
 
@@ -89,12 +99,16 @@ class _LoginPageState extends State<LoginPage> {
 
     final pass = _passwordCtrl.text;
     if (pass.isEmpty) {
-      setState(() => _error = 'Please fill out all fields.');
+      setState(() {
+        _submitAttempted = true;
+        _error = '';
+      });
       return;
     }
 
     setState(() {
       _error = '';
+      _submitAttempted = false;
       _isLoading = true;
     });
 
@@ -166,7 +180,10 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _verifyEmailMfa() async {
     final code = _emailMfaCodeCtrl.text.trim();
     if (code.isEmpty) {
-      setState(() => _error = 'Enter the verification code.');
+      setState(() {
+        _submitAttempted = true;
+        _error = '';
+      });
       return;
     }
 
@@ -182,6 +199,7 @@ class _LoginPageState extends State<LoginPage> {
 
     setState(() {
       _error = '';
+      _submitAttempted = false;
       _isLoading = true;
     });
 
@@ -222,6 +240,7 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     setState(() {
+      _submitAttempted = false;
       _error = '';
       _isLoading = true;
       _codeSent = false;
@@ -281,12 +300,16 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _verifyPhoneCode() async {
     final code = _codeCtrl.text.trim();
     if (code.isEmpty) {
-      setState(() => _error = 'Enter the verification code.');
+      setState(() {
+        _submitAttempted = true;
+        _error = '';
+      });
       return;
     }
 
     setState(() {
       _error = '';
+      _submitAttempted = false;
       _isLoading = true;
     });
 
@@ -412,6 +435,30 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final identityTrim = _identityCtrl.text.trim();
+
+    final idError =
+        _submitAttempted &&
+        identityTrim.isEmpty &&
+        (!_emailMfaPending || _usePhoneLogin);
+
+    final passErr =
+        _submitAttempted &&
+        _passwordCtrl.text.isEmpty &&
+        !_usePhoneLogin &&
+        !_emailMfaPending;
+
+    final emailMfaErr =
+        _submitAttempted &&
+        _emailMfaPending &&
+        _emailMfaCodeCtrl.text.trim().isEmpty;
+
+    final smsErr =
+        _submitAttempted &&
+        _usePhoneLogin &&
+        _codeSent &&
+        _codeCtrl.text.trim().isEmpty;
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
@@ -440,6 +487,7 @@ class _LoginPageState extends State<LoginPage> {
                       if (_emailMfaPending) {
                         setState(() {
                           _error = '';
+                          _submitAttempted = false;
                           _resetEmailMfaFlow();
                         });
                         return;
@@ -546,7 +594,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 30),
                     _usePhoneLogin
-                        ? _buildPhoneInput()
+                        ? _buildPhoneInput(idError)
                         : _inputField(
                             _identityCtrl,
                             'Student Email',
@@ -554,6 +602,7 @@ class _LoginPageState extends State<LoginPage> {
                             false,
                             keyboardType: TextInputType.emailAddress,
                             readOnly: _emailMfaPending,
+                            hasError: idError,
                           ),
                     if (!_usePhoneLogin) ...[
                       const SizedBox(height: 14),
@@ -563,6 +612,7 @@ class _LoginPageState extends State<LoginPage> {
                         Icons.lock_outline,
                         true,
                         readOnly: _emailMfaPending,
+                        hasError: passErr,
                       ),
                     ],
                     if (!_usePhoneLogin && _emailMfaPending) ...[
@@ -573,16 +623,7 @@ class _LoginPageState extends State<LoginPage> {
                         Icons.security_outlined,
                         false,
                         keyboardType: TextInputType.number,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Enter the code from your authenticator app.',
-                        style: TextStyle(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.75),
-                          fontSize: 18,
-                        ),
+                        hasError: emailMfaErr,
                       ),
                     ],
                     if (_usePhoneLogin && _codeSent) ...[
@@ -593,6 +634,7 @@ class _LoginPageState extends State<LoginPage> {
                         Icons.message_outlined,
                         false,
                         keyboardType: TextInputType.number,
+                        hasError: smsErr,
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -636,7 +678,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                     ],
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 24),
                     SizedBox(
                       width: double.infinity,
                       child: FilledButton(
@@ -738,7 +780,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _buildPhoneInput() {
+  Widget _buildPhoneInput(bool identityFieldError) {
     return Row(
       children: [
         Container(
@@ -764,6 +806,7 @@ class _LoginPageState extends State<LoginPage> {
             Icons.phone_outlined,
             false,
             keyboardType: TextInputType.phone,
+            hasError: identityFieldError,
           ),
         ),
       ],
@@ -777,6 +820,7 @@ class _LoginPageState extends State<LoginPage> {
     bool isPass, {
     TextInputType? keyboardType,
     bool readOnly = false,
+    bool hasError = false,
   }) {
     return TextField(
       controller: ctrl,
@@ -784,8 +828,11 @@ class _LoginPageState extends State<LoginPage> {
       obscureText: isPass ? _obscure : false,
       keyboardType: keyboardType,
       style: const TextStyle(fontSize: 18),
-      decoration: InputDecoration(
-        labelText: label,
+      onChanged: (_) => setState(() {}),
+      decoration: requiredField(
+        context,
+        label: label,
+        hasError: hasError,
         prefixIcon: Icon(icon, size: 20),
         suffixIcon: isPass
             ? IconButton(
@@ -798,16 +845,6 @@ class _LoginPageState extends State<LoginPage> {
                 onPressed: () => setState(() => _obscure = !_obscure),
               )
             : null,
-        filled: true,
-        fillColor: Theme.of(context).scaffoldBackgroundColor,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide.none,
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
-        ),
       ),
     );
   }

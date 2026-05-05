@@ -3,10 +3,6 @@ import 'package:firebase_data_connect/firebase_data_connect.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 
-part 'seed_data.dart';
-
-part 'seed_location_data.dart';
-
 part 'list_institutions.dart';
 
 part 'list_courses.dart';
@@ -63,6 +59,10 @@ part 'upsert_category_budget.dart';
 
 part 'delete_category_budget.dart';
 
+part 'seed_data.dart';
+
+part 'seed_location_data.dart';
+
 
 
 
@@ -70,16 +70,6 @@ part 'delete_category_budget.dart';
 
 
 class ExampleConnector {
-  
-  
-  SeedDataVariablesBuilder seedData () {
-    return SeedDataVariablesBuilder(dataConnect, );
-  }
-  
-  
-  SeedLocationDataVariablesBuilder seedLocationData () {
-    return SeedLocationDataVariablesBuilder(dataConnect, );
-  }
   
   
   ListInstitutionsVariablesBuilder listInstitutions () {
@@ -219,6 +209,16 @@ class ExampleConnector {
   
   DeleteCategoryBudgetVariablesBuilder deleteCategoryBudget ({required String userId, required String categoryId, }) {
     return DeleteCategoryBudgetVariablesBuilder(dataConnect, userId: userId,categoryId: categoryId,);
+  }
+  
+  
+  SeedDataVariablesBuilder seedData () {
+    return SeedDataVariablesBuilder(dataConnect, );
+  }
+  
+  
+  SeedLocationDataVariablesBuilder seedLocationData () {
+    return SeedLocationDataVariablesBuilder(dataConnect, );
   }
   
 
