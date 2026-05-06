@@ -46,7 +46,7 @@ mutation seedData @transaction @auth(level: USER, insecureReason: "Seed data is 
     { name: "Other" }
   ])
   expenseCategory_insertMany(data: [
-    { name: "Food", iconName: "restaurant", colorHex: "#FF6B6B" },
+    { name: "Food", iconName: "restaurant", colorHex: "#F87171" },
     { name: "Transport", iconName: "directions_bus", colorHex: "#4ECDC4" },
     { name: "Shopping", iconName: "shopping_bag", colorHex: "#FFBE0B" },
     { name: "Health", iconName: "favorite", colorHex: "#95E1D3" },
@@ -59,7 +59,6 @@ mutation seedData @transaction @auth(level: USER, insecureReason: "Seed data is 
     {
       title: "Tech Excellence Award",
       provider: "Global Tech Malta",
-      email: "applications@globaltechmalta.org",
       amount: 5000,
       currency: "€",
       description: "For high-achieving tech students based in Malta pursuing a career in software or engineering.",
@@ -68,7 +67,6 @@ mutation seedData @transaction @auth(level: USER, insecureReason: "Seed data is 
     {
       title: "STEM Future Leaders",
       provider: "EU Education Fund",
-      email: "apply@eueducationfund.eu",
       amount: 3500,
       currency: "€",
       description: "Supporting the next generation of European STEM innovators with funding for tuition and research.",
@@ -77,7 +75,6 @@ mutation seedData @transaction @auth(level: USER, insecureReason: "Seed data is 
     {
       title: "Creative Minds Grant",
       provider: "Arts Council",
-      email: "grants@artscouncil.org",
       amount: 2500,
       currency: "€",
       description: "Open to creative students worldwide with a passion for arts, design, and cultural expression.",
@@ -86,7 +83,6 @@ mutation seedData @transaction @auth(level: USER, insecureReason: "Seed data is 
     {
       title: "Business Leaders Bursary",
       provider: "Chamber of Commerce",
-      email: "bursary@chambercommerce.mt",
       amount: 4000,
       currency: "€",
       description: "Awarded to ambitious business students who demonstrate leadership and financial acumen.",
@@ -95,7 +91,6 @@ mutation seedData @transaction @auth(level: USER, insecureReason: "Seed data is 
     {
       title: "Health Sciences Award",
       provider: "National Health Foundation",
-      email: "scholarships@nhf.eu",
       amount: 6000,
       currency: "€",
       description: "Supporting future healthcare professionals with exceptional academic records.",
@@ -104,11 +99,10 @@ mutation seedData @transaction @auth(level: USER, insecureReason: "Seed data is 
     {
       title: "General Academic Merit",
       provider: "Student Finance Malta",
-      email: "support@studentfinance.gov.mt",
       amount: 1500,
       currency: "€",
       description: "Open to all students regardless of subject, based purely on academic achievement.",
-      color: "#FF6B6B"
+      color: "#F87171"
     }
   ])
   product_insertMany(data: [

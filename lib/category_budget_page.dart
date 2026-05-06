@@ -81,9 +81,11 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
       await Future.wait([_loadCategoryBudgets(), _loadAvailableCategories()]);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
+        await popupAlert(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error loading data: $e')));
+          message: 'Error loading data: $e',
+          level: AppAlertLevel.error,
+        );
       }
     } finally {
       if (mounted) {
@@ -104,7 +106,6 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
 
   Future<void> _loadAvailableCategories() async {
     try {
-      // Try to load from backend first
       final query = ExampleConnector.instance.listExpenseCategories();
       final response = await query.execute();
       _availableCategories = response.data.expenseCategories.map((cat) {
@@ -126,7 +127,6 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
     int amount,
   ) async {
     try {
-      // Update local state
       final existingIndex = _categoryBudgets.indexWhere(
         (cb) => cb.categoryId == categoryId,
       );
@@ -154,7 +154,6 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
         );
       }
 
-      // Save to local storage
       final budgetsJson = jsonEncode(
         _categoryBudgets.map((b) => b.toJson()).toList(),
       );
@@ -163,25 +162,26 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
       setState(() {});
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Budget updated successfully')),
+        await popupAlert(
+          context,
+          message: 'Budget updated successfully',
+          level: AppAlertLevel.success,
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
+        await popupAlert(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error updating budget: $e')));
+          message: 'Error updating budget: $e',
+          level: AppAlertLevel.error,
+        );
       }
     }
   }
 
   Future<void> _deleteBudget(String categoryId) async {
     try {
-      // Update local state
       _categoryBudgets.removeWhere((cb) => cb.categoryId == categoryId);
-
-      // Save to local storage
       final budgetsJson = jsonEncode(
         _categoryBudgets.map((b) => b.toJson()).toList(),
       );
@@ -190,15 +190,19 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
       setState(() {});
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Budget deleted successfully')),
+        await popupAlert(
+          context,
+          message: 'Budget deleted successfully',
+          level: AppAlertLevel.success,
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
+        await popupAlert(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error deleting budget: $e')));
+          message: 'Error deleting budget: $e',
+          level: AppAlertLevel.error,
+        );
       }
     }
   }

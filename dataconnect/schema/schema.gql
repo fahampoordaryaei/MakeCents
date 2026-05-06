@@ -74,7 +74,6 @@ type CategoryBudget @table(key: ["user", "category"], name: "category_budget") {
 type Scholarship @table {
   title: String!
   provider: String!
-  email: String!
   amount: Float!
   currency: String! @default(value: "€")
   description: String!
@@ -88,13 +87,19 @@ type ScholarshipCourse @table(key: ["scholarship", "course"]) {
   course: Course!
 }
 
-type ScholarshipApplication @table {
+type ScholarshipApplication @table(key: ["id"], name: "scholarship_application") {
+  id: UUID! @default(expr: "uuidV4()")
   user: User!
   scholarship: Scholarship!
-  status: String!
   appliedAt: Timestamp!
   message: String @col(dataType: "varchar(2000)")
-  documentId: String @col(name: "document_id", dataType: "varchar(128)")
+}
+
+type ScholarshipAttachment @table(key: ["id"], name: "scholarship_attachment") {
+  id: UUID! @default(expr: "uuidV4()")
+  scholarshipApplication: ScholarshipApplication!
+  filename: String! @col(dataType: "text")
+  path: String! @col(dataType: "text")
 }
 
 type PointsBalance @table {

@@ -1,9 +1,17 @@
+import { getApps, initializeApp } from "firebase-admin/app";
+import { getStorage } from "firebase-admin/storage";
 import { onSchedule } from "firebase-functions/v2/scheduler";
 import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { defineSecret } from "firebase-functions/params";
 import { Connector, IpAddressTypes, AuthTypes } from "@google-cloud/cloud-sql-connector";
 import pg from "pg";
+import { Resend } from "resend";
 
 const { Pool } = pg;
+
+if (!getApps().length) {
+    initializeApp();
+}
 
 const INSTANCE_CONNECTION = "makecents-b0fb9:europe-west1:makecents-b0fb9-database";
 const DB_NAME = "makecents-b0fb9-database";
@@ -11,11 +19,9 @@ const DB_IAM_USER_RAW = process.env.DB_IAM_USER ?? "";
 const DB_IAM_USER = DB_IAM_USER_RAW.replace(/\.gserviceaccount\.com$/, "");
 const CODE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
-const createPool = async () => {
-    if (!DB_IAM_USER) {
-        throw new Error("Missing DB_IAM_USER environment variable.");
-    }
+const resendApiKey = defineSecret("RESEND_API_KEY");
 
+const createPool = async () => {
     const connector = new Connector();
     const clientOpts = await connector.getOptions({
         instanceConnectionName: INSTANCE_CONNECTION,
@@ -287,6 +293,84 @@ export const redeemProduct = onCall(
             throw new HttpsError("internal", "Could not redeem product.");
         } finally {
             client?.release();
+            await pool.end();
+            connector.close();
+        }
+    }
+);
+
+type ScholarshipApplication = {
+    message: string | null;
+    first_name: string;
+    last_name: string;
+    reg_mail: string;
+    sch_title: string;
+    sch_provider: string;
+};
+
+export const sendScholarshipApplicationEmail = onCall(
+    { region: "europe-west1", secrets: [resendApiKey] },
+    async (request) => {
+        const uid = request.auth?.uid;
+        const appId = (request.data.applicationId as string).trim();
+        const formMail =
+            (request.data.notificationEmail as string | undefined)?.trim();
+
+        const { connector, pool } = await createPool();
+        try {
+            const base = await pool.query(
+                `SELECT sa.message, u.first_name, u.last_name, u.email AS reg_mail,
+                     s.title AS sch_title, s.provider AS sch_provider
+                 FROM scholarship_application sa
+                 JOIN "user" u ON u.user_id = sa.user_user_id
+                 JOIN scholarship s ON s.id = sa.scholarship_id
+                 WHERE sa.id = $1::uuid AND sa.user_user_id = $2`,
+                [appId, uid]
+            );
+
+            const r = base.rows[0] as ScholarshipApplication | undefined;
+            if (!r) throw new HttpsError("permission-denied", "Not allowed.");
+
+            const att = await pool.query(
+                "SELECT filename, path FROM scholarship_attachment WHERE scholarship_application_id = $1::uuid",
+                [appId]
+            );
+
+            let attachBlock = "";
+            const exp = Date.now() + 7 * 864e5;
+            const b = getStorage().bucket();
+            for (const row of att.rows) {
+                const a = row as { filename: string; path: string };
+                const [url] = await b.file(a.path).getSignedUrl({
+                    action: "read",
+                    expires: exp,
+                });
+                attachBlock += `${a.filename}: ${url}\n`;
+            }
+
+            const text =
+                `Dear ${r.sch_provider},\n\n` +
+                `User ${r.first_name} ${r.last_name} submitted the below application for scholarship ${r.sch_title}:\n\n` +
+                `Email: ${formMail || r.reg_mail}\n\n` +
+                `Statement:\n\n${r.message ?? "(none)"}\n\n` +
+                `Attached documents:\n\n${attachBlock}\n\n` +
+                `Please reply directly to the user's email address.\n` +
+                `This is an automated email.\n\n` +
+                `Kind regards,\n` +
+                `MakeCents Team.\n`;
+
+            const { error } = await new Resend(resendApiKey.value()).emails.send({
+                from: process.env.RESEND_FROM ??
+                    "MakeCents Team <onboarding@resend.dev>",
+                to: "fahampoordaryaei@gmail.com",
+                replyTo: formMail || r.reg_mail,
+                subject: `Application from ${r.first_name} ${r.last_name}`,
+                text,
+            });
+            if (error) throw new HttpsError("internal", error.message);
+
+            return {};
+        } finally {
             await pool.end();
             connector.close();
         }

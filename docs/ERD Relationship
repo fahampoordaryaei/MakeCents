@@ -8,6 +8,7 @@ Transaction → ExpenseCategory (Many-to-One)
 3. Scholarship System
 User → ScholarshipApplication (**One-to-Many`)
 ScholarshipApplication → Scholarship (Many-to-One)
+ScholarshipApplication → ScholarshipAttachment (One-to-Many)
 Scholarship ↔ Course (Many-to-Many via ScholarshipCourse)
 4. Points System
 User → PointsBalance (One-to-One)

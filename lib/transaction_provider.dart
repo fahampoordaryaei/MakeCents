@@ -57,7 +57,9 @@ class TransactionProvider with ChangeNotifier {
     }
 
     final categoryTotals = <String, double>{};
-    for (final tx in _transactions.where((t) => !t.date.isBefore(periodStart))) {
+    for (final tx in _transactions.where(
+      (t) => !t.date.isBefore(periodStart),
+    )) {
       categoryTotals[tx.category] =
           (categoryTotals[tx.category] ?? 0) + tx.amount;
     }
@@ -92,7 +94,8 @@ class TransactionProvider with ChangeNotifier {
           category: catName,
         );
       }).toList();
-    } catch (_) {} finally {
+    } catch (_) {
+    } finally {
       _isLoading = false;
       notifyListeners();
     }

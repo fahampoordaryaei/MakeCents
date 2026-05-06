@@ -209,7 +209,6 @@ query ListScholarshipsForUser($countryId: Int!, $continentId: Int!) @auth(level:
     id
     title
     provider
-    email
     amount
     currency
     courses_via_ScholarshipCourse {
@@ -241,7 +240,6 @@ query ListGlobalScholarships @auth(level: USER) {
     id
     title
     provider
-    email
     amount
     currency
     courses_via_ScholarshipCourse {
@@ -261,6 +259,95 @@ query ListGlobalScholarships @auth(level: USER) {
       name
     }
   }
+}
+
+# get scholarship applications for a user
+query ListUserScholarshipApplications($userId: String!) @auth(level: USER) {
+  scholarshipApplications(
+    where: { userUserId: { eq: $userId } }
+    orderBy: [{ appliedAt: DESC }]
+    limit: 500
+  ) {
+    id
+    appliedAt
+    message
+    scholarship {
+      id
+      title
+      provider
+      amount
+      currency
+      description
+      color
+    }
+  }
+}
+
+# Check if a scholarship application exists for a user and scholarship
+query ScholarshipApplicationExists(
+  $userId: String!
+  $scholarshipId: UUID!
+) @auth(level: USER) {
+  scholarshipApplications(
+    where: {
+      _and: [
+        { userUserId: { eq: $userId } }
+        { scholarshipId: { eq: $scholarshipId } }
+      ]
+    }
+    limit: 1
+  ) {
+    id
+  }
+}
+
+# get scholarship attachments for a user's applications
+query ListUserScholarshipAttachments($userId: String!) @auth(level: USER) {
+  scholarshipAttachments(
+    where: { scholarshipApplication: { userUserId: { eq: $userId } } }
+  ) {
+    id
+    filename
+    path
+    scholarshipApplication {
+      id
+    }
+  }
+}
+
+# Create scholarship application
+mutation CreateScholarshipApplication(
+  $id: UUID!,
+  $userId: String!,
+  $scholarshipId: UUID!,
+  $message: String
+) @auth(level: USER) {
+  scholarshipApplication_insert(
+    data: {
+      id: $id,
+      userUserId: $userId
+      scholarshipId: $scholarshipId
+      message: $message
+      appliedAt_expr: "request.time"
+    }
+  )
+}
+
+# Create scholarship attachment
+mutation CreateScholarshipAttachment(
+  $id: UUID!,
+  $scholarshipApplicationId: UUID!,
+  $filename: String!,
+  $path: String!
+) @auth(level: USER) {
+  scholarshipAttachment_insert(
+    data: {
+      id: $id,
+      scholarshipApplicationId: $scholarshipApplicationId
+      filename: $filename
+      path: $path
+    }
+  )
 }
 
 # List expense categories

@@ -3,6 +3,10 @@ import 'package:firebase_data_connect/firebase_data_connect.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 
+part 'seed_data.dart';
+
+part 'seed_location_data.dart';
+
 part 'list_institutions.dart';
 
 part 'list_courses.dart';
@@ -41,6 +45,16 @@ part 'list_scholarships_for_user.dart';
 
 part 'list_global_scholarships.dart';
 
+part 'list_user_scholarship_applications.dart';
+
+part 'scholarship_application_exists.dart';
+
+part 'list_user_scholarship_attachments.dart';
+
+part 'create_scholarship_application.dart';
+
+part 'create_scholarship_attachment.dart';
+
 part 'list_expense_categories.dart';
 
 part 'init_points_balance.dart';
@@ -59,10 +73,6 @@ part 'upsert_category_budget.dart';
 
 part 'delete_category_budget.dart';
 
-part 'seed_data.dart';
-
-part 'seed_location_data.dart';
-
 
 
 
@@ -70,6 +80,16 @@ part 'seed_location_data.dart';
 
 
 class ExampleConnector {
+  
+  
+  SeedDataVariablesBuilder seedData () {
+    return SeedDataVariablesBuilder(dataConnect, );
+  }
+  
+  
+  SeedLocationDataVariablesBuilder seedLocationData () {
+    return SeedLocationDataVariablesBuilder(dataConnect, );
+  }
   
   
   ListInstitutionsVariablesBuilder listInstitutions () {
@@ -167,6 +187,31 @@ class ExampleConnector {
   }
   
   
+  ListUserScholarshipApplicationsVariablesBuilder listUserScholarshipApplications ({required String userId, }) {
+    return ListUserScholarshipApplicationsVariablesBuilder(dataConnect, userId: userId,);
+  }
+  
+  
+  ScholarshipApplicationExistsVariablesBuilder scholarshipApplicationExists ({required String userId, required String scholarshipId, }) {
+    return ScholarshipApplicationExistsVariablesBuilder(dataConnect, userId: userId,scholarshipId: scholarshipId,);
+  }
+  
+  
+  ListUserScholarshipAttachmentsVariablesBuilder listUserScholarshipAttachments ({required String userId, }) {
+    return ListUserScholarshipAttachmentsVariablesBuilder(dataConnect, userId: userId,);
+  }
+  
+  
+  CreateScholarshipApplicationVariablesBuilder createScholarshipApplication ({required String id, required String userId, required String scholarshipId, }) {
+    return CreateScholarshipApplicationVariablesBuilder(dataConnect, id: id,userId: userId,scholarshipId: scholarshipId,);
+  }
+  
+  
+  CreateScholarshipAttachmentVariablesBuilder createScholarshipAttachment ({required String id, required String scholarshipApplicationId, required String filename, required String path, }) {
+    return CreateScholarshipAttachmentVariablesBuilder(dataConnect, id: id,scholarshipApplicationId: scholarshipApplicationId,filename: filename,path: path,);
+  }
+  
+  
   ListExpenseCategoriesVariablesBuilder listExpenseCategories () {
     return ListExpenseCategoriesVariablesBuilder(dataConnect, );
   }
@@ -209,16 +254,6 @@ class ExampleConnector {
   
   DeleteCategoryBudgetVariablesBuilder deleteCategoryBudget ({required String userId, required String categoryId, }) {
     return DeleteCategoryBudgetVariablesBuilder(dataConnect, userId: userId,categoryId: categoryId,);
-  }
-  
-  
-  SeedDataVariablesBuilder seedData () {
-    return SeedDataVariablesBuilder(dataConnect, );
-  }
-  
-  
-  SeedLocationDataVariablesBuilder seedLocationData () {
-    return SeedLocationDataVariablesBuilder(dataConnect, );
   }
   
 

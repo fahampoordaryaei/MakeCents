@@ -285,7 +285,7 @@ class OnboardingProfileFormState extends State<OnboardingProfileForm> {
         children: [
           Text(
             _loadError,
-            style: const TextStyle(color: Color(0xFF8B0000), fontSize: 16),
+            style: const TextStyle(color: Color(0xFFB91C1C), fontSize: 16),
           ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
@@ -304,7 +304,7 @@ class OnboardingProfileFormState extends State<OnboardingProfileForm> {
         if (_validationError.isNotEmpty) ...[
           Text(
             _validationError,
-            style: const TextStyle(color: Colors.red, fontSize: 16),
+            style: const TextStyle(color: Color(0xFFB91C1C), fontSize: 16),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),
@@ -351,7 +351,7 @@ class OnboardingProfileFormState extends State<OnboardingProfileForm> {
             children: [
               Text(
                 _countryError!,
-                style: const TextStyle(color: Color(0xFF8B0000), fontSize: 15),
+                style: const TextStyle(color: Color(0xFFB91C1C), fontSize: 15),
               ),
               const SizedBox(height: 8),
               OutlinedButton.icon(

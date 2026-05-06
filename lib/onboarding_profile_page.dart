@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'fcm.dart';
 import 'onboarding_profile_form.dart';
 import 'onboarding_budget_page.dart';
 import 'startup_page.dart';
@@ -99,7 +98,6 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
     }
 
     try {
-      await clearFcmToken();
       await FirebaseAuth.instance.currentUser!.delete();
     } catch (_) {}
     try {

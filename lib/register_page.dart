@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'theme_provider.dart';
 import 'functions.dart';
-import 'fcm.dart';
 import 'onboarding_profile_page.dart';
 import 'startup_page.dart';
 
@@ -108,7 +107,6 @@ class _RegisterPageState extends State<RegisterPage> {
   Future<void> _completePhoneRegistration(UserCredential result) async {
     if (!mounted || !_usePhoneRegister) return;
     if (result.additionalUserInfo?.isNewUser == false) {
-      await clearFcmToken();
       await FirebaseAuth.instance.signOut();
       setState(() {
         _error = 'An account already exists for this phone number.';
@@ -335,9 +333,12 @@ class _RegisterPageState extends State<RegisterPage> {
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('We sent a verification email to $email.')),
+        await popupAlert(
+          context,
+          message: 'We sent a verification email to $email.',
+          level: AppAlertLevel.success,
         );
+        if (!mounted) return;
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (_) =>
@@ -375,7 +376,7 @@ class _RegisterPageState extends State<RegisterPage> {
           fontSize: 18,
           height: 1.4,
           fontWeight: FontWeight.w600,
-          color: met ? Color(0xFF3e7f3f) : Color(0xFF8B0000),
+          color: met ? Color(0xFF3e7f3f) : Color(0xFFB91C1C),
         ),
       );
     }
@@ -704,14 +705,14 @@ class _RegisterPageState extends State<RegisterPage> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFECEC),
+                      color: const Color(0xFFFEF2F2),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       children: [
                         const Icon(
                           Icons.info_outline,
-                          color: Color(0xFF8B0000),
+                          color: Color(0xFFB91C1C),
                           size: 18,
                         ),
                         const SizedBox(width: 8),
@@ -719,7 +720,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           child: Text(
                             _error,
                             style: const TextStyle(
-                              color: Color(0xFF8B0000),
+                              color: Color(0xFFB91C1C),
                               fontWeight: FontWeight.w600,
                               fontSize: 18,
                             ),

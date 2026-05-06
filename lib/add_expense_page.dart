@@ -100,8 +100,10 @@ class _AddExpensePageState extends State<AddExpensePage> {
       Navigator.of(context).pop();
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to save transaction.')),
+      await popupAlert(
+        context,
+        message: 'Failed to save transaction.',
+        level: AppAlertLevel.error,
       );
     }
   }
@@ -150,7 +152,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
                         color: _submitAttempted && _selectedCategory == null
-                            ? Color(0xFF8B0000)
+                            ? Color(0xFFB91C1C)
                             : Colors.transparent,
                         width: 1.5,
                       ),

@@ -23,7 +23,6 @@ class ListScholarshipsForUserScholarships {
   final String id;
   final String title;
   final String provider;
-  final String email;
   final double amount;
   final String currency;
   final List<ListScholarshipsForUserScholarshipsCoursesViaScholarshipCourse> courses_via_ScholarshipCourse;
@@ -36,7 +35,6 @@ class ListScholarshipsForUserScholarships {
   id = nativeFromJson<String>(json['id']),
   title = nativeFromJson<String>(json['title']),
   provider = nativeFromJson<String>(json['provider']),
-  email = nativeFromJson<String>(json['email']),
   amount = nativeFromJson<double>(json['amount']),
   currency = nativeFromJson<String>(json['currency']),
   courses_via_ScholarshipCourse = (json['courses_via_ScholarshipCourse'] as List<dynamic>)
@@ -59,7 +57,6 @@ class ListScholarshipsForUserScholarships {
     return id == otherTyped.id && 
     title == otherTyped.title && 
     provider == otherTyped.provider && 
-    email == otherTyped.email && 
     amount == otherTyped.amount && 
     currency == otherTyped.currency && 
     courses_via_ScholarshipCourse == otherTyped.courses_via_ScholarshipCourse && 
@@ -70,7 +67,7 @@ class ListScholarshipsForUserScholarships {
     
   }
   @override
-  int get hashCode => Object.hashAll([id.hashCode, title.hashCode, provider.hashCode, email.hashCode, amount.hashCode, currency.hashCode, courses_via_ScholarshipCourse.hashCode, description.hashCode, color.hashCode, country.hashCode, continent.hashCode]);
+  int get hashCode => Object.hashAll([id.hashCode, title.hashCode, provider.hashCode, amount.hashCode, currency.hashCode, courses_via_ScholarshipCourse.hashCode, description.hashCode, color.hashCode, country.hashCode, continent.hashCode]);
   
 
   Map<String, dynamic> toJson() {
@@ -78,7 +75,6 @@ class ListScholarshipsForUserScholarships {
     json['id'] = nativeToJson<String>(id);
     json['title'] = nativeToJson<String>(title);
     json['provider'] = nativeToJson<String>(provider);
-    json['email'] = nativeToJson<String>(email);
     json['amount'] = nativeToJson<double>(amount);
     json['currency'] = nativeToJson<String>(currency);
     json['courses_via_ScholarshipCourse'] = courses_via_ScholarshipCourse.map((e) => e.toJson()).toList();
@@ -97,7 +93,6 @@ class ListScholarshipsForUserScholarships {
     required this.id,
     required this.title,
     required this.provider,
-    required this.email,
     required this.amount,
     required this.currency,
     required this.courses_via_ScholarshipCourse,

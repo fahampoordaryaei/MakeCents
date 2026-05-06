@@ -46,6 +46,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
   bool _isLoading = false;
   String _budgetPeriod = 'monthly';
   bool _budgetSubmitAttempted = false;
+  bool _allowOverBudget = true;
 
   List<ListCurrenciesCurrencies> _currencies = const [];
   ListCurrenciesCurrencies? _selectedCurrency;
@@ -200,6 +201,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
       final budgetProvider = context.read<BudgetProvider>();
       final userProvider = context.read<UserProvider>();
       await budgetProvider.init();
+      await budgetProvider.setAllowOverBudget(_allowOverBudget);
       await userProvider.loadProfile();
 
       if (!mounted) return;
@@ -348,7 +350,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFECEC),
+                      color: const Color(0xFFFEF2F2),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -356,7 +358,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                       children: [
                         const Icon(
                           Icons.info_outline,
-                          color: Color(0xFF8B0000),
+                          color: Color(0xFFB91C1C),
                           size: 16,
                         ),
                         const SizedBox(width: 8),
@@ -364,7 +366,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                           child: Text(
                             _error,
                             style: const TextStyle(
-                              color: Color(0xFF8B0000),
+                              color: Color(0xFFB91C1C),
                               fontSize: 18,
                             ),
                           ),
@@ -383,7 +385,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                         ? const OutlineInputBorder(
                             borderRadius: BorderRadius.all(Radius.circular(8)),
                             borderSide: BorderSide(
-                              color: Color(0xFF8B0000),
+                              color: Color(0xFFB91C1C),
                               width: 1.5,
                             ),
                           )
@@ -413,7 +415,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                             _budgetSubmitAttempted &&
                                 _budgetController.text.trim().isEmpty
                             ? const TextStyle(
-                                color: Color(0xFF8B0000),
+                                color: Color(0xFFB91C1C),
                                 fontWeight: FontWeight.w600,
                               )
                             : null,
@@ -480,7 +482,27 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                   ),
                 ),
 
-                const SizedBox(height: 36.0),
+                const SizedBox(height: 20.0),
+                SwitchListTile.adaptive(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text(
+                    'Over-budget',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                  ),
+                  subtitle: Text(
+                    'Allow adding expenses that go over your budget',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                  ),
+                  value: _allowOverBudget,
+                  onChanged: (v) => setState(() => _allowOverBudget = v),
+                ),
+
+                const SizedBox(height: 24.0),
 
                 SizedBox(
                   width: double.infinity,

@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'budget_provider.dart';
-import 'fcm.dart';
 import 'dataconnect_generated/generated.dart';
 import 'functions.dart';
 import 'onboarding_profile_form.dart';
@@ -36,8 +35,10 @@ class ProfilePage extends StatelessWidget {
     final user = FirebaseAuth.instance.currentUser!;
     final email = user.email;
     if (email == null || email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No email associated with this account.')),
+      await popupAlert(
+        context,
+        message: 'No email associated with this account.',
+        level: AppAlertLevel.error,
       );
       return;
     }
@@ -96,18 +97,24 @@ class ProfilePage extends StatelessWidget {
     try {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Password reset email sent to $email.')),
+      await popupAlert(
+        context,
+        message: 'Password reset email sent to $email.',
+        level: AppAlertLevel.success,
       );
     } on FirebaseAuthException catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message ?? 'Failed to send reset email.')),
+      await popupAlert(
+        context,
+        message: e.message ?? 'Failed to send reset email.',
+        level: AppAlertLevel.error,
       );
     } catch (_) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to send reset email.')),
+      await popupAlert(
+        context,
+        message: 'Failed to send reset email.',
+        level: AppAlertLevel.error,
       );
     }
   }
@@ -178,8 +185,10 @@ class ProfilePage extends StatelessWidget {
       }
     } catch (_) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not delete account.')),
+      await popupAlert(
+        context,
+        message: 'Could not delete account.',
+        level: AppAlertLevel.error,
       );
     }
   }
@@ -306,7 +315,7 @@ class ProfilePage extends StatelessWidget {
                     'Total Spent',
                     formatMoney(totalSpent),
                     Icons.arrow_upward_rounded,
-                    const Color(0xFFFF6B6B),
+                    const Color(0xFFF87171),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -336,7 +345,7 @@ class ProfilePage extends StatelessWidget {
             _SettingsTile(
               icon: Icons.school_outlined,
               iconColor: const Color(0xFF3e7f3f),
-              title: 'Student Profile',
+              title: 'Institution Profile',
               subtitle:
                   '${up.profile?.displayInstitution ?? 'Not set'} • ${up.profile?.displayCourse ?? 'Not set'}',
               onTap: () => _editInstitutionProfileDialog(context),
@@ -345,7 +354,7 @@ class ProfilePage extends StatelessWidget {
             _SettingsTile(
               icon: Icons.account_balance_wallet_outlined,
               iconColor: const Color(0xFF3e7f3f),
-              title: '${bp.periodLabel} Budget',
+              title: 'Budget',
               subtitle: formatMoney(bp.budget.amount),
               onTap: () => _editBudgetDialog(context),
             ),
@@ -353,7 +362,7 @@ class ProfilePage extends StatelessWidget {
             _SettingsTile(
               icon: Icons.dark_mode_outlined,
               iconColor: Colors.deepPurple,
-              title: 'Dark Mode',
+              title: 'Theme',
               subtitle: 'Toggle dark mode',
               trailing: Switch(
                 value: isDarkMode,
@@ -370,18 +379,17 @@ class ProfilePage extends StatelessWidget {
             _SettingsTile(
               icon: Icons.settings_outlined,
               iconColor: const Color(0xFF4ECDC4),
-              title: 'Settings',
+              title: 'Account Settings',
               subtitle: 'Account settings',
               onTap: () => _openSettingsMenu(context),
             ),
             const SizedBox(height: 8),
             _SettingsTile(
               icon: Icons.logout_outlined,
-              iconColor: const Color(0xFFFF6B6B),
-              title: 'Log Out',
+              iconColor: const Color(0xFFF87171),
+              title: 'Sign Out',
               subtitle: 'Sign out of your account',
               onTap: () async {
-                await clearFcmToken();
                 await FirebaseAuth.instance.signOut();
                 if (context.mounted) {
                   Provider.of<UserProvider>(
@@ -573,7 +581,7 @@ class _DeleteAccountPhoneCodeDialogState
   }
 
   InputDecoration _codeDecoration(BuildContext context, bool codeFieldError) {
-    const errorRed = Color(0xFF8B0000);
+    const errorRed = Color(0xFFB91C1C);
     final outline = OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
       borderSide: codeFieldError
@@ -677,7 +685,7 @@ class _DeleteAccountPhoneCodeDialogState
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFECEC),
+                      color: const Color(0xFFFEF2F2),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -685,7 +693,7 @@ class _DeleteAccountPhoneCodeDialogState
                       children: [
                         const Icon(
                           Icons.info_outline,
-                          color: Color(0xFF8B0000),
+                          color: Color(0xFFB91C1C),
                           size: 18,
                         ),
                         const SizedBox(width: 8),
@@ -693,7 +701,7 @@ class _DeleteAccountPhoneCodeDialogState
                           child: Text(
                             _error,
                             style: const TextStyle(
-                              color: Color(0xFF8B0000),
+                              color: Color(0xFFB91C1C),
                               fontWeight: FontWeight.w600,
                               fontSize: 18,
                             ),
@@ -826,7 +834,7 @@ class _DeleteAccountPasswordDialogState
   Widget build(BuildContext context) {
     final passwordFieldError =
         _passwordAttempted && _passwordCtrl.text.trim().isEmpty;
-    const errorRed = Color(0xFF8B0000);
+    const errorRed = Color(0xFFB91C1C);
     final passwordOutline = OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
       borderSide: passwordFieldError
@@ -978,8 +986,10 @@ class _DeleteAccountPasswordDialogState
     } catch (_) {
       if (!mounted) return;
       setState(() => _busy = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not delete account.')),
+      await popupAlert(
+        context,
+        message: 'Could not delete account.',
+        level: AppAlertLevel.error,
       );
     }
   }
@@ -1002,6 +1012,7 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
   List<ListCurrenciesCurrencies> _currencies = const [];
   ListCurrenciesCurrencies? _selectedCurrency;
   String _dialogError = '';
+  late bool _allowOverBudget;
 
   @override
   void initState() {
@@ -1010,6 +1021,7 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
     _ctrl = TextEditingController(text: v.toStringAsFixed(0));
     _sliderVal = v.clamp(10.0, 10000.0);
     _isWeekly = widget.bp.isWeekly;
+    _allowOverBudget = widget.bp.allowOverBudget;
     _loadCurrencies();
   }
 
@@ -1076,7 +1088,7 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
             if (_dialogError.isNotEmpty) ...[
               Text(
                 _dialogError,
-                style: const TextStyle(color: Colors.red, fontSize: 18),
+                style: const TextStyle(color: Color(0xFFB91C1C), fontSize: 18),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
@@ -1162,6 +1174,22 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
                 ],
               ),
             ),
+            const SizedBox(height: 24),
+            SwitchListTile.adaptive(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Over-budget'),
+              subtitle: Text(
+                'Allow adding expenses that go over your budget',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
+              ),
+              value: _allowOverBudget,
+              onChanged: (v) => setState(() => _allowOverBudget = v),
+            ),
           ],
         ),
       ),
@@ -1205,6 +1233,7 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
                   .execute();
             }
             await widget.bp.setBudget(v, isWeekly: _isWeekly);
+            await widget.bp.setAllowOverBudget(_allowOverBudget);
             if (!context.mounted) return;
             Navigator.pop(context);
           },
@@ -1392,7 +1421,10 @@ class _EditInstitutionProfileDialogState
               if (_error.isNotEmpty) ...[
                 Text(
                   _error,
-                  style: const TextStyle(color: Colors.red, fontSize: 16),
+                  style: const TextStyle(
+                    color: Color(0xFFB91C1C),
+                    fontSize: 16,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),
@@ -1597,20 +1629,22 @@ class _SettingsPageState extends State<_SettingsPage> {
       await sendUserEmailVerification(u);
       if (!context.mounted) return;
       final email = u.email?.trim() ?? '';
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('We sent a verification email to $email.')),
+      await popupAlert(
+        context,
+        message: 'We sent a verification email to $email.',
+        level: AppAlertLevel.success,
       );
       _startVerifyEmailCooldown();
     } on FirebaseAuthException catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.message ?? 'Could not send verification email.'),
-        ),
+      await popupAlert(
+        context,
+        message: e.message ?? 'Could not send verification email.',
+        level: AppAlertLevel.error,
       );
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+      await popupAlert(context, message: '$e', level: AppAlertLevel.error);
     }
   }
 
@@ -1666,7 +1700,7 @@ class _SettingsPageState extends State<_SettingsPage> {
                 _SettingsTile(
                   icon: Icons.lock_outline,
                   iconColor: const Color(0xFF4ECDC4),
-                  title: 'Change password',
+                  title: 'Change Password',
                   subtitle: 'Send a password reset email',
                   onTap: () => widget.onChangePassword(context),
                 ),
@@ -1676,7 +1710,7 @@ class _SettingsPageState extends State<_SettingsPage> {
                 _SettingsTile(
                   icon: Icons.mark_email_unread_outlined,
                   iconColor: const Color(0xFF5C6BC0),
-                  title: 'Verify email',
+                  title: 'Verify Email',
                   subtitle: _verifyEmailSubtitle(
                     emailVerified: user.emailVerified,
                   ),
@@ -1691,7 +1725,7 @@ class _SettingsPageState extends State<_SettingsPage> {
                 _SettingsTile(
                   icon: Icons.shield_outlined,
                   iconColor: const Color(0xFF3e7f3f),
-                  title: 'Multi-factor authentication',
+                  title: 'Multi-factor Authentication',
                   subtitle: user.emailVerified
                       ? 'Enable/Disable MFA'
                       : 'Verify email to enable MFA.',
@@ -1703,8 +1737,8 @@ class _SettingsPageState extends State<_SettingsPage> {
               ],
               _SettingsTile(
                 icon: Icons.delete_outline,
-                iconColor: const Color(0xFFFF6B6B),
-                title: 'Delete account',
+                iconColor: const Color(0xFFF87171),
+                title: 'Delete Account',
                 subtitle: 'Remove your account',
                 onTap: () => widget.onDeleteAccount(context),
               ),

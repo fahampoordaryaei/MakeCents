@@ -182,7 +182,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     decoration: BoxDecoration(
                       color: _message.contains('sent')
                           ? const Color(0xFFE8F5E8)
-                          : const Color(0xFFFFECEC),
+                          : const Color(0xFFFEF2F2),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -193,7 +193,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                               : Icons.info_outline,
                           color: _message.contains('sent')
                               ? const Color(0xFF2E7D32)
-                              : const Color(0xFF8B0000),
+                              : const Color(0xFFB91C1C),
                           size: 18,
                         ),
                         const SizedBox(width: 8),
@@ -203,7 +203,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                             style: TextStyle(
                               color: _message.contains('sent')
                                   ? const Color(0xFF2E7D32)
-                                  : const Color(0xFF8B0000),
+                                  : const Color(0xFFB91C1C),
                               fontWeight: FontWeight.w600,
                               fontSize: 18,
                             ),

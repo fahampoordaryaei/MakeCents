@@ -44,7 +44,6 @@ class _TrackerPageState extends State<TrackerPage> {
   final _amountController = TextEditingController();
   final _labelController = TextEditingController();
   ExpenseCategory? _selectedCat;
-  bool _showOverBudgetWarning = true;
   bool _isLoadingCategories = true;
   int _historyPage = 0;
 
@@ -92,8 +91,10 @@ class _TrackerPageState extends State<TrackerPage> {
       );
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to add transaction.')),
+      await popupAlert(
+        context,
+        message: 'Failed to add transaction.',
+        level: AppAlertLevel.error,
       );
       return;
     }
@@ -101,11 +102,10 @@ class _TrackerPageState extends State<TrackerPage> {
     _labelController.clear();
     if (!mounted) return;
     setState(() => _historyPage = 0);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Added ${formatMoney(amount)} · ${_selectedCat!.name}'),
-        backgroundColor: const Color(0xFF3e7f3f),
-      ),
+    await popupAlert(
+      context,
+      message: 'Added ${formatMoney(amount)} · ${_selectedCat!.name}',
+      level: AppAlertLevel.success,
     );
   }
 
@@ -122,83 +122,26 @@ class _TrackerPageState extends State<TrackerPage> {
     final budget = bp.budget.amount;
     final txProvider = Provider.of<TransactionProvider>(context, listen: false);
     final currentExp = txProvider.periodSpent(isWeekly: bp.isWeekly);
+    final wouldExceed = budget > 0 && currentExp + amount > budget;
 
-    if (_showOverBudgetWarning && budget > 0 && currentExp + amount > budget) {
-      await _overBudgetDialog(amount, budget, currentExp, label);
+    if (wouldExceed && !bp.allowOverBudget) {
+      await popupAlert(
+        context,
+        message: 'Watch your spending!\nThis expense exceeds your budget.',
+        level: AppAlertLevel.error,
+      );
       return;
     }
-    await _addAndNotify(label, amount);
-  }
 
-  Future<void> _overBudgetDialog(
-    double amount,
-    double budget,
-    double current,
-    String label,
-  ) async {
-    bool dontShow = false;
-    await showDialog(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, ss) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          title: const Row(
-            children: [
-              Icon(Icons.warning_amber_rounded, color: Colors.orange),
-              SizedBox(width: 8),
-              Text('Budget notice'),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Adding this will exceed your budget by ${formatMoney(current + amount - budget)}.',
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Checkbox(
-                    value: dontShow,
-                    onChanged: (v) => ss(() => dontShow = v ?? false),
-                  ),
-                  const Text("Don't show again"),
-                ],
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              style: TextButton.styleFrom(
-                minimumSize: const Size(100, 48),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-              ),
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFF3e7f3f),
-                minimumSize: const Size(100, 48),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-              ),
-              onPressed: () async {
-                if (dontShow) setState(() => _showOverBudgetWarning = false);
-                Navigator.pop(ctx);
-                await _addAndNotify(label, amount);
-              },
-              child: const Text('Continue'),
-            ),
-          ],
-        ),
-      ),
-    );
+    if (bp.allowOverBudget && budget > 0 && currentExp + amount > budget) {
+      await popupAlert(
+        context,
+        message:
+            'Over Budget Warning\nThis expense will exceed your budget by ${formatMoney(currentExp + amount - budget)}.\nContinuing anyway.',
+        level: AppAlertLevel.warning,
+      );
+    }
+    await _addAndNotify(label, amount);
   }
 
   void _deleteDialog(TransactionProvider p, int idx, double amount) {
@@ -215,7 +158,7 @@ class _TrackerPageState extends State<TrackerPage> {
           ),
           FilledButton(
             style: FilledButton.styleFrom(
-              backgroundColor: Colors.redAccent,
+              backgroundColor: const Color(0xFFDC2626),
               minimumSize: const Size(100, 48),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
@@ -225,8 +168,10 @@ class _TrackerPageState extends State<TrackerPage> {
                 await p.removeTransaction(idx);
               } catch (_) {
                 if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Could not delete expense.')),
+                await popupAlert(
+                  context,
+                  message: 'Could not delete expense.',
+                  level: AppAlertLevel.error,
                 );
               }
             },
@@ -375,7 +320,7 @@ class _TrackerPageState extends State<TrackerPage> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: over
-                      ? [const Color(0xFFFF6B6B), const Color(0xFFFF8E53)]
+                      ? [const Color(0xFFF87171), const Color(0xFFFFA36A)]
                       : [const Color(0xFF3e7f3f), const Color(0xFF6abf69)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -383,8 +328,11 @@ class _TrackerPageState extends State<TrackerPage> {
                 borderRadius: BorderRadius.circular(8),
                 boxShadow: [
                   BoxShadow(
-                    color: (over ? Colors.redAccent : const Color(0xFF3e7f3f))
-                        .withValues(alpha: 0.3),
+                    color:
+                        (over
+                                ? const Color(0xFFDC2626)
+                                : const Color(0xFF3e7f3f))
+                            .withValues(alpha: 0.3),
                     blurRadius: 12,
                     offset: const Offset(0, 6),
                   ),
@@ -958,9 +906,11 @@ class _TrackerPageState extends State<TrackerPage> {
                                           label: const Text('Delete'),
                                           style: OutlinedButton.styleFrom(
                                             minimumSize: const Size(50, 36),
-                                            foregroundColor: Colors.redAccent,
+                                            foregroundColor: const Color(
+                                              0xFFDC2626,
+                                            ),
                                             side: const BorderSide(
-                                              color: Colors.redAccent,
+                                              color: Color(0xFFDC2626),
                                             ),
                                             visualDensity:
                                                 VisualDensity.compact,
@@ -977,7 +927,7 @@ class _TrackerPageState extends State<TrackerPage> {
                             trailing: Text(
                               '-${formatMoney(tx.amount)}',
                               style: const TextStyle(
-                                color: Color(0xFFFF6B6B),
+                                color: Color(0xFFF87171),
                                 fontWeight: FontWeight.w700,
                                 fontSize: 18,
                               ),
@@ -1291,12 +1241,10 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
                           if (!context.mounted) return;
                           Navigator.pop(context);
                           if (widget.messengerContext.mounted) {
-                            ScaffoldMessenger.of(
+                            await popupAlert(
                               widget.messengerContext,
-                            ).showSnackBar(
-                              const SnackBar(
-                                content: Text('Failed to update transaction.'),
-                              ),
+                              message: 'Failed to update transaction.',
+                              level: AppAlertLevel.error,
                             );
                           }
                         }
@@ -1373,13 +1321,9 @@ class _SpendChart extends StatelessWidget {
           borderColor: Color(0xFF3e7f3f),
         ),
         tooltipSettings: InteractiveTooltip(
-          // Theme surface so overlay matches the app; text uses same style as axis ticks.
           color: theme.colorScheme.surfaceContainerHighest,
-          // With arrowLength 0, Syncfusion still strokes a degenerate “nose” path using
-          // border settings — a short vertical line beside the trackball. Keep stroke off.
           borderWidth: 0,
           borderRadius: 8,
-          // Hides the small triangular “nose” Syncfusion draws toward the chart.
           arrowLength: 0,
           arrowWidth: 0,
           canShowMarker: false,
@@ -1453,11 +1397,10 @@ class _SpendChart extends StatelessWidget {
         ),
       ),
       series: <CartesianSeries<_SpendChartPoint, double>>[
-        SplineAreaSeries<_SpendChartPoint, double>(
+        AreaSeries<_SpendChartPoint, double>(
           dataSource: points,
           xValueMapper: (p, _) => p.day,
           yValueMapper: (p, _) => p.total,
-          splineType: SplineType.cardinal,
           borderColor: const Color(0xFF3e7f3f),
           borderWidth: 3,
           gradient: LinearGradient(

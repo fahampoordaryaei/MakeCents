@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'budget_page.dart';
-import 'fcm.dart';
 import 'budget_provider.dart';
 import 'firebase_options.dart';
 import 'home_page.dart';
@@ -30,8 +29,6 @@ void main() async {
       debugPrint('Firebase Installation ID: failed — $e\n$st');
     }
   }
-
-  await initializeFirebaseMessaging();
 
   try {
     await FirebaseAppCheck.instance.activate(

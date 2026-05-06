@@ -10,9 +10,9 @@ import 'scholarship_application_page.dart';
 import 'user_provider.dart';
 
 class Scholarship {
+  final String id;
   final String title;
   final String provider;
-  final String email;
   final double amount;
   final String currency;
   final List<String> courseIds;
@@ -22,9 +22,9 @@ class Scholarship {
   final Color regionColor;
 
   Scholarship({
+    required this.id,
     required this.title,
     required this.provider,
-    required this.email,
     required this.amount,
     required this.currency,
     required this.courseIds,
@@ -33,6 +33,14 @@ class Scholarship {
     required this.regionColor,
     this.color = const Color(0xFF3e7f3f),
   });
+
+  static Color accentFromHex(String colorHex) {
+    try {
+      return Color(int.parse(colorHex.replaceFirst('#', '0xFF')));
+    } catch (_) {
+      return const Color(0xFF3e7f3f);
+    }
+  }
 }
 
 class ScholarshipsPage extends StatefulWidget {
@@ -75,16 +83,16 @@ class _ScholarshipsPageState extends State<ScholarshipsPage> {
         _allScholarships = rows.map((s) {
           final r = scholarshipRegion(s);
           return Scholarship(
+            id: s.id,
             title: s.title,
             provider: s.provider,
-            email: s.email,
             amount: s.amount,
             currency: s.currency,
             description: s.description,
             courseIds: s.courses_via_ScholarshipCourse
                 .map((course) => course.id)
                 .toList(),
-            color: Color(int.parse(s.color.replaceFirst('#', '0xFF'))),
+            color: Scholarship.accentFromHex(s.color),
             regionLabel: r.$1,
             regionColor: r.$2,
           );
@@ -179,20 +187,41 @@ class _ScholarshipsPageState extends State<ScholarshipsPage> {
                 fontSize: 18,
               ),
             ),
-            const SizedBox(height: 24),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton.icon(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const SavedScholarshipApplicationsPage(),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.folder_open_outlined),
-                label: const Text('Saved applications'),
-              ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                TextButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            const SavedScholarshipApplicationsPage(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.folder_open_outlined),
+                  label: const Text(
+                    'Saved',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                TextButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const SubmittedApplicationsPage(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.outbox_outlined),
+                  label: const Text(
+                    'Submitted',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 12),
             if (scholarshipsLoading)
@@ -309,6 +338,7 @@ class _ScholarshipCard extends StatelessWidget {
                       GestureDetector(
                         onTap: () => showScholarshipApplyDialog(
                           context,
+                          scholarshipId: s.id,
                           title: s.title,
                           provider: s.provider,
                           amount: s.amount,
@@ -349,6 +379,186 @@ class SavedScholarshipApplicationsPage extends StatefulWidget {
   @override
   State<SavedScholarshipApplicationsPage> createState() =>
       _SavedScholarshipApplicationsPageState();
+}
+
+class SubmittedApplicationsPage extends StatefulWidget {
+  const SubmittedApplicationsPage({super.key});
+
+  @override
+  State<SubmittedApplicationsPage> createState() =>
+      _SubmittedApplicationsPageState();
+}
+
+class _SubmittedApplicationsPageState extends State<SubmittedApplicationsPage> {
+  List<ListUserScholarshipApplicationsScholarshipApplications> _applications =
+      [];
+  final Map<String, List<ListUserScholarshipAttachmentsScholarshipAttachments>>
+  _attachmentsByApplicationId = {};
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadApplications();
+  }
+
+  Future<void> _loadApplications() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      if (mounted) {
+        setState(() {
+          _applications = [];
+          _attachmentsByApplicationId.clear();
+          _isLoading = false;
+        });
+      }
+      return;
+    }
+    try {
+      final connector = ExampleConnector.instance;
+      final apps =
+          (await connector
+                  .listUserScholarshipApplications(userId: user.uid)
+                  .execute())
+              .data
+              .scholarshipApplications;
+      final attachmentRows =
+          (await connector
+                  .listUserScholarshipAttachments(userId: user.uid)
+                  .execute())
+              .data
+              .scholarshipAttachments;
+
+      final byApp =
+          <
+            String,
+            List<ListUserScholarshipAttachmentsScholarshipAttachments>
+          >{};
+      for (final a in attachmentRows) {
+        final id = a.scholarshipApplication.id;
+        byApp.putIfAbsent(id, () => []).add(a);
+      }
+
+      if (!mounted) return;
+      setState(() {
+        _applications = apps;
+        _attachmentsByApplicationId
+          ..clear()
+          ..addAll(byApp);
+        _isLoading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _applications = [];
+        _attachmentsByApplicationId.clear();
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Submitted Applications',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _applications.isEmpty
+          ? Center(
+              child: Text(
+                'No submitted scholarship applications yet.',
+                style: TextStyle(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.8),
+                  fontSize: 18,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: _applications.length,
+              itemBuilder: (context, index) {
+                final row = _applications[index];
+                final sch = row.scholarship;
+                final dateStr = row.appliedAt.toJson().split('T').first;
+                final brandColor = Scholarship.accentFromHex(sch.color);
+
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  child: ListTile(
+                    title: Text(
+                      sch.title,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        height: 1.5,
+                      ),
+                    ),
+                    subtitle: Text(
+                      '${sch.provider} • $dateStr',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.8),
+                        height: 1.8,
+                      ),
+                    ),
+                    onTap: () {
+                      final acct = FirebaseAuth.instance.currentUser?.email
+                          ?.trim();
+                      final serverAttachments =
+                          _attachmentsByApplicationId[row.id] ?? [];
+                      final draftAttachments = serverAttachments
+                          .map(
+                            (a) => ScholarshipAttachment(
+                              name: a.filename,
+                              storagePath: a.path,
+                            ),
+                          )
+                          .toList();
+                      final draft = ScholarshipApplication(
+                        scholarshipId: sch.id,
+                        scholarshipTitle: sch.title,
+                        provider: sch.provider,
+                        description: sch.description,
+                        amount: sch.amount,
+                        currency: sch.currency,
+                        email: (acct != null && acct.isNotEmpty) ? acct : '',
+                        statement: row.message ?? '',
+                        attachments: draftAttachments,
+                        savedAt: row.appliedAt.toJson(),
+                        brandColor: brandColor.toARGB32(),
+                      );
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => ScholarshipApplicationPage(
+                            scholarshipId: sch.id,
+                            title: sch.title,
+                            provider: sch.provider,
+                            amount: sch.amount,
+                            currency: sch.currency,
+                            description: sch.description,
+                            brandColor: brandColor,
+                            initialDraft: draft,
+                            readOnly: true,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+    );
+  }
 }
 
 class _SavedScholarshipApplicationsPageState
@@ -394,18 +604,23 @@ class _SavedScholarshipApplicationsPageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Saved Applications')),
+      appBar: AppBar(
+        title: Text(
+          'Saved Applications',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _applications.isEmpty
           ? Center(
               child: Text(
-                'You have no saved scholarship applications yet.',
+                'No saved scholarship applications yet.',
                 style: TextStyle(
                   color: Theme.of(
                     context,
                   ).colorScheme.onSurface.withValues(alpha: 0.8),
-                  fontSize: 16,
+                  fontSize: 18,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -418,9 +633,23 @@ class _SavedScholarshipApplicationsPageState
                 return Card(
                   margin: const EdgeInsets.only(bottom: 12),
                   child: ListTile(
-                    title: Text(application.scholarshipTitle),
+                    title: Text(
+                      application.scholarshipTitle,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        height: 1.5,
+                      ),
+                    ),
                     subtitle: Text(
-                      '${application.provider} • Saved ${application.savedAt.split('T').first}',
+                      '${application.provider} • ${application.savedAt.split('T').first}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.8),
+                        height: 1.8,
+                      ),
                     ),
                     trailing: IconButton(
                       icon: const Icon(Icons.delete_outline),
@@ -430,12 +659,15 @@ class _SavedScholarshipApplicationsPageState
                       await Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (_) => ScholarshipApplicationPage(
+                            scholarshipId: application.scholarshipId,
                             title: application.scholarshipTitle,
                             provider: application.provider,
                             amount: application.amount,
                             currency: application.currency,
                             description: application.description,
-                            brandColor: Theme.of(context).colorScheme.primary,
+                            brandColor: application.brandColor != null
+                                ? Color(application.brandColor!)
+                                : Theme.of(context).colorScheme.primary,
                             initialDraft: application,
                           ),
                         ),

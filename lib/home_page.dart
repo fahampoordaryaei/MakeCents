@@ -99,6 +99,7 @@ class _HomePageState extends State<HomePage> {
   ) {
     showScholarshipApplyDialog(
       context,
+      scholarshipId: s.id,
       title: s.title,
       provider: s.provider,
       amount: s.amount,
@@ -239,7 +240,7 @@ class _HomePageState extends State<HomePage> {
                   Expanded(
                     child: _QuickStatCard(
                       icon: Icons.trending_down_outlined,
-                      color: const Color(0xFFFF6B6B),
+                      color: const Color(0xFFF87171),
                       label: 'Today',
                       value: formatMoney(_todaySpend(txProvider.transactions)),
                     ),
@@ -530,7 +531,7 @@ class _HomePageState extends State<HomePage> {
                         trailing: Text(
                           '-${formatMoney(tx.amount)}',
                           style: const TextStyle(
-                            color: Color(0xFFFF6B6B),
+                            color: Color(0xFFF87171),
                             fontWeight: FontWeight.w700,
                             fontSize: 18,
                           ),

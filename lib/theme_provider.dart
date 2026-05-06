@@ -44,10 +44,10 @@ InputDecoration requiredField(
   EdgeInsetsGeometry? contentPadding,
 }) {
   final labelStyle = hasError
-      ? const TextStyle(color: Color(0xFF8B0000), fontWeight: FontWeight.w600)
+      ? const TextStyle(color: Color(0xFFB91C1C), fontWeight: FontWeight.w600)
       : null;
   final floatingLabelStyle = hasError
-      ? const TextStyle(color: Color(0xFF8B0000))
+      ? const TextStyle(color: Color(0xFFB91C1C))
       : null;
 
   if (outlined) {
@@ -58,7 +58,7 @@ InputDecoration requiredField(
     );
     final error = OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
-      borderSide: const BorderSide(color: Color(0xFF8B0000), width: 1.5),
+      borderSide: const BorderSide(color: Color(0xFFB91C1C), width: 1.5),
     );
     final border = hasError ? error : normal;
     return InputDecoration(
@@ -78,7 +78,7 @@ InputDecoration requiredField(
   final border = hasError
       ? const OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(8)),
-          borderSide: BorderSide(color: Color(0xFF8B0000), width: 1.5),
+          borderSide: BorderSide(color: Color(0xFFB91C1C), width: 1.5),
         )
       : const OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(8)),

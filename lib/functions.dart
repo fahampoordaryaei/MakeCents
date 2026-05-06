@@ -1,12 +1,28 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 
 import 'dataconnect_generated/generated.dart';
 import 'scholarship_application_page.dart';
+
+typedef UploadResult = ({String path, String filename});
+
+Future<UploadResult> uploadAttachment(File file, {String? displayName}) async {
+  final uuid = const Uuid().v4();
+  final raw = displayName ?? file.path.replaceAll(r'\', '/').split('/').last;
+  var filename = raw.replaceAll(RegExp(r'[/\\]'), '_').trim();
+  if (filename.isEmpty) filename = 'attachment';
+
+  final path = 'Documents/$uuid/$filename';
+  await FirebaseStorage.instance.ref(path).putFile(file);
+  return (path: path, filename: filename);
+}
 
 Future<void> sendUserEmailVerification(User user) async {
   final projectId = Firebase.app().options.projectId;
@@ -60,9 +76,9 @@ Future<List<ListGlobalScholarshipsScholarships>> fetchScholarshipsForLocation(
   return ('GLOBAL', const Color(0xFF1565C0));
 }
 
-/// Same scholarship detail + apply flow as the Scholarships tab.
 Future<void> showScholarshipApplyDialog(
   BuildContext context, {
+  String? scholarshipId,
   required String title,
   required String provider,
   required double amount,
@@ -73,6 +89,7 @@ Future<void> showScholarshipApplyDialog(
   await Navigator.of(context).push(
     MaterialPageRoute(
       builder: (_) => ScholarshipApplicationPage(
+        scholarshipId: scholarshipId,
         title: title,
         provider: provider,
         amount: amount,
@@ -149,7 +166,6 @@ Future<_RedeemR> _redeemProductCall(String productId) async {
   }
 }
 
-/// Product preview + redeem (shared by Home and Points).
 Future<void> showProductRedeemDialog(
   BuildContext context,
   ListProductsProducts product,
@@ -407,7 +423,9 @@ class _ProductRedeemBodyState extends State<_ProductRedeemBody> {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
-                          color: _msgErr ? Colors.red : const Color(0xFF3e7f3f),
+                          color: _msgErr
+                              ? const Color(0xFFB91C1C)
+                              : const Color(0xFF3e7f3f),
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -561,4 +579,78 @@ void setGlobalExpenseCategoriesFromRows(
         ),
       )
       .toList();
+}
+
+enum AppAlertLevel { warning, error, success }
+
+Future<void> popupAlert(
+  BuildContext context, {
+  required String message,
+  required AppAlertLevel level,
+}) async {
+  if (!context.mounted) return;
+
+  final icon = level == AppAlertLevel.warning
+      ? Icons.warning_amber_rounded
+      : level == AppAlertLevel.error
+      ? Icons.error_rounded
+      : Icons.check_circle_rounded;
+
+  final bg = level == AppAlertLevel.warning
+      ? const Color(0xFFFFF3E0)
+      : level == AppAlertLevel.error
+      ? Theme.of(context).colorScheme.errorContainer
+      : const Color(0xFFE8F5E9);
+
+  final fg = level == AppAlertLevel.warning
+      ? const Color(0xFFEF6C00)
+      : level == AppAlertLevel.error
+      ? Theme.of(context).colorScheme.onErrorContainer
+      : const Color(0xFF2E7D32);
+
+  var visible = true;
+  late OverlayEntry entry;
+  entry = OverlayEntry(
+    builder: (ctx) => Positioned(
+      left: 20,
+      right: 20,
+      bottom: MediaQuery.of(ctx).padding.bottom + 90,
+      child: AnimatedOpacity(
+        opacity: visible ? 1 : 0,
+        duration: const Duration(milliseconds: 300),
+        onEnd: () {
+          if (!visible) entry.remove();
+        },
+        child: Material(
+          elevation: 8,
+          borderRadius: BorderRadius.circular(12),
+          color: bg,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(
+              children: [
+                Icon(icon, color: fg, size: 20),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    message,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: fg,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+  Overlay.of(context).insert(entry);
+  Future.delayed(const Duration(seconds: 3), () {
+    visible = false;
+    entry.markNeedsBuild();
+  });
 }

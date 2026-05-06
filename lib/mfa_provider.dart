@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -103,7 +105,6 @@ class MfaEnrollmentWidget extends StatefulWidget {
 
   final bool showSkipForNow;
   final bool showLeadingBackButton;
-  // Skip password if still authenticated
   final bool disablePasswordField;
 
   @override
@@ -148,8 +149,10 @@ class _MfaEnrollmentWidgetState extends State<MfaEnrollmentWidget> {
       if (!mounted) return;
       setState(() => _busy = false);
       final email = _current!.email?.trim();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('We sent a verification email to $email.')),
+      await popupAlert(
+        context,
+        message: 'We sent a verification email to $email.',
+        level: AppAlertLevel.success,
       );
     } catch (e) {
       if (!mounted) return;
@@ -286,8 +289,10 @@ class _MfaEnrollmentWidgetState extends State<MfaEnrollmentWidget> {
   Future<void> _copySecret() async {
     await Clipboard.setData(ClipboardData(text: _totpSecret!.secretKey));
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Secret copied to clipboard.')),
+    await popupAlert(
+      context,
+      message: 'Secret copied to clipboard.',
+      level: AppAlertLevel.success,
     );
   }
 
@@ -470,7 +475,7 @@ class _MfaEnrollmentWidgetState extends State<MfaEnrollmentWidget> {
                 if (snap.hasError) {
                   return Text(
                     'QR error: ${snap.error}',
-                    style: const TextStyle(color: Colors.red),
+                    style: const TextStyle(color: Color(0xFFB91C1C)),
                   );
                 }
                 if (!snap.hasData) {
@@ -556,7 +561,7 @@ class _MfaEnrollmentWidgetState extends State<MfaEnrollmentWidget> {
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFECEC),
+                color: const Color(0xFFFEF2F2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -564,7 +569,7 @@ class _MfaEnrollmentWidgetState extends State<MfaEnrollmentWidget> {
                 children: [
                   const Icon(
                     Icons.info_outline,
-                    color: Color(0xFF8B0000),
+                    color: Color(0xFFB91C1C),
                     size: 18,
                   ),
                   const SizedBox(width: 8),
@@ -572,7 +577,7 @@ class _MfaEnrollmentWidgetState extends State<MfaEnrollmentWidget> {
                     child: Text(
                       _error,
                       style: const TextStyle(
-                        color: Color(0xFF8B0000),
+                        color: Color(0xFFB91C1C),
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
@@ -725,13 +730,13 @@ class _MfaAccountDialogState extends State<_MfaAccountDialog> {
       );
       await unenrollTotp(user);
       if (!mounted) return;
-      final messenger = ScaffoldMessenger.of(context);
-      Navigator.of(context).pop();
-      messenger.showSnackBar(
-        const SnackBar(
-          content: Text('Multi-factor authentication has been disabled.'),
-        ),
+      await popupAlert(
+        context,
+        message: 'Multi-factor authentication has been disabled.',
+        level: AppAlertLevel.success,
       );
+      if (!mounted) return;
+      Navigator.of(context).pop();
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
       setState(() {
@@ -775,13 +780,14 @@ class _MfaAccountDialogState extends State<_MfaAccountDialog> {
                   onClose: () => Navigator.of(context).pop(),
                   onBackWhenNoSecret: () => Navigator.of(context).pop(),
                   onEnrolledSuccess: () {
-                    final messenger = ScaffoldMessenger.of(context);
-                    Navigator.of(context).pop();
-                    messenger.showSnackBar(
-                      const SnackBar(
-                        content: Text('Authenticator (MFA) is enabled.'),
+                    unawaited(
+                      popupAlert(
+                        context,
+                        message: 'Authenticator (MFA) is enabled.',
+                        level: AppAlertLevel.success,
                       ),
                     );
+                    Navigator.of(context).pop();
                   },
                 ),
         ),
@@ -952,7 +958,7 @@ class _MfaAccountDialogState extends State<_MfaAccountDialog> {
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFECEC),
+                color: const Color(0xFFFEF2F2),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
@@ -960,7 +966,7 @@ class _MfaAccountDialogState extends State<_MfaAccountDialog> {
                 children: [
                   const Icon(
                     Icons.info_outline,
-                    color: Color(0xFF8B0000),
+                    color: Color(0xFFB91C1C),
                     size: 18,
                   ),
                   const SizedBox(width: 8),
@@ -968,7 +974,7 @@ class _MfaAccountDialogState extends State<_MfaAccountDialog> {
                     child: Text(
                       _error,
                       style: const TextStyle(
-                        color: Color(0xFF8B0000),
+                        color: Color(0xFFB91C1C),
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),

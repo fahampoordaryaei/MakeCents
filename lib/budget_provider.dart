@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dataconnect_generated/generated.dart';
 import 'functions.dart';
 
@@ -11,10 +12,12 @@ class Budget {
 
 class BudgetProvider with ChangeNotifier {
   Budget _budget = const Budget(amount: 0.0);
+  bool _allowOverBudget = true;
 
   Budget get budget => _budget;
   bool get isWeekly => _budget.isWeekly;
   String get periodLabel => _budget.isWeekly ? 'Weekly' : 'Monthly';
+  bool get allowOverBudget => _allowOverBudget;
 
   Future<void> init() async {
     final user = FirebaseAuth.instance.currentUser;
@@ -42,9 +45,24 @@ class BudgetProvider with ChangeNotifier {
             setGlobalExpenseCategoriesFromRows(cats.data.expenseCategories);
           } catch (_) {}
         }(),
+        () async {
+          try {
+            final p = await SharedPreferences.getInstance();
+            _allowOverBudget = p.getBool('allow_over_budget') ?? true;
+          } catch (_) {}
+        }(),
       ]);
     } catch (_) {}
     notifyListeners();
+  }
+
+  Future<void> setAllowOverBudget(bool value) async {
+    _allowOverBudget = value;
+    notifyListeners();
+    try {
+      final p = await SharedPreferences.getInstance();
+      await p.setBool('allow_over_budget', value);
+    } catch (_) {}
   }
 
   Future<void> setBudget(double amount, {bool? isWeekly}) async {

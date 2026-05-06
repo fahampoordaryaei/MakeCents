@@ -653,14 +653,14 @@ class _LoginPageState extends State<LoginPage> {
                         width: double.infinity,
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFFECEC),
+                          color: const Color(0xFFFEF2F2),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
                           children: [
                             const Icon(
                               Icons.info_outline,
-                              color: Color(0xFF8B0000),
+                              color: Color(0xFFB91C1C),
                               size: 18,
                             ),
                             const SizedBox(width: 8),
@@ -668,7 +668,7 @@ class _LoginPageState extends State<LoginPage> {
                               child: Text(
                                 _error,
                                 style: const TextStyle(
-                                  color: Color(0xFF8B0000),
+                                  color: Color(0xFFB91C1C),
                                   fontWeight: FontWeight.w600,
                                   fontSize: 18,
                                 ),
