@@ -89,14 +89,23 @@ class _HomeScreenState extends State<HomeScreen> {
   late final List<Widget> _pages;
 
   Future<void> _refreshSessionData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return;
+    }
     final transactionProvider = context.read<TransactionProvider>();
     final budgetProvider = context.read<BudgetProvider>();
     final userProvider = context.read<UserProvider>();
-    final uid = FirebaseAuth.instance.currentUser!.uid;
-    await context.read<CategoryBudgetProvider>().load(uid);
+    await context.read<CategoryBudgetProvider>().load(user.uid);
 
     await transactionProvider.fetchTransactions();
+    if (FirebaseAuth.instance.currentUser == null) {
+      return;
+    }
     await budgetProvider.init();
+    if (FirebaseAuth.instance.currentUser == null) {
+      return;
+    }
     await userProvider.loadProfile();
   }
 

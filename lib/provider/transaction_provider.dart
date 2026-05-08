@@ -70,7 +70,10 @@ class TransactionProvider with ChangeNotifier {
   }
 
   Future<void> fetchTransactions() async {
-    final user = auth.FirebaseAuth.instance.currentUser!;
+    final user = auth.FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return;
+    }
 
     _isLoading = true;
     notifyListeners();

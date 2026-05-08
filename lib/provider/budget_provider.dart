@@ -20,7 +20,10 @@ class BudgetProvider with ChangeNotifier {
   bool get allowOverBudget => _allowOverBudget;
 
   Future<void> init() async {
-    final user = FirebaseAuth.instance.currentUser!;
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return;
+    }
 
     try {
       await Future.wait([

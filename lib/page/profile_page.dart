@@ -216,7 +216,11 @@ class ProfilePage extends StatelessWidget {
       stream: FirebaseAuth.instance.authStateChanges(),
       initialData: FirebaseAuth.instance.currentUser,
       builder: (context, snapshot) {
-        return _signedInBody(context, snapshot.data!);
+        final user = snapshot.data;
+        if (user == null) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        return _signedInBody(context, user);
       },
     );
   }
