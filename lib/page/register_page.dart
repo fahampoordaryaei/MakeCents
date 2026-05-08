@@ -1,10 +1,12 @@
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'theme_provider.dart';
-import 'functions.dart';
-import 'onboarding_profile_page.dart';
-import 'startup_page.dart';
+
+import 'package:makecents/helper/scholarship_helper.dart';
+import 'package:makecents/helper/ui_helper.dart';
+import 'package:makecents/page/onboarding_profile_page.dart';
+import 'package:makecents/page/startup_page.dart';
+import 'package:makecents/provider/theme_provider.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -120,7 +122,7 @@ class _RegisterPageState extends State<RegisterPage> {
     );
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(
-        builder: (_) => OnboardingProfilePage(
+        builder: (_) => StudentProfilePage(
           firstName: _firstNameController.text.trim(),
           lastName: _lastNameController.text.trim(),
           phonePrefix: _countryCode,
@@ -342,7 +344,7 @@ class _RegisterPageState extends State<RegisterPage> {
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (_) =>
-                OnboardingProfilePage(firstName: firstName, lastName: lastName),
+                StudentProfilePage(firstName: firstName, lastName: lastName),
           ),
         );
       }

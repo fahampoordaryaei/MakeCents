@@ -1,5 +1,14 @@
 extend type Mutation {
   """
+  ✨ Insert a single `Category` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  category_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: Category_Data!
+  ): Category_KeyOutput! @fdc_generated(from: "Category", purpose: INSERT_SINGLE)
+  """
   ✨ Insert a single `CategoryBudget` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
   """
   categoryBudget_insert(
@@ -53,15 +62,6 @@ extend type Mutation {
     """
     data: Currency_Data!
   ): Currency_KeyOutput! @fdc_generated(from: "Currency", purpose: INSERT_SINGLE)
-  """
-  ✨ Insert a single `ExpenseCategory` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
-  """
-  expenseCategory_insert(
-    """
-    Data object to insert into the table.
-    """
-    data: ExpenseCategory_Data!
-  ): ExpenseCategory_KeyOutput! @fdc_generated(from: "ExpenseCategory", purpose: INSERT_SINGLE)
   """
   ✨ Insert a single `Institution` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
   """
@@ -126,6 +126,15 @@ extend type Mutation {
     data: ScholarshipApplication_Data!
   ): ScholarshipApplication_KeyOutput! @fdc_generated(from: "ScholarshipApplication", purpose: INSERT_SINGLE)
   """
+  ✨ Insert a single `ScholarshipAttachment` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  scholarshipAttachment_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: ScholarshipAttachment_Data!
+  ): ScholarshipAttachment_KeyOutput! @fdc_generated(from: "ScholarshipAttachment", purpose: INSERT_SINGLE)
+  """
   ✨ Insert a single `ScholarshipCourse` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
   """
   scholarshipCourse_insert(
@@ -152,6 +161,15 @@ extend type Mutation {
     """
     data: User_Data!
   ): User_KeyOutput! @fdc_generated(from: "User", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert `Category` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  category_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [Category_Data!]!
+  ): [Category_KeyOutput!]! @fdc_generated(from: "Category", purpose: INSERT_MULTIPLE)
   """
   ✨ Insert `CategoryBudget` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
   """
@@ -206,15 +224,6 @@ extend type Mutation {
     """
     data: [Currency_Data!]!
   ): [Currency_KeyOutput!]! @fdc_generated(from: "Currency", purpose: INSERT_MULTIPLE)
-  """
-  ✨ Insert `ExpenseCategory` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
-  """
-  expenseCategory_insertMany(
-    """
-    List of data objects to insert into the table.
-    """
-    data: [ExpenseCategory_Data!]!
-  ): [ExpenseCategory_KeyOutput!]! @fdc_generated(from: "ExpenseCategory", purpose: INSERT_MULTIPLE)
   """
   ✨ Insert `Institution` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
   """
@@ -279,6 +288,15 @@ extend type Mutation {
     data: [ScholarshipApplication_Data!]!
   ): [ScholarshipApplication_KeyOutput!]! @fdc_generated(from: "ScholarshipApplication", purpose: INSERT_MULTIPLE)
   """
+  ✨ Insert `ScholarshipAttachment` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  scholarshipAttachment_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [ScholarshipAttachment_Data!]!
+  ): [ScholarshipAttachment_KeyOutput!]! @fdc_generated(from: "ScholarshipAttachment", purpose: INSERT_MULTIPLE)
+  """
   ✨ Insert `ScholarshipCourse` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
   """
   scholarshipCourse_insertMany(
@@ -305,6 +323,15 @@ extend type Mutation {
     """
     data: [User_Data!]!
   ): [User_KeyOutput!]! @fdc_generated(from: "User", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert or update a single `Category` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Category`.
+  """
+  category_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: Category_Data!
+  ): Category_KeyOutput! @fdc_generated(from: "Category", purpose: UPSERT_SINGLE)
   """
   ✨ Insert or update a single `CategoryBudget` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `CategoryBudget`.
   """
@@ -359,15 +386,6 @@ extend type Mutation {
     """
     data: Currency_Data!
   ): Currency_KeyOutput! @fdc_generated(from: "Currency", purpose: UPSERT_SINGLE)
-  """
-  ✨ Insert or update a single `ExpenseCategory` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `ExpenseCategory`.
-  """
-  expenseCategory_upsert(
-    """
-    Data object to insert or update if it already exists.
-    """
-    data: ExpenseCategory_Data!
-  ): ExpenseCategory_KeyOutput! @fdc_generated(from: "ExpenseCategory", purpose: UPSERT_SINGLE)
   """
   ✨ Insert or update a single `Institution` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Institution`.
   """
@@ -432,6 +450,15 @@ extend type Mutation {
     data: ScholarshipApplication_Data!
   ): ScholarshipApplication_KeyOutput! @fdc_generated(from: "ScholarshipApplication", purpose: UPSERT_SINGLE)
   """
+  ✨ Insert or update a single `ScholarshipAttachment` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `ScholarshipAttachment`.
+  """
+  scholarshipAttachment_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: ScholarshipAttachment_Data!
+  ): ScholarshipAttachment_KeyOutput! @fdc_generated(from: "ScholarshipAttachment", purpose: UPSERT_SINGLE)
+  """
   ✨ Insert or update a single `ScholarshipCourse` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `ScholarshipCourse`.
   """
   scholarshipCourse_upsert(
@@ -458,6 +485,15 @@ extend type Mutation {
     """
     data: User_Data!
   ): User_KeyOutput! @fdc_generated(from: "User", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update `Category` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Category`.
+  """
+  category_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [Category_Data!]!
+  ): [Category_KeyOutput!]! @fdc_generated(from: "Category", purpose: UPSERT_MULTIPLE)
   """
   ✨ Insert or update `CategoryBudget` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `CategoryBudget`.
   """
@@ -512,15 +548,6 @@ extend type Mutation {
     """
     data: [Currency_Data!]!
   ): [Currency_KeyOutput!]! @fdc_generated(from: "Currency", purpose: UPSERT_MULTIPLE)
-  """
-  ✨ Insert or update `ExpenseCategory` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `ExpenseCategory`.
-  """
-  expenseCategory_upsertMany(
-    """
-    List of data objects to insert or update if it already exists.
-    """
-    data: [ExpenseCategory_Data!]!
-  ): [ExpenseCategory_KeyOutput!]! @fdc_generated(from: "ExpenseCategory", purpose: UPSERT_MULTIPLE)
   """
   ✨ Insert or update `Institution` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Institution`.
   """
@@ -585,6 +612,15 @@ extend type Mutation {
     data: [ScholarshipApplication_Data!]!
   ): [ScholarshipApplication_KeyOutput!]! @fdc_generated(from: "ScholarshipApplication", purpose: UPSERT_MULTIPLE)
   """
+  ✨ Insert or update `ScholarshipAttachment` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `ScholarshipAttachment`.
+  """
+  scholarshipAttachment_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [ScholarshipAttachment_Data!]!
+  ): [ScholarshipAttachment_KeyOutput!]! @fdc_generated(from: "ScholarshipAttachment", purpose: UPSERT_MULTIPLE)
+  """
   ✨ Insert or update `ScholarshipCourse` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `ScholarshipCourse`.
   """
   scholarshipCourse_upsertMany(
@@ -611,6 +647,30 @@ extend type Mutation {
     """
     data: [User_Data!]!
   ): [User_KeyOutput!]! @fdc_generated(from: "User", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Update a single `Category` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `Category` or `null` if not found.
+  """
+  category_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Category_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Category_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: Category_Data!
+  ): Category_KeyOutput @fdc_generated(from: "Category", purpose: UPDATE_SINGLE)
   """
   ✨ Update a single `CategoryBudget` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `CategoryBudget` or `null` if not found.
   """
@@ -760,30 +820,6 @@ extend type Mutation {
     """
     data: Currency_Data!
   ): Currency_KeyOutput @fdc_generated(from: "Currency", purpose: UPDATE_SINGLE)
-  """
-  ✨ Update a single `ExpenseCategory` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `ExpenseCategory` or `null` if not found.
-  """
-  expenseCategory_update(
-    """
-    The unique ID of the object.
-    """
-    id: UUID
-
-    """
-    The key used to identify the object.
-    """
-    key: ExpenseCategory_Key
-
-    """
-    Fetch the first row based on the filters and ordering.
-    """
-    first: ExpenseCategory_FirstRow
-
-    """
-    Data object containing fields to be updated.
-    """
-    data: ExpenseCategory_Data!
-  ): ExpenseCategory_KeyOutput @fdc_generated(from: "ExpenseCategory", purpose: UPDATE_SINGLE)
   """
   ✨ Update a single `Institution` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `Institution` or `null` if not found.
   """
@@ -948,6 +984,30 @@ extend type Mutation {
     data: ScholarshipApplication_Data!
   ): ScholarshipApplication_KeyOutput @fdc_generated(from: "ScholarshipApplication", purpose: UPDATE_SINGLE)
   """
+  ✨ Update a single `ScholarshipAttachment` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `ScholarshipAttachment` or `null` if not found.
+  """
+  scholarshipAttachment_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: ScholarshipAttachment_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: ScholarshipAttachment_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: ScholarshipAttachment_Data!
+  ): ScholarshipAttachment_KeyOutput @fdc_generated(from: "ScholarshipAttachment", purpose: UPDATE_SINGLE)
+  """
   ✨ Update a single `ScholarshipCourse` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `ScholarshipCourse` or `null` if not found.
   """
   scholarshipCourse_update(
@@ -1009,6 +1069,25 @@ extend type Mutation {
     """
     data: User_Data!
   ): User_KeyOutput @fdc_generated(from: "User", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update `Category` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  category_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: Category_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: Category_Data!
+  ): Int! @fdc_generated(from: "Category", purpose: UPDATE_MULTIPLE)
   """
   ✨ Update `CategoryBudget` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
   """
@@ -1123,25 +1202,6 @@ extend type Mutation {
     """
     data: Currency_Data!
   ): Int! @fdc_generated(from: "Currency", purpose: UPDATE_MULTIPLE)
-  """
-  ✨ Update `ExpenseCategory` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
-  """
-  expenseCategory_updateMany(
-    """
-    Filter condition to specify which rows to update.
-    """
-    where: ExpenseCategory_Filter
-
-    """
-    Set to true to update all rows.
-    """
-    all: Boolean = false
-
-    """
-    Data object containing fields to update.
-    """
-    data: ExpenseCategory_Data!
-  ): Int! @fdc_generated(from: "ExpenseCategory", purpose: UPDATE_MULTIPLE)
   """
   ✨ Update `Institution` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
   """
@@ -1276,6 +1336,25 @@ extend type Mutation {
     data: ScholarshipApplication_Data!
   ): Int! @fdc_generated(from: "ScholarshipApplication", purpose: UPDATE_MULTIPLE)
   """
+  ✨ Update `ScholarshipAttachment` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  scholarshipAttachment_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: ScholarshipAttachment_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: ScholarshipAttachment_Data!
+  ): Int! @fdc_generated(from: "ScholarshipAttachment", purpose: UPDATE_MULTIPLE)
+  """
   ✨ Update `ScholarshipCourse` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
   """
   scholarshipCourse_updateMany(
@@ -1332,6 +1411,25 @@ extend type Mutation {
     """
     data: User_Data!
   ): Int! @fdc_generated(from: "User", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Delete a single `Category` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  category_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Category_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Category_FirstRow
+  ): Category_KeyOutput @fdc_generated(from: "Category", purpose: DELETE_SINGLE)
   """
   ✨ Delete a single `CategoryBudget` based on `id`, `key` or `first` and return its key (or `null` if not found).
   """
@@ -1451,25 +1549,6 @@ extend type Mutation {
     """
     first: Currency_FirstRow
   ): Currency_KeyOutput @fdc_generated(from: "Currency", purpose: DELETE_SINGLE)
-  """
-  ✨ Delete a single `ExpenseCategory` based on `id`, `key` or `first` and return its key (or `null` if not found).
-  """
-  expenseCategory_delete(
-    """
-    The unique ID of the object.
-    """
-    id: UUID
-
-    """
-    The key used to identify the object.
-    """
-    key: ExpenseCategory_Key
-
-    """
-    Fetch the first row based on the filters and ordering.
-    """
-    first: ExpenseCategory_FirstRow
-  ): ExpenseCategory_KeyOutput @fdc_generated(from: "ExpenseCategory", purpose: DELETE_SINGLE)
   """
   ✨ Delete a single `Institution` based on `id`, `key` or `first` and return its key (or `null` if not found).
   """
@@ -1599,6 +1678,25 @@ extend type Mutation {
     first: ScholarshipApplication_FirstRow
   ): ScholarshipApplication_KeyOutput @fdc_generated(from: "ScholarshipApplication", purpose: DELETE_SINGLE)
   """
+  ✨ Delete a single `ScholarshipAttachment` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  scholarshipAttachment_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: ScholarshipAttachment_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: ScholarshipAttachment_FirstRow
+  ): ScholarshipAttachment_KeyOutput @fdc_generated(from: "ScholarshipAttachment", purpose: DELETE_SINGLE)
+  """
   ✨ Delete a single `ScholarshipCourse` based on `id`, `key` or `first` and return its key (or `null` if not found).
   """
   scholarshipCourse_delete(
@@ -1645,6 +1743,20 @@ extend type Mutation {
     """
     first: User_FirstRow
   ): User_KeyOutput @fdc_generated(from: "User", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete `Category` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  category_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: Category_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "Category", purpose: DELETE_MULTIPLE)
   """
   ✨ Delete `CategoryBudget` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
   """
@@ -1729,20 +1841,6 @@ extend type Mutation {
     """
     all: Boolean = false
   ): Int! @fdc_generated(from: "Currency", purpose: DELETE_MULTIPLE)
-  """
-  ✨ Delete `ExpenseCategory` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
-  """
-  expenseCategory_deleteMany(
-    """
-    Filter condition to specify which rows to delete.
-    """
-    where: ExpenseCategory_Filter
-
-    """
-    Set to true to delete all rows.
-    """
-    all: Boolean = false
-  ): Int! @fdc_generated(from: "ExpenseCategory", purpose: DELETE_MULTIPLE)
   """
   ✨ Delete `Institution` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
   """
@@ -1841,6 +1939,20 @@ extend type Mutation {
     """
     all: Boolean = false
   ): Int! @fdc_generated(from: "ScholarshipApplication", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `ScholarshipAttachment` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  scholarshipAttachment_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: ScholarshipAttachment_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "ScholarshipAttachment", purpose: DELETE_MULTIPLE)
   """
   ✨ Delete `ScholarshipCourse` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
   """

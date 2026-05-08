@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'dataconnect_generated/generated.dart';
-import 'functions.dart';
+import 'package:makecents/dataconnect_generated/generated.dart';
+import 'package:makecents/helper/currency_helper.dart';
 
 class UserProfile {
   final String firstName;
@@ -16,6 +16,7 @@ class UserProfile {
 
   UserProfile({
     required this.firstName,
+
     required this.lastName,
     required this.email,
     this.institution,
@@ -55,12 +56,7 @@ class UserProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
 
   Future<void> loadProfile() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      _profile = null;
-      notifyListeners();
-      return;
-    }
+    final user = FirebaseAuth.instance.currentUser!;
 
     _isLoading = true;
     notifyListeners();

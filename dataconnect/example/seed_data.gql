@@ -45,13 +45,13 @@ mutation seedData @transaction @auth(level: USER, insecureReason: "Seed data is 
     { name: "Tourism" },
     { name: "Other" }
   ])
-  expenseCategory_insertMany(data: [
+  category_insertMany(data: [
     { name: "Food", iconName: "restaurant", colorHex: "#F87171" },
     { name: "Transport", iconName: "directions_bus", colorHex: "#4ECDC4" },
     { name: "Shopping", iconName: "shopping_bag", colorHex: "#FFBE0B" },
     { name: "Health", iconName: "favorite", colorHex: "#95E1D3" },
     { name: "Education", iconName: "institution", colorHex: "#A8D8EA" },
-    { name: "Entertainment", iconName: "sports_esports", colorHex: "#AA96DA" },
+    { name: "Leisure", iconName: "sports_esports", colorHex: "#AA96DA" },
     { name: "Bills", iconName: "receipt_long", colorHex: "#FC5185" },
     { name: "Other", iconName: "more_horiz", colorHex: "#B2B2B2" }
   ])

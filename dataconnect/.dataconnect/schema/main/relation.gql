@@ -1,3 +1,155 @@
+extend type Category {
+  """
+  ✨ List `CategoryBudget` objects in a one-to-many relationship (where `CategoryBudget`.`category` is this object).
+  """
+  categoryBudgets_on_category(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: CategoryBudget_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [CategoryBudget_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: CategoryBudget_Having
+  ): [CategoryBudget!]! @fdc_generated(from: "CategoryBudget.category", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
+  ✨ List `Transaction` objects in a one-to-many relationship (where `Transaction`.`category` is this object).
+  """
+  transactions_on_category(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Transaction_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Transaction_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Transaction_Having
+  ): [Transaction!]! @fdc_generated(from: "Transaction.category", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
+  ✨ List `User` objects using `CategoryBudget` as the join table (a `CategoryBudget` object exists where its `category` is this and its `user` is that).
+  """
+  users_via_CategoryBudget(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: CategoryBudget_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [CategoryBudget_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: CategoryBudget_Having
+  ): [User!]! @fdc_generated(from: "CategoryBudget", purpose: QUERY_MULTIPLE_MANY_TO_MANY)
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "Category", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `Category` table.
+  """
+  _count: Int! @fdc_generated(from: "Category.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Category` table where the `colorHex` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  colorHex_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Category.colorHex", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Category` table where the `iconName` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  iconName_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Category.iconName", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Category` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Category.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `Category` table where the `name` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  name_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "Category.name", purpose: QUERY_COUNT)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "Category.id", purpose: ENTITY_ID)
+}
 extend type CategoryBudget {
   """
   Implicit metadata field that cannot be written. It provides extra information about query results.
@@ -790,158 +942,6 @@ extend type Currency {
   """
   _id: ID! @fdc_generated(from: "Currency.id", purpose: ENTITY_ID)
 }
-extend type ExpenseCategory {
-  """
-  ✨ List `CategoryBudget` objects in a one-to-many relationship (where `CategoryBudget`.`category` is this object).
-  """
-  categoryBudgets_on_category(
-    """
-    Filter condition to narrow down the query results.
-    """
-    where: CategoryBudget_Filter
-
-    """
-    Order the query results by specific fields.
-    """
-    orderBy: [CategoryBudget_Order!]
-
-    """
-    Number of rows to skip before starting to return the results.
-    """
-    offset: Int
-
-    """
-    Maximum number of rows to return (defaults to 100 rows).
-    """
-    limit: Int = 100
-
-    """
-    Set to true to return distinct results.
-    """
-    distinct: Boolean = false
-
-    """
-    Filter condition to apply to the groups of aggregate queries.
-    """
-    having: CategoryBudget_Having
-  ): [CategoryBudget!]! @fdc_generated(from: "CategoryBudget.category", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
-  """
-  ✨ List `Transaction` objects in a one-to-many relationship (where `Transaction`.`category` is this object).
-  """
-  transactions_on_category(
-    """
-    Filter condition to narrow down the query results.
-    """
-    where: Transaction_Filter
-
-    """
-    Order the query results by specific fields.
-    """
-    orderBy: [Transaction_Order!]
-
-    """
-    Number of rows to skip before starting to return the results.
-    """
-    offset: Int
-
-    """
-    Maximum number of rows to return (defaults to 100 rows).
-    """
-    limit: Int = 100
-
-    """
-    Set to true to return distinct results.
-    """
-    distinct: Boolean = false
-
-    """
-    Filter condition to apply to the groups of aggregate queries.
-    """
-    having: Transaction_Having
-  ): [Transaction!]! @fdc_generated(from: "Transaction.category", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
-  """
-  ✨ List `User` objects using `CategoryBudget` as the join table (a `CategoryBudget` object exists where its `category` is this and its `user` is that).
-  """
-  users_via_CategoryBudget(
-    """
-    Filter condition to narrow down the query results.
-    """
-    where: CategoryBudget_Filter
-
-    """
-    Order the query results by specific fields.
-    """
-    orderBy: [CategoryBudget_Order!]
-
-    """
-    Number of rows to skip before starting to return the results.
-    """
-    offset: Int
-
-    """
-    Maximum number of rows to return (defaults to 100 rows).
-    """
-    limit: Int = 100
-
-    """
-    Set to true to return distinct results.
-    """
-    distinct: Boolean = false
-
-    """
-    Filter condition to apply to the groups of aggregate queries.
-    """
-    having: CategoryBudget_Having
-  ): [User!]! @fdc_generated(from: "CategoryBudget", purpose: QUERY_MULTIPLE_MANY_TO_MANY)
-  """
-  Implicit metadata field that cannot be written. It provides extra information about query results.
-  """
-  _metadata: _Metadata @fdc_generated(from: "ExpenseCategory", purpose: METADATA_FIELD)
-  """
-  ✨ Count the number of rows in the `ExpenseCategory` table.
-  """
-  _count: Int! @fdc_generated(from: "ExpenseCategory.", purpose: QUERY_COUNT)
-  """
-  ✨ Count the number of rows in the `ExpenseCategory` table where the `colorHex` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
-  """
-  colorHex_count(
-    """
-    Set to true to count the number of distinct values.
-    """
-    distinct: Boolean = false
-  ): Int! @fdc_generated(from: "ExpenseCategory.colorHex", purpose: QUERY_COUNT)
-  """
-  ✨ Count the number of rows in the `ExpenseCategory` table where the `iconName` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
-  """
-  iconName_count(
-    """
-    Set to true to count the number of distinct values.
-    """
-    distinct: Boolean = false
-  ): Int! @fdc_generated(from: "ExpenseCategory.iconName", purpose: QUERY_COUNT)
-  """
-  ✨ Count the number of rows in the `ExpenseCategory` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
-  """
-  id_count(
-    """
-    Set to true to count the number of distinct values.
-    """
-    distinct: Boolean = false
-  ): Int! @fdc_generated(from: "ExpenseCategory.id", purpose: QUERY_COUNT)
-  """
-  ✨ Count the number of rows in the `ExpenseCategory` table where the `name` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
-  """
-  name_count(
-    """
-    Set to true to count the number of distinct values.
-    """
-    distinct: Boolean = false
-  ): Int! @fdc_generated(from: "ExpenseCategory.name", purpose: QUERY_COUNT)
-  """
-  A generated field that is used for caching results in SDKs.
-  """
-  _id: ID! @fdc_generated(from: "ExpenseCategory.id", purpose: ENTITY_ID)
-}
 extend type Institution {
   """
   ✨ List `User` objects in a one-to-many relationship (where `User`.`institution` is this object).
@@ -1641,15 +1641,6 @@ extend type Scholarship {
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "Scholarship.description", purpose: QUERY_COUNT)
   """
-  ✨ Count the number of rows in the `Scholarship` table where the `email` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
-  """
-  email_count(
-    """
-    Set to true to count the number of distinct values.
-    """
-    distinct: Boolean = false
-  ): Int! @fdc_generated(from: "Scholarship.email", purpose: QUERY_COUNT)
-  """
   ✨ Count the number of rows in the `Scholarship` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
   id_count(
@@ -1761,6 +1752,40 @@ extend type Scholarship {
 }
 extend type ScholarshipApplication {
   """
+  ✨ List `ScholarshipAttachment` objects in a one-to-many relationship (where `ScholarshipAttachment`.`scholarshipApplication` is this object).
+  """
+  scholarshipAttachments_on_scholarshipApplication(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: ScholarshipAttachment_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [ScholarshipAttachment_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: ScholarshipAttachment_Having
+  ): [ScholarshipAttachment!]! @fdc_generated(from: "ScholarshipAttachment.scholarshipApplication", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
+  """
   Implicit metadata field that cannot be written. It provides extra information about query results.
   """
   _metadata: _Metadata @fdc_generated(from: "ScholarshipApplication", purpose: METADATA_FIELD)
@@ -1777,15 +1802,6 @@ extend type ScholarshipApplication {
     """
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "ScholarshipApplication.appliedAt", purpose: QUERY_COUNT)
-  """
-  ✨ Count the number of rows in the `ScholarshipApplication` table where the `documentId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
-  """
-  documentId_count(
-    """
-    Set to true to count the number of distinct values.
-    """
-    distinct: Boolean = false
-  ): Int! @fdc_generated(from: "ScholarshipApplication.documentId", purpose: QUERY_COUNT)
   """
   ✨ Count the number of rows in the `ScholarshipApplication` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
@@ -1814,15 +1830,6 @@ extend type ScholarshipApplication {
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "ScholarshipApplication.scholarshipId", purpose: QUERY_COUNT)
   """
-  ✨ Count the number of rows in the `ScholarshipApplication` table where the `status` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
-  """
-  status_count(
-    """
-    Set to true to count the number of distinct values.
-    """
-    distinct: Boolean = false
-  ): Int! @fdc_generated(from: "ScholarshipApplication.status", purpose: QUERY_COUNT)
-  """
   ✨ Count the number of rows in the `ScholarshipApplication` table where the `userUserId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
   userUserId_count(
@@ -1843,6 +1850,56 @@ extend type ScholarshipApplication {
   A generated field that is used for caching results in SDKs.
   """
   _id: ID! @fdc_generated(from: "ScholarshipApplication.id", purpose: ENTITY_ID)
+}
+extend type ScholarshipAttachment {
+  """
+  Implicit metadata field that cannot be written. It provides extra information about query results.
+  """
+  _metadata: _Metadata @fdc_generated(from: "ScholarshipAttachment", purpose: METADATA_FIELD)
+  """
+  ✨ Count the number of rows in the `ScholarshipAttachment` table.
+  """
+  _count: Int! @fdc_generated(from: "ScholarshipAttachment.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ScholarshipAttachment` table where the `filename` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  filename_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ScholarshipAttachment.filename", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ScholarshipAttachment` table where the `id` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  id_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ScholarshipAttachment.id", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ScholarshipAttachment` table where the `path` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  path_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ScholarshipAttachment.path", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `ScholarshipAttachment` table where the `scholarshipApplicationId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  scholarshipApplicationId_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "ScholarshipAttachment.scholarshipApplicationId", purpose: QUERY_COUNT)
+  """
+  A generated field that is used for caching results in SDKs.
+  """
+  _id: ID! @fdc_generated(from: "ScholarshipAttachment.id", purpose: ENTITY_ID)
 }
 extend type ScholarshipCourse {
   """
@@ -2201,9 +2258,9 @@ extend type User {
     having: Transaction_Having
   ): [Transaction!]! @fdc_generated(from: "Transaction.user", purpose: QUERY_MULTIPLE_ONE_TO_MANY)
   """
-  ✨ List `ExpenseCategory` objects using `CategoryBudget` as the join table (a `CategoryBudget` object exists where its `user` is this and its `category` is that).
+  ✨ List `Category` objects using `CategoryBudget` as the join table (a `CategoryBudget` object exists where its `user` is this and its `category` is that).
   """
-  expenseCategories_via_CategoryBudget(
+  categories_via_CategoryBudget(
     """
     Filter condition to narrow down the query results.
     """
@@ -2233,7 +2290,7 @@ extend type User {
     Filter condition to apply to the groups of aggregate queries.
     """
     having: CategoryBudget_Having
-  ): [ExpenseCategory!]! @fdc_generated(from: "CategoryBudget", purpose: QUERY_MULTIPLE_MANY_TO_MANY)
+  ): [Category!]! @fdc_generated(from: "CategoryBudget", purpose: QUERY_MULTIPLE_MANY_TO_MANY)
   """
   ✨ List `Product` objects using `RedeemedProduct` as the join table (a `RedeemedProduct` object exists where its `user` is this and its `product` is that).
   """
@@ -2276,6 +2333,15 @@ extend type User {
   ✨ Count the number of rows in the `User` table.
   """
   _count: Int! @fdc_generated(from: "User.", purpose: QUERY_COUNT)
+  """
+  ✨ Count the number of rows in the `User` table where the `allowOverbudget` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
+  """
+  allowOverbudget_count(
+    """
+    Set to true to count the number of distinct values.
+    """
+    distinct: Boolean = false
+  ): Int! @fdc_generated(from: "User.allowOverbudget", purpose: QUERY_COUNT)
   """
   ✨ Count the number of rows in the `User` table where the `budget` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """

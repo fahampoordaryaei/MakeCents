@@ -4,10 +4,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dataconnect_generated/generated.dart';
-import 'functions.dart';
-import 'scholarship_application_page.dart';
-import 'user_provider.dart';
+
+import 'package:makecents/dataconnect_generated/generated.dart';
+import 'package:makecents/helper/scholarship_helper.dart';
+import 'package:makecents/helper/ui_helper.dart';
+
+import 'package:makecents/page/scholarship_application_page.dart';
+import 'package:makecents/provider/user_provider.dart';
 
 class Scholarship {
   final String id;
@@ -60,12 +63,7 @@ class _ScholarshipsPageState extends State<ScholarshipsPage> {
 
   Future<void> _loadScholarships() async {
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        if (!mounted) return;
-        setState(() => _allScholarships = const []);
-        return;
-      }
+      final user = FirebaseAuth.instance.currentUser!;
       final connector = ExampleConnector.instance;
       final profileResult = await connector
           .getUserProfile(userId: user.uid)
@@ -73,10 +71,7 @@ class _ScholarshipsPageState extends State<ScholarshipsPage> {
       final countryId = profileResult.data.users.isNotEmpty
           ? profileResult.data.users.first.country?.id
           : null;
-      final rows = await fetchScholarshipsForLocation(
-        connector,
-        countryId: countryId,
-      );
+      final rows = await fetchScholarships(connector, countryId: countryId);
 
       if (!mounted) return;
       setState(() {
@@ -174,12 +169,11 @@ class _ScholarshipsPageState extends State<ScholarshipsPage> {
                 fontSize: 28,
                 fontWeight: FontWeight.w800,
                 color: Theme.of(context).colorScheme.onSurface,
-                height: 1.2,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Scholarships matching your student profile.',
+              'Filtered by your student profile',
               style: TextStyle(
                 color: Theme.of(
                   context,
@@ -195,8 +189,7 @@ class _ScholarshipsPageState extends State<ScholarshipsPage> {
                   onPressed: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (_) =>
-                            const SavedScholarshipApplicationsPage(),
+                        builder: (_) => const SavedApplicationsPage(),
                       ),
                     );
                   },
@@ -336,7 +329,7 @@ class _ScholarshipCard extends StatelessWidget {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () => showScholarshipApplyDialog(
+                        onTap: () => openScholarshipApply(
                           context,
                           scholarshipId: s.id,
                           title: s.title,
@@ -373,12 +366,11 @@ class _ScholarshipCard extends StatelessWidget {
   }
 }
 
-class SavedScholarshipApplicationsPage extends StatefulWidget {
-  const SavedScholarshipApplicationsPage({super.key});
+class SavedApplicationsPage extends StatefulWidget {
+  const SavedApplicationsPage({super.key});
 
   @override
-  State<SavedScholarshipApplicationsPage> createState() =>
-      _SavedScholarshipApplicationsPageState();
+  State<SavedApplicationsPage> createState() => _SavedApplicationsPageState();
 }
 
 class SubmittedApplicationsPage extends StatefulWidget {
@@ -403,17 +395,7 @@ class _SubmittedApplicationsPageState extends State<SubmittedApplicationsPage> {
   }
 
   Future<void> _loadApplications() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      if (mounted) {
-        setState(() {
-          _applications = [];
-          _attachmentsByApplicationId.clear();
-          _isLoading = false;
-        });
-      }
-      return;
-    }
+    final user = FirebaseAuth.instance.currentUser!;
     try {
       final connector = ExampleConnector.instance;
       final apps =
@@ -561,8 +543,7 @@ class _SubmittedApplicationsPageState extends State<SubmittedApplicationsPage> {
   }
 }
 
-class _SavedScholarshipApplicationsPageState
-    extends State<SavedScholarshipApplicationsPage> {
+class _SavedApplicationsPageState extends State<SavedApplicationsPage> {
   final List<ScholarshipApplication> _applications = [];
   bool _isLoading = true;
 

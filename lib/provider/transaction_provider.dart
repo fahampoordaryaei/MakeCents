@@ -1,18 +1,20 @@
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'dataconnect_generated/generated.dart';
+import 'package:makecents/dataconnect_generated/generated.dart';
 
 class Transaction {
   final String id;
-  final String title;
+  final String? description;
   final double amount;
   final DateTime date;
   final String category;
 
+  String get displayLabel => description ?? category;
+
   Transaction({
     required this.id,
-    required this.title,
+    this.description,
     required this.amount,
     required this.date,
     this.category = 'Other',
@@ -68,12 +70,7 @@ class TransactionProvider with ChangeNotifier {
   }
 
   Future<void> fetchTransactions() async {
-    final user = auth.FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      _transactions = [];
-      notifyListeners();
-      return;
-    }
+    final user = auth.FirebaseAuth.instance.currentUser!;
 
     _isLoading = true;
     notifyListeners();
@@ -88,7 +85,7 @@ class TransactionProvider with ChangeNotifier {
         final catName = tx.category.name;
         return Transaction(
           id: tx.id,
-          title: tx.description ?? 'Expense',
+          description: tx.description,
           amount: tx.amount,
           date: tx.date,
           category: catName,
@@ -102,21 +99,20 @@ class TransactionProvider with ChangeNotifier {
   }
 
   Future<void> addTransaction(
-    String title,
     double amount,
     DateTime date, {
+    String? description,
     String categoryName = 'Other',
     required String categoryId,
   }) async {
-    final user = auth.FirebaseAuth.instance.currentUser;
-    if (user == null) return;
+    final user = auth.FirebaseAuth.instance.currentUser!;
 
     final tempId = DateTime.now().toString();
     _transactions.insert(
       0,
       Transaction(
         id: tempId,
-        title: title,
+        description: description,
         amount: amount,
         date: date,
         category: categoryName,
@@ -125,15 +121,15 @@ class TransactionProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final mutation = ExampleConnector.instance
-          .addTransaction(
-            userId: user.uid,
-            categoryId: categoryId,
-            amount: amount,
-            date: date,
-          )
-          .description(title);
-
+      var mutation = ExampleConnector.instance.addTransaction(
+        userId: user.uid,
+        categoryId: categoryId,
+        amount: amount,
+        date: date,
+      );
+      if (description != null && description.isNotEmpty) {
+        mutation = mutation.description(description);
+      }
       await mutation.execute();
     } catch (_) {
       _transactions.removeWhere((t) => t.id == tempId);
@@ -161,10 +157,7 @@ class TransactionProvider with ChangeNotifier {
   }
 
   Future<void> removeTransaction(int index) async {
-    if (index < 0 || index >= _transactions.length) return;
-
-    final user = auth.FirebaseAuth.instance.currentUser;
-    if (user == null) return;
+    final user = auth.FirebaseAuth.instance.currentUser!;
 
     final removedTx = _transactions[index];
 
@@ -201,7 +194,7 @@ class TransactionProvider with ChangeNotifier {
 
   Future<void> updateTransaction({
     required String id,
-    required String title,
+    required String? description,
     required double amount,
     required DateTime date,
     required String categoryId,
@@ -213,7 +206,7 @@ class TransactionProvider with ChangeNotifier {
     final original = _transactions[index];
     final updated = Transaction(
       id: original.id,
-      title: title,
+      description: description,
       amount: amount,
       date: date,
       category: categoryName,
@@ -230,7 +223,7 @@ class TransactionProvider with ChangeNotifier {
             amount: amount,
             date: date,
           )
-          .description(title);
+          .description(description);
       await mutation.execute();
       await fetchTransactions();
     } catch (_) {

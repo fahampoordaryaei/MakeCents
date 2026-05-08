@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dataconnect_generated/generated.dart';
-import 'theme_provider.dart';
-import 'functions.dart';
-import 'transaction_provider.dart';
+
+import 'package:makecents/dataconnect_generated/generated.dart';
+import 'package:makecents/helper/ui_helper.dart';
+import 'package:makecents/helper/currency_helper.dart';
+import 'package:makecents/provider/category_provider.dart';
+import 'package:makecents/provider/theme_provider.dart';
+import 'package:makecents/provider/transaction_provider.dart';
 
 class AddExpensePage extends StatefulWidget {
   const AddExpensePage({super.key});
@@ -16,8 +19,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
   final _descriptionController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
 
-  List<ExpenseCategory> _categories = [];
-  ExpenseCategory? _selectedCategory;
+  List<Category> _categories = [];
+  Category? _selectedCategory;
   bool _isLoadingCategories = true;
   bool _submitAttempted = false;
 
@@ -36,19 +39,23 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
   Future<void> _loadCategories() async {
     try {
-      final result = await ExampleConnector.instance
-          .listExpenseCategories()
-          .execute();
+      final result = await ExampleConnector.instance.listCategories().execute();
       if (!mounted) return;
       setState(() {
-        _categories = result.data.expenseCategories.map((c) {
-          return ExpenseCategory(
+        _categories = result.data.categories.map((c) {
+          return Category(
             c.id,
             c.name,
             getIconByName(c.iconName),
             parseColorHex(c.colorHex),
           );
         }).toList();
+        _categories.sort((a, b) {
+          final aOther = a.name.toLowerCase() == 'other';
+          final bOther = b.name.toLowerCase() == 'other';
+          if (aOther == bOther) return 0;
+          return aOther ? 1 : -1;
+        });
 
         if (_categories.isNotEmpty) {
           _selectedCategory = _categories[0];
@@ -81,16 +88,16 @@ class _AddExpensePageState extends State<AddExpensePage> {
     if (_selectedCategory == null) return;
 
     final enteredAmount = parsedAmount;
-    final enteredDescription = _descriptionController.text;
+    final description = _descriptionController.text.trim();
 
     try {
       await Provider.of<TransactionProvider>(
         context,
         listen: false,
       ).addTransaction(
-        enteredDescription,
         enteredAmount,
         _selectedDate,
+        description: description.isEmpty ? null : description,
         categoryName: _selectedCategory!.name,
         categoryId: _selectedCategory!.id,
       );
@@ -199,7 +206,10 @@ class _AddExpensePageState extends State<AddExpensePage> {
                 ),
                 TextButton(
                   onPressed: () => _selectDate(context),
-                  child: const Text('Edit date'),
+                  child: const Text(
+                    'Edit date',
+                    style: TextStyle(fontSize: 18),
+                  ),
                 ),
               ],
             ),

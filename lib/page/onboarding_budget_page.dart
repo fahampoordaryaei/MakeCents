@@ -2,13 +2,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'budget_provider.dart';
-import 'dataconnect_generated/generated.dart';
-import 'functions.dart';
-import 'main.dart';
-import 'onboarding_mfa.dart';
-import 'startup_page.dart';
-import 'user_provider.dart';
+
+import 'package:makecents/dataconnect_generated/generated.dart';
+import 'package:makecents/helper/currency_helper.dart';
+
+import 'package:makecents/main.dart';
+import 'package:makecents/page/startup_page.dart';
+import 'package:makecents/provider/budget_provider.dart';
+import 'package:makecents/provider/user_provider.dart';
+import 'package:makecents/widget/busy_button.dart';
+import 'package:makecents/widget/mfa_widget.dart';
 
 class OnboardingBudgetPage extends StatefulWidget {
   final String? institutionId;
@@ -189,6 +192,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
           .countryId(countryId)
           .currencyId(_selectedCurrency?.id)
           .isWeekly(_isWeekly)
+          .allowOverbudget(_allowOverBudget)
           .prefix(widget.phonePrefix)
           .phoneNumber(widget.phoneNumber)
           .execute();
@@ -201,7 +205,6 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
       final budgetProvider = context.read<BudgetProvider>();
       final userProvider = context.read<UserProvider>();
       await budgetProvider.init();
-      await budgetProvider.setAllowOverBudget(_allowOverBudget);
       await userProvider.loadProfile();
 
       if (!mounted) return;
@@ -495,7 +498,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                       fontSize: 16,
                       color: Theme.of(
                         context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.7),
+                      ).colorScheme.onSurface.withValues(alpha: 0.9),
                     ),
                   ),
                   value: _allowOverBudget,
@@ -507,7 +510,6 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton(
-                    onPressed: _onFinish,
                     style: FilledButton.styleFrom(
                       backgroundColor: const Color(0xFF3e7f3f),
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -516,22 +518,18 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: _isLoading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : Text(
-                            _isPhoneRegistration ? 'Complete setup' : 'Proceed',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
+                    onPressed: _isLoading ? null : _onFinish,
+                    child: busyButton(
+                      busy: _isLoading,
+                      label: _isPhoneRegistration
+                          ? 'Complete setup'
+                          : 'Proceed',
+                      size: 20,
+                      labelStyle: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
                 ),
               ],

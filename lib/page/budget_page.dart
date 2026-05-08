@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'budget_provider.dart';
-import 'functions.dart';
-import 'transaction_provider.dart';
-import 'category_budget_page.dart';
+
+import 'package:makecents/helper/currency_helper.dart';
+import 'package:makecents/provider/category_provider.dart';
+
+import 'package:makecents/page/category_budget_page.dart';
+import 'package:makecents/provider/budget_provider.dart';
+import 'package:makecents/provider/transaction_provider.dart';
 
 class BudgetPage extends StatelessWidget {
   const BudgetPage({super.key});

@@ -2,11 +2,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'budget_provider.dart';
-import 'dataconnect_generated/generated.dart';
-import 'functions.dart';
-import 'transaction_provider.dart';
-import 'user_provider.dart';
+
+import 'package:makecents/dataconnect_generated/generated.dart';
+import 'package:makecents/helper/scholarship_helper.dart';
+import 'package:makecents/helper/points_helper.dart';
+import 'package:makecents/helper/ui_helper.dart';
+import 'package:makecents/helper/currency_helper.dart';
+import 'package:makecents/provider/category_provider.dart';
+import 'package:makecents/provider/budget_provider.dart';
+import 'package:makecents/provider/transaction_provider.dart';
+import 'package:makecents/provider/user_provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -40,7 +45,7 @@ class _HomePageState extends State<HomePage> {
       final countryId = profileResult.data.users.isNotEmpty
           ? profileResult.data.users.first.country?.id
           : null;
-      final scholarships = await fetchScholarshipsForLocation(
+      final scholarships = await fetchScholarships(
         connector,
         countryId: countryId,
       );
@@ -97,7 +102,7 @@ class _HomePageState extends State<HomePage> {
     BuildContext context,
     ListGlobalScholarshipsScholarships s,
   ) {
-    showScholarshipApplyDialog(
+    openScholarshipApply(
       context,
       scholarshipId: s.id,
       title: s.title,
@@ -126,9 +131,20 @@ class _HomePageState extends State<HomePage> {
     final spentPct = budget > 0 ? (expenses / budget).clamp(0.0, 1.0) : 0.0;
     final spentLabel = isWeekly ? 'Spent this week' : 'Spent this month';
     final recent = txProvider.transactions.take(3).toList();
-    final monthTxCount = txProvider.transactions
-        .where((t) => t.date.month == now.month && t.date.year == now.year)
-        .length;
+    final txCount = isWeekly
+        ? txProvider.transactions.where((t) {
+            final weekStart = DateTime(
+              now.year,
+              now.month,
+              now.day,
+            ).subtract(Duration(days: now.weekday - 1));
+            return !t.date.isBefore(weekStart);
+          }).length
+        : txProvider.transactions
+              .where(
+                (t) => t.date.month == now.month && t.date.year == now.year,
+              )
+              .length;
 
     return Material(
       type: MaterialType.transparency,
@@ -233,7 +249,7 @@ class _HomePageState extends State<HomePage> {
                       icon: Icons.receipt_long_outlined,
                       color: const Color(0xFF4ECDC4),
                       label: 'This month',
-                      value: '$monthTxCount',
+                      value: '$txCount',
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -261,8 +277,9 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(height: 12),
                 if (_isLoadingHomeFeeds)
                   Text(
-                    'Loading products...',
+                    'Loading...',
                     style: TextStyle(
+                      fontSize: 18,
                       color: Theme.of(
                         context,
                       ).colorScheme.onSurface.withValues(alpha: 0.75),
@@ -352,8 +369,9 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 12),
               if (_isLoadingHomeFeeds)
                 Text(
-                  'Loading scholarships...',
+                  'Loading...',
                   style: TextStyle(
+                    fontSize: 18,
                     color: Theme.of(
                       context,
                     ).colorScheme.onSurface.withValues(alpha: 0.75),
@@ -368,7 +386,7 @@ class _HomePageState extends State<HomePage> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    'No matched scholarships yet. Set your course in profile.',
+                    'No matched scholarships for you :(',
                     style: TextStyle(
                       color: Theme.of(
                         context,
@@ -454,7 +472,7 @@ class _HomePageState extends State<HomePage> {
                   );
                 }),
 
-              const SizedBox(height: 10),
+              const SizedBox(height: 24),
 
               Text(
                 'Recent Transactions',
@@ -515,7 +533,7 @@ class _HomePageState extends State<HomePage> {
                           child: Icon(cat.icon, color: cat.color, size: 20),
                         ),
                         title: Text(
-                          tx.title,
+                          tx.displayLabel,
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 18,

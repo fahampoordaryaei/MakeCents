@@ -1,16 +1,17 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'onboarding_profile_form.dart';
-import 'onboarding_budget_page.dart';
-import 'startup_page.dart';
 
-class OnboardingProfilePage extends StatefulWidget {
+import 'package:makecents/page/onboarding_budget_page.dart';
+import 'package:makecents/page/startup_page.dart';
+import 'package:makecents/widget/student_profile_widget.dart';
+
+class StudentProfilePage extends StatefulWidget {
   final String firstName;
   final String lastName;
   final String? phonePrefix;
   final String? phoneNumber;
 
-  const OnboardingProfilePage({
+  const StudentProfilePage({
     super.key,
     required this.firstName,
     required this.lastName,
@@ -18,16 +19,15 @@ class OnboardingProfilePage extends StatefulWidget {
     this.phoneNumber,
   });
   @override
-  State<OnboardingProfilePage> createState() => _OnboardingProfilePageState();
+  State<StudentProfilePage> createState() => _StudentProfilePageState();
 }
 
-class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
-  final GlobalKey<OnboardingProfileFormState> _formKey =
-      GlobalKey<OnboardingProfileFormState>();
+class _StudentProfilePageState extends State<StudentProfilePage> {
+  final GlobalKey<StudentProfileFormState> _formKey =
+      GlobalKey<StudentProfileFormState>();
 
   void _onContinue() {
-    final form = _formKey.currentState;
-    if (form == null) return;
+    final form = _formKey.currentState!;
     if (form.validate() != null) return;
     final sel = form.buildSelection();
 
@@ -188,7 +188,7 @@ class _OnboardingProfilePageState extends State<OnboardingProfilePage> {
                 ),
                 const SizedBox(height: 32.0),
 
-                OnboardingProfileForm(
+                StudentProfileForm(
                   key: _formKey,
                   onUpdated: () {
                     if (mounted) setState(() {});

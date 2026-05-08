@@ -39,6 +39,7 @@ type User @table(key: ["userId"]) {
   country: Country
   currency: Currency
   isWeekly: Boolean! @default(value: false) @col(name: "is_weekly")
+  allowOverbudget: Boolean! @default(value: false) @col(name: "allow_overbudget")
 }
 
 type Course @table {
@@ -52,14 +53,14 @@ type Institution @table {
 
 type Transaction @table {
   user: User!
-  category: ExpenseCategory!
+  category: Category!
   amount: Float!
   description: String
   date: Date!
   createdAt: Timestamp!
 }
 
-type ExpenseCategory @table {
+type Category @table(name: "category") {
   name: String! @unique
   iconName: String!
   colorHex: String!
@@ -67,7 +68,7 @@ type ExpenseCategory @table {
 
 type CategoryBudget @table(key: ["user", "category"], name: "category_budget") {
   user: User!
-  category: ExpenseCategory!
+  category: Category!
   budgetAmount: Int!
 }
 

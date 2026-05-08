@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'main.dart';
-import 'mfa_provider.dart';
+import 'package:makecents/main.dart';
+import 'package:makecents/provider/mfa_provider.dart';
 
 class OnboardingMfaPage extends StatelessWidget {
   const OnboardingMfaPage({super.key});

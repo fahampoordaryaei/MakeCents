@@ -1,9 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'budget_provider.dart';
-import 'dataconnect_generated/generated.dart';
-import 'functions.dart';
+
+import 'package:makecents/dataconnect_generated/generated.dart';
+import 'package:makecents/helper/points_helper.dart';
+import 'package:makecents/helper/ui_helper.dart';
+import 'package:makecents/provider/budget_provider.dart';
 
 class PointsPage extends StatefulWidget {
   const PointsPage({super.key});
@@ -289,7 +291,7 @@ class _PointsPageState extends State<PointsPage> {
                     borderRadius: BorderRadius.circular(8),
                     onTap: () => _showProductDetails(context, p),
                     child: Container(
-                      padding: const EdgeInsets.all(18),
+                      padding: const EdgeInsets.fromLTRB(18, 18, 18, 12),
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(8),

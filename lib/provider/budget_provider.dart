@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dataconnect_generated/generated.dart';
-import 'functions.dart';
+import 'package:makecents/dataconnect_generated/generated.dart';
+import 'package:makecents/helper/currency_helper.dart';
+import 'package:makecents/provider/category_provider.dart';
 
 class Budget {
   final double amount;
@@ -20,8 +20,7 @@ class BudgetProvider with ChangeNotifier {
   bool get allowOverBudget => _allowOverBudget;
 
   Future<void> init() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
+    final user = FirebaseAuth.instance.currentUser!;
 
     try {
       await Future.wait([
@@ -32,6 +31,7 @@ class BudgetProvider with ChangeNotifier {
           if (result.data.users.isNotEmpty) {
             final u = result.data.users.first;
             _budget = Budget(amount: u.budget ?? 0.0, isWeekly: u.isWeekly);
+            _allowOverBudget = u.allowOverbudget;
             if (u.currency != null) {
               setGlobalCurrency(sign: u.currency!.sign, id: u.currency!.id);
             }
@@ -40,15 +40,9 @@ class BudgetProvider with ChangeNotifier {
         () async {
           try {
             final cats = await ExampleConnector.instance
-                .listExpenseCategories()
+                .listCategories()
                 .execute();
-            setGlobalExpenseCategoriesFromRows(cats.data.expenseCategories);
-          } catch (_) {}
-        }(),
-        () async {
-          try {
-            final p = await SharedPreferences.getInstance();
-            _allowOverBudget = p.getBool('allow_over_budget') ?? true;
+            setCategories(cats.data.categories);
           } catch (_) {}
         }(),
       ]);
@@ -57,12 +51,19 @@ class BudgetProvider with ChangeNotifier {
   }
 
   Future<void> setAllowOverBudget(bool value) async {
+    final user = FirebaseAuth.instance.currentUser!;
+
     _allowOverBudget = value;
     notifyListeners();
+
     try {
-      final p = await SharedPreferences.getInstance();
-      await p.setBool('allow_over_budget', value);
-    } catch (_) {}
+      await ExampleConnector.instance
+          .updateUserAllowOverbudget(userId: user.uid, allowOverbudget: value)
+          .execute();
+    } catch (_) {
+      await init();
+      rethrow;
+    }
   }
 
   Future<void> setBudget(double amount, {bool? isWeekly}) async {
@@ -71,8 +72,7 @@ class BudgetProvider with ChangeNotifier {
     _budget = Budget(amount: amount, isWeekly: isWeekly ?? _budget.isWeekly);
     notifyListeners();
 
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
+    final user = FirebaseAuth.instance.currentUser!;
 
     try {
       final req = ExampleConnector.instance.updateUserBudget(

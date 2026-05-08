@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-import 'functions.dart';
-import 'theme_provider.dart';
+import 'package:makecents/helper/scholarship_helper.dart';
+import 'package:makecents/helper/ui_helper.dart';
+import 'package:makecents/provider/theme_provider.dart';
 
 Future<TotpSecret> startTotpSession() async {
   final u = FirebaseAuth.instance.currentUser!;
@@ -732,8 +733,8 @@ class _MfaAccountDialogState extends State<_MfaAccountDialog> {
       if (!mounted) return;
       await popupAlert(
         context,
-        message: 'Multi-factor authentication has been disabled.',
-        level: AppAlertLevel.success,
+        message: 'MFA disabled. Your account is less secure.',
+        level: AppAlertLevel.warning,
       );
       if (!mounted) return;
       Navigator.of(context).pop();

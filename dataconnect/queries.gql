@@ -350,9 +350,9 @@ mutation CreateScholarshipAttachment(
   )
 }
 
-# List expense categories
-query ListExpenseCategories @auth(level: PUBLIC) {
-  expenseCategories {
+# List categories
+query ListCategories @auth(level: PUBLIC) {
+  categories {
     id
     name
     iconName

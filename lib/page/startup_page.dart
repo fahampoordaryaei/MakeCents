@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'login_page.dart';
-import 'register_page.dart';
+
+import 'package:makecents/page/login_page.dart';
+import 'package:makecents/page/register_page.dart';
 
 class StartupPage extends StatefulWidget {
   const StartupPage({super.key});
@@ -158,7 +159,7 @@ class _StartupPageState extends State<StartupPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 18),
                   TextButton(
                     onPressed: () => Navigator.of(context).pushReplacement(
                       MaterialPageRoute(builder: (_) => const LoginPage()),
@@ -170,7 +171,7 @@ class _StartupPageState extends State<StartupPage> {
                     child: const Text(
                       'Already have an account? Log in',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 20,
                         color: Color(0xFF3e7f3f),
                         fontWeight: FontWeight.w600,
                       ),

@@ -4,7 +4,7 @@ User → Institution (Many-to-One)
 User → Course (Many-to-One)
 2. Finance Tracking
 User → Transaction (One-to-Many)
-Transaction → ExpenseCategory (Many-to-One)
+Transaction → Category (Many-to-One)
 3. Scholarship System
 User → ScholarshipApplication (**One-to-Many`)
 ScholarshipApplication → Scholarship (Many-to-One)

@@ -1,32 +1,64 @@
 import 'package:fl_chart/fl_chart.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:provider/provider.dart';
-import 'budget_provider.dart';
-import 'dataconnect_generated/generated.dart';
-import 'functions.dart';
-import 'transaction_provider.dart';
+
+import 'package:makecents/dataconnect_generated/generated.dart';
+import 'package:makecents/helper/ui_helper.dart';
+import 'package:makecents/helper/currency_helper.dart';
+import 'package:makecents/provider/category_provider.dart';
+
+import 'package:makecents/provider/budget_provider.dart';
+import 'package:makecents/provider/category_budget_provider.dart';
+import 'package:makecents/provider/transaction_provider.dart';
+import 'package:makecents/widget/busy_button.dart';
 
 Widget _trackerTextField(
   BuildContext context,
   TextEditingController controller,
   String label,
-  String? prefix,
-) {
+  String? prefix, {
+  TextStyle? labelStyle,
+  TextStyle? style,
+  bool readOnly = false,
+  VoidCallback? onTap,
+  Widget? suffixIcon,
+}) {
   return TextField(
     controller: controller,
+    readOnly: readOnly,
+    onTap: onTap,
+    style: style,
     keyboardType: prefix != null
         ? const TextInputType.numberWithOptions(decimal: true)
         : TextInputType.text,
     decoration: InputDecoration(
       labelText: label,
+      labelStyle: labelStyle,
       prefixText: prefix,
+      suffixIcon: suffixIcon,
       filled: true,
       fillColor: Theme.of(context).colorScheme.surface,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide.none,
+        borderSide: BorderSide(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.35),
+        ),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.35),
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(
+          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+          width: 1.5,
+        ),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
     ),
@@ -43,7 +75,8 @@ class _TrackerPageState extends State<TrackerPage> {
   static const int _historyPageSize = 10;
   final _amountController = TextEditingController();
   final _labelController = TextEditingController();
-  ExpenseCategory? _selectedCat;
+  final _categoriesScrollController = ScrollController();
+  Category? _selectedCategory;
   bool _isLoadingCategories = true;
   int _historyPage = 0;
 
@@ -51,25 +84,36 @@ class _TrackerPageState extends State<TrackerPage> {
   void initState() {
     super.initState();
     _loadCategories();
+    _initCategoryBudgets();
+  }
+
+  void _initCategoryBudgets() {
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      await context.read<CategoryBudgetProvider>().load(uid);
+      if (mounted) setState(() {});
+    });
   }
 
   @override
   void dispose() {
     _amountController.dispose();
     _labelController.dispose();
+    _categoriesScrollController.dispose();
     super.dispose();
   }
 
   Future<void> _loadCategories() async {
     try {
       final connector = ExampleConnector.instance;
-      final result = await connector.listExpenseCategories().execute();
+      final result = await connector.listCategories().execute();
       if (!mounted) return;
       setState(() {
-        setGlobalExpenseCategoriesFromRows(result.data.expenseCategories);
+        setCategories(result.data.categories);
 
-        if (dynamicCategories.isNotEmpty) {
-          _selectedCat = dynamicCategories[0];
+        if (categories.isNotEmpty) {
+          _selectedCategory = categories[0];
         }
         _isLoadingCategories = false;
       });
@@ -79,15 +123,292 @@ class _TrackerPageState extends State<TrackerPage> {
     }
   }
 
-  Future<void> _addAndNotify(String label, double amount) async {
+  Future<void> _openCategoryBudgetDialog() async {
+    final root = context;
+    String selectedId = (_selectedCategory ?? categories.first).id;
+    double currentBudget(String categoryId) {
+      final existing = root
+          .read<CategoryBudgetProvider>()
+          .budgets
+          .where((b) => b.categoryId == categoryId)
+          .firstOrNull;
+      return (existing?.budgetAmount ?? 0).toDouble().clamp(0.0, 10000.0);
+    }
+
+    double sliderVal = currentBudget(selectedId);
+    final amountController = TextEditingController(
+      text: sliderVal.toInt().toString(),
+    );
+
+    await showDialog<void>(
+      context: context,
+      builder: (_) {
+        return StatefulBuilder(
+          builder: (ctx, setDialogState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              title: const Text(
+                'Category Budget',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              content: SizedBox(
+                width: 280,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      DropdownButtonFormField<String>(
+                        key: ValueKey<String>(selectedId),
+                        initialValue: selectedId,
+                        itemHeight: 60,
+                        decoration: InputDecoration(
+                          labelText: 'Category',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          labelStyle: TextStyle(fontSize: 20),
+                          contentPadding: const EdgeInsets.fromLTRB(
+                            16,
+                            20,
+                            16,
+                            20,
+                          ),
+                        ),
+                        items: categories
+                            .map(
+                              (c) => DropdownMenuItem<String>(
+                                value: c.id,
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 24,
+                                      height: 24,
+                                      decoration: BoxDecoration(
+                                        color: c.color.withValues(alpha: 0.2),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Icon(
+                                        c.icon,
+                                        size: 14,
+                                        color: c.color,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      c.name,
+                                      style: TextStyle(
+                                        color: c.color,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )
+                            .toList(),
+                        selectedItemBuilder: (context) {
+                          return categories.map((c) {
+                            return Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 24,
+                                  height: 24,
+                                  decoration: BoxDecoration(
+                                    color: c.color.withValues(alpha: 0.2),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Icon(c.icon, size: 24, color: c.color),
+                                ),
+                                const SizedBox(width: 8),
+                                Flexible(
+                                  child: Text(
+                                    c.name,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: c.color,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 20,
+                                      height: 0,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          }).toList();
+                        },
+                        onChanged: (value) {
+                          setDialogState(() {
+                            selectedId = value!;
+                            sliderVal = currentBudget(value);
+                            amountController.text = sliderVal
+                                .toInt()
+                                .toString();
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: amountController,
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        textAlign: TextAlign.center,
+                        onChanged: (_) {
+                          final v = double.tryParse(
+                            amountController.text.trim(),
+                          );
+                          if (v == null) return;
+                          setDialogState(() {
+                            sliderVal = v.clamp(0.0, 10000.0);
+                          });
+                        },
+                        style: const TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: '0',
+                          prefixText: currency,
+                          filled: true,
+                          fillColor: Theme.of(ctx).scaffoldBackgroundColor,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 16,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      SliderTheme(
+                        data: SliderTheme.of(ctx).copyWith(
+                          activeTrackColor: const Color(0xFF3e7f3f),
+                          inactiveTrackColor: const Color(
+                            0xFF3e7f3f,
+                          ).withValues(alpha: 0.2),
+                          thumbColor: const Color(0xFF3e7f3f),
+                          trackHeight: 6.0,
+                        ),
+                        child: Slider(
+                          value: sliderVal,
+                          min: 0,
+                          max: 10000,
+                          divisions: 100,
+                          onChanged: (v) {
+                            setDialogState(() {
+                              sliderVal = v;
+                              amountController.text = v.toInt().toString();
+                            });
+                          },
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              '${currency}0',
+                              style: TextStyle(
+                                color: Theme.of(ctx).colorScheme.onSurface,
+                                fontSize: 18,
+                              ),
+                            ),
+                            Text(
+                              '${currency}10,000',
+                              style: TextStyle(
+                                color: Theme.of(ctx).colorScheme.onSurface,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: const Text('Close', style: TextStyle(fontSize: 18)),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    final nav = Navigator.of(ctx);
+                    final uid = FirebaseAuth.instance.currentUser!.uid;
+                    final had = root.read<CategoryBudgetProvider>().budgets.any(
+                      (b) => b.categoryId == selectedId,
+                    );
+                    if (!had) {
+                      nav.pop();
+                      return;
+                    }
+                    await root.read<CategoryBudgetProvider>().delete(
+                      uid,
+                      selectedId,
+                    );
+                    nav.pop();
+                    if (!mounted) return;
+                    setState(() {});
+                  },
+                  child: const Text(
+                    'Delete',
+                    style: TextStyle(fontSize: 18, color: Color(0xFFDC2626)),
+                  ),
+                ),
+                FilledButton(
+                  onPressed: () async {
+                    final nav = Navigator.of(ctx);
+                    final uid = FirebaseAuth.instance.currentUser!.uid;
+                    final selected = categories.firstWhere(
+                      (c) => c.id == selectedId,
+                      orElse: () => categories.first,
+                    );
+                    final amount = double.tryParse(
+                      amountController.text.trim(),
+                    );
+                    final nextAmount = amount?.round() ?? 0;
+                    await root.read<CategoryBudgetProvider>().upsert(
+                      uid,
+                      selected.id,
+                      nextAmount,
+                    );
+                    nav.pop();
+                    if (!mounted) return;
+                    setState(() {});
+                  },
+                  child: const Text('Save', style: TextStyle(fontSize: 18)),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      amountController.dispose();
+    });
+  }
+
+  Future<void> _addExpense(double amount, {String? description}) async {
     final txProvider = Provider.of<TransactionProvider>(context, listen: false);
     try {
       await txProvider.addTransaction(
-        label,
         amount,
         DateTime.now(),
-        categoryName: _selectedCat!.name,
-        categoryId: _selectedCat!.id,
+        description: description,
+        categoryName: _selectedCategory!.name,
+        categoryId: _selectedCategory!.id,
       );
     } catch (_) {
       if (!mounted) return;
@@ -98,72 +419,108 @@ class _TrackerPageState extends State<TrackerPage> {
       );
       return;
     }
+    if (!mounted) return;
     _amountController.clear();
     _labelController.clear();
-    if (!mounted) return;
     setState(() => _historyPage = 0);
     await popupAlert(
       context,
-      message: 'Added ${formatMoney(amount)} · ${_selectedCat!.name}',
+      message: 'Added ${formatMoney(amount)} · ${_selectedCategory!.name}',
       level: AppAlertLevel.success,
     );
   }
 
   Future<void> _submit() async {
-    if (_selectedCat == null) return;
     final input = _amountController.text.trim();
     if (input.isEmpty) return;
     final amount = double.tryParse(input);
     if (amount == null || amount <= 0) return;
-    final label = _labelController.text.trim().isEmpty
-        ? _selectedCat!.name
-        : _labelController.text.trim();
+    final memo = _labelController.text.trim();
     final bp = Provider.of<BudgetProvider>(context, listen: false);
     final budget = bp.budget.amount;
     final txProvider = Provider.of<TransactionProvider>(context, listen: false);
-    final currentExp = txProvider.periodSpent(isWeekly: bp.isWeekly);
-    final wouldExceed = budget > 0 && currentExp + amount > budget;
 
-    if (wouldExceed && !bp.allowOverBudget) {
-      await popupAlert(
-        context,
-        message: 'Watch your spending!\nThis expense exceeds your budget.',
-        level: AppAlertLevel.error,
+    final catBudget = context
+        .read<CategoryBudgetProvider>()
+        .budgets
+        .where((b) => b.categoryId == _selectedCategory!.id)
+        .firstOrNull;
+    if (catBudget != null) {
+      final spentByCategory = txProvider.getCategorySpending(
+        isWeekly: bp.isWeekly,
       );
-      return;
-    }
 
-    if (bp.allowOverBudget && budget > 0 && currentExp + amount > budget) {
+      final selectedSpent = spentByCategory[_selectedCategory!.name] ?? 0.0;
+      final catLimit = catBudget.budgetAmount.toDouble();
+      if (selectedSpent + amount > catLimit) {
+        await popupAlert(
+          context,
+          message:
+              'Expense not added:\nNot enough ${_selectedCategory!.name} budget!',
+          level: AppAlertLevel.error,
+        );
+        return;
+      }
+    }
+    final currentExp = txProvider.periodSpent(isWeekly: bp.isWeekly);
+    final overBudget = budget > 0 && currentExp + amount > budget;
+
+    if (overBudget) {
+      if (!bp.allowOverBudget) {
+        await popupAlert(
+          context,
+          message: 'Watch your spending!\nThis expense exceeds your budget.',
+          level: AppAlertLevel.error,
+        );
+        return;
+      }
       await popupAlert(
         context,
-        message:
-            'Over Budget Warning\nThis expense will exceed your budget by ${formatMoney(currentExp + amount - budget)}.\nContinuing anyway.',
+        message: 'Warning:\nYou have gone over your budget!',
         level: AppAlertLevel.warning,
       );
     }
-    await _addAndNotify(label, amount);
+    await _addExpense(amount, description: memo.isEmpty ? null : memo);
   }
 
   void _deleteDialog(TransactionProvider p, int idx, double amount) {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        title: const Text('Delete Expense'),
-        content: Text('Remove ${formatMoney(amount)}? This cannot be undone.'),
+        title: const Text(
+          'Delete Expense?',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        content: SizedBox(
+          width: 400,
+          child: Text(
+            'Remove ${formatMoney(amount)}?\n\nThis action cannot be undone.',
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 18, height: 0.9),
+          ),
+        ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            style: TextButton.styleFrom(
+              minimumSize: const Size(100, 48),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            ),
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancel', style: TextStyle(fontSize: 18)),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
               backgroundColor: const Color(0xFFDC2626),
               minimumSize: const Size(100, 48),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
             onPressed: () async {
-              Navigator.pop(context);
+              Navigator.of(dialogContext).pop();
               try {
                 await p.removeTransaction(idx);
               } catch (_) {
@@ -175,7 +532,7 @@ class _TrackerPageState extends State<TrackerPage> {
                 );
               }
             },
-            child: const Text('Delete'),
+            child: const Text('Delete', style: TextStyle(fontSize: 18)),
           ),
         ],
       ),
@@ -186,6 +543,7 @@ class _TrackerPageState extends State<TrackerPage> {
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
+      showDragHandle: true,
       backgroundColor: Colors.transparent,
       builder: (_) => _EditTransactionSheet(
         tx: tx,
@@ -199,6 +557,7 @@ class _TrackerPageState extends State<TrackerPage> {
   @override
   Widget build(BuildContext context) {
     final bp = Provider.of<BudgetProvider>(context);
+    final catBudgetRows = context.watch<CategoryBudgetProvider>().budgets;
     final budget = bp.budget.amount;
     final txP = Provider.of<TransactionProvider>(context);
     final txs = txP.transactions;
@@ -271,6 +630,21 @@ class _TrackerPageState extends State<TrackerPage> {
 
     final groupedEntries = groupedCatTotals.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
+    final spentByCategory = <String, double>{};
+    for (final e in groupedEntries) {
+      spentByCategory[e.key.toLowerCase()] = e.value;
+    }
+    final categoryBudgetPreview = catBudgetRows.take(10).map((b) {
+      final cat = categoryFor(b.categoryName);
+      final spent = spentByCategory[b.categoryName.toLowerCase()] ?? 0.0;
+      return (
+        name: b.categoryName,
+        spent: spent,
+        limit: b.budgetAmount.toDouble(),
+        icon: cat.icon,
+        color: cat.color,
+      );
+    }).toList();
 
     final daysIntoPeriod = isWeekly ? now.weekday : now.day;
     final dailySpend = <int, double>{};
@@ -301,26 +675,17 @@ class _TrackerPageState extends State<TrackerPage> {
                 color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              txs.isEmpty
-                  ? 'No expenses yet'
-                  : '${txs.length} expense${txs.length == 1 ? '' : 's'} recorded',
-              style: TextStyle(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.75),
-                fontSize: 18,
-              ),
-            ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
 
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: over
-                      ? [const Color(0xFFF87171), const Color(0xFFFFA36A)]
+                      ? [
+                          const Color.fromARGB(255, 197, 51, 51),
+                          const Color.fromARGB(255, 203, 106, 71),
+                        ]
                       : [const Color(0xFF3e7f3f), const Color(0xFF6abf69)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -352,7 +717,7 @@ class _TrackerPageState extends State<TrackerPage> {
                             style: TextStyle(color: Colors.white, fontSize: 18),
                           ),
                           Text(
-                            budget > 0 ? formatMoney(budget) : 'Not set',
+                            formatMoney(budget),
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 28,
@@ -367,7 +732,7 @@ class _TrackerPageState extends State<TrackerPage> {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
+                          color: Colors.white.withValues(alpha: 0.28),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -408,7 +773,7 @@ class _TrackerPageState extends State<TrackerPage> {
                       child: LinearProgressIndicator(
                         value: pct,
                         minHeight: 8,
-                        backgroundColor: Colors.white30,
+                        backgroundColor: Colors.white38,
                         valueColor: const AlwaysStoppedAnimation<Color>(
                           Colors.white,
                         ),
@@ -419,14 +784,131 @@ class _TrackerPageState extends State<TrackerPage> {
                       '${(pct * 100).toStringAsFixed(0)}% of budget used',
                       style: const TextStyle(color: Colors.white, fontSize: 18),
                     ),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              const Text(
+                                'Category Budgets',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              IconButton(
+                                visualDensity: VisualDensity.compact,
+                                constraints: const BoxConstraints(
+                                  minWidth: 28,
+                                  minHeight: 28,
+                                ),
+                                padding: EdgeInsets.zero,
+                                icon: const Icon(
+                                  Icons.add_circle_outline,
+                                  color: Colors.white,
+                                  size: 22,
+                                ),
+                                onPressed: () async {
+                                  await _openCategoryBudgetDialog();
+                                },
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          ...categoryBudgetPreview.map((item) {
+                            final cPct = (item.spent / item.limit).clamp(
+                              0.0,
+                              1.5,
+                            );
+                            final tone = cPct >= 1
+                                ? const Color(0xFFFCA5A5)
+                                : cPct >= 0.8
+                                ? const Color(0xFFFDE68A)
+                                : const Color(0xFFBBF7D0);
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 6),
+                              child: Row(
+                                children: [
+                                  Icon(item.icon, size: 32, color: tone),
+                                  const SizedBox(width: 12),
+                                  SizedBox(
+                                    width: 90,
+                                    child: Text(
+                                      item.name,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: Colors.white.withValues(
+                                          alpha: 0.95,
+                                        ),
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 54,
+                                    child: Text(
+                                      formatMoney(item.spent, decimals: 0),
+                                      textAlign: TextAlign.right,
+                                      style: TextStyle(
+                                        color: Colors.white.withValues(
+                                          alpha: 0.95,
+                                        ),
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(6),
+                                      child: LinearProgressIndicator(
+                                        value: cPct.clamp(0.0, 1.0),
+                                        minHeight: 6,
+                                        backgroundColor: Colors.white24,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(tone),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  SizedBox(
+                                    width: 54,
+                                    child: Text(
+                                      formatMoney(item.limit, decimals: 0),
+                                      textAlign: TextAlign.left,
+                                      style: TextStyle(
+                                        color: Colors.white.withValues(
+                                          alpha: 0.95,
+                                        ),
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
+                        ],
+                      ),
+                    ),
                   ],
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
 
             Card(
-              elevation: 0,
               color: Theme.of(context).colorScheme.surface,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -465,7 +947,7 @@ class _TrackerPageState extends State<TrackerPage> {
                           ),
                         ),
                       )
-                    else if (dynamicCategories.isEmpty)
+                    else if (categories.isEmpty)
                       Text(
                         'No categories loaded',
                         style: TextStyle(
@@ -475,53 +957,65 @@ class _TrackerPageState extends State<TrackerPage> {
                         ),
                       )
                     else
-                      SizedBox(
-                        height: 40,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: dynamicCategories.length,
-                          separatorBuilder: (_, _) => const SizedBox(width: 8),
-                          itemBuilder: (_, i) {
-                            final cat = dynamicCategories[i];
-                            final sel =
-                                _selectedCat != null &&
-                                cat.name == _selectedCat!.name;
-                            return GestureDetector(
-                              onTap: () => setState(() => _selectedCat = cat),
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 200),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: sel
-                                      ? cat.color
-                                      : cat.color.withValues(alpha: 0.15),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      cat.icon,
-                                      size: 14,
-                                      color: sel ? Colors.white : cat.color,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      cat.name,
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w600,
+                      Scrollbar(
+                        controller: _categoriesScrollController,
+                        interactive: true,
+                        thumbVisibility: true,
+                        scrollbarOrientation: ScrollbarOrientation.bottom,
+                        thickness: 8,
+                        radius: const Radius.circular(8),
+                        child: SizedBox(
+                          height: 60,
+                          child: ListView.separated(
+                            controller: _categoriesScrollController,
+                            scrollDirection: Axis.horizontal,
+                            itemCount: categories.length,
+                            padding: const EdgeInsets.only(bottom: 18),
+                            separatorBuilder: (_, _) =>
+                                const SizedBox(width: 8),
+                            itemBuilder: (_, i) {
+                              final cat = categories[i];
+                              final sel =
+                                  _selectedCategory != null &&
+                                  cat.name == _selectedCategory!.name;
+                              return GestureDetector(
+                                onTap: () =>
+                                    setState(() => _selectedCategory = cat),
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 200),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: sel
+                                        ? cat.color
+                                        : cat.color.withValues(alpha: 0.15),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        cat.icon,
+                                        size: 24,
                                         color: sel ? Colors.white : cat.color,
                                       ),
-                                    ),
-                                  ],
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        cat.name,
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600,
+                                          color: sel ? Colors.white : cat.color,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
+                              );
+                            },
+                          ),
                         ),
                       ),
                     const SizedBox(height: 16),
@@ -535,7 +1029,7 @@ class _TrackerPageState extends State<TrackerPage> {
                             null,
                           ),
                         ),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: _trackerTextField(
                             context,
@@ -546,7 +1040,7 @@ class _TrackerPageState extends State<TrackerPage> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
                     SizedBox(
                       width: double.infinity,
                       child: FilledButton.icon(
@@ -685,7 +1179,7 @@ class _TrackerPageState extends State<TrackerPage> {
                                 }(),
                               ...groupedEntries.map((e) {
                                 final c = e.key == 'Other'
-                                    ? ExpenseCategory(
+                                    ? Category(
                                         'other',
                                         'Other',
                                         Icons.more_horiz,
@@ -756,7 +1250,7 @@ class _TrackerPageState extends State<TrackerPage> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Padding(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(28),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -844,7 +1338,7 @@ class _TrackerPageState extends State<TrackerPage> {
                               child: Icon(cat.icon, color: cat.color, size: 20),
                             ),
                             title: Text(
-                              tx.title,
+                              tx.displayLabel,
                               style: const TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 18,
@@ -855,8 +1349,7 @@ class _TrackerPageState extends State<TrackerPage> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
-                                  tx.title.trim().toLowerCase() ==
-                                          cat.name.trim().toLowerCase()
+                                  tx.description == null
                                       ? _fmt(tx.date)
                                       : '${cat.name} · ${_fmt(tx.date)}',
                                   style: TextStyle(
@@ -885,14 +1378,18 @@ class _TrackerPageState extends State<TrackerPage> {
                                           ),
                                           label: const Text('Edit'),
                                           style: OutlinedButton.styleFrom(
-                                            minimumSize: const Size(50, 36),
+                                            textStyle: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                            minimumSize: const Size(50, 40),
                                             visualDensity:
                                                 VisualDensity.compact,
                                             tapTargetSize: MaterialTapTargetSize
                                                 .shrinkWrap,
                                           ),
                                         ),
-                                        const SizedBox(width: 4),
+                                        const SizedBox(width: 12),
                                         OutlinedButton.icon(
                                           onPressed: () => _deleteDialog(
                                             txP,
@@ -905,7 +1402,11 @@ class _TrackerPageState extends State<TrackerPage> {
                                           ),
                                           label: const Text('Delete'),
                                           style: OutlinedButton.styleFrom(
-                                            minimumSize: const Size(50, 36),
+                                            textStyle: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                            minimumSize: const Size(50, 40),
                                             foregroundColor: const Color(
                                               0xFFDC2626,
                                             ),
@@ -1011,22 +1512,23 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
   late final TextEditingController _amount;
   late final TextEditingController _date;
   late DateTime _selectedDate;
-  ExpenseCategory? _selectedCategory;
+  Category? _selectedCategory;
+  bool _saving = false;
 
   @override
   void initState() {
     super.initState();
     final tx = widget.tx;
-    _title = TextEditingController(text: tx.title);
+    _title = TextEditingController(text: tx.description ?? '');
     _amount = TextEditingController(text: tx.amount.toStringAsFixed(2));
     _selectedDate = DateTime(tx.date.year, tx.date.month, tx.date.day);
     _date = TextEditingController(
       text: '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
     );
-    final match = dynamicCategories.where((c) => c.name == tx.category);
+    final match = categories.where((c) => c.name == tx.category);
     _selectedCategory = match.isNotEmpty
         ? match.first
-        : (dynamicCategories.isNotEmpty ? dynamicCategories.first : null);
+        : (categories.isNotEmpty ? categories.first : null);
   }
 
   @override
@@ -1037,238 +1539,217 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
     super.dispose();
   }
 
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+    );
+    if (picked == null || !mounted) return;
+    setState(() {
+      _selectedDate = DateTime(picked.year, picked.month, picked.day);
+      _date.text =
+          '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}';
+    });
+  }
+
+  Future<void> _saveExpense() async {
+    final parsedAmount = double.tryParse(_amount.text.trim());
+    final trimmedTitle = _title.text.trim();
+    if (_selectedCategory == null ||
+        parsedAmount == null ||
+        parsedAmount <= 0) {
+      return;
+    }
+    final navigator = Navigator.of(context);
+    setState(() => _saving = true);
+    try {
+      await widget.provider.updateTransaction(
+        id: widget.tx.id,
+        description: trimmedTitle.isEmpty ? null : trimmedTitle,
+        amount: parsedAmount,
+        date: _selectedDate,
+        categoryId: _selectedCategory!.id,
+        categoryName: _selectedCategory!.name,
+      );
+      if (!mounted) return;
+      navigator.pop();
+    } catch (_) {
+      if (!mounted) return;
+      navigator.pop();
+      if (widget.messengerContext.mounted) {
+        await popupAlert(
+          widget.messengerContext,
+          message: 'Failed to update transaction.',
+          level: AppAlertLevel.error,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        top: 16,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(8),
-        ),
+      padding: EdgeInsets.only(left: 24, right: 24, top: 8, bottom: 16),
+      child: Material(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(8),
+        clipBehavior: Clip.antiAlias,
         child: SafeArea(
           top: false,
           child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Edit expense',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Edit expense',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Category',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.8),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  if (widget.categoriesLoading)
-                    const Center(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 20),
-                        child: CircularProgressIndicator(
-                          color: Color(0xFF3e7f3f),
-                        ),
-                      ),
-                    )
-                  else if (dynamicCategories.isEmpty)
-                    Text(
-                      'No categories loaded',
-                      style: TextStyle(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.75),
-                      ),
-                    )
-                  else
-                    SizedBox(
-                      height: 40,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: dynamicCategories.length,
-                        separatorBuilder: (_, _) => const SizedBox(width: 8),
-                        itemBuilder: (_, i) {
-                          final cat = dynamicCategories[i];
-                          final sel =
-                              _selectedCategory != null &&
-                              cat.name == _selectedCategory!.name;
-                          return GestureDetector(
-                            onTap: () =>
-                                setState(() => _selectedCategory = cat),
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: sel
-                                    ? cat.color
-                                    : cat.color.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    cat.icon,
-                                    size: 15,
-                                    color: sel ? Colors.white : cat.color,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    cat.name,
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600,
-                                      color: sel ? Colors.white : cat.color,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
+                ),
+                const SizedBox(height: 24),
+                if (widget.categoriesLoading)
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 24),
+                      child: CircularProgressIndicator(
+                        color: Color(0xFF3e7f3f),
                       ),
                     ),
-                  const SizedBox(height: 24),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _trackerTextField(
-                          context,
-                          _title,
-                          'Label (optional)',
-                          null,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: _trackerTextField(
-                          context,
-                          _amount,
-                          'Amount',
-                          currency,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: _date,
-                    readOnly: true,
-                    onTap: () async {
-                      final picked = await showDatePicker(
-                        context: context,
-                        initialDate: _selectedDate,
-                        firstDate: DateTime(2020),
-                        lastDate: DateTime.now().add(const Duration(days: 365)),
-                      );
-                      if (picked != null) {
-                        setState(() {
-                          _selectedDate = DateTime(
-                            picked.year,
-                            picked.month,
-                            picked.day,
-                          );
-                          _date.text =
-                              '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}';
-                        });
-                      }
-                    },
+                  )
+                else ...[
+                  DropdownButtonFormField<String>(
+                    key: ValueKey<String>(_selectedCategory?.id ?? ''),
+                    initialValue: _selectedCategory!.id,
+                    itemHeight: 56,
                     decoration: InputDecoration(
-                      labelText: 'Edit Date',
-                      filled: true,
-                      fillColor: Theme.of(context).colorScheme.surface,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide.none,
-                      ),
+                      labelText: 'Category',
+                      labelStyle: const TextStyle(fontSize: 20),
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 14,
                         vertical: 14,
                       ),
-                      suffixIcon: const Icon(Icons.calendar_today_outlined),
+                      filled: true,
+                      fillColor: Theme.of(context).colorScheme.surface,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    items: [
+                      for (final c in categories)
+                        DropdownMenuItem<String>(
+                          value: c.id,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 24,
+                                height: 24,
+                                decoration: BoxDecoration(
+                                  color: c.color.withValues(alpha: 0.2),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Icon(c.icon, size: 16, color: c.color),
+                              ),
+                              const SizedBox(width: 8),
+                              Flexible(
+                                fit: FlexFit.loose,
+                                child: Text(
+                                  c.name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: c.color,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
+                    onChanged: (id) {
+                      if (id == null) return;
+                      setState(
+                        () => _selectedCategory = categories.firstWhere(
+                          (c) => c.id == id,
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  _trackerTextField(
+                    context,
+                    _amount,
+                    'Amount',
+                    currency,
+                    labelStyle: const TextStyle(fontSize: 18),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton.icon(
-                      onPressed: () async {
-                        final parsedAmount = double.tryParse(
-                          _amount.text.trim(),
-                        );
-                        final trimmedTitle = _title.text.trim();
-                        if (_selectedCategory == null ||
-                            parsedAmount == null ||
-                            parsedAmount <= 0) {
-                          return;
-                        }
-                        final safeTitle = trimmedTitle.isEmpty
-                            ? _selectedCategory!.name
-                            : trimmedTitle;
-                        try {
-                          await widget.provider.updateTransaction(
-                            id: widget.tx.id,
-                            title: safeTitle,
-                            amount: parsedAmount,
-                            date: _selectedDate,
-                            categoryId: _selectedCategory!.id,
-                            categoryName: _selectedCategory!.name,
-                          );
-                          if (!context.mounted) return;
-                          Navigator.pop(context);
-                        } catch (_) {
-                          if (!context.mounted) return;
-                          Navigator.pop(context);
-                          if (widget.messengerContext.mounted) {
-                            await popupAlert(
-                              widget.messengerContext,
-                              message: 'Failed to update transaction.',
-                              level: AppAlertLevel.error,
-                            );
-                          }
-                        }
-                      },
-                      style: FilledButton.styleFrom(
-                        backgroundColor: const Color(0xFF3e7f3f),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        minimumSize: const Size(double.infinity, 48),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                  _trackerTextField(
+                    context,
+                    _title,
+                    'Label (optional)',
+                    null,
+                    labelStyle: const TextStyle(fontSize: 18),
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                  const SizedBox(height: 16),
+                  _trackerTextField(
+                    context,
+                    _date,
+                    'Date',
+                    null,
+                    readOnly: true,
+                    onTap: _pickDate,
+                    labelStyle: const TextStyle(fontSize: 18),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    suffixIcon: const Icon(Icons.calendar_today_outlined),
+                  ),
+                ],
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: _saving ? null : () => Navigator.pop(context),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(fontSize: 18),
                       ),
-                      icon: const Icon(Icons.save_outlined),
-                      label: const Text(
-                        'Save Changes',
-                        style: TextStyle(
+                    ),
+                    const SizedBox(width: 24),
+                    FilledButton(
+                      style: busySave(),
+                      onPressed: _saving ? null : _saveExpense,
+                      child: busyButton(
+                        busy: _saving,
+                        label: 'Save',
+                        labelStyle: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
+              ],
             ),
           ),
         ),

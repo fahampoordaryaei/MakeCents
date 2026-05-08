@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'budget_provider.dart';
-import 'functions.dart';
-import 'transaction_provider.dart';
+
+import 'package:makecents/helper/currency_helper.dart';
+
+import 'package:makecents/provider/budget_provider.dart';
+import 'package:makecents/provider/transaction_provider.dart';
 
 class BalancePage extends StatelessWidget {
   const BalancePage({super.key});

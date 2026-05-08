@@ -85,9 +85,9 @@ class SeedDataCourseInsertMany {
 }
 
 @immutable
-class SeedDataExpenseCategoryInsertMany {
+class SeedDataCategoryInsertMany {
   final String id;
-  SeedDataExpenseCategoryInsertMany.fromJson(dynamic json):
+  SeedDataCategoryInsertMany.fromJson(dynamic json):
   
   id = nativeFromJson<String>(json['id']);
   @override
@@ -99,7 +99,7 @@ class SeedDataExpenseCategoryInsertMany {
       return false;
     }
 
-    final SeedDataExpenseCategoryInsertMany otherTyped = other as SeedDataExpenseCategoryInsertMany;
+    final SeedDataCategoryInsertMany otherTyped = other as SeedDataCategoryInsertMany;
     return id == otherTyped.id;
     
   }
@@ -113,7 +113,7 @@ class SeedDataExpenseCategoryInsertMany {
     return json;
   }
 
-  SeedDataExpenseCategoryInsertMany({
+  SeedDataCategoryInsertMany({
     required this.id,
   });
 }
@@ -190,7 +190,7 @@ class SeedDataProductInsertMany {
 class SeedDataData {
   final List<SeedDataInstitutionInsertMany> institution_insertMany;
   final List<SeedDataCourseInsertMany> course_insertMany;
-  final List<SeedDataExpenseCategoryInsertMany> expenseCategory_insertMany;
+  final List<SeedDataCategoryInsertMany> category_insertMany;
   final List<SeedDataScholarshipInsertMany> scholarship_insertMany;
   final List<SeedDataProductInsertMany> product_insertMany;
   SeedDataData.fromJson(dynamic json):
@@ -201,8 +201,8 @@ class SeedDataData {
   course_insertMany = (json['course_insertMany'] as List<dynamic>)
         .map((e) => SeedDataCourseInsertMany.fromJson(e))
         .toList(),
-  expenseCategory_insertMany = (json['expenseCategory_insertMany'] as List<dynamic>)
-        .map((e) => SeedDataExpenseCategoryInsertMany.fromJson(e))
+  category_insertMany = (json['category_insertMany'] as List<dynamic>)
+        .map((e) => SeedDataCategoryInsertMany.fromJson(e))
         .toList(),
   scholarship_insertMany = (json['scholarship_insertMany'] as List<dynamic>)
         .map((e) => SeedDataScholarshipInsertMany.fromJson(e))
@@ -222,20 +222,20 @@ class SeedDataData {
     final SeedDataData otherTyped = other as SeedDataData;
     return institution_insertMany == otherTyped.institution_insertMany && 
     course_insertMany == otherTyped.course_insertMany && 
-    expenseCategory_insertMany == otherTyped.expenseCategory_insertMany && 
+    category_insertMany == otherTyped.category_insertMany && 
     scholarship_insertMany == otherTyped.scholarship_insertMany && 
     product_insertMany == otherTyped.product_insertMany;
     
   }
   @override
-  int get hashCode => Object.hashAll([institution_insertMany.hashCode, course_insertMany.hashCode, expenseCategory_insertMany.hashCode, scholarship_insertMany.hashCode, product_insertMany.hashCode]);
+  int get hashCode => Object.hashAll([institution_insertMany.hashCode, course_insertMany.hashCode, category_insertMany.hashCode, scholarship_insertMany.hashCode, product_insertMany.hashCode]);
   
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
     json['institution_insertMany'] = institution_insertMany.map((e) => e.toJson()).toList();
     json['course_insertMany'] = course_insertMany.map((e) => e.toJson()).toList();
-    json['expenseCategory_insertMany'] = expenseCategory_insertMany.map((e) => e.toJson()).toList();
+    json['category_insertMany'] = category_insertMany.map((e) => e.toJson()).toList();
     json['scholarship_insertMany'] = scholarship_insertMany.map((e) => e.toJson()).toList();
     json['product_insertMany'] = product_insertMany.map((e) => e.toJson()).toList();
     return json;
@@ -244,7 +244,7 @@ class SeedDataData {
   SeedDataData({
     required this.institution_insertMany,
     required this.course_insertMany,
-    required this.expenseCategory_insertMany,
+    required this.category_insertMany,
     required this.scholarship_insertMany,
     required this.product_insertMany,
   });

@@ -1,4 +1,10 @@
 """
+✨ `Category_KeyOutput` returns the primary key fields of table type `Category`.
+
+It has the same format as `Category_Key`, but is only used as mutation return value.
+"""
+scalar Category_KeyOutput
+"""
 ✨ `CategoryBudget_KeyOutput` returns the primary key fields of table type `CategoryBudget`.
 
 It has the same format as `CategoryBudget_Key`, but is only used as mutation return value.
@@ -34,12 +40,6 @@ scalar Course_KeyOutput
 It has the same format as `Currency_Key`, but is only used as mutation return value.
 """
 scalar Currency_KeyOutput
-"""
-✨ `ExpenseCategory_KeyOutput` returns the primary key fields of table type `ExpenseCategory`.
-
-It has the same format as `ExpenseCategory_Key`, but is only used as mutation return value.
-"""
-scalar ExpenseCategory_KeyOutput
 """
 ✨ `Institution_KeyOutput` returns the primary key fields of table type `Institution`.
 
@@ -83,6 +83,12 @@ It has the same format as `ScholarshipApplication_Key`, but is only used as muta
 """
 scalar ScholarshipApplication_KeyOutput
 """
+✨ `ScholarshipAttachment_KeyOutput` returns the primary key fields of table type `ScholarshipAttachment`.
+
+It has the same format as `ScholarshipAttachment_Key`, but is only used as mutation return value.
+"""
+scalar ScholarshipAttachment_KeyOutput
+"""
 ✨ `ScholarshipCourse_KeyOutput` returns the primary key fields of table type `ScholarshipCourse`.
 
 It has the same format as `ScholarshipCourse_Key`, but is only used as mutation return value.
@@ -100,6 +106,209 @@ scalar Transaction_KeyOutput
 It has the same format as `User_Key`, but is only used as mutation return value.
 """
 scalar User_KeyOutput
+"""
+✨ Generated data input type for table 'Category'. It includes all necessary fields for creating or upserting rows into table.
+"""
+input Category_Data {
+  """
+  ✨ Generated from Field `Category`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `Category`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
+  """
+  ✨ Generated from Field `Category`.`colorHex` of type `String!`
+  """
+  colorHex: String
+  """
+  ✨ `_expr` server value variant of `colorHex` (✨ Generated from Field `Category`.`colorHex` of type `String!`)
+  """
+  colorHex_expr: String_Expr @fdc_forbiddenInVariables
+  """
+  ✨ Generated from Field `Category`.`iconName` of type `String!`
+  """
+  iconName: String
+  """
+  ✨ `_expr` server value variant of `iconName` (✨ Generated from Field `Category`.`iconName` of type `String!`)
+  """
+  iconName_expr: String_Expr @fdc_forbiddenInVariables
+  """
+  ✨ Generated from Field `Category`.`name` of type `String!`
+  """
+  name: String
+  """
+  ✨ `_expr` server value variant of `name` (✨ Generated from Field `Category`.`name` of type `String!`)
+  """
+  name_expr: String_Expr @fdc_forbiddenInVariables
+}
+"""
+✨ Generated filter input type for table 'Category'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input Category_Filter {
+  """
+  Apply multiple filter conditions using `AND` logic.
+  """
+  _and: [Category_Filter!]
+  """
+  Negate the result of the provided filter condition.
+  """
+  _not: Category_Filter
+  """
+  Apply multiple filter conditions using `OR` logic.
+  """
+  _or: [Category_Filter!]
+  """
+  ✨ Generated from Field `Category`.`id` of type `UUID!`
+  """
+  id: UUID_Filter
+  """
+  ✨ Generated from Field `Category`.`colorHex` of type `String!`
+  """
+  colorHex: String_Filter
+  """
+  ✨ Generated from Field `Category`.`iconName` of type `String!`
+  """
+  iconName: String_Filter
+  """
+  ✨ Generated from Field `Category`.`name` of type `String!`
+  """
+  name: String_Filter
+  """
+  ✨ Generated from Field `Category`.`categoryBudgets_on_category` of type `[CategoryBudget!]!`
+  """
+  categoryBudgets_on_category: CategoryBudget_ListFilter
+  """
+  ✨ Generated from Field `Category`.`transactions_on_category` of type `[Transaction!]!`
+  """
+  transactions_on_category: Transaction_ListFilter
+  """
+  ✨ Generated from Field `Category`.`users_via_CategoryBudget` of type `[User!]!`
+  """
+  users_via_CategoryBudget: User_ListFilter
+}
+"""
+✨ Generated first-row input type for table 'Category'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
+"""
+input Category_FirstRow {
+  """
+  Order the result by the specified fields.
+  """
+  orderBy: [Category_Order!]
+  """
+  Filters rows based on the specified conditions.
+  """
+  where: Category_Filter
+}
+"""
+✨ Generated having input type for table 'Category'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input Category_Having {
+  """
+  Apply multiple Having conditions using `AND` logic.
+  """
+  _and: [Category_Having!]
+  """
+  Whether to apply DISTINCT to the aggregate function.
+  """
+  _distinct: Boolean
+  """
+  Negate the result of the provided Having condition.
+  """
+  _not: Category_Having
+  """
+  Apply multiple Having conditions using `OR` logic.
+  """
+  _or: [Category_Having!]
+  """
+  ✨ Generated from Field `Category`.`_count` of type `Int!`
+  """
+  _count: Int_Filter
+  """
+  ✨ Generated from Field `Category`.`colorHex_count` of type `Int!`
+  """
+  colorHex_count: Int_Filter
+  """
+  ✨ Generated from Field `Category`.`iconName_count` of type `Int!`
+  """
+  iconName_count: Int_Filter
+  """
+  ✨ Generated from Field `Category`.`id_count` of type `Int!`
+  """
+  id_count: Int_Filter
+  """
+  ✨ Generated from Field `Category`.`name_count` of type `Int!`
+  """
+  name_count: Int_Filter
+}
+"""
+✨ Generated key input type for table 'Category'. It represents the primary key fields used to uniquely identify a row in the table.
+"""
+input Category_Key {
+  """
+  ✨ Generated from Field `Category`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `Category`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
+}
+"""
+✨ Generated list filter input type for table 'Category'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
+"""
+input Category_ListFilter {
+  """
+  The desired number of objects that match the condition (defaults to at least one).
+  """
+  count: Int_Filter = {gt:0}
+  """
+  Condition of the related objects to filter for.
+  """
+  exist: Category_Filter
+}
+"""
+✨ Generated order input type for table 'Category'. This input defines the sorting order of rows in query results based on one or more fields.
+"""
+input Category_Order {
+  """
+  ✨ Generated from Field `Category`.`id` of type `UUID!`
+  """
+  id: OrderDirection
+  """
+  ✨ Generated from Field `Category`.`colorHex` of type `String!`
+  """
+  colorHex: OrderDirection
+  """
+  ✨ Generated from Field `Category`.`iconName` of type `String!`
+  """
+  iconName: OrderDirection
+  """
+  ✨ Generated from Field `Category`.`name` of type `String!`
+  """
+  name: OrderDirection
+  """
+  ✨ Generated from Field `Category`.`_count` of type `Int!`
+  """
+  _count: OrderDirection
+  """
+  ✨ Generated from Field `Category`.`colorHex_count` of type `Int!`
+  """
+  colorHex_count: OrderDirection
+  """
+  ✨ Generated from Field `Category`.`iconName_count` of type `Int!`
+  """
+  iconName_count: OrderDirection
+  """
+  ✨ Generated from Field `Category`.`id_count` of type `Int!`
+  """
+  id_count: OrderDirection
+  """
+  ✨ Generated from Field `Category`.`name_count` of type `Int!`
+  """
+  name_count: OrderDirection
+}
 """
 ✨ Generated data input type for table 'CategoryBudget'. It includes all necessary fields for creating or upserting rows into table.
 """
@@ -121,9 +330,9 @@ input CategoryBudget_Data {
   """
   categoryId_expr: UUID_Expr @fdc_forbiddenInVariables
   """
-  ✨ Generated from Field `CategoryBudget`.`category` of type `ExpenseCategory!`
+  ✨ Generated from Field `CategoryBudget`.`category` of type `Category!`
   """
-  category: ExpenseCategory_Key @fdc_forbiddenInVariables
+  category: Category_Key @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `CategoryBudget`.`user` of type `User!`
   """
@@ -166,9 +375,9 @@ input CategoryBudget_Filter {
   """
   categoryId: UUID_Filter
   """
-  ✨ Generated from Field `CategoryBudget`.`category` of type `ExpenseCategory!`
+  ✨ Generated from Field `CategoryBudget`.`category` of type `Category!`
   """
-  category: ExpenseCategory_Filter
+  category: Category_Filter
   """
   ✨ Generated from Field `CategoryBudget`.`user` of type `User!`
   """
@@ -291,9 +500,9 @@ input CategoryBudget_Order {
   """
   categoryId: OrderDirection
   """
-  ✨ Generated from Field `CategoryBudget`.`category` of type `ExpenseCategory!`
+  ✨ Generated from Field `CategoryBudget`.`category` of type `Category!`
   """
-  category: ExpenseCategory_Order
+  category: Category_Order
   """
   ✨ Generated from Field `CategoryBudget`.`user` of type `User!`
   """
@@ -1381,209 +1590,6 @@ input Currency_Order {
   ✨ Generated from Field `Currency`.`id_max` of type `Int`
   """
   id_max: OrderDirection
-}
-"""
-✨ Generated data input type for table 'ExpenseCategory'. It includes all necessary fields for creating or upserting rows into table.
-"""
-input ExpenseCategory_Data {
-  """
-  ✨ Generated from Field `ExpenseCategory`.`id` of type `UUID!`
-  """
-  id: UUID
-  """
-  ✨ `_expr` server value variant of `id` (✨ Generated from Field `ExpenseCategory`.`id` of type `UUID!`)
-  """
-  id_expr: UUID_Expr @fdc_forbiddenInVariables
-  """
-  ✨ Generated from Field `ExpenseCategory`.`colorHex` of type `String!`
-  """
-  colorHex: String
-  """
-  ✨ `_expr` server value variant of `colorHex` (✨ Generated from Field `ExpenseCategory`.`colorHex` of type `String!`)
-  """
-  colorHex_expr: String_Expr @fdc_forbiddenInVariables
-  """
-  ✨ Generated from Field `ExpenseCategory`.`iconName` of type `String!`
-  """
-  iconName: String
-  """
-  ✨ `_expr` server value variant of `iconName` (✨ Generated from Field `ExpenseCategory`.`iconName` of type `String!`)
-  """
-  iconName_expr: String_Expr @fdc_forbiddenInVariables
-  """
-  ✨ Generated from Field `ExpenseCategory`.`name` of type `String!`
-  """
-  name: String
-  """
-  ✨ `_expr` server value variant of `name` (✨ Generated from Field `ExpenseCategory`.`name` of type `String!`)
-  """
-  name_expr: String_Expr @fdc_forbiddenInVariables
-}
-"""
-✨ Generated filter input type for table 'ExpenseCategory'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
-"""
-input ExpenseCategory_Filter {
-  """
-  Apply multiple filter conditions using `AND` logic.
-  """
-  _and: [ExpenseCategory_Filter!]
-  """
-  Negate the result of the provided filter condition.
-  """
-  _not: ExpenseCategory_Filter
-  """
-  Apply multiple filter conditions using `OR` logic.
-  """
-  _or: [ExpenseCategory_Filter!]
-  """
-  ✨ Generated from Field `ExpenseCategory`.`id` of type `UUID!`
-  """
-  id: UUID_Filter
-  """
-  ✨ Generated from Field `ExpenseCategory`.`colorHex` of type `String!`
-  """
-  colorHex: String_Filter
-  """
-  ✨ Generated from Field `ExpenseCategory`.`iconName` of type `String!`
-  """
-  iconName: String_Filter
-  """
-  ✨ Generated from Field `ExpenseCategory`.`name` of type `String!`
-  """
-  name: String_Filter
-  """
-  ✨ Generated from Field `ExpenseCategory`.`categoryBudgets_on_category` of type `[CategoryBudget!]!`
-  """
-  categoryBudgets_on_category: CategoryBudget_ListFilter
-  """
-  ✨ Generated from Field `ExpenseCategory`.`transactions_on_category` of type `[Transaction!]!`
-  """
-  transactions_on_category: Transaction_ListFilter
-  """
-  ✨ Generated from Field `ExpenseCategory`.`users_via_CategoryBudget` of type `[User!]!`
-  """
-  users_via_CategoryBudget: User_ListFilter
-}
-"""
-✨ Generated first-row input type for table 'ExpenseCategory'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
-"""
-input ExpenseCategory_FirstRow {
-  """
-  Order the result by the specified fields.
-  """
-  orderBy: [ExpenseCategory_Order!]
-  """
-  Filters rows based on the specified conditions.
-  """
-  where: ExpenseCategory_Filter
-}
-"""
-✨ Generated having input type for table 'ExpenseCategory'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
-"""
-input ExpenseCategory_Having {
-  """
-  Apply multiple Having conditions using `AND` logic.
-  """
-  _and: [ExpenseCategory_Having!]
-  """
-  Whether to apply DISTINCT to the aggregate function.
-  """
-  _distinct: Boolean
-  """
-  Negate the result of the provided Having condition.
-  """
-  _not: ExpenseCategory_Having
-  """
-  Apply multiple Having conditions using `OR` logic.
-  """
-  _or: [ExpenseCategory_Having!]
-  """
-  ✨ Generated from Field `ExpenseCategory`.`_count` of type `Int!`
-  """
-  _count: Int_Filter
-  """
-  ✨ Generated from Field `ExpenseCategory`.`colorHex_count` of type `Int!`
-  """
-  colorHex_count: Int_Filter
-  """
-  ✨ Generated from Field `ExpenseCategory`.`iconName_count` of type `Int!`
-  """
-  iconName_count: Int_Filter
-  """
-  ✨ Generated from Field `ExpenseCategory`.`id_count` of type `Int!`
-  """
-  id_count: Int_Filter
-  """
-  ✨ Generated from Field `ExpenseCategory`.`name_count` of type `Int!`
-  """
-  name_count: Int_Filter
-}
-"""
-✨ Generated key input type for table 'ExpenseCategory'. It represents the primary key fields used to uniquely identify a row in the table.
-"""
-input ExpenseCategory_Key {
-  """
-  ✨ Generated from Field `ExpenseCategory`.`id` of type `UUID!`
-  """
-  id: UUID
-  """
-  ✨ `_expr` server value variant of `id` (✨ Generated from Field `ExpenseCategory`.`id` of type `UUID!`)
-  """
-  id_expr: UUID_Expr @fdc_forbiddenInVariables
-}
-"""
-✨ Generated list filter input type for table 'ExpenseCategory'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
-"""
-input ExpenseCategory_ListFilter {
-  """
-  The desired number of objects that match the condition (defaults to at least one).
-  """
-  count: Int_Filter = {gt:0}
-  """
-  Condition of the related objects to filter for.
-  """
-  exist: ExpenseCategory_Filter
-}
-"""
-✨ Generated order input type for table 'ExpenseCategory'. This input defines the sorting order of rows in query results based on one or more fields.
-"""
-input ExpenseCategory_Order {
-  """
-  ✨ Generated from Field `ExpenseCategory`.`id` of type `UUID!`
-  """
-  id: OrderDirection
-  """
-  ✨ Generated from Field `ExpenseCategory`.`colorHex` of type `String!`
-  """
-  colorHex: OrderDirection
-  """
-  ✨ Generated from Field `ExpenseCategory`.`iconName` of type `String!`
-  """
-  iconName: OrderDirection
-  """
-  ✨ Generated from Field `ExpenseCategory`.`name` of type `String!`
-  """
-  name: OrderDirection
-  """
-  ✨ Generated from Field `ExpenseCategory`.`_count` of type `Int!`
-  """
-  _count: OrderDirection
-  """
-  ✨ Generated from Field `ExpenseCategory`.`colorHex_count` of type `Int!`
-  """
-  colorHex_count: OrderDirection
-  """
-  ✨ Generated from Field `ExpenseCategory`.`iconName_count` of type `Int!`
-  """
-  iconName_count: OrderDirection
-  """
-  ✨ Generated from Field `ExpenseCategory`.`id_count` of type `Int!`
-  """
-  id_count: OrderDirection
-  """
-  ✨ Generated from Field `ExpenseCategory`.`name_count` of type `Int!`
-  """
-  name_count: OrderDirection
 }
 """
 ✨ Generated data input type for table 'Institution'. It includes all necessary fields for creating or upserting rows into table.
@@ -3061,14 +3067,6 @@ input Scholarship_Data {
   """
   description_expr: String_Expr @fdc_forbiddenInVariables
   """
-  ✨ Generated from Field `Scholarship`.`email` of type `String!`
-  """
-  email: String
-  """
-  ✨ `_expr` server value variant of `email` (✨ Generated from Field `Scholarship`.`email` of type `String!`)
-  """
-  email_expr: String_Expr @fdc_forbiddenInVariables
-  """
   ✨ Generated from Field `Scholarship`.`provider` of type `String!`
   """
   provider: String
@@ -3137,10 +3135,6 @@ input Scholarship_Filter {
   ✨ Generated from Field `Scholarship`.`description` of type `String!`
   """
   description: String_Filter
-  """
-  ✨ Generated from Field `Scholarship`.`email` of type `String!`
-  """
-  email: String_Filter
   """
   ✨ Generated from Field `Scholarship`.`provider` of type `String!`
   """
@@ -3223,10 +3217,6 @@ input Scholarship_Having {
   ✨ Generated from Field `Scholarship`.`description_count` of type `Int!`
   """
   description_count: Int_Filter
-  """
-  ✨ Generated from Field `Scholarship`.`email_count` of type `Int!`
-  """
-  email_count: Int_Filter
   """
   ✨ Generated from Field `Scholarship`.`id_count` of type `Int!`
   """
@@ -3355,10 +3345,6 @@ input Scholarship_Order {
   """
   description: OrderDirection
   """
-  ✨ Generated from Field `Scholarship`.`email` of type `String!`
-  """
-  email: OrderDirection
-  """
   ✨ Generated from Field `Scholarship`.`provider` of type `String!`
   """
   provider: OrderDirection
@@ -3394,10 +3380,6 @@ input Scholarship_Order {
   ✨ Generated from Field `Scholarship`.`description_count` of type `Int!`
   """
   description_count: OrderDirection
-  """
-  ✨ Generated from Field `Scholarship`.`email_count` of type `Int!`
-  """
-  email_count: OrderDirection
   """
   ✨ Generated from Field `Scholarship`.`id_count` of type `Int!`
   """
@@ -3512,14 +3494,6 @@ input ScholarshipApplication_Data {
   """
   appliedAt_update: [Timestamp_Update!] @fdc_forbiddenInVariables
   """
-  ✨ Generated from Field `ScholarshipApplication`.`documentId` of type `String`
-  """
-  documentId: String
-  """
-  ✨ `_expr` server value variant of `documentId` (✨ Generated from Field `ScholarshipApplication`.`documentId` of type `String`)
-  """
-  documentId_expr: String_Expr @fdc_forbiddenInVariables
-  """
   ✨ Generated from Field `ScholarshipApplication`.`message` of type `String`
   """
   message: String
@@ -3527,14 +3501,6 @@ input ScholarshipApplication_Data {
   ✨ `_expr` server value variant of `message` (✨ Generated from Field `ScholarshipApplication`.`message` of type `String`)
   """
   message_expr: String_Expr @fdc_forbiddenInVariables
-  """
-  ✨ Generated from Field `ScholarshipApplication`.`status` of type `String!`
-  """
-  status: String
-  """
-  ✨ `_expr` server value variant of `status` (✨ Generated from Field `ScholarshipApplication`.`status` of type `String!`)
-  """
-  status_expr: String_Expr @fdc_forbiddenInVariables
 }
 """
 ✨ Generated filter input type for table 'ScholarshipApplication'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
@@ -3577,17 +3543,13 @@ input ScholarshipApplication_Filter {
   """
   appliedAt: Timestamp_Filter
   """
-  ✨ Generated from Field `ScholarshipApplication`.`documentId` of type `String`
-  """
-  documentId: String_Filter
-  """
   ✨ Generated from Field `ScholarshipApplication`.`message` of type `String`
   """
   message: String_Filter
   """
-  ✨ Generated from Field `ScholarshipApplication`.`status` of type `String!`
+  ✨ Generated from Field `ScholarshipApplication`.`scholarshipAttachments_on_scholarshipApplication` of type `[ScholarshipAttachment!]!`
   """
-  status: String_Filter
+  scholarshipAttachments_on_scholarshipApplication: ScholarshipAttachment_ListFilter
 }
 """
 ✨ Generated first-row input type for table 'ScholarshipApplication'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
@@ -3631,10 +3593,6 @@ input ScholarshipApplication_Having {
   """
   appliedAt_count: Int_Filter
   """
-  ✨ Generated from Field `ScholarshipApplication`.`documentId_count` of type `Int!`
-  """
-  documentId_count: Int_Filter
-  """
   ✨ Generated from Field `ScholarshipApplication`.`id_count` of type `Int!`
   """
   id_count: Int_Filter
@@ -3646,10 +3604,6 @@ input ScholarshipApplication_Having {
   ✨ Generated from Field `ScholarshipApplication`.`scholarshipId_count` of type `Int!`
   """
   scholarshipId_count: Int_Filter
-  """
-  ✨ Generated from Field `ScholarshipApplication`.`status_count` of type `Int!`
-  """
-  status_count: Int_Filter
   """
   ✨ Generated from Field `ScholarshipApplication`.`userUserId_count` of type `Int!`
   """
@@ -3718,17 +3672,9 @@ input ScholarshipApplication_Order {
   """
   appliedAt: OrderDirection
   """
-  ✨ Generated from Field `ScholarshipApplication`.`documentId` of type `String`
-  """
-  documentId: OrderDirection
-  """
   ✨ Generated from Field `ScholarshipApplication`.`message` of type `String`
   """
   message: OrderDirection
-  """
-  ✨ Generated from Field `ScholarshipApplication`.`status` of type `String!`
-  """
-  status: OrderDirection
   """
   ✨ Generated from Field `ScholarshipApplication`.`_count` of type `Int!`
   """
@@ -3737,10 +3683,6 @@ input ScholarshipApplication_Order {
   ✨ Generated from Field `ScholarshipApplication`.`appliedAt_count` of type `Int!`
   """
   appliedAt_count: OrderDirection
-  """
-  ✨ Generated from Field `ScholarshipApplication`.`documentId_count` of type `Int!`
-  """
-  documentId_count: OrderDirection
   """
   ✨ Generated from Field `ScholarshipApplication`.`id_count` of type `Int!`
   """
@@ -3754,10 +3696,6 @@ input ScholarshipApplication_Order {
   """
   scholarshipId_count: OrderDirection
   """
-  ✨ Generated from Field `ScholarshipApplication`.`status_count` of type `Int!`
-  """
-  status_count: OrderDirection
-  """
   ✨ Generated from Field `ScholarshipApplication`.`userUserId_count` of type `Int!`
   """
   userUserId_count: OrderDirection
@@ -3769,6 +3707,209 @@ input ScholarshipApplication_Order {
   ✨ Generated from Field `ScholarshipApplication`.`appliedAt_max` of type `Timestamp`
   """
   appliedAt_max: OrderDirection
+}
+"""
+✨ Generated data input type for table 'ScholarshipAttachment'. It includes all necessary fields for creating or upserting rows into table.
+"""
+input ScholarshipAttachment_Data {
+  """
+  ✨ Generated from Field `ScholarshipAttachment`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `ScholarshipAttachment`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
+  """
+  ✨ Generated from Field `ScholarshipAttachment`.`scholarshipApplicationId` of type `UUID!`
+  """
+  scholarshipApplicationId: UUID
+  """
+  ✨ `_expr` server value variant of `scholarshipApplicationId` (✨ Generated from Field `ScholarshipAttachment`.`scholarshipApplicationId` of type `UUID!`)
+  """
+  scholarshipApplicationId_expr: UUID_Expr @fdc_forbiddenInVariables
+  """
+  ✨ Generated from Field `ScholarshipAttachment`.`scholarshipApplication` of type `ScholarshipApplication!`
+  """
+  scholarshipApplication: ScholarshipApplication_Key @fdc_forbiddenInVariables
+  """
+  ✨ Generated from Field `ScholarshipAttachment`.`filename` of type `String!`
+  """
+  filename: String
+  """
+  ✨ `_expr` server value variant of `filename` (✨ Generated from Field `ScholarshipAttachment`.`filename` of type `String!`)
+  """
+  filename_expr: String_Expr @fdc_forbiddenInVariables
+  """
+  ✨ Generated from Field `ScholarshipAttachment`.`path` of type `String!`
+  """
+  path: String
+  """
+  ✨ `_expr` server value variant of `path` (✨ Generated from Field `ScholarshipAttachment`.`path` of type `String!`)
+  """
+  path_expr: String_Expr @fdc_forbiddenInVariables
+}
+"""
+✨ Generated filter input type for table 'ScholarshipAttachment'. This input allows filtering objects using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input ScholarshipAttachment_Filter {
+  """
+  Apply multiple filter conditions using `AND` logic.
+  """
+  _and: [ScholarshipAttachment_Filter!]
+  """
+  Negate the result of the provided filter condition.
+  """
+  _not: ScholarshipAttachment_Filter
+  """
+  Apply multiple filter conditions using `OR` logic.
+  """
+  _or: [ScholarshipAttachment_Filter!]
+  """
+  ✨ Generated from Field `ScholarshipAttachment`.`id` of type `UUID!`
+  """
+  id: UUID_Filter
+  """
+  ✨ Generated from Field `ScholarshipAttachment`.`scholarshipApplicationId` of type `UUID!`
+  """
+  scholarshipApplicationId: UUID_Filter
+  """
+  ✨ Generated from Field `ScholarshipAttachment`.`scholarshipApplication` of type `ScholarshipApplication!`
+  """
+  scholarshipApplication: ScholarshipApplication_Filter
+  """
+  ✨ Generated from Field `ScholarshipAttachment`.`filename` of type `String!`
+  """
+  filename: String_Filter
+  """
+  ✨ Generated from Field `ScholarshipAttachment`.`path` of type `String!`
+  """
+  path: String_Filter
+}
+"""
+✨ Generated first-row input type for table 'ScholarshipAttachment'. This input selects the first row matching the filter criteria, ordered according to the specified conditions.
+"""
+input ScholarshipAttachment_FirstRow {
+  """
+  Order the result by the specified fields.
+  """
+  orderBy: [ScholarshipAttachment_Order!]
+  """
+  Filters rows based on the specified conditions.
+  """
+  where: ScholarshipAttachment_Filter
+}
+"""
+✨ Generated having input type for table 'ScholarshipAttachment'. This input allows you to filter groups during aggregate queries using various conditions. Use `_or`, `_and`, and `_not` to compose complex filters.
+"""
+input ScholarshipAttachment_Having {
+  """
+  Apply multiple Having conditions using `AND` logic.
+  """
+  _and: [ScholarshipAttachment_Having!]
+  """
+  Whether to apply DISTINCT to the aggregate function.
+  """
+  _distinct: Boolean
+  """
+  Negate the result of the provided Having condition.
+  """
+  _not: ScholarshipAttachment_Having
+  """
+  Apply multiple Having conditions using `OR` logic.
+  """
+  _or: [ScholarshipAttachment_Having!]
+  """
+  ✨ Generated from Field `ScholarshipAttachment`.`_count` of type `Int!`
+  """
+  _count: Int_Filter
+  """
+  ✨ Generated from Field `ScholarshipAttachment`.`filename_count` of type `Int!`
+  """
+  filename_count: Int_Filter
+  """
+  ✨ Generated from Field `ScholarshipAttachment`.`id_count` of type `Int!`
+  """
+  id_count: Int_Filter
+  """
+  ✨ Generated from Field `ScholarshipAttachment`.`path_count` of type `Int!`
+  """
+  path_count: Int_Filter
+  """
+  ✨ Generated from Field `ScholarshipAttachment`.`scholarshipApplicationId_count` of type `Int!`
+  """
+  scholarshipApplicationId_count: Int_Filter
+}
+"""
+✨ Generated key input type for table 'ScholarshipAttachment'. It represents the primary key fields used to uniquely identify a row in the table.
+"""
+input ScholarshipAttachment_Key {
+  """
+  ✨ Generated from Field `ScholarshipAttachment`.`id` of type `UUID!`
+  """
+  id: UUID
+  """
+  ✨ `_expr` server value variant of `id` (✨ Generated from Field `ScholarshipAttachment`.`id` of type `UUID!`)
+  """
+  id_expr: UUID_Expr @fdc_forbiddenInVariables
+}
+"""
+✨ Generated list filter input type for table 'ScholarshipAttachment'. This input applies filtering logic based on the count or existence of related objects that matches certain criteria.
+"""
+input ScholarshipAttachment_ListFilter {
+  """
+  The desired number of objects that match the condition (defaults to at least one).
+  """
+  count: Int_Filter = {gt:0}
+  """
+  Condition of the related objects to filter for.
+  """
+  exist: ScholarshipAttachment_Filter
+}
+"""
+✨ Generated order input type for table 'ScholarshipAttachment'. This input defines the sorting order of rows in query results based on one or more fields.
+"""
+input ScholarshipAttachment_Order {
+  """
+  ✨ Generated from Field `ScholarshipAttachment`.`id` of type `UUID!`
+  """
+  id: OrderDirection
+  """
+  ✨ Generated from Field `ScholarshipAttachment`.`scholarshipApplicationId` of type `UUID!`
+  """
+  scholarshipApplicationId: OrderDirection
+  """
+  ✨ Generated from Field `ScholarshipAttachment`.`scholarshipApplication` of type `ScholarshipApplication!`
+  """
+  scholarshipApplication: ScholarshipApplication_Order
+  """
+  ✨ Generated from Field `ScholarshipAttachment`.`filename` of type `String!`
+  """
+  filename: OrderDirection
+  """
+  ✨ Generated from Field `ScholarshipAttachment`.`path` of type `String!`
+  """
+  path: OrderDirection
+  """
+  ✨ Generated from Field `ScholarshipAttachment`.`_count` of type `Int!`
+  """
+  _count: OrderDirection
+  """
+  ✨ Generated from Field `ScholarshipAttachment`.`filename_count` of type `Int!`
+  """
+  filename_count: OrderDirection
+  """
+  ✨ Generated from Field `ScholarshipAttachment`.`id_count` of type `Int!`
+  """
+  id_count: OrderDirection
+  """
+  ✨ Generated from Field `ScholarshipAttachment`.`path_count` of type `Int!`
+  """
+  path_count: OrderDirection
+  """
+  ✨ Generated from Field `ScholarshipAttachment`.`scholarshipApplicationId_count` of type `Int!`
+  """
+  scholarshipApplicationId_count: OrderDirection
 }
 """
 ✨ Generated data input type for table 'ScholarshipCourse'. It includes all necessary fields for creating or upserting rows into table.
@@ -3974,9 +4115,9 @@ input Transaction_Data {
   """
   userUserId_expr: String_Expr @fdc_forbiddenInVariables
   """
-  ✨ Generated from Field `Transaction`.`category` of type `ExpenseCategory!`
+  ✨ Generated from Field `Transaction`.`category` of type `Category!`
   """
-  category: ExpenseCategory_Key @fdc_forbiddenInVariables
+  category: Category_Key @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `Transaction`.`user` of type `User!`
   """
@@ -4063,9 +4204,9 @@ input Transaction_Filter {
   """
   userUserId: String_Filter
   """
-  ✨ Generated from Field `Transaction`.`category` of type `ExpenseCategory!`
+  ✨ Generated from Field `Transaction`.`category` of type `Category!`
   """
-  category: ExpenseCategory_Filter
+  category: Category_Filter
   """
   ✨ Generated from Field `Transaction`.`user` of type `User!`
   """
@@ -4228,9 +4369,9 @@ input Transaction_Order {
   """
   userUserId: OrderDirection
   """
-  ✨ Generated from Field `Transaction`.`category` of type `ExpenseCategory!`
+  ✨ Generated from Field `Transaction`.`category` of type `Category!`
   """
-  category: ExpenseCategory_Order
+  category: Category_Order
   """
   ✨ Generated from Field `Transaction`.`user` of type `User!`
   """
@@ -4384,6 +4525,14 @@ input User_Data {
   ✨ Generated from Field `User`.`institution` of type `Institution`
   """
   institution: Institution_Key @fdc_forbiddenInVariables
+  """
+  ✨ Generated from Field `User`.`allowOverbudget` of type `Boolean!`
+  """
+  allowOverbudget: Boolean
+  """
+  ✨ `_expr` server value variant of `allowOverbudget` (✨ Generated from Field `User`.`allowOverbudget` of type `Boolean!`)
+  """
+  allowOverbudget_expr: Boolean_Expr @fdc_forbiddenInVariables
   """
   ✨ Generated from Field `User`.`budget` of type `Float`
   """
@@ -4558,6 +4707,10 @@ input User_Filter {
   """
   institution: Institution_Filter
   """
+  ✨ Generated from Field `User`.`allowOverbudget` of type `Boolean!`
+  """
+  allowOverbudget: Boolean_Filter
+  """
   ✨ Generated from Field `User`.`budget` of type `Float`
   """
   budget: Float_Filter
@@ -4630,9 +4783,9 @@ input User_Filter {
   """
   transactions_on_user: Transaction_ListFilter
   """
-  ✨ Generated from Field `User`.`expenseCategories_via_CategoryBudget` of type `[ExpenseCategory!]!`
+  ✨ Generated from Field `User`.`categories_via_CategoryBudget` of type `[Category!]!`
   """
-  expenseCategories_via_CategoryBudget: ExpenseCategory_ListFilter
+  categories_via_CategoryBudget: Category_ListFilter
   """
   ✨ Generated from Field `User`.`products_via_RedeemedProduct` of type `[Product!]!`
   """
@@ -4675,6 +4828,10 @@ input User_Having {
   ✨ Generated from Field `User`.`_count` of type `Int!`
   """
   _count: Int_Filter
+  """
+  ✨ Generated from Field `User`.`allowOverbudget_count` of type `Int!`
+  """
+  allowOverbudget_count: Int_Filter
   """
   ✨ Generated from Field `User`.`budget_count` of type `Int!`
   """
@@ -4891,6 +5048,10 @@ input User_Order {
   """
   institution: Institution_Order
   """
+  ✨ Generated from Field `User`.`allowOverbudget` of type `Boolean!`
+  """
+  allowOverbudget: OrderDirection
+  """
   ✨ Generated from Field `User`.`budget` of type `Float`
   """
   budget: OrderDirection
@@ -4942,6 +5103,10 @@ input User_Order {
   ✨ Generated from Field `User`.`_count` of type `Int!`
   """
   _count: OrderDirection
+  """
+  ✨ Generated from Field `User`.`allowOverbudget_count` of type `Int!`
+  """
+  allowOverbudget_count: OrderDirection
   """
   ✨ Generated from Field `User`.`budget_count` of type `Int!`
   """

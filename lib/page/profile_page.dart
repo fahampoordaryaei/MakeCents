@@ -4,15 +4,19 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'budget_provider.dart';
-import 'dataconnect_generated/generated.dart';
-import 'functions.dart';
-import 'onboarding_profile_form.dart';
-import 'login_page.dart';
-import 'theme_provider.dart';
-import 'transaction_provider.dart';
-import 'user_provider.dart';
-import 'mfa_provider.dart';
+
+import 'package:makecents/dataconnect_generated/generated.dart';
+import 'package:makecents/helper/scholarship_helper.dart';
+import 'package:makecents/helper/ui_helper.dart';
+import 'package:makecents/helper/currency_helper.dart';
+import 'package:makecents/page/login_page.dart';
+import 'package:makecents/provider/budget_provider.dart';
+import 'package:makecents/provider/mfa_provider.dart';
+import 'package:makecents/provider/theme_provider.dart';
+import 'package:makecents/provider/transaction_provider.dart';
+import 'package:makecents/provider/user_provider.dart';
+import 'package:makecents/widget/busy_button.dart';
+import 'package:makecents/widget/student_profile_widget.dart';
 
 Future<int?> _getCountryId(ExampleConnector connector, String? isoCode) async {
   final code = isoCode?.trim().toUpperCase();
@@ -33,16 +37,7 @@ class ProfilePage extends StatelessWidget {
 
   Future<void> _showChangePasswordDialog(BuildContext context) async {
     final user = FirebaseAuth.instance.currentUser!;
-    final email = user.email;
-    if (email == null || email.isEmpty) {
-      await popupAlert(
-        context,
-        message: 'No email associated with this account.',
-        level: AppAlertLevel.error,
-      );
-      return;
-    }
-
+    final email = user.email!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
@@ -147,7 +142,7 @@ class ProfilePage extends StatelessWidget {
       if (user.phoneNumber?.isNotEmpty ?? false) {
         deleted = await showDialog<bool>(
           context: context,
-          builder: (_) => _DeleteAccountPhoneCodeDialog(
+          builder: (_) => _DeleteByPhoneDialog(
             phoneNumber: user.phoneNumber!,
             runDeletion: deleteWith,
           ),
@@ -169,7 +164,7 @@ class ProfilePage extends StatelessWidget {
 
         deleted = await showDialog<bool>(
           context: context,
-          builder: (_) => _DeleteAccountPasswordDialog(
+          builder: (_) => _DeleteByPasswordDialog(
             emailVerified: user.emailVerified,
             runEmailDeletion: deleteWithEmail,
           ),
@@ -202,7 +197,7 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Future<void> _editInstitutionProfileDialog(BuildContext context) async {
+  Future<void> _editStudentProfileDialog(BuildContext context) async {
     final up = Provider.of<UserProvider>(context, listen: false);
     final bp = Provider.of<BudgetProvider>(context, listen: false);
     final profile = up.profile;
@@ -211,7 +206,7 @@ class ProfilePage extends StatelessWidget {
     }
     await showDialog<void>(
       context: context,
-      builder: (_) => _EditInstitutionProfileDialog(profile: profile, bp: bp),
+      builder: (_) => _EditProfileDialog(profile: profile, bp: bp),
     );
   }
 
@@ -221,13 +216,7 @@ class ProfilePage extends StatelessWidget {
       stream: FirebaseAuth.instance.authStateChanges(),
       initialData: FirebaseAuth.instance.currentUser,
       builder: (context, snapshot) {
-        final user = snapshot.data;
-        if (user == null) {
-          return const SafeArea(
-            child: Center(child: CircularProgressIndicator()),
-          );
-        }
-        return _signedInBody(context, user);
+        return _signedInBody(context, snapshot.data!);
       },
     );
   }
@@ -258,8 +247,6 @@ class ProfilePage extends StatelessWidget {
                 color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
-            const SizedBox(height: 24),
-
             Center(
               child: Column(
                 children: [
@@ -306,8 +293,7 @@ class ProfilePage extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 28),
-
+            const SizedBox(height: 20),
             Row(
               children: [
                 Expanded(
@@ -329,7 +315,7 @@ class ProfilePage extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
             Text(
               'Settings',
               style: TextStyle(
@@ -345,10 +331,10 @@ class ProfilePage extends StatelessWidget {
             _SettingsTile(
               icon: Icons.school_outlined,
               iconColor: const Color(0xFF3e7f3f),
-              title: 'Institution Profile',
+              title: 'Student Profile',
               subtitle:
                   '${up.profile?.displayInstitution ?? 'Not set'} • ${up.profile?.displayCourse ?? 'Not set'}',
-              onTap: () => _editInstitutionProfileDialog(context),
+              onTap: () => _editStudentProfileDialog(context),
             ),
             const SizedBox(height: 8),
             _SettingsTile(
@@ -410,37 +396,35 @@ class ProfilePage extends StatelessWidget {
   }
 }
 
-class _DeleteAccountPasswordDialog extends StatefulWidget {
+class _DeleteByPasswordDialog extends StatefulWidget {
   final bool emailVerified;
   final Future<void> Function(String password, String authenticatorCode)
   runEmailDeletion;
 
-  const _DeleteAccountPasswordDialog({
+  const _DeleteByPasswordDialog({
     required this.emailVerified,
     required this.runEmailDeletion,
   });
 
   @override
-  State<_DeleteAccountPasswordDialog> createState() =>
-      _DeleteAccountPasswordDialogState();
+  State<_DeleteByPasswordDialog> createState() =>
+      _DeleteByPasswordDialogState();
 }
 
-class _DeleteAccountPhoneCodeDialog extends StatefulWidget {
+class _DeleteByPhoneDialog extends StatefulWidget {
   final String phoneNumber;
   final Future<void> Function(AuthCredential credential) runDeletion;
 
-  const _DeleteAccountPhoneCodeDialog({
+  const _DeleteByPhoneDialog({
     required this.phoneNumber,
     required this.runDeletion,
   });
 
   @override
-  State<_DeleteAccountPhoneCodeDialog> createState() =>
-      _DeleteAccountPhoneCodeDialogState();
+  State<_DeleteByPhoneDialog> createState() => _DeleteByPhoneDialogState();
 }
 
-class _DeleteAccountPhoneCodeDialogState
-    extends State<_DeleteAccountPhoneCodeDialog> {
+class _DeleteByPhoneDialogState extends State<_DeleteByPhoneDialog> {
   final TextEditingController _codeCtrl = TextEditingController();
   String _error = '';
   String? _verificationId;
@@ -808,8 +792,7 @@ class _DeleteAccountPhoneCodeDialogState
   }
 }
 
-class _DeleteAccountPasswordDialogState
-    extends State<_DeleteAccountPasswordDialog> {
+class _DeleteByPasswordDialogState extends State<_DeleteByPasswordDialog> {
   late final TextEditingController _passwordCtrl;
   late final TextEditingController _totpCtrl;
   bool _obscure = true;
@@ -1013,6 +996,7 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
   ListCurrenciesCurrencies? _selectedCurrency;
   String _dialogError = '';
   late bool _allowOverBudget;
+  bool _saving = false;
 
   @override
   void initState() {
@@ -1085,14 +1069,6 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (_dialogError.isNotEmpty) ...[
-              Text(
-                _dialogError,
-                style: const TextStyle(color: Color(0xFFB91C1C), fontSize: 18),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 12),
-            ],
             SegmentedButton<bool>(
               segments: const [
                 ButtonSegment<bool>(value: false, label: Text('Monthly')),
@@ -1174,22 +1150,37 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 12),
             SwitchListTile.adaptive(
               contentPadding: EdgeInsets.zero,
-              title: const Text('Over-budget'),
+              title: const Text(
+                'Over-budget',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                  height: 2,
+                ),
+              ),
               subtitle: Text(
                 'Allow adding expenses that go over your budget',
                 style: TextStyle(
                   fontSize: 16,
                   color: Theme.of(
                     context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.7),
+                  ).colorScheme.onSurface.withValues(alpha: 0.9),
                 ),
               ),
               value: _allowOverBudget,
               onChanged: (v) => setState(() => _allowOverBudget = v),
             ),
+            if (_dialogError.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              Text(
+                _dialogError,
+                style: const TextStyle(color: Color(0xFFB91C1C), fontSize: 18),
+                textAlign: TextAlign.center,
+              ),
+            ],
           ],
         ),
       ),
@@ -1199,45 +1190,54 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
             minimumSize: const Size(100, 48),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           ),
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          onPressed: _saving ? null : () => Navigator.of(context).maybePop(),
+          child: const Text('Cancel', style: TextStyle(fontSize: 18)),
         ),
         FilledButton(
-          style: FilledButton.styleFrom(
-            backgroundColor: const Color(0xFF3e7f3f),
-            minimumSize: const Size(100, 48),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          onPressed: () async {
-            final v = double.tryParse(_ctrl.text.trim());
-            if (v == null || v < 10) {
-              setState(
-                () => _dialogError = 'The minimum budget is ${_sign}10.',
-              );
-              return;
-            }
-            if (v > 10000) {
-              setState(() => _dialogError = 'Max budget is ${_sign}10,000.');
-              return;
-            }
-            final selectedCurrencyId = _selectedCurrency?.id;
-            if (selectedCurrencyId != null) {
-              await ExampleConnector.instance
-                  .updateUserCurrency(
-                    userId: FirebaseAuth.instance.currentUser!.uid,
-                    currencyId: selectedCurrencyId,
-                  )
-                  .execute();
-            }
-            await widget.bp.setBudget(v, isWeekly: _isWeekly);
-            await widget.bp.setAllowOverBudget(_allowOverBudget);
-            if (!context.mounted) return;
-            Navigator.pop(context);
-          },
-          child: const Text('Save Changes'),
+          style: busyDialog(),
+          onPressed: _saving
+              ? null
+              : () async {
+                  setState(() => _saving = true);
+                  final v = double.tryParse(_ctrl.text.trim());
+                  if (v == null || v < 10) {
+                    setState(() {
+                      _dialogError = 'The minimum budget is ${_sign}10.';
+                      _saving = false;
+                    });
+                    return;
+                  }
+                  if (v > 10000) {
+                    setState(() {
+                      _dialogError = 'Max budget is ${_sign}10,000.';
+                      _saving = false;
+                    });
+                    return;
+                  }
+                  try {
+                    final selectedCurrencyId = _selectedCurrency?.id;
+                    final userId = FirebaseAuth.instance.currentUser!.uid;
+                    if (selectedCurrencyId != null) {
+                      await ExampleConnector.instance
+                          .updateUserCurrency(
+                            userId: userId,
+                            currencyId: selectedCurrencyId,
+                          )
+                          .execute();
+                    }
+                    await widget.bp.setBudget(v, isWeekly: _isWeekly);
+                    await widget.bp.setAllowOverBudget(_allowOverBudget);
+                    if (!context.mounted) return;
+                    await Navigator.of(context).maybePop();
+                  } catch (_) {
+                    if (!mounted) return;
+                    setState(() {
+                      _dialogError = 'Could not save. Please try again.';
+                      _saving = false;
+                    });
+                  }
+                },
+          child: busyButton(busy: _saving, label: 'Save Changes'),
         ),
       ],
     );
@@ -1315,30 +1315,24 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
   }
 }
 
-class _EditInstitutionProfileDialog extends StatefulWidget {
+class _EditProfileDialog extends StatefulWidget {
   final UserProfile profile;
   final BudgetProvider bp;
 
-  const _EditInstitutionProfileDialog({
-    required this.profile,
-    required this.bp,
-  });
+  const _EditProfileDialog({required this.profile, required this.bp});
 
   @override
-  State<_EditInstitutionProfileDialog> createState() =>
-      _EditInstitutionProfileDialogState();
+  State<_EditProfileDialog> createState() => _EditProfileDialogState();
 }
 
-class _EditInstitutionProfileDialogState
-    extends State<_EditInstitutionProfileDialog> {
-  final GlobalKey<OnboardingProfileFormState> _formKey =
-      GlobalKey<OnboardingProfileFormState>();
+class _EditProfileDialogState extends State<_EditProfileDialog> {
+  final GlobalKey<StudentProfileFormState> _formKey =
+      GlobalKey<StudentProfileFormState>();
   String _error = '';
   bool _saving = false;
 
   Future<void> _save() async {
-    final form = _formKey.currentState;
-    if (form == null) return;
+    final form = _formKey.currentState!;
 
     setState(() {
       _error = '';
@@ -1375,7 +1369,8 @@ class _EditInstitutionProfileDialogState
           .otherInstitution(selection.otherInstitution)
           .otherCourse(selection.otherCourse)
           .budget(widget.bp.budget.amount)
-          .isWeekly(widget.bp.isWeekly);
+          .isWeekly(widget.bp.isWeekly)
+          .allowOverbudget(widget.bp.allowOverBudget);
       if (countryId != null) {
         cmd = cmd.countryId(countryId);
       }
@@ -1429,7 +1424,7 @@ class _EditInstitutionProfileDialogState
                 ),
                 const SizedBox(height: 12),
               ],
-              OnboardingProfileForm(
+              StudentProfileForm(
                 key: _formKey,
                 initialProfile: widget.profile,
                 onUpdated: () {
@@ -1450,27 +1445,11 @@ class _EditInstitutionProfileDialogState
           child: const Text('Cancel', style: TextStyle(fontSize: 18)),
         ),
         FilledButton(
-          style: FilledButton.styleFrom(
-            backgroundColor: const Color(0xFF3e7f3f),
-            minimumSize: const Size(100, 48),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          onPressed: _formKey.currentState?.canSubmit == true && !_saving
-              ? _save
-              : null,
-          child: _saving
-              ? const SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.white,
-                  ),
-                )
-              : const Text('Save Changes', style: TextStyle(fontSize: 18)),
+          style: busyDialog(),
+          onPressed: _saving
+              ? null
+              : (_formKey.currentState?.canSubmit == true ? _save : null),
+          child: busyButton(busy: _saving, label: 'Save Changes'),
         ),
       ],
     );

@@ -23,6 +23,7 @@ class GetUserProfileUsers {
   final String lastName;
   final double? budget;
   final bool isWeekly;
+  final bool allowOverbudget;
   final String? otherInstitution;
   final String? otherCourse;
   final GetUserProfileUsersInstitution? institution;
@@ -35,6 +36,7 @@ class GetUserProfileUsers {
   lastName = nativeFromJson<String>(json['lastName']),
   budget = json['budget'] == null ? null : nativeFromJson<double>(json['budget']),
   isWeekly = nativeFromJson<bool>(json['isWeekly']),
+  allowOverbudget = nativeFromJson<bool>(json['allowOverbudget']),
   otherInstitution = json['otherInstitution'] == null ? null : nativeFromJson<String>(json['otherInstitution']),
   otherCourse = json['otherCourse'] == null ? null : nativeFromJson<String>(json['otherCourse']),
   institution = json['institution'] == null ? null : GetUserProfileUsersInstitution.fromJson(json['institution']),
@@ -55,6 +57,7 @@ class GetUserProfileUsers {
     lastName == otherTyped.lastName && 
     budget == otherTyped.budget && 
     isWeekly == otherTyped.isWeekly && 
+    allowOverbudget == otherTyped.allowOverbudget && 
     otherInstitution == otherTyped.otherInstitution && 
     otherCourse == otherTyped.otherCourse && 
     institution == otherTyped.institution && 
@@ -64,7 +67,7 @@ class GetUserProfileUsers {
     
   }
   @override
-  int get hashCode => Object.hashAll([firstName.hashCode, lastName.hashCode, budget.hashCode, isWeekly.hashCode, otherInstitution.hashCode, otherCourse.hashCode, institution.hashCode, course.hashCode, currency.hashCode, country.hashCode]);
+  int get hashCode => Object.hashAll([firstName.hashCode, lastName.hashCode, budget.hashCode, isWeekly.hashCode, allowOverbudget.hashCode, otherInstitution.hashCode, otherCourse.hashCode, institution.hashCode, course.hashCode, currency.hashCode, country.hashCode]);
   
 
   Map<String, dynamic> toJson() {
@@ -75,6 +78,7 @@ class GetUserProfileUsers {
       json['budget'] = nativeToJson<double?>(budget);
     }
     json['isWeekly'] = nativeToJson<bool>(isWeekly);
+    json['allowOverbudget'] = nativeToJson<bool>(allowOverbudget);
     if (otherInstitution != null) {
       json['otherInstitution'] = nativeToJson<String?>(otherInstitution);
     }
@@ -101,6 +105,7 @@ class GetUserProfileUsers {
     required this.lastName,
     this.budget,
     required this.isWeekly,
+    required this.allowOverbudget,
     this.otherInstitution,
     this.otherCourse,
     this.institution,

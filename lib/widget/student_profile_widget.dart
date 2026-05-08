@@ -1,12 +1,12 @@
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 
-import 'dataconnect_generated/generated.dart';
-import 'onboarding_profile_country.dart';
-import 'user_provider.dart';
+import 'package:makecents/dataconnect_generated/generated.dart';
+import 'package:makecents/provider/user_provider.dart';
+import 'package:makecents/provider/geolocation_provider.dart';
 
-class OnboardingProfileSelection {
-  const OnboardingProfileSelection({
+class StudentProfileSelection {
+  const StudentProfileSelection({
     required this.institutionId,
     required this.courseId,
     required this.otherInstitution,
@@ -23,17 +23,17 @@ class OnboardingProfileSelection {
   final String? countryDisplayName;
 }
 
-class OnboardingProfileForm extends StatefulWidget {
-  const OnboardingProfileForm({super.key, this.initialProfile, this.onUpdated});
+class StudentProfileForm extends StatefulWidget {
+  const StudentProfileForm({super.key, this.initialProfile, this.onUpdated});
 
   final UserProfile? initialProfile;
   final VoidCallback? onUpdated;
 
   @override
-  OnboardingProfileFormState createState() => OnboardingProfileFormState();
+  StudentProfileFormState createState() => StudentProfileFormState();
 }
 
-class OnboardingProfileFormState extends State<OnboardingProfileForm> {
+class StudentProfileFormState extends State<StudentProfileForm> {
   String? _selectedInstitution;
   String? _selectedCourse;
   String? _selectedInstitutionId;
@@ -109,12 +109,12 @@ class OnboardingProfileFormState extends State<OnboardingProfileForm> {
     return null;
   }
 
-  OnboardingProfileSelection buildSelection() {
+  StudentProfileSelection buildSelection() {
     final otherInstitutionText = _otherInstitutionController.text.trim();
     final otherCourseText = _otherCourseController.text.trim();
     final selectedInstitution = _selectedInstitution!;
     final selectedCourse = _selectedCourse!;
-    return OnboardingProfileSelection(
+    return StudentProfileSelection(
       institutionId: selectedInstitution == 'Other'
           ? null
           : _selectedInstitutionId,

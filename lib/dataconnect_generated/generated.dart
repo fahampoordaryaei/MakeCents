@@ -3,8 +3,6 @@ import 'package:firebase_data_connect/firebase_data_connect.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 
-part 'seed_data.dart';
-
 part 'seed_location_data.dart';
 
 part 'list_institutions.dart';
@@ -35,6 +33,8 @@ part 'delete_user_profile.dart';
 
 part 'update_user_budget.dart';
 
+part 'update_user_allow_overbudget.dart';
+
 part 'get_user_profile.dart';
 
 part 'get_continents_for_country.dart';
@@ -55,7 +55,7 @@ part 'create_scholarship_application.dart';
 
 part 'create_scholarship_attachment.dart';
 
-part 'list_expense_categories.dart';
+part 'list_categories.dart';
 
 part 'init_points_balance.dart';
 
@@ -73,6 +73,8 @@ part 'upsert_category_budget.dart';
 
 part 'delete_category_budget.dart';
 
+part 'seed_data.dart';
+
 
 
 
@@ -80,11 +82,6 @@ part 'delete_category_budget.dart';
 
 
 class ExampleConnector {
-  
-  
-  SeedDataVariablesBuilder seedData () {
-    return SeedDataVariablesBuilder(dataConnect, );
-  }
   
   
   SeedLocationDataVariablesBuilder seedLocationData () {
@@ -162,6 +159,11 @@ class ExampleConnector {
   }
   
   
+  UpdateUserAllowOverbudgetVariablesBuilder updateUserAllowOverbudget ({required String userId, required bool allowOverbudget, }) {
+    return UpdateUserAllowOverbudgetVariablesBuilder(dataConnect, userId: userId,allowOverbudget: allowOverbudget,);
+  }
+  
+  
   GetUserProfileVariablesBuilder getUserProfile ({required String userId, }) {
     return GetUserProfileVariablesBuilder(dataConnect, userId: userId,);
   }
@@ -212,8 +214,8 @@ class ExampleConnector {
   }
   
   
-  ListExpenseCategoriesVariablesBuilder listExpenseCategories () {
-    return ListExpenseCategoriesVariablesBuilder(dataConnect, );
+  ListCategoriesVariablesBuilder listCategories () {
+    return ListCategoriesVariablesBuilder(dataConnect, );
   }
   
   
@@ -254,6 +256,11 @@ class ExampleConnector {
   
   DeleteCategoryBudgetVariablesBuilder deleteCategoryBudget ({required String userId, required String categoryId, }) {
     return DeleteCategoryBudgetVariablesBuilder(dataConnect, userId: userId,categoryId: categoryId,);
+  }
+  
+  
+  SeedDataVariablesBuilder seedData () {
+    return SeedDataVariablesBuilder(dataConnect, );
   }
   
 

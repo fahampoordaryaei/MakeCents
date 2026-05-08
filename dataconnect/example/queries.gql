@@ -106,6 +106,7 @@ mutation StoreUserProfile(
   $countryId: Int,
   $currencyId: Int,
   $isWeekly: Boolean,
+  $allowOverbudget: Boolean,
   $prefix: String,
   $phoneNumber: String
 ) @auth(level: USER) {
@@ -122,6 +123,7 @@ mutation StoreUserProfile(
     countryId: $countryId,
     currencyId: $currencyId,
     isWeekly: $isWeekly,
+    allowOverbudget: $allowOverbudget,
     prefix: $prefix,
     phoneNumber: $phoneNumber,
     createdAt_expr: "request.time"
@@ -190,6 +192,16 @@ mutation UpdateUserBudget(
   )
 }
 
+mutation UpdateUserAllowOverbudget(
+  $userId: String!,
+  $allowOverbudget: Boolean!
+) @auth(level: USER) {
+  user_update(
+    key: {userId: $userId},
+    data: {allowOverbudget: $allowOverbudget}
+  )
+}
+
 # Get user profile info
 query GetUserProfile($userId: String!) @auth(level: USER) {
   users(where: {userId: {eq: $userId}}) {
@@ -197,6 +209,7 @@ query GetUserProfile($userId: String!) @auth(level: USER) {
     lastName
     budget
     isWeekly
+    allowOverbudget
     otherInstitution
     otherCourse
     institution {
@@ -398,9 +411,9 @@ mutation CreateScholarshipAttachment(
   })
 }
 
-# List expense categories
-query ListExpenseCategories @auth(level: PUBLIC) {
-  expenseCategories {
+# List categories
+query ListCategories @auth(level: PUBLIC) {
+  categories {
     id
     name
     iconName

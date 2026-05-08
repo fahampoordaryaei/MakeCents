@@ -2,20 +2,23 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_app_installations/firebase_app_installations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'budget_page.dart';
-import 'budget_provider.dart';
-import 'firebase_options.dart';
-import 'home_page.dart';
-import 'scholarships_page.dart';
-import 'points_page.dart';
-import 'startup_page.dart';
-import 'theme_provider.dart';
-import 'tracker_page.dart';
-import 'transaction_provider.dart';
-import 'profile_page.dart';
-import 'user_provider.dart';
+
+import 'package:makecents/firebase_options.dart';
+import 'package:makecents/page/budget_page.dart';
+import 'package:makecents/page/home_page.dart';
+import 'package:makecents/page/points_page.dart';
+import 'package:makecents/page/profile_page.dart';
+import 'package:makecents/page/scholarships_page.dart';
+import 'package:makecents/page/startup_page.dart';
+import 'package:makecents/page/tracker_page.dart';
+import 'package:makecents/provider/budget_provider.dart';
+import 'package:makecents/provider/category_budget_provider.dart';
+import 'package:makecents/provider/theme_provider.dart';
+import 'package:makecents/provider/transaction_provider.dart';
+import 'package:makecents/provider/user_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,11 +48,7 @@ void main() async {
   final budgetProvider = BudgetProvider();
   final themeProvider = ThemeProvider();
   try {
-    await Future.wait([
-      transactionProvider.fetchTransactions(),
-      budgetProvider.init(),
-      themeProvider.loadTheme(),
-    ]);
+    await themeProvider.loadTheme();
   } catch (_) {}
   runApp(
     MultiProvider(
@@ -58,6 +57,7 @@ void main() async {
         ChangeNotifierProvider.value(value: budgetProvider),
         ChangeNotifierProvider.value(value: themeProvider),
         ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => CategoryBudgetProvider()),
       ],
       child: const MakeCentsApp(),
     ),
@@ -92,6 +92,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final transactionProvider = context.read<TransactionProvider>();
     final budgetProvider = context.read<BudgetProvider>();
     final userProvider = context.read<UserProvider>();
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+    await context.read<CategoryBudgetProvider>().load(uid);
 
     await transactionProvider.fetchTransactions();
     await budgetProvider.init();
@@ -139,65 +141,84 @@ class _HomeScreenState extends State<HomeScreen> {
             topLeft: Radius.circular(24),
             topRight: Radius.circular(24),
           ),
-          child: NavigationBar(
-            backgroundColor: Theme.of(context).colorScheme.surface,
-            selectedIndex: _selectedIndex,
-            onDestinationSelected: (i) => setState(() => _selectedIndex = i),
-            indicatorColor: const Color(0xFF3e7f3f).withValues(alpha: 0.15),
-            destinations: [
-              NavigationDestination(
-                icon: Icon(
-                  Icons.home_outlined,
-                  color: Theme.of(context).colorScheme.onSurface,
+          child: MediaQuery.removePadding(
+            context: context,
+            removeBottom: true,
+            removeTop: true,
+            child: NavigationBar(
+              height: 90,
+              backgroundColor: Theme.of(context).colorScheme.surface,
+              selectedIndex: _selectedIndex,
+              onDestinationSelected: (i) => setState(() => _selectedIndex = i),
+              indicatorColor: const Color(0xFF3e7f3f).withValues(alpha: 0.15),
+              destinations: [
+                NavigationDestination(
+                  icon: Icon(
+                    Icons.home_outlined,
+                    color: Theme.of(context).colorScheme.onSurface,
+                    size: 32,
+                  ),
+                  selectedIcon: const Icon(
+                    Icons.home,
+                    color: Color(0xFF3e7f3f),
+                    size: 32,
+                  ),
+                  label: '',
                 ),
-                selectedIcon: const Icon(Icons.home, color: Color(0xFF3e7f3f)),
-                label: 'Home',
-              ),
-              NavigationDestination(
-                icon: Icon(
-                  Icons.show_chart_outlined,
-                  color: Theme.of(context).colorScheme.onSurface,
+                NavigationDestination(
+                  icon: Icon(
+                    Icons.insights_outlined,
+                    color: Theme.of(context).colorScheme.onSurface,
+                    size: 32,
+                  ),
+                  selectedIcon: const Icon(
+                    Icons.insights,
+                    color: Color(0xFF3e7f3f),
+                    size: 32,
+                  ),
+                  label: '',
                 ),
-                selectedIcon: const Icon(
-                  Icons.show_chart,
-                  color: Color(0xFF3e7f3f),
+                NavigationDestination(
+                  icon: Icon(
+                    Icons.emoji_events_outlined,
+                    color: Theme.of(context).colorScheme.onSurface,
+                    size: 32,
+                  ),
+                  selectedIcon: const Icon(
+                    Icons.emoji_events,
+                    color: Color(0xFF3e7f3f),
+                    size: 32,
+                  ),
+                  label: '',
                 ),
-                label: 'Tracker',
-              ),
-              NavigationDestination(
-                icon: Icon(
-                  Icons.emoji_events_outlined,
-                  color: Theme.of(context).colorScheme.onSurface,
+                NavigationDestination(
+                  icon: Icon(
+                    Icons.school_outlined,
+                    color: Theme.of(context).colorScheme.onSurface,
+                    size: 32,
+                  ),
+                  selectedIcon: const Icon(
+                    Icons.school,
+                    color: Color(0xFF3e7f3f),
+                    size: 32,
+                  ),
+                  label: '',
                 ),
-                selectedIcon: const Icon(
-                  Icons.emoji_events,
-                  color: Color(0xFF3e7f3f),
+                NavigationDestination(
+                  icon: Icon(
+                    Icons.person_outline,
+                    color: Theme.of(context).colorScheme.onSurface,
+                    size: 32,
+                  ),
+                  selectedIcon: const Icon(
+                    Icons.person,
+                    color: Color(0xFF3e7f3f),
+                    size: 32,
+                  ),
+                  label: '',
                 ),
-                label: 'Points',
-              ),
-              NavigationDestination(
-                icon: Icon(
-                  Icons.school_outlined,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-                selectedIcon: const Icon(
-                  Icons.school,
-                  color: Color(0xFF3e7f3f),
-                ),
-                label: 'Scholarships',
-              ),
-              NavigationDestination(
-                icon: Icon(
-                  Icons.person_outline,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-                selectedIcon: const Icon(
-                  Icons.person,
-                  color: Color(0xFF3e7f3f),
-                ),
-                label: 'Profile',
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

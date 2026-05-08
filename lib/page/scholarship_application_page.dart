@@ -10,8 +10,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
 
-import 'dataconnect_generated/generated.dart';
-import 'functions.dart';
+import 'package:makecents/dataconnect_generated/generated.dart';
+import 'package:makecents/helper/scholarship_helper.dart';
+import 'package:makecents/helper/ui_helper.dart';
+
+import 'package:makecents/widget/busy_button.dart';
 
 class ScholarshipApplicationPage extends StatefulWidget {
   final String? scholarshipId;
@@ -339,10 +342,10 @@ class _ScholarshipApplicationPageState
         );
         uploaded.add(result);
       }
-      final appId = const Uuid().v4();
+      final applicationId = const Uuid().v4();
       await connector
           .createScholarshipApplication(
-            id: appId,
+            id: applicationId,
             userId: user.uid,
             scholarshipId: scholarshipId,
           )
@@ -353,7 +356,7 @@ class _ScholarshipApplicationPageState
         await connector
             .createScholarshipAttachment(
               id: const Uuid().v4(),
-              scholarshipApplicationId: appId,
+              scholarshipApplicationId: applicationId,
               filename: file.filename,
               path: file.path,
             )
@@ -364,7 +367,7 @@ class _ScholarshipApplicationPageState
         await FirebaseFunctions.instanceFor(region: 'europe-west1')
             .httpsCallable('sendScholarshipApplicationEmail')
             .call(<String, dynamic>{
-              'applicationId': appId,
+              'applicationId': applicationId,
               if (notify.isNotEmpty) 'notificationEmail': notify,
             });
       } catch (_) {}
@@ -654,26 +657,19 @@ class _ScholarshipApplicationPageState
                         if (!widget.readOnly) ...[
                           const SizedBox(height: 26),
                           FilledButton(
-                            onPressed: (_isSaving || _isSubmitting)
-                                ? null
-                                : _submitApplication,
                             style: FilledButton.styleFrom(
                               backgroundColor: widget.brandColor,
                               minimumSize: const Size.fromHeight(52),
                             ),
-                            child: _isSubmitting
-                                ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : const Text(
-                                    'Submit Application',
-                                    style: TextStyle(fontSize: 20),
-                                  ),
+                            onPressed: (_isSaving || _isSubmitting)
+                                ? null
+                                : _submitApplication,
+                            child: busyButton(
+                              busy: _isSubmitting,
+                              label: 'Submit Application',
+                              size: 20,
+                              labelStyle: const TextStyle(fontSize: 20),
+                            ),
                           ),
                           const SizedBox(height: 8),
                           Center(

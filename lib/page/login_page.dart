@@ -2,13 +2,14 @@ import 'package:country_code_picker/country_code_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_data_connect/firebase_data_connect.dart';
 import 'package:flutter/material.dart';
-import 'dataconnect_generated/generated.dart';
-import 'theme_provider.dart';
-import 'forgot_password_page.dart';
-import 'main.dart';
-import 'onboarding_profile_page.dart';
-import 'register_page.dart';
-import 'startup_page.dart';
+
+import 'package:makecents/dataconnect_generated/generated.dart';
+import 'package:makecents/main.dart';
+import 'package:makecents/page/forgot_password_page.dart';
+import 'package:makecents/page/onboarding_profile_page.dart';
+import 'package:makecents/page/register_page.dart';
+import 'package:makecents/page/startup_page.dart';
+import 'package:makecents/provider/theme_provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -357,7 +358,7 @@ class _LoginPageState extends State<LoginPage> {
     final (phonePrefix, phoneDigits) = _splitPhoneNumber(authUser.phoneNumber);
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(
-        builder: (_) => OnboardingProfilePage(
+        builder: (_) => StudentProfilePage(
           firstName: firstName,
           lastName: lastName,
           phonePrefix: phonePrefix,

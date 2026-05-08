@@ -1,5 +1,24 @@
 extend type Query {
   """
+  ✨ Look up a single `Category` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  category(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Category_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Category_FirstRow
+  ): Category @fdc_generated(from: "Category", purpose: QUERY_SINGLE)
+  """
   ✨ Look up a single `CategoryBudget` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
   """
   categoryBudget(
@@ -118,25 +137,6 @@ extend type Query {
     """
     first: Currency_FirstRow
   ): Currency @fdc_generated(from: "Currency", purpose: QUERY_SINGLE)
-  """
-  ✨ Look up a single `ExpenseCategory` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
-  """
-  expenseCategory(
-    """
-    The unique ID of the object.
-    """
-    id: UUID
-
-    """
-    The key used to identify the object.
-    """
-    key: ExpenseCategory_Key
-
-    """
-    Fetch the first row based on the filters and ordering.
-    """
-    first: ExpenseCategory_FirstRow
-  ): ExpenseCategory @fdc_generated(from: "ExpenseCategory", purpose: QUERY_SINGLE)
   """
   ✨ Look up a single `Institution` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
   """
@@ -266,6 +266,25 @@ extend type Query {
     first: ScholarshipApplication_FirstRow
   ): ScholarshipApplication @fdc_generated(from: "ScholarshipApplication", purpose: QUERY_SINGLE)
   """
+  ✨ Look up a single `ScholarshipAttachment` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  scholarshipAttachment(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: ScholarshipAttachment_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: ScholarshipAttachment_FirstRow
+  ): ScholarshipAttachment @fdc_generated(from: "ScholarshipAttachment", purpose: QUERY_SINGLE)
+  """
   ✨ Look up a single `ScholarshipCourse` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
   """
   scholarshipCourse(
@@ -312,6 +331,40 @@ extend type Query {
     """
     first: User_FirstRow
   ): User @fdc_generated(from: "User", purpose: QUERY_SINGLE)
+  """
+  ✨ List `Category` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  categories(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Category_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Category_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Category_Having
+  ): [Category!]! @fdc_generated(from: "Category", purpose: QUERY_MULTIPLE)
   """
   ✨ List `CategoryBudget` objects in the table and return selected fields, optionally filtered by `where` conditions
   """
@@ -516,40 +569,6 @@ extend type Query {
     """
     having: Currency_Having
   ): [Currency!]! @fdc_generated(from: "Currency", purpose: QUERY_MULTIPLE)
-  """
-  ✨ List `ExpenseCategory` objects in the table and return selected fields, optionally filtered by `where` conditions
-  """
-  expenseCategories(
-    """
-    Filter condition to narrow down the query results.
-    """
-    where: ExpenseCategory_Filter
-
-    """
-    Order the query results by specific fields.
-    """
-    orderBy: [ExpenseCategory_Order!]
-
-    """
-    Number of rows to skip before starting to return the results.
-    """
-    offset: Int
-
-    """
-    Maximum number of rows to return (defaults to 100 rows).
-    """
-    limit: Int = 100
-
-    """
-    Set to true to return distinct results.
-    """
-    distinct: Boolean = false
-
-    """
-    Filter condition to apply to the groups of aggregate queries.
-    """
-    having: ExpenseCategory_Having
-  ): [ExpenseCategory!]! @fdc_generated(from: "ExpenseCategory", purpose: QUERY_MULTIPLE)
   """
   ✨ List `Institution` objects in the table and return selected fields, optionally filtered by `where` conditions
   """
@@ -788,6 +807,40 @@ extend type Query {
     """
     having: ScholarshipApplication_Having
   ): [ScholarshipApplication!]! @fdc_generated(from: "ScholarshipApplication", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `ScholarshipAttachment` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  scholarshipAttachments(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: ScholarshipAttachment_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [ScholarshipAttachment_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: ScholarshipAttachment_Having
+  ): [ScholarshipAttachment!]! @fdc_generated(from: "ScholarshipAttachment", purpose: QUERY_MULTIPLE)
   """
   ✨ List `ScholarshipCourse` objects in the table and return selected fields, optionally filtered by `where` conditions
   """

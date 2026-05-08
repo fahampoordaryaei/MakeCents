@@ -1,28 +1,28 @@
 part of 'generated.dart';
 
-class ListExpenseCategoriesVariablesBuilder {
+class ListCategoriesVariablesBuilder {
   
   final FirebaseDataConnect _dataConnect;
-  ListExpenseCategoriesVariablesBuilder(this._dataConnect, );
-  Deserializer<ListExpenseCategoriesData> dataDeserializer = (dynamic json)  => ListExpenseCategoriesData.fromJson(jsonDecode(json));
+  ListCategoriesVariablesBuilder(this._dataConnect, );
+  Deserializer<ListCategoriesData> dataDeserializer = (dynamic json)  => ListCategoriesData.fromJson(jsonDecode(json));
   
-  Future<QueryResult<ListExpenseCategoriesData, void>> execute() {
+  Future<QueryResult<ListCategoriesData, void>> execute() {
     return ref().execute();
   }
 
-  QueryRef<ListExpenseCategoriesData, void> ref() {
+  QueryRef<ListCategoriesData, void> ref() {
     
-    return _dataConnect.query("ListExpenseCategories", dataDeserializer, emptySerializer, null);
+    return _dataConnect.query("ListCategories", dataDeserializer, emptySerializer, null);
   }
 }
 
 @immutable
-class ListExpenseCategoriesExpenseCategories {
+class ListCategoriesCategories {
   final String id;
   final String name;
   final String iconName;
   final String colorHex;
-  ListExpenseCategoriesExpenseCategories.fromJson(dynamic json):
+  ListCategoriesCategories.fromJson(dynamic json):
   
   id = nativeFromJson<String>(json['id']),
   name = nativeFromJson<String>(json['name']),
@@ -37,7 +37,7 @@ class ListExpenseCategoriesExpenseCategories {
       return false;
     }
 
-    final ListExpenseCategoriesExpenseCategories otherTyped = other as ListExpenseCategoriesExpenseCategories;
+    final ListCategoriesCategories otherTyped = other as ListCategoriesCategories;
     return id == otherTyped.id && 
     name == otherTyped.name && 
     iconName == otherTyped.iconName && 
@@ -57,7 +57,7 @@ class ListExpenseCategoriesExpenseCategories {
     return json;
   }
 
-  ListExpenseCategoriesExpenseCategories({
+  ListCategoriesCategories({
     required this.id,
     required this.name,
     required this.iconName,
@@ -66,12 +66,12 @@ class ListExpenseCategoriesExpenseCategories {
 }
 
 @immutable
-class ListExpenseCategoriesData {
-  final List<ListExpenseCategoriesExpenseCategories> expenseCategories;
-  ListExpenseCategoriesData.fromJson(dynamic json):
+class ListCategoriesData {
+  final List<ListCategoriesCategories> categories;
+  ListCategoriesData.fromJson(dynamic json):
   
-  expenseCategories = (json['expenseCategories'] as List<dynamic>)
-        .map((e) => ListExpenseCategoriesExpenseCategories.fromJson(e))
+  categories = (json['categories'] as List<dynamic>)
+        .map((e) => ListCategoriesCategories.fromJson(e))
         .toList();
   @override
   bool operator ==(Object other) {
@@ -82,22 +82,22 @@ class ListExpenseCategoriesData {
       return false;
     }
 
-    final ListExpenseCategoriesData otherTyped = other as ListExpenseCategoriesData;
-    return expenseCategories == otherTyped.expenseCategories;
+    final ListCategoriesData otherTyped = other as ListCategoriesData;
+    return categories == otherTyped.categories;
     
   }
   @override
-  int get hashCode => expenseCategories.hashCode;
+  int get hashCode => categories.hashCode;
   
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
-    json['expenseCategories'] = expenseCategories.map((e) => e.toJson()).toList();
+    json['categories'] = categories.map((e) => e.toJson()).toList();
     return json;
   }
 
-  ListExpenseCategoriesData({
-    required this.expenseCategories,
+  ListCategoriesData({
+    required this.categories,
   });
 }
 
