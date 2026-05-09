@@ -3,6 +3,8 @@ import 'package:firebase_data_connect/firebase_data_connect.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 
+part 'seed_location_data.dart';
+
 part 'list_institutions.dart';
 
 part 'list_courses.dart';
@@ -73,8 +75,6 @@ part 'delete_category_budget.dart';
 
 part 'seed_data.dart';
 
-part 'seed_location_data.dart';
-
 
 
 
@@ -82,6 +82,11 @@ part 'seed_location_data.dart';
 
 
 class ExampleConnector {
+  
+  
+  SeedLocationDataVariablesBuilder seedLocationData () {
+    return SeedLocationDataVariablesBuilder(dataConnect, );
+  }
   
   
   ListInstitutionsVariablesBuilder listInstitutions () {
@@ -256,11 +261,6 @@ class ExampleConnector {
   
   SeedDataVariablesBuilder seedData () {
     return SeedDataVariablesBuilder(dataConnect, );
-  }
-  
-  
-  SeedLocationDataVariablesBuilder seedLocationData () {
-    return SeedLocationDataVariablesBuilder(dataConnect, );
   }
   
 

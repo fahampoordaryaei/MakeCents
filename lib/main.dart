@@ -28,8 +28,8 @@ void main() async {
     try {
       final installationId = await FirebaseInstallations.instance.getId();
       debugPrint('Firebase Installation ID: $installationId');
-    } catch (e, st) {
-      debugPrint('Firebase Installation ID: failed — $e\n$st');
+    } catch (e) {
+      debugPrint('Firebase Installation ID failed: $e');
     }
   }
 
@@ -42,14 +42,18 @@ void main() async {
           ? AppleProvider.debug
           : AppleProvider.deviceCheck,
     );
-  } catch (_) {}
+  } catch (e) {
+    debugPrint('main.appCheck.activate failed: $e');
+  }
 
   final transactionProvider = TransactionProvider();
   final budgetProvider = BudgetProvider();
   final themeProvider = ThemeProvider();
   try {
     await themeProvider.loadTheme();
-  } catch (_) {}
+  } catch (e) {
+    debugPrint('main.loadTheme failed: $e');
+  }
   runApp(
     MultiProvider(
       providers: [

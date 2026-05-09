@@ -251,7 +251,8 @@ class _ScholarshipApplicationPageState
         _attachments.addAll(newFiles);
         _attachmentError = null;
       });
-    } catch (_) {
+    } catch (e) {
+      debugPrint('scholarship_application_page._pickFiles failed: $e');
       if (!mounted) return;
       await popupAlert(
         context,
@@ -278,7 +279,8 @@ class _ScholarshipApplicationPageState
               .ref(file.storagePath!)
               .getDownloadURL(),
         );
-      } catch (_) {
+      } catch (e) {
+        debugPrint('scholarship_application_page._openAttachment failed: $e');
         if (!mounted) return;
         await popupAlert(
           context,
@@ -370,7 +372,11 @@ class _ScholarshipApplicationPageState
               'applicationId': applicationId,
               if (notify.isNotEmpty) 'notificationEmail': notify,
             });
-      } catch (_) {}
+      } catch (e) {
+        debugPrint(
+          'scholarship_application_page.sendScholarshipApplicationEmail failed: $e',
+        );
+      }
       final savedJson = _prefs.getString('scholarship_applications');
       if (savedJson != null) {
         final remaining = (jsonDecode(savedJson) as List<dynamic>)

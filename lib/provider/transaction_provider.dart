@@ -93,7 +93,8 @@ class TransactionProvider with ChangeNotifier {
           category: catName,
         );
       }).toList();
-    } catch (_) {
+    } catch (e) {
+      debugPrint('transaction_provider.fetchTransactions failed: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -136,7 +137,8 @@ class TransactionProvider with ChangeNotifier {
         mutation = mutation.description(description);
       }
       await mutation.execute();
-    } catch (_) {
+    } catch (e) {
+      debugPrint('transaction_provider.addTransaction failed: $e');
       _transactions.removeWhere((t) => t.id == tempId);
       notifyListeners();
       rethrow;
@@ -156,7 +158,9 @@ class TransactionProvider with ChangeNotifier {
             )
             .execute();
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('transaction_provider.addTransaction.points failed: $e');
+    }
 
     await fetchTransactions();
   }
@@ -173,7 +177,8 @@ class TransactionProvider with ChangeNotifier {
       await ExampleConnector.instance
           .deleteTransaction(id: removedTx.id)
           .execute();
-    } catch (_) {
+    } catch (e) {
+      debugPrint('transaction_provider.removeTransaction failed: $e');
       _transactions.insert(index, removedTx);
       notifyListeners();
       rethrow;
@@ -194,7 +199,9 @@ class TransactionProvider with ChangeNotifier {
             )
             .execute();
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('transaction_provider.removeTransaction.points failed: $e');
+    }
   }
 
   Future<void> updateTransaction({
@@ -231,7 +238,8 @@ class TransactionProvider with ChangeNotifier {
           .description(description);
       await mutation.execute();
       await fetchTransactions();
-    } catch (_) {
+    } catch (e) {
+      debugPrint('transaction_provider.updateTransaction failed: $e');
       _transactions[index] = original;
       notifyListeners();
       rethrow;

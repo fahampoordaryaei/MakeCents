@@ -115,7 +115,8 @@ class ThemeProvider extends ChangeNotifier {
       final p = await SharedPreferences.getInstance();
       final stored = p.getString('theme_mode');
       _mode = stored == 'dark' ? ThemeModes.dark : ThemeModes.light;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('theme_provider.loadTheme failed: $e');
       _mode = ThemeModes.light;
     }
     notifyListeners();

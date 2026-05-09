@@ -40,7 +40,8 @@ class Scholarship {
   static Color accentColor(String colorHex) {
     try {
       return Color(int.parse(colorHex.replaceFirst('#', '0xFF')));
-    } catch (_) {
+    } catch (e) {
+      debugPrint('scholarships_page.Scholarship.accentColor failed: $e');
       return const Color(0xFF3e7f3f);
     }
   }
@@ -93,7 +94,8 @@ class _ScholarshipsPageState extends State<ScholarshipsPage> {
           );
         }).toList();
       });
-    } catch (_) {
+    } catch (e) {
+      debugPrint('scholarships_page._loadScholarships failed: $e');
       if (!mounted) return;
       setState(() => _allScholarships = const []);
     }
@@ -433,7 +435,10 @@ class _SubmittedApplicationsPageState extends State<SubmittedApplicationsPage> {
           ..addAll(byApp);
         _isLoading = false;
       });
-    } catch (_) {
+    } catch (e) {
+      debugPrint(
+        'scholarships_page._SubmittedApplicationsPageState._loadApplications failed: $e',
+      );
       if (!mounted) return;
       setState(() {
         _applications = [];

@@ -705,7 +705,8 @@ class _MfaAccountDialogState extends State<_MfaAccountDialog> {
         _totpOn = on;
         _loading = false;
       });
-    } catch (_) {
+    } catch (e) {
+      debugPrint('mfa_provider._MfaAccountDialog._refresh failed: $e');
       if (!mounted) return;
       setState(() => _loading = false);
     }

@@ -50,7 +50,8 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
         await context.read<CategoryBudgetProvider>().load(uid);
       }
       await _loadAvailableCategories();
-    } catch (_) {
+    } catch (e) {
+      debugPrint('category_budget_page._loadData failed: $e');
       if (mounted) {
         await popupAlert(
           context,
@@ -83,7 +84,8 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
         if (aOther == bOther) return 0;
         return aOther ? 1 : -1;
       });
-    } catch (_) {
+    } catch (e) {
+      debugPrint('category_budget_page._loadAvailableCategories failed: $e');
       _availableCategories = [];
     }
   }
@@ -103,7 +105,8 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
           level: AppAlertLevel.success,
         );
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('category_budget_page._setBudget failed: $e');
       if (mounted) {
         await popupAlert(
           context,
@@ -125,7 +128,8 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
           level: AppAlertLevel.success,
         );
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('category_budget_page._deleteBudget failed: $e');
       if (mounted) {
         await popupAlert(
           context,

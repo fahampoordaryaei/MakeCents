@@ -228,7 +228,8 @@ class StudentProfileFormState extends State<StudentProfileForm> {
         _isLoading = false;
       });
       widget.onUpdated?.call();
-    } catch (_) {
+    } catch (e) {
+      debugPrint('student_profile_widget._loadOptions failed: $e');
       if (!mounted) return;
       setState(() {
         _loadError = 'Failed to load options. Please check your connection.';

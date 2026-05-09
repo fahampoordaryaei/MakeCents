@@ -41,7 +41,8 @@ Future<_RedeemR> _redeemProductCall(String productId) async {
       err: true,
       pts: null,
     );
-  } catch (_) {
+  } catch (e) {
+    debugPrint('points_helper._redeemProductCall failed: $e');
     return (text: 'Could not redeem product.', err: true, pts: null);
   }
 }
@@ -102,7 +103,8 @@ class _ProductRedeemBodyState extends State<_ProductRedeemBody> {
           });
         _loading = false;
       });
-    } catch (_) {
+    } catch (e) {
+      debugPrint('points_helper._ProductRedeemBody._load failed: $e');
       if (mounted) setState(() => _loading = false);
     }
   }

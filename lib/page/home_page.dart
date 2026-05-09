@@ -76,7 +76,8 @@ class _HomePageState extends State<HomePage> {
         _matchedScholarships = matched.take(3).toList();
         _isLoadingHomeFeeds = false;
       });
-    } catch (_) {
+    } catch (e) {
+      debugPrint('home_page._loadHomeFeeds failed: $e');
       if (!mounted) return;
       setState(() => _isLoadingHomeFeeds = false);
     }
@@ -85,7 +86,8 @@ class _HomePageState extends State<HomePage> {
   Color _scholarshipColor(String rawColor) {
     try {
       return Color(int.parse(rawColor.trim().replaceFirst('#', '0xFF')));
-    } catch (_) {
+    } catch (e) {
+      debugPrint('home_page._scholarshipColor failed: $e');
       return const Color(0xFF3e7f3f);
     }
   }

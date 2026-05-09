@@ -81,7 +81,9 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
         _selectedCurrency = defaultCurrency;
       });
       setGlobalCurrency(sign: defaultCurrency.sign, id: defaultCurrency.id);
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('onboarding_budget_page._loadCurrencies failed: $e');
+    }
   }
 
   void _onCurrencyChanged(ListCurrenciesCurrencies c) {
@@ -211,7 +213,8 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
           context,
         ).push(MaterialPageRoute(builder: (_) => const MfaWidget()));
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('onboarding_budget_page._onFinish failed: $e');
       if (mounted) {
         setState(
           () => _error = 'Could not save your profile. Please try again.',
@@ -235,7 +238,8 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
         return null;
       }
       return matches.first.id;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('onboarding_budget_page._resolveCountryId failed: $e');
       return null;
     }
   }

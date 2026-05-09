@@ -51,7 +51,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         _messageSuccess = false;
         _isLoading = false;
       });
-    } catch (_) {
+    } catch (e) {
+      debugPrint('forgot_password_page._resetPassword failed: $e');
       if (!mounted) return;
       setState(() {
         _message = 'An unexpected error occurred.';

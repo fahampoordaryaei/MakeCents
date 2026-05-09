@@ -26,7 +26,8 @@ Future<int?> _getCountryId(ExampleConnector connector, String? isoCode) async {
     final matches = result.data.countries;
     if (matches.isEmpty) return null;
     return matches.first.id;
-  } catch (_) {
+  } catch (e) {
+    debugPrint('profile_page._getCountryId failed: $e');
     return null;
   }
 }
@@ -106,7 +107,8 @@ class ProfilePage extends StatelessWidget {
         message: e.message ?? 'Failed to send reset email.',
         level: AppAlertLevel.error,
       );
-    } catch (_) {
+    } catch (e) {
+      debugPrint('profile_page._showChangePasswordDialog failed: $e');
       if (!context.mounted) return;
       await popupAlert(
         context,
@@ -181,7 +183,8 @@ class ProfilePage extends StatelessWidget {
           (r) => false,
         );
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('profile_page._confirmDeleteAccount failed: $e');
       if (!context.mounted) return;
       await popupAlert(
         context,
@@ -505,7 +508,8 @@ class _DeleteByPhoneDialogState extends State<_DeleteByPhoneDialog> {
           });
         },
       );
-    } catch (_) {
+    } catch (e) {
+      debugPrint('profile_page._DeleteByPhoneDialogState._sendCode failed: $e');
       if (!mounted) return;
       setState(() {
         _sentCode = false;
@@ -970,7 +974,10 @@ class _DeleteByPasswordDialogState extends State<_DeleteByPasswordDialog> {
       await widget.runEmailDeletion(p, _totpCtrl.text.trim());
       if (!mounted) return;
       Navigator.of(context).pop(true);
-    } catch (_) {
+    } catch (e) {
+      debugPrint(
+        'profile_page._DeleteByPasswordDialogState._submitDelete failed: $e',
+      );
       if (!mounted) return;
       setState(() => _busy = false);
       await popupAlert(
@@ -1049,7 +1056,11 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
         _currencies = list;
         _selectedCurrency = selected;
       });
-    } catch (_) {}
+    } catch (e) {
+      debugPrint(
+        'profile_page._EditBudgetDialogState._loadCurrencies failed: $e',
+      );
+    }
   }
 
   void _onCurrencyChanged(ListCurrenciesCurrencies c) {
@@ -1230,7 +1241,10 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
                     await widget.bp.setAllowOverBudget(_allowOverBudget);
                     if (!context.mounted) return;
                     await Navigator.of(context).maybePop();
-                  } catch (_) {
+                  } catch (e) {
+                    debugPrint(
+                      'profile_page._EditBudgetDialogState.saveBudget failed: $e',
+                    );
                     if (!context.mounted) return;
                     setState(() {
                       _dialogError = 'Could not save. Please try again.';
@@ -1391,7 +1405,8 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
       await userProvider.loadProfile();
       if (!mounted) return;
       Navigator.pop(context);
-    } catch (_) {
+    } catch (e) {
+      debugPrint('profile_page._EditProfileDialogState._save failed: $e');
       if (!mounted) return;
       setState(() {
         _error = 'Could not save. Please try again.';
@@ -1553,7 +1568,9 @@ class _SettingsPageState extends State<_SettingsPage> {
     if (u == null) return;
     try {
       await u.reload();
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('profile_page._SettingsPageState._reloadUser failed: $e');
+    }
     if (notify && mounted) setState(() {});
   }
 
@@ -1624,7 +1641,10 @@ class _SettingsPageState extends State<_SettingsPage> {
         message: e.message ?? 'Could not send verification email.',
         level: AppAlertLevel.error,
       );
-    } catch (_) {
+    } catch (e) {
+      debugPrint(
+        'profile_page._SettingsPageState._onVerifyEmailTap failed: $e',
+      );
       if (!context.mounted) return;
       await popupAlert(
         context,

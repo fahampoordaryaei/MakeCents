@@ -117,7 +117,8 @@ class _TrackerPageState extends State<TrackerPage> {
         }
         _isLoadingCategories = false;
       });
-    } catch (_) {
+    } catch (e) {
+      debugPrint('tracker_page._loadCategories failed: $e');
       if (!mounted) return;
       setState(() => _isLoadingCategories = false);
     }
@@ -415,7 +416,8 @@ class _TrackerPageState extends State<TrackerPage> {
         categoryName: _selectedCategory!.name,
         categoryId: _selectedCategory!.id,
       );
-    } catch (_) {
+    } catch (e) {
+      debugPrint('tracker_page._addExpense failed: $e');
       if (!mounted) return;
       await popupAlert(
         context,
@@ -530,10 +532,7 @@ class _TrackerPageState extends State<TrackerPage> {
               try {
                 await p.removeTransaction(idx);
               } catch (e) {
-                assert(() {
-                  debugPrint('Remove transaction failed: $e');
-                  return true;
-                }());
+                debugPrint('Remove transaction failed: $e');
                 if (!mounted) return;
                 await popupAlert(
                   context,
@@ -1581,7 +1580,10 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
       );
       if (!mounted) return;
       navigator.pop();
-    } catch (_) {
+    } catch (e) {
+      debugPrint(
+        'tracker_page._EditTransactionSheetState._saveExpense failed: $e',
+      );
       if (!mounted) return;
       if (widget.messengerContext.mounted) {
         await popupAlert(

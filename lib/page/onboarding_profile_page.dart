@@ -95,10 +95,14 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
 
     try {
       await FirebaseAuth.instance.currentUser!.delete();
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('onboarding_profile_page.deleteUser failed: $e');
+    }
     try {
       await FirebaseAuth.instance.signOut();
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('onboarding_profile_page.signOut failed: $e');
+    }
 
     if (!mounted) return;
     Navigator.of(

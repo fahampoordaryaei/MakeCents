@@ -171,7 +171,8 @@ class _LoginPageState extends State<LoginPage> {
           });
         }
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('login_page._submitEmailLogin failed: $e');
       _resetEmailMfaFlow();
       if (mounted) {
         setState(() {
@@ -422,7 +423,8 @@ class _LoginPageState extends State<LoginPage> {
         _error =
             'Incorrect password. $remaining attempt${remaining == 1 ? '' : 's'} remaining.';
       });
-    } catch (_) {
+    } catch (e) {
+      debugPrint('login_page._recordFailure failed: $e');
       if (mounted) {
         setState(() => _error = 'Incorrect email or password.');
       }

@@ -38,7 +38,8 @@ class _PointsPageState extends State<PointsPage> {
       if (result.data.pointsBalances.isNotEmpty) {
         _points = result.data.pointsBalances.first.totalPoints;
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('points_page._loadCloudPoints failed: $e');
     } finally {
       if (mounted) setState(() => _isLoadingPoints = false);
     }
@@ -65,7 +66,8 @@ class _PointsPageState extends State<PointsPage> {
         _products = productsResult.data.products;
         _redeemedByProductId = redeemedMap;
       });
-    } catch (_) {
+    } catch (e) {
+      debugPrint('points_page._loadProductsAndRedemptions failed: $e');
     } finally {
       if (mounted) setState(() => _isLoadingProducts = false);
     }

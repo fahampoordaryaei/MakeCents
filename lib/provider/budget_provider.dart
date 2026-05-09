@@ -46,10 +46,14 @@ class BudgetProvider with ChangeNotifier {
                 .listCategories()
                 .execute();
             setCategories(cats.data.categories);
-          } catch (_) {}
+          } catch (e) {
+            debugPrint('budget_provider.init.listCategories failed: $e');
+          }
         }(),
       ]);
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('budget_provider.init failed: $e');
+    }
     notifyListeners();
   }
 
@@ -63,7 +67,8 @@ class BudgetProvider with ChangeNotifier {
       await ExampleConnector.instance
           .updateUserAllowOverbudget(userId: user.uid, allowOverbudget: value)
           .execute();
-    } catch (_) {
+    } catch (e) {
+      debugPrint('budget_provider.setAllowOverBudget failed: $e');
       await init();
       rethrow;
     }
@@ -86,6 +91,8 @@ class BudgetProvider with ChangeNotifier {
         req.isWeekly(isWeekly);
       }
       await req.execute();
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('budget_provider.setBudget failed: $e');
+    }
   }
 }

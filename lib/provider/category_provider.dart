@@ -62,7 +62,8 @@ Color parseColorHex(String colorHex) {
       return Color(int.parse(h));
     }
     return Color(int.parse(h.replaceFirst('#', '0xFF')));
-  } catch (_) {
+  } catch (e) {
+    debugPrint('category_provider.parseColorHex failed: $e');
     return Colors.grey;
   }
 }

@@ -329,10 +329,7 @@ class _RegisterPageState extends State<RegisterPage> {
       try {
         await created.updateDisplayName('$firstName $lastName');
       } catch (e) {
-        assert(() {
-          debugPrint('updateDisplayName after signup failed: $e');
-          return true;
-        }());
+        debugPrint('updateDisplayName after signup failed: $e');
       }
 
       if (!mounted) return;
@@ -354,7 +351,8 @@ class _RegisterPageState extends State<RegisterPage> {
           () => _error = e.message ?? 'An error occurred during registration.',
         );
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('register_page._registerWithEmail failed: $e');
       if (mounted) {
         setState(() => _error = 'Registration failed. Please try again.');
       }

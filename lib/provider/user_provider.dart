@@ -86,7 +86,8 @@ class UserProvider with ChangeNotifier {
           setGlobalCurrency(sign: u.currency!.sign, id: u.currency!.id);
         }
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('user_provider.loadProfile failed: $e');
       _profile = null;
     } finally {
       _isLoading = false;

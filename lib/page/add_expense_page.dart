@@ -64,7 +64,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
         }
         _isLoadingCategories = false;
       });
-    } catch (_) {
+    } catch (e) {
+      debugPrint('add_expense_page._loadCategories failed: $e');
       if (!mounted) return;
       setState(() => _isLoadingCategories = false);
     }
@@ -109,7 +110,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
       if (!mounted) return;
       setState(() => _submitAttempted = false);
       Navigator.of(context).pop();
-    } catch (_) {
+    } catch (e) {
+      debugPrint('add_expense_page._submitData failed: $e');
       if (!mounted) return;
       await popupAlert(
         context,
