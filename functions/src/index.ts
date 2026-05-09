@@ -1,0 +1,378 @@
+import { getApps, initializeApp } from "firebase-admin/app";
+import { getStorage } from "firebase-admin/storage";
+import { onSchedule } from "firebase-functions/v2/scheduler";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
+import { defineSecret } from "firebase-functions/params";
+import { Connector, IpAddressTypes, AuthTypes } from "@google-cloud/cloud-sql-connector";
+import pg from "pg";
+import { Resend } from "resend";
+
+const { Pool } = pg;
+
+if (!getApps().length) {
+    initializeApp();
+}
+
+const INSTANCE_CONNECTION = "makecents-b0fb9:europe-west1:makecents-b0fb9-database";
+const DB_NAME = "makecents-b0fb9-database";
+const DB_IAM_USER_RAW = process.env.DB_IAM_USER ?? "";
+const DB_IAM_USER = DB_IAM_USER_RAW.replace(/\.gserviceaccount\.com$/, "");
+const CODE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+const resendApiKey = defineSecret("RESEND_API_KEY");
+
+const createPool = async () => {
+    const connector = new Connector();
+    const clientOpts = await connector.getOptions({
+        instanceConnectionName: INSTANCE_CONNECTION,
+        ipType: IpAddressTypes.PUBLIC,
+        authType: AuthTypes.IAM,
+    });
+
+    const pool = new Pool({
+        ...clientOpts,
+        database: DB_NAME,
+        user: DB_IAM_USER,
+        max: 5,
+    });
+
+    return { connector, pool };
+};
+
+const generateDiscountCode = () => {
+    let code = "";
+    for (let i = 0; i < 6; i++) {
+        const idx = Math.floor(Math.random() * CODE_CHARS.length);
+        code += CODE_CHARS[idx];
+    }
+    return code;
+};
+
+export const monthlyBudgetReward = onSchedule(
+    {
+        schedule: "0 0 1 * *",
+        timeZone: "UTC",
+        region: "europe-west1",
+    },
+    async () => {
+        const { connector, pool } = await createPool();
+
+        try {
+            const now = new Date();
+            const firstOfPrev = new Date(Date.UTC(now.getFullYear(), now.getMonth() - 1, 1));
+            const firstOfThis = new Date(Date.UTC(now.getFullYear(), now.getMonth(), 1));
+            const firstDay = firstOfPrev.toISOString().slice(0, 10);
+            const lastDay = firstOfThis.toISOString().slice(0, 10);
+            const monthKey = firstDay.slice(0, 7);
+
+            const result = await pool.query(`
+        SELECT
+          u.user_id,
+          u.budget,
+          pb.id AS pb_id,
+          pb.total_points,
+          COALESCE(SUM(t.amount), 0) AS month_spent
+        FROM "user" u
+        JOIN points_balance pb ON pb.user_user_id = u.user_id
+        LEFT JOIN "transaction" t
+          ON t.user_user_id = u.user_id
+          AND t.date >= $1::date
+          AND t.date < $2::date
+        WHERE u.budget > 0
+          AND u.is_weekly = false
+          AND (pb.last_budget_reward_month IS NULL OR pb.last_budget_reward_month != $3)
+        GROUP BY u.user_id, u.budget, pb.id, pb.total_points
+        HAVING COALESCE(SUM(t.amount), 0) > 0
+          AND COALESCE(SUM(t.amount), 0) < u.budget
+      `, [firstDay, lastDay, monthKey]);
+
+            const REWARD = 100;
+
+            for (const row of result.rows) {
+                const newTotal = row.total_points + REWARD;
+                await pool.query(`
+          UPDATE points_balance
+          SET total_points = $1,
+              last_budget_reward_month = $2,
+              updated_at = NOW()
+          WHERE id = $3
+        `, [newTotal, monthKey, row.pb_id]);
+            }
+        } finally {
+            await pool.end();
+            connector.close();
+        }
+    }
+);
+
+export const weeklyBudgetReward = onSchedule(
+    {
+        schedule: "0 0 * * 1",
+        timeZone: "UTC",
+        region: "europe-west1",
+    },
+    async () => {
+        const { connector, pool } = await createPool();
+
+        try {
+            const now = new Date();
+            const currentWeekStart = new Date(Date.UTC(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate() - ((now.getDay() + 6) % 7)
+            ));
+            const previousIsoWeekStartUtc = new Date(Date.UTC(
+                currentWeekStart.getFullYear(),
+                currentWeekStart.getMonth(),
+                currentWeekStart.getDate() - 7
+            ));
+            const weekStart = previousIsoWeekStartUtc.toISOString().slice(0, 10);
+            const weekEnd = currentWeekStart.toISOString().slice(0, 10);
+
+            const result = await pool.query(`
+        SELECT
+          u.user_id,
+          u.budget,
+          pb.id AS pb_id,
+          pb.total_points,
+          COALESCE(SUM(t.amount), 0) AS week_spent
+        FROM "user" u
+        JOIN points_balance pb ON pb.user_user_id = u.user_id
+        LEFT JOIN "transaction" t
+          ON t.user_user_id = u.user_id
+          AND t.date >= $1::date
+          AND t.date < $2::date
+        WHERE u.budget > 0
+          AND u.is_weekly = true
+          AND (pb.last_budget_reward_week IS NULL OR pb.last_budget_reward_week != $3)
+        GROUP BY u.user_id, u.budget, pb.id, pb.total_points
+        HAVING COALESCE(SUM(t.amount), 0) > 0
+          AND COALESCE(SUM(t.amount), 0) < u.budget
+      `, [weekStart, weekEnd, weekStart]);
+
+            const REWARD = 25;
+
+            for (const row of result.rows) {
+                const newTotal = row.total_points + REWARD;
+                await pool.query(`
+          UPDATE points_balance
+          SET total_points = $1,
+              last_budget_reward_week = $2,
+              updated_at = NOW()
+          WHERE id = $3
+        `, [newTotal, weekStart, row.pb_id]);
+            }
+        } finally {
+            await pool.end();
+            connector.close();
+        }
+    }
+);
+
+export const redeemProduct = onCall(
+    {
+        region: "europe-west1",
+    },
+    async (request) => {
+        const userId = request.auth?.uid;
+        if (!userId) {
+            throw new HttpsError("unauthenticated", "You must be signed in.");
+        }
+
+        const productId = request.data?.productId;
+        if (typeof productId !== "string" || productId.trim().length === 0) {
+            throw new HttpsError("invalid-argument", "A valid productId is required.");
+        }
+
+        const { connector, pool } = await createPool();
+        let client: pg.PoolClient | null = null;
+        try {
+            client = await pool.connect();
+            await client.query("BEGIN");
+
+            const pointsResult = await client.query(
+                `
+          SELECT id, total_points
+          FROM points_balance
+          WHERE user_user_id = $1
+          FOR UPDATE
+        `,
+                [userId]
+            );
+
+            if (pointsResult.rowCount === 0) {
+                throw new HttpsError(
+                    "failed-precondition",
+                    "Points balance is not initialized for this user."
+                );
+            }
+
+            const productResult = await client.query(
+                `
+          SELECT id, cost, active
+          FROM product
+          WHERE id = $1
+        `,
+                [productId.trim()]
+            );
+
+            if (productResult.rowCount === 0) {
+                throw new HttpsError("not-found", "Product not found.");
+            }
+
+            const productRow = productResult.rows[0];
+            if (!productRow.active) {
+                throw new HttpsError("failed-precondition", "Product is not active.");
+            }
+
+            const pointsRow = pointsResult.rows[0];
+            const currentPoints = Number(pointsRow.total_points);
+            const cost = Number(productRow.cost);
+
+            if (currentPoints < cost) {
+                throw new HttpsError("failed-precondition", "Not enough points.");
+            }
+
+            const code = generateDiscountCode();
+            try {
+                await client.query(
+                    `
+              INSERT INTO redeemed_product (user_user_id, product_id, code, redeemed_at)
+              VALUES ($1, $2, $3, NOW())
+            `,
+                    [userId, productRow.id, code]
+                );
+            } catch (err: unknown) {
+                const pgErr = err as { code?: string; constraint?: string };
+                if (pgErr.code === "23505") {
+                    if (pgErr.constraint === "redeemed_product_pkey") {
+                        throw new HttpsError(
+                            "failed-precondition",
+                            "This product has already been redeemed."
+                        );
+                    }
+                    if (pgErr.constraint === "redeemed_product_code_key") {
+                        throw new HttpsError("aborted", "Please try redeeming again.");
+                    }
+                }
+                throw err;
+            }
+
+            await client.query(
+                `
+          INSERT INTO points_transaction (user_user_id, amount, reason, created_at)
+          VALUES ($1, $2, $3, NOW())
+        `,
+                [userId, -cost, `redeem:${productRow.id}`]
+            );
+
+            const remainingPoints = currentPoints - cost;
+            await client.query(
+                `
+          UPDATE points_balance
+          SET total_points = $1, updated_at = NOW()
+          WHERE id = $2
+        `,
+                [remainingPoints, pointsRow.id]
+            );
+
+            await client.query("COMMIT");
+            return {
+                code,
+                cost,
+                remainingPoints,
+                productId: productRow.id,
+            };
+        } catch (err) {
+            if (client) {
+                await client.query("ROLLBACK");
+            }
+            if (err instanceof HttpsError) {
+                throw err;
+            }
+            throw new HttpsError("internal", "Could not redeem product.");
+        } finally {
+            client?.release();
+            await pool.end();
+            connector.close();
+        }
+    }
+);
+
+type ScholarshipApplication = {
+    message: string | null;
+    first_name: string;
+    last_name: string;
+    reg_mail: string;
+    sch_title: string;
+    sch_provider: string;
+};
+
+export const sendScholarshipApplicationEmail = onCall(
+    { region: "europe-west1", secrets: [resendApiKey] },
+    async (request) => {
+        const uid = request.auth?.uid;
+        const appId = (request.data.applicationId as string).trim();
+        const formMail =
+            (request.data.notificationEmail as string | undefined)?.trim();
+
+        const { connector, pool } = await createPool();
+        try {
+            const base = await pool.query(
+                `SELECT sa.message, u.first_name, u.last_name, u.email AS reg_mail,
+                     s.title AS sch_title, s.provider AS sch_provider
+                 FROM scholarship_application sa
+                 JOIN "user" u ON u.user_id = sa.user_user_id
+                 JOIN scholarship s ON s.id = sa.scholarship_id
+                 WHERE sa.id = $1::uuid AND sa.user_user_id = $2`,
+                [appId, uid]
+            );
+
+            const r = base.rows[0] as ScholarshipApplication | undefined;
+            if (!r) throw new HttpsError("permission-denied", "Not allowed.");
+
+            const att = await pool.query(
+                "SELECT filename, path FROM scholarship_attachment WHERE scholarship_application_id = $1::uuid",
+                [appId]
+            );
+
+            let attachBlock = "";
+            const exp = Date.now() + 7 * 864e5;
+            const b = getStorage().bucket();
+            for (const row of att.rows) {
+                const a = row as { filename: string; path: string };
+                const [url] = await b.file(a.path).getSignedUrl({
+                    action: "read",
+                    expires: exp,
+                });
+                attachBlock += `${a.filename}: ${url}\n`;
+            }
+
+            const text =
+                `Dear ${r.sch_provider},\n\n` +
+                `User ${r.first_name} ${r.last_name} submitted the below application for scholarship ${r.sch_title}:\n\n` +
+                `Email: ${formMail || r.reg_mail}\n\n` +
+                `Statement:\n\n${r.message ?? "(none)"}\n\n` +
+                `Attached documents:\n\n${attachBlock}\n\n` +
+                `Please reply directly to the user's email address.\n` +
+                `This is an automated email.\n\n` +
+                `Kind regards,\n` +
+                `MakeCents Team.\n`;
+
+            const { error } = await new Resend(resendApiKey.value()).emails.send({
+                from: process.env.RESEND_FROM ??
+                    "MakeCents Team <onboarding@resend.dev>",
+                to: "fahampoordaryaei@gmail.com",
+                replyTo: formMail || r.reg_mail,
+                subject: `Application from ${r.first_name} ${r.last_name}`,
+                text,
+            });
+            if (error) throw new HttpsError("internal", error.message);
+
+            return {};
+        } finally {
+            await pool.end();
+            connector.close();
+        }
+    }
+);

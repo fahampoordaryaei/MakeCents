@@ -1,0 +1,196 @@
+import 'package:flutter/material.dart';
+
+import 'package:makecents/page/login_page.dart';
+import 'package:makecents/page/register_page.dart';
+
+class StartupPage extends StatefulWidget {
+  const StartupPage({super.key});
+  @override
+  State<StartupPage> createState() => _StartupPageState();
+}
+
+class _StartupPageState extends State<StartupPage> {
+  final _ctrl = PageController();
+  int _page = 0;
+
+  static const _slides = [
+    _Slide(
+      'Track Your Spending',
+      'See where every penny goes. Stay in control of your student finances.',
+      Icons.show_chart_outlined,
+      Color(0xFF3e7f3f),
+    ),
+    _Slide(
+      'Set Your Budget',
+      'Define monthly limits and get warned before you overspend.',
+      Icons.account_balance_wallet_outlined,
+      Color(0xFF4ECDC4),
+    ),
+    _Slide(
+      'Earn Points',
+      'Build healthy money habits and level up as you track.',
+      Icons.emoji_events_outlined,
+      Color(0xFFAA96DA),
+    ),
+    _Slide(
+      'Find Scholarship Opportunities',
+      'Discover scholarships that match your course and profile in seconds.',
+      Icons.school_outlined,
+      Color(0xFFFFBE0B),
+    ),
+    _Slide(
+      'Get Started',
+      'Start managing your student finances with confidence.',
+      Icons.savings_outlined,
+      Color(0xFFFC5185),
+    ),
+  ];
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Scaffold(
+      backgroundColor: scheme.surface,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: PageView.builder(
+                controller: _ctrl,
+                onPageChanged: (p) => setState(() => _page = p),
+                itemCount: _slides.length,
+                itemBuilder: (_, i) {
+                  final s = _slides[i];
+                  return Padding(
+                    padding: const EdgeInsets.only(
+                      left: 36,
+                      right: 36,
+                      top: 32,
+                      bottom: 32,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            color: s.color.withValues(alpha: 0.15),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(s.icon, size: 50, color: s.color),
+                        ),
+                        const SizedBox(height: 40),
+                        Text(
+                          s.title,
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.w800,
+                            color: scheme.onSurface,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          s.subtitle,
+                          style: TextStyle(
+                            fontSize: 18,
+                            height: 1.6,
+                            color: scheme.onSurface.withValues(alpha: 0.78),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(36, 0, 36, 32),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(
+                      _slides.length,
+                      (i) => AnimatedContainer(
+                        duration: const Duration(milliseconds: 250),
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        width: _page == i ? 22 : 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: _page == i
+                              ? scheme.primary
+                              : scheme.outline.withValues(alpha: 0.35),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: () => Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(builder: (_) => const RegisterPage()),
+                      ),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: scheme.primary,
+                        foregroundColor: scheme.onPrimary,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        minimumSize: const Size(double.infinity, 48),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: const Text(
+                        'Get Started',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (_) => const LoginPage()),
+                    ),
+                    style: TextButton.styleFrom(
+                      foregroundColor: scheme.primary,
+                      minimumSize: const Size(double.infinity, 48),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: const Text(
+                      'Already have an account? Log in',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Slide {
+  final String title, subtitle;
+  final IconData icon;
+  final Color color;
+  const _Slide(this.title, this.subtitle, this.icon, this.color);
+}

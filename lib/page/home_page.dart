@@ -1,0 +1,674 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+
+import 'package:makecents/dataconnect_generated/generated.dart';
+import 'package:makecents/helper/scholarship_helper.dart';
+import 'package:makecents/helper/points_helper.dart';
+import 'package:makecents/helper/ui_helper.dart';
+import 'package:makecents/helper/currency_helper.dart';
+import 'package:makecents/provider/category_provider.dart';
+import 'package:makecents/provider/budget_provider.dart';
+import 'package:makecents/provider/transaction_provider.dart';
+import 'package:makecents/provider/user_provider.dart';
+
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  bool _isLoadingHomeFeeds = true;
+  List<ListProductsProducts> _unredeemedDeals = const [];
+  List<ListGlobalScholarshipsScholarships> _matchedScholarships = const [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadHomeFeeds();
+  }
+
+  Future<void> _loadHomeFeeds() async {
+    final user = FirebaseAuth.instance.currentUser!;
+
+    try {
+      final connector = ExampleConnector.instance;
+      final productsResult = await connector.listProducts().execute();
+      final redeemedResult = await connector
+          .listRedeemedProducts(userId: user.uid)
+          .execute();
+      final profileResult = await connector
+          .getUserProfile(userId: user.uid)
+          .execute();
+      final countryId = profileResult.data.users.isNotEmpty
+          ? profileResult.data.users.first.country?.id
+          : null;
+      final scholarships = await fetchScholarships(
+        connector,
+        countryId: countryId,
+      );
+
+      final redeemedIds = redeemedResult.data.redeemedProducts
+          .map((r) => r.product.id)
+          .toSet();
+      final unredeemed =
+          productsResult.data.products
+              .where((p) => p.active && !redeemedIds.contains(p.id))
+              .toList()
+            ..sort((a, b) => a.cost.compareTo(b.cost));
+
+      final courseId = profileResult.data.users.isNotEmpty
+          ? profileResult.data.users.first.course?.id
+          : null;
+      final matched = courseId == null
+          ? <ListGlobalScholarshipsScholarships>[]
+          : scholarships.where((s) {
+              return s.courses_via_ScholarshipCourse.any(
+                (c) => c.id == courseId,
+              );
+            }).toList();
+
+      if (!mounted) return;
+      setState(() {
+        _unredeemedDeals = unredeemed.take(3).toList();
+        _matchedScholarships = matched.take(3).toList();
+        _isLoadingHomeFeeds = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _isLoadingHomeFeeds = false);
+    }
+  }
+
+  Color _scholarshipColor(String rawColor) {
+    try {
+      return Color(int.parse(rawColor.trim().replaceFirst('#', '0xFF')));
+    } catch (_) {
+      return const Color(0xFF3e7f3f);
+    }
+  }
+
+  Future<void> _showDiscountDetails(
+    BuildContext context,
+    ListProductsProducts p,
+  ) async {
+    await showProductRedeemDialog(context, p);
+    if (mounted) await _loadHomeFeeds();
+  }
+
+  void _showScholarshipDetails(
+    BuildContext context,
+    ListGlobalScholarshipsScholarships s,
+  ) {
+    openScholarshipApply(
+      context,
+      scholarshipId: s.id,
+      title: s.title,
+      provider: s.provider,
+      amount: s.amount,
+      currency: s.currency,
+      description: s.description,
+      brandColor: _scholarshipColor(s.color),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final dateText = DateFormat('EEEE, MMMM d').format(now);
+    final txProvider = Provider.of<TransactionProvider>(context);
+    final budgetProvider = Provider.of<BudgetProvider>(context);
+    final userProvider = Provider.of<UserProvider>(context);
+
+    final displayName = userProvider.profile?.firstName ?? 'Student';
+
+    final isWeekly = budgetProvider.isWeekly;
+    final expenses = txProvider.periodSpent(isWeekly: isWeekly);
+    final budget = budgetProvider.budget.amount;
+    final available = budget > 0 ? (budget - expenses).clamp(0.0, budget) : 0.0;
+    final spentPct = budget > 0 ? (expenses / budget).clamp(0.0, 1.0) : 0.0;
+    final spentLabel = isWeekly ? 'Spent this week' : 'Spent this month';
+    final periodTxLabel = isWeekly ? 'This week' : 'This month';
+    final recent = txProvider.transactions.take(3).toList();
+    final txCount = isWeekly
+        ? txProvider.transactions.where((t) {
+            final weekStart = DateTime(
+              now.year,
+              now.month,
+              now.day,
+            ).subtract(Duration(days: now.weekday - 1));
+            return !t.date.isBefore(weekStart);
+          }).length
+        : txProvider.transactions
+              .where(
+                (t) => t.date.month == now.month && t.date.year == now.year,
+              )
+              .length;
+
+    return Material(
+      type: MaterialType.transparency,
+      child: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Hey, $displayName! 👋',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w800,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                dateText,
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.75),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(22),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF3e7f3f), Color(0xFF6abf69)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF3e7f3f).withValues(alpha: 0.35),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _SummaryItem(
+                            label: spentLabel,
+                            value: formatMoney(expenses),
+                            icon: Icons.arrow_upward_rounded,
+                          ),
+                        ),
+                        Container(width: 1, height: 36, color: Colors.white24),
+                        Expanded(
+                          child: _SummaryItem(
+                            label: 'Left in budget',
+                            value: formatMoney(available),
+                            icon: Icons.savings_outlined,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (budget > 0) ...[
+                      const SizedBox(height: 20),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: LinearProgressIndicator(
+                          value: spentPct,
+                          minHeight: 7,
+                          backgroundColor: Colors.white24,
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        '${(spentPct * 100).toStringAsFixed(0)}% of budget used',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(height: 28),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: _QuickStatCard(
+                      icon: Icons.receipt_long_outlined,
+                      color: const Color(0xFF4ECDC4),
+                      label: periodTxLabel,
+                      value: '$txCount',
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _QuickStatCard(
+                      icon: Icons.trending_down_outlined,
+                      color: const Color(0xFFF87171),
+                      label: 'Today',
+                      value: formatMoney(_todaySpend(txProvider.transactions)),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 28),
+
+              if (_isLoadingHomeFeeds || _unredeemedDeals.isNotEmpty) ...[
+                Text(
+                  'Redeem discounts',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                if (_isLoadingHomeFeeds)
+                  Text(
+                    'Loading...',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.75),
+                    ),
+                  )
+                else
+                  ..._unredeemedDeals.map((p) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: GestureDetector(
+                        onTap: () => _showDiscountDetails(context, p),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surface,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                margin: const EdgeInsets.only(right: 12),
+                                child: buildProductImage(
+                                  p.id,
+                                  size: 44,
+                                  radius: 12,
+                                  fallbackColor: Colors.grey.shade300,
+                                  fallbackChild: const Icon(
+                                    Icons.image_outlined,
+                                    color: Colors.grey,
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      p.name,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 18,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurface,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Text(
+                                      p.storeName,
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface
+                                            .withValues(alpha: 0.75),
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Text(
+                                '${p.cost} pts',
+                                style: const TextStyle(
+                                  color: Color(0xFF3e7f3f),
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                const SizedBox(height: 18),
+              ],
+              Text(
+                'Scholarships for you',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 12),
+              if (_isLoadingHomeFeeds)
+                Text(
+                  'Loading...',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.75),
+                  ),
+                )
+              else if (_matchedScholarships.isEmpty)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    'No matched scholarships for you :(',
+                    style: TextStyle(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.75),
+                    ),
+                  ),
+                )
+              else
+                ..._matchedScholarships.map((s) {
+                  final scholarshipColor = _scholarshipColor(s.color);
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: GestureDetector(
+                      onTap: () => _showScholarshipDetails(context, s),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: scholarshipColor.withValues(alpha: 0.08),
+                          border: Border.all(
+                            color: scholarshipColor.withValues(alpha: 0.28),
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 44,
+                              height: 44,
+                              margin: const EdgeInsets.only(right: 12),
+                              decoration: BoxDecoration(
+                                color: scholarshipColor.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                Icons.school_outlined,
+                                color: scholarshipColor,
+                                size: 22,
+                              ),
+                            ),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    s.title,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 18,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    s.provider,
+                                    style: TextStyle(
+                                      color: scholarshipColor,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Text(
+                              formatMoney(
+                                s.amount,
+                                decimals: 0,
+                                symbol: s.currency,
+                              ),
+                              style: TextStyle(
+                                color: scholarshipColor,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+
+              const SizedBox(height: 24),
+
+              Text(
+                'Recent Transactions',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 12),
+              if (recent.isEmpty)
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'No transactions yet.\nAdd one in the Tracker.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.75),
+                      ),
+                    ),
+                  ),
+                )
+              else
+                Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: recent.length,
+                    separatorBuilder: (_, _) =>
+                        const Divider(height: 1, indent: 64),
+                    itemBuilder: (context, i) {
+                      final tx = recent[i];
+                      final cat = categoryFor(tx.category);
+                      return ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 4,
+                        ),
+                        leading: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: cat.color.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(cat.icon, color: cat.color, size: 20),
+                        ),
+                        title: Text(
+                          tx.displayLabel,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 18,
+                          ),
+                        ),
+                        subtitle: Text(
+                          DateFormat('MMM d').format(tx.date),
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.6),
+                          ),
+                        ),
+                        trailing: Text(
+                          '-${formatMoney(tx.amount)}',
+                          style: const TextStyle(
+                            color: Color(0xFFF87171),
+                            fontWeight: FontWeight.w700,
+                            fontSize: 18,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  double _todaySpend(List<Transaction> txs) {
+    final today = DateTime.now();
+    return txs
+        .where(
+          (t) =>
+              t.date.year == today.year &&
+              t.date.month == today.month &&
+              t.date.day == today.day,
+        )
+        .fold(0.0, (s, t) => s + t.amount);
+  }
+}
+
+class _SummaryItem extends StatelessWidget {
+  final String label, value;
+  final IconData icon;
+  const _SummaryItem({
+    required this.label,
+    required this.value,
+    required this.icon,
+  });
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Icon(icon, color: Colors.white, size: 16),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+            fontSize: 28,
+          ),
+        ),
+        Text(label, style: const TextStyle(color: Colors.white, fontSize: 18)),
+      ],
+    );
+  }
+}
+
+class _QuickStatCard extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final String label, value;
+  const _QuickStatCard({
+    required this.icon,
+    required this.color,
+    required this.label,
+    required this.value,
+  });
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  value,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 18,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.75),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

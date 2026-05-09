@@ -49,7 +49,7 @@ Visual Studio Code:
 
 `flutter doctor`
 
-`flutter doctor --android licenses`
+`flutter doctor --android-licenses`
 
 To start-up the app:
 * Launch the emulator

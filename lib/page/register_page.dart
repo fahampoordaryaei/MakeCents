@@ -1,0 +1,786 @@
+import 'package:country_code_picker/country_code_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+
+import 'package:makecents/helper/scholarship_helper.dart';
+import 'package:makecents/helper/ui_helper.dart';
+import 'package:makecents/page/onboarding_profile_page.dart';
+import 'package:makecents/page/startup_page.dart';
+import 'package:makecents/provider/theme_provider.dart';
+
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
+  @override
+  State<RegisterPage> createState() => _RegisterPageState();
+}
+
+class _PasswordCriteria {
+  _PasswordCriteria(this.password);
+  final String password;
+  bool get len => password.length >= 8;
+  bool get upper => RegExp(r'[A-Z]').hasMatch(password);
+  bool get lower => RegExp(r'[a-z]').hasMatch(password);
+  bool get digit => RegExp(r'[0-9]').hasMatch(password);
+  bool get special => RegExp(r'[^a-zA-Z0-9\s]').hasMatch(password);
+  bool get all => len && upper && lower && digit && special;
+}
+
+class _RegisterPageState extends State<RegisterPage> {
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _codeController = TextEditingController();
+
+  bool _obscure = true;
+  String _error = '';
+  bool _isLoading = false;
+  bool _usePhoneRegister = false;
+  bool _codeSent = false;
+  String? _verificationId;
+  String _countryCode = '+356';
+
+  bool _passwordCriteriaAttempted = false;
+
+  bool _registerSubmitAttempted = false;
+  bool _namesSubmitAttempted = false;
+  bool _phoneCodeSubmitAttempted = false;
+  bool _phoneFieldAttempted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _passwordController.addListener(_onPasswordChanged);
+  }
+
+  void _onPasswordChanged() {
+    if (_usePhoneRegister) return;
+    setState(() {
+      final rules = _PasswordCriteria(_passwordController.text);
+      if (_passwordCriteriaAttempted && rules.all) {
+        _passwordCriteriaAttempted = false;
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _passwordController.removeListener(_onPasswordChanged);
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _phoneController.dispose();
+    _codeController.dispose();
+    super.dispose();
+  }
+
+  bool _validateNames() {
+    final firstName = _firstNameController.text.trim();
+    final lastName = _lastNameController.text.trim();
+    final nameRegex = RegExp(r'^[A-Za-z]+(?: [A-Za-z]+)*$');
+
+    if (firstName.isEmpty || lastName.isEmpty) {
+      setState(() {
+        _namesSubmitAttempted = true;
+        _error = '';
+      });
+      return false;
+    }
+    if (!nameRegex.hasMatch(firstName)) {
+      setState(
+        () => _error = 'First name can only contain letters and spaces.',
+      );
+      return false;
+    }
+    if (!nameRegex.hasMatch(lastName)) {
+      setState(() => _error = 'Last name can only contain letters and spaces.');
+      return false;
+    }
+    if (_namesSubmitAttempted) {
+      setState(() => _namesSubmitAttempted = false);
+    }
+    return true;
+  }
+
+  Future<void> _completePhoneRegistration(UserCredential result) async {
+    if (!mounted || !_usePhoneRegister) return;
+    if (result.additionalUserInfo?.isNewUser == false) {
+      await FirebaseAuth.instance.signOut();
+      if (!mounted) return;
+      setState(() {
+        _error = 'An account already exists for this phone number.';
+        _isLoading = false;
+      });
+      return;
+    }
+    final phoneDigits = _phoneController.text.trim().replaceAll(
+      RegExp(r'[^\d]'),
+      '',
+    );
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (_) => StudentProfilePage(
+          firstName: _firstNameController.text.trim(),
+          lastName: _lastNameController.text.trim(),
+          phonePrefix: _countryCode,
+          phoneNumber: phoneDigits,
+        ),
+      ),
+      (r) => false,
+    );
+  }
+
+  Future<void> _sendPhoneRegister() async {
+    if (!_validateNames()) return;
+
+    final normalized = _phoneController.text.trim().replaceAll(
+      RegExp(r'[^\d+]'),
+      '',
+    );
+    if (normalized.isEmpty) {
+      setState(() {
+        _phoneFieldAttempted = true;
+        _error = '';
+      });
+      return;
+    }
+    final fullPhone = '$_countryCode$normalized';
+    if (!RegExp(r'^\+?\d{7,15}$').hasMatch(fullPhone)) {
+      setState(() => _error = 'Enter a valid phone number.');
+      return;
+    }
+
+    setState(() {
+      _phoneFieldAttempted = false;
+      _error = '';
+      _isLoading = true;
+      _codeSent = false;
+      _verificationId = null;
+    });
+
+    try {
+      await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: fullPhone,
+        verificationCompleted: (credential) async {
+          if (!mounted || !_usePhoneRegister) return;
+          try {
+            final result = await FirebaseAuth.instance.signInWithCredential(
+              credential,
+            );
+            if (!mounted || !_usePhoneRegister) return;
+            await _completePhoneRegistration(result);
+          } on FirebaseAuthException catch (e) {
+            if (!mounted || !_usePhoneRegister) return;
+            setState(() {
+              _error = e.message ?? 'Phone registration failed.';
+              _isLoading = false;
+            });
+          } catch (e) {
+            if (!mounted || !_usePhoneRegister) return;
+            setState(() {
+              _error = 'Phone registration failed.';
+              _isLoading = false;
+            });
+          }
+        },
+        verificationFailed: (e) {
+          if (!mounted || !_usePhoneRegister) return;
+          setState(() {
+            _error = e.message ?? 'Phone verification failed.';
+            _isLoading = false;
+          });
+        },
+        codeSent: (verificationId, _) {
+          if (!mounted || !_usePhoneRegister) return;
+          setState(() {
+            _verificationId = verificationId;
+            _codeSent = true;
+            _isLoading = false;
+          });
+        },
+        codeAutoRetrievalTimeout: (verificationId) {
+          if (!_usePhoneRegister) return;
+          _verificationId = verificationId;
+        },
+      );
+    } catch (e) {
+      if (!mounted || !_usePhoneRegister) return;
+      setState(() {
+        _error = 'Unable to send verification code.';
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _verifyPhoneRegister() async {
+    if (!_validateNames()) return;
+
+    final code = _codeController.text.trim();
+    if (code.isEmpty) {
+      setState(() {
+        _phoneCodeSubmitAttempted = true;
+        _error = '';
+      });
+      return;
+    }
+    if (_verificationId == null) {
+      setState(
+        () =>
+            _error = 'Verification data is missing. Please request a new code.',
+      );
+      return;
+    }
+
+    setState(() {
+      _error = '';
+      _phoneCodeSubmitAttempted = false;
+      _isLoading = true;
+    });
+
+    try {
+      final credential = PhoneAuthProvider.credential(
+        verificationId: _verificationId!,
+        smsCode: code,
+      );
+      final result = await FirebaseAuth.instance.signInWithCredential(
+        credential,
+      );
+      await _completePhoneRegistration(result);
+    } on FirebaseAuthException catch (e) {
+      if (mounted) {
+        setState(() => _error = e.message ?? 'Unable to verify code.');
+      }
+    } catch (e) {
+      if (mounted) setState(() => _error = 'Unable to verify code.');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _onRegister() async {
+    if (_usePhoneRegister) {
+      await _registerWithPhone();
+    } else {
+      await _registerWithEmail();
+    }
+  }
+
+  Future<void> _registerWithEmail() async {
+    final firstName = _firstNameController.text.trim();
+    final lastName = _lastNameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+    final confirmPass = _confirmPasswordController.text;
+
+    if (firstName.isEmpty ||
+        lastName.isEmpty ||
+        email.isEmpty ||
+        password.isEmpty ||
+        confirmPass.isEmpty) {
+      setState(() {
+        _registerSubmitAttempted = true;
+        _error = '';
+      });
+      return;
+    }
+
+    setState(() {
+      _error = '';
+      _registerSubmitAttempted = false;
+    });
+    if (password != confirmPass) {
+      setState(() => _error = 'Passwords do not match.');
+      return;
+    }
+    if (!RegExp(r'^[A-Za-z]+(?: [A-Za-z]+)*$').hasMatch(firstName)) {
+      setState(
+        () => _error = 'First name can only contain letters and spaces.',
+      );
+      return;
+    }
+    if (!RegExp(r'^[A-Za-z]+(?: [A-Za-z]+)*$').hasMatch(lastName)) {
+      setState(() => _error = 'Last name can only contain letters and spaces.');
+      return;
+    }
+    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+$').hasMatch(email)) {
+      setState(() => _error = 'Please enter a valid email address.');
+      return;
+    }
+    final criteria = _PasswordCriteria(password);
+    if (!criteria.all) {
+      setState(() {
+        _error = '';
+        _passwordCriteriaAttempted = true;
+      });
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+      final created = userCredential.user!;
+      await sendUserEmailVerification(created);
+      try {
+        await created.updateDisplayName('$firstName $lastName');
+      } catch (e) {
+        assert(() {
+          debugPrint('updateDisplayName after signup failed: $e');
+          return true;
+        }());
+      }
+
+      if (!mounted) return;
+      await popupAlert(
+        context,
+        message: 'We sent a verification email to $email.',
+        level: AppAlertLevel.success,
+      );
+      if (!mounted) return;
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) =>
+              StudentProfilePage(firstName: firstName, lastName: lastName),
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (mounted) {
+        setState(
+          () => _error = e.message ?? 'An error occurred during registration.',
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() => _error = 'Registration failed. Please try again.');
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _registerWithPhone() async {
+    if (_codeSent) {
+      await _verifyPhoneRegister();
+    } else {
+      await _sendPhoneRegister();
+    }
+  }
+
+  Widget _passwordCriteriaList(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final password = _passwordController.text;
+    final criteria = _PasswordCriteria(password);
+
+    Widget line(String text, bool met) {
+      return Text(
+        text,
+        style: TextStyle(
+          fontSize: 18,
+          height: 1.4,
+          fontWeight: FontWeight.w600,
+          color: met ? scheme.primary : scheme.error,
+        ),
+      );
+    }
+
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          line('• 8 characters minimum', criteria.len),
+          line('• 1 uppercase letter', criteria.upper),
+          line('• 1 lowercase letter', criteria.lower),
+          line('• 1 number', criteria.digit),
+          line('• 1 special character', criteria.special),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPhoneInput({required bool phoneError}) {
+    return Row(
+      children: [
+        Container(
+          width: 122,
+          margin: EdgeInsets.zero,
+          child: CountryCodePicker(
+            onChanged: (country) {
+              setState(() {
+                _countryCode = country.dialCode ?? '+356';
+              });
+            },
+            initialSelection: 'MT',
+            favorite: const ['+356', 'MT'],
+            showCountryOnly: false,
+            showOnlyCountryWhenClosed: false,
+            alignLeft: false,
+          ),
+        ),
+        Expanded(
+          child: _inputField(
+            controller: _phoneController,
+            label: 'Phone number',
+            icon: Icons.phone_outlined,
+            isPassword: false,
+            keyboardType: TextInputType.phone,
+            hasError: phoneError,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _inputField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    bool isPassword = false,
+    TextInputType? keyboardType,
+    bool hasError = false,
+  }) {
+    return TextField(
+      controller: controller,
+      obscureText: isPassword ? _obscure : false,
+      keyboardType: keyboardType,
+      style: const TextStyle(fontSize: 18),
+      onChanged: (_) => setState(() {}),
+      decoration: requiredField(
+        context,
+        label: label,
+        hasError: hasError,
+        prefixIcon: Icon(icon, size: 20),
+        suffixIcon: isPassword
+            ? IconButton(
+                icon: Icon(
+                  _obscure
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                  size: 20,
+                ),
+                onPressed: () => setState(() => _obscure = !_obscure),
+              )
+            : null,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final firstName = _firstNameController.text.trim();
+    final lastName = _lastNameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    final emailError = !_usePhoneRegister && _registerSubmitAttempted;
+    final nameError =
+        emailError || (_usePhoneRegister && _namesSubmitAttempted);
+
+    return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Container(
+            padding: const EdgeInsets.all(28),
+            decoration: BoxDecoration(
+              color: scheme.surface,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.06),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: GestureDetector(
+                    onTap: () {
+                      if (Navigator.of(context).canPop()) {
+                        Navigator.of(context).pop();
+                      } else {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (_) => const StartupPage(),
+                          ),
+                        );
+                      }
+                    },
+                    child: Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).scaffoldBackgroundColor,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.arrow_back,
+                        color: scheme.primary,
+                        size: 18,
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: scheme.primary,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.school_outlined,
+                    color: Colors.white,
+                    size: 40,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Create an account',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                    color: scheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                _inputField(
+                  controller: _firstNameController,
+                  label: 'First Name',
+                  icon: Icons.person_outline,
+                  hasError: nameError && firstName.isEmpty,
+                ),
+                const SizedBox(height: 14),
+                _inputField(
+                  controller: _lastNameController,
+                  label: 'Last Name',
+                  icon: Icons.person_outline,
+                  hasError: nameError && lastName.isEmpty,
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: _isLoading
+                            ? null
+                            : () {
+                                setState(() {
+                                  _usePhoneRegister = false;
+                                  _codeSent = false;
+                                  _verificationId = null;
+                                  _phoneController.clear();
+                                  _codeController.clear();
+                                  _error = '';
+                                  _passwordCriteriaAttempted = false;
+                                  _namesSubmitAttempted = false;
+                                  _phoneCodeSubmitAttempted = false;
+                                  _phoneFieldAttempted = false;
+                                });
+                              },
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: !_usePhoneRegister
+                              ? scheme.primary
+                              : Colors.transparent,
+                          foregroundColor: !_usePhoneRegister
+                              ? scheme.onPrimary
+                              : scheme.onSurface,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          textStyle: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text('Email'),
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: _isLoading
+                            ? null
+                            : () {
+                                setState(() {
+                                  _usePhoneRegister = true;
+                                  _codeSent = false;
+                                  _verificationId = null;
+                                  _emailController.clear();
+                                  _passwordController.clear();
+                                  _confirmPasswordController.clear();
+                                  _codeController.clear();
+                                  _error = '';
+                                  _passwordCriteriaAttempted = false;
+                                  _registerSubmitAttempted = false;
+                                });
+                              },
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: _usePhoneRegister
+                              ? scheme.primary
+                              : Colors.transparent,
+                          foregroundColor: _usePhoneRegister
+                              ? scheme.onPrimary
+                              : scheme.onSurface,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          textStyle: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text('Phone'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                if (!_usePhoneRegister) ...[
+                  _inputField(
+                    controller: _emailController,
+                    label: 'Email',
+                    icon: Icons.email_outlined,
+                    keyboardType: TextInputType.emailAddress,
+                    hasError: emailError && email.isEmpty,
+                  ),
+                  const SizedBox(height: 14),
+                  _inputField(
+                    controller: _passwordController,
+                    label: 'Password',
+                    icon: Icons.lock_outline,
+                    isPassword: true,
+                    hasError: emailError && password.isEmpty,
+                  ),
+                  const SizedBox(height: 14),
+                  _inputField(
+                    controller: _confirmPasswordController,
+                    label: 'Confirm Password',
+                    icon: Icons.lock_outline,
+                    isPassword: true,
+                    hasError:
+                        emailError && _confirmPasswordController.text.isEmpty,
+                  ),
+                  const SizedBox(height: 12),
+                  _passwordCriteriaList(context),
+                ] else ...[
+                  _buildPhoneInput(
+                    phoneError:
+                        _usePhoneRegister &&
+                        !_codeSent &&
+                        _phoneFieldAttempted &&
+                        _phoneController.text
+                            .trim()
+                            .replaceAll(RegExp(r'[^\d+]'), '')
+                            .isEmpty,
+                  ),
+                  if (_codeSent) ...[
+                    const SizedBox(height: 14),
+                    _inputField(
+                      controller: _codeController,
+                      label: 'Verification code',
+                      icon: Icons.message_outlined,
+                      keyboardType: TextInputType.number,
+                      hasError:
+                          _usePhoneRegister &&
+                          _codeSent &&
+                          _phoneCodeSubmitAttempted &&
+                          _codeController.text.trim().isEmpty,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Enter the SMS code sent to your phone.',
+                      style: TextStyle(
+                        color: scheme.onSurface.withValues(alpha: 0.75),
+                        fontSize: 18,
+                      ),
+                    ),
+                  ],
+                ],
+                const SizedBox(height: 20),
+                if (_error.isNotEmpty) ...[
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: scheme.errorContainer,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          color: scheme.onErrorContainer,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _error,
+                            style: TextStyle(
+                              color: scheme.onErrorContainer,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 18,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: _isLoading ? null : _onRegister,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: scheme.primary,
+                      foregroundColor: scheme.onPrimary,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      minimumSize: const Size(double.infinity, 48),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : Text(
+                            _usePhoneRegister
+                                ? _codeSent
+                                      ? 'Verify Code'
+                                      : 'Send Code'
+                                : 'Continue',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

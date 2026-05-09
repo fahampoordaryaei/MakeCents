@@ -1,30 +1,63 @@
+import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:firebase_app_installations/firebase_app_installations.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'tracker_page.dart';
-import 'home_page.dart';
-import 'user_page.dart';
-import 'points_page.dart';
-import 'match_page.dart';
-import 'add_expense_page.dart';
-import 'budget_page.dart';
-import 'transaction_provider.dart';
-import 'budget_provider.dart';
-import 'startup_page.dart';
+
+import 'package:makecents/firebase_options.dart';
+import 'package:makecents/page/budget_page.dart';
+import 'package:makecents/page/home_page.dart';
+import 'package:makecents/page/points_page.dart';
+import 'package:makecents/page/profile_page.dart';
+import 'package:makecents/page/scholarships_page.dart';
+import 'package:makecents/page/startup_page.dart';
+import 'package:makecents/page/tracker_page.dart';
+import 'package:makecents/provider/budget_provider.dart';
+import 'package:makecents/provider/category_budget_provider.dart';
+import 'package:makecents/provider/theme_provider.dart';
+import 'package:makecents/provider/transaction_provider.dart';
+import 'package:makecents/provider/user_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  if (kDebugMode) {
+    try {
+      final installationId = await FirebaseInstallations.instance.getId();
+      debugPrint('Firebase Installation ID: $installationId');
+    } catch (e, st) {
+      debugPrint('Firebase Installation ID: failed — $e\n$st');
+    }
+  }
+
+  try {
+    await FirebaseAppCheck.instance.activate(
+      androidProvider: kDebugMode
+          ? AndroidProvider.debug
+          : AndroidProvider.playIntegrity,
+      appleProvider: kDebugMode
+          ? AppleProvider.debug
+          : AppleProvider.deviceCheck,
+    );
+  } catch (_) {}
 
   final transactionProvider = TransactionProvider();
-  await transactionProvider.init();
-
   final budgetProvider = BudgetProvider();
-  await budgetProvider.init();
-
+  final themeProvider = ThemeProvider();
+  try {
+    await themeProvider.loadTheme();
+  } catch (_) {}
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: transactionProvider),
         ChangeNotifierProvider.value(value: budgetProvider),
+        ChangeNotifierProvider.value(value: themeProvider),
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => CategoryBudgetProvider()),
       ],
       child: const MakeCentsApp(),
     ),
@@ -33,15 +66,13 @@ void main() async {
 
 class MakeCentsApp extends StatelessWidget {
   const MakeCentsApp({super.key});
-
   @override
   Widget build(BuildContext context) {
+    final themeProvider = context.watch<ThemeProvider>();
     return MaterialApp(
       title: 'MakeCents',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
-        useMaterial3: true,
-      ),
+      debugShowCheckedModeBanner: false,
+      theme: themeProvider.currentTheme,
       home: const StartupPage(),
     );
   }
@@ -49,74 +80,158 @@ class MakeCentsApp extends StatelessWidget {
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
-
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
+  late final List<Widget> _pages;
 
-  late final List<Widget> _widgetOptions;
+  Future<void> _refreshSessionData() async {
+    if (!mounted) return;
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return;
+    }
+    final transactionProvider = context.read<TransactionProvider>();
+    final budgetProvider = context.read<BudgetProvider>();
+    final userProvider = context.read<UserProvider>();
+    await context.read<CategoryBudgetProvider>().load(user.uid);
+
+    await transactionProvider.fetchTransactions();
+    if (FirebaseAuth.instance.currentUser == null) {
+      return;
+    }
+    await budgetProvider.init();
+    if (FirebaseAuth.instance.currentUser == null) {
+      return;
+    }
+    await userProvider.loadProfile();
+  }
 
   @override
   void initState() {
     super.initState();
-    _widgetOptions = <Widget>[
-      const HomePage(), // Home
-      const TrackerPage(), // Tracker
-      const PointsPage(), // Points
-      const MatchPage(), // Match
-      UserPage(onNavigateToBudget: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const BudgetPage()),
-        );
-      }),
-    ];
-  }
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  void _showAddExpenseModal() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => SingleChildScrollView(
-        child: Container(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: const AddExpensePage(),
-        ),
+    _pages = [
+      const HomePage(),
+      const TrackerPage(),
+      const PointsPage(),
+      const ScholarshipsPage(),
+      ProfilePage(
+        onNavigateToBudget: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const BudgetPage()),
+          );
+        },
       ),
-    );
+    ];
+    Future.microtask(_refreshSessionData);
   }
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(title: const Text('MakeCents')),
-      body: _widgetOptions.elementAt(_selectedIndex),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showAddExpenseModal,
-        child: const Icon(Icons.add),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.show_chart), label: 'Tracker'),
-          BottomNavigationBarItem(icon: Icon(Icons.emoji_events), label: 'Points'),
-          BottomNavigationBarItem(icon: Icon(Icons.school), label: 'Match'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'User'),
-        ],
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: scheme.surface,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 16,
+              offset: const Offset(0, -4),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
+          child: MediaQuery.removePadding(
+            context: context,
+            removeBottom: true,
+            removeTop: true,
+            child: NavigationBar(
+              height: 90,
+              backgroundColor: scheme.surface,
+              selectedIndex: _selectedIndex,
+              onDestinationSelected: (i) => setState(() => _selectedIndex = i),
+              indicatorColor: scheme.primary.withValues(alpha: 0.15),
+              destinations: [
+                NavigationDestination(
+                  icon: Icon(
+                    Icons.home_outlined,
+                    color: scheme.onSurface,
+                    size: 32,
+                  ),
+                  selectedIcon: Icon(
+                    Icons.home,
+                    color: scheme.primary,
+                    size: 32,
+                  ),
+                  label: '',
+                ),
+                NavigationDestination(
+                  icon: Icon(
+                    Icons.insights_outlined,
+                    color: scheme.onSurface,
+                    size: 32,
+                  ),
+                  selectedIcon: Icon(
+                    Icons.insights,
+                    color: scheme.primary,
+                    size: 32,
+                  ),
+                  label: '',
+                ),
+                NavigationDestination(
+                  icon: Icon(
+                    Icons.emoji_events_outlined,
+                    color: scheme.onSurface,
+                    size: 32,
+                  ),
+                  selectedIcon: Icon(
+                    Icons.emoji_events,
+                    color: scheme.primary,
+                    size: 32,
+                  ),
+                  label: '',
+                ),
+                NavigationDestination(
+                  icon: Icon(
+                    Icons.school_outlined,
+                    color: scheme.onSurface,
+                    size: 32,
+                  ),
+                  selectedIcon: Icon(
+                    Icons.school,
+                    color: scheme.primary,
+                    size: 32,
+                  ),
+                  label: '',
+                ),
+                NavigationDestination(
+                  icon: Icon(
+                    Icons.person_outline,
+                    color: scheme.onSurface,
+                    size: 32,
+                  ),
+                  selectedIcon: Icon(
+                    Icons.person,
+                    color: scheme.primary,
+                    size: 32,
+                  ),
+                  label: '',
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

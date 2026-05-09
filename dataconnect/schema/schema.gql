@@ -1,0 +1,135 @@
+type Country @table(key: ["id"], name: "country") {
+  id: Int! @col(dataType: "serial")
+  countryCode: String! @unique @col(name: "country_code", dataType: "char(2)")
+  name: String!
+}
+
+type Continent @table(key: ["id"], name: "continent") {
+  id: Int! @col(dataType: "serial")
+  code: String! @unique @col(dataType: "varchar(3)")
+  name: String!
+}
+
+type CountryContinent @table(key: ["country", "continent"], name: "country_continent") {
+  country: Country!
+  continent: Continent!
+}
+
+type Currency @table(key: ["id"], name: "currency") {
+  id: Int! @col(dataType: "serial")
+  code: String! @unique @col(dataType: "char(3)")
+  sign: String! @col(dataType: "varchar(8)")
+}
+
+type User @table(key: ["userId"]) {
+  userId: String!
+  email: String! @unique
+  firstName: String!
+  lastName: String!
+  institution: Institution
+  course: Course
+  otherInstitution: String @col(name: "other_institution")
+  otherCourse: String
+  budget: Float
+  failedAttempts: Int! @default(value: 0)
+  lockedUntil: Timestamp
+  createdAt: Timestamp!
+  prefix: String
+  phoneNumber: String @unique @col(name: "phone_number", dataType: "varchar(20)")
+  country: Country
+  currency: Currency
+  isWeekly: Boolean! @default(value: false) @col(name: "is_weekly")
+  allowOverbudget: Boolean! @default(value: false) @col(name: "allow_overbudget")
+}
+
+type Course @table {
+  name: String! @unique
+}
+
+type Institution @table {
+  name: String! @unique
+  country: Country!
+}
+
+type Transaction @table {
+  user: User!
+  category: Category!
+  amount: Float!
+  description: String
+  date: Date!
+  createdAt: Timestamp!
+}
+
+type Category @table(name: "category") {
+  name: String! @unique
+  iconName: String!
+  colorHex: String!
+}
+
+type CategoryBudget @table(key: ["user", "category"], name: "category_budget") {
+  user: User!
+  category: Category!
+  budgetAmount: Int!
+}
+
+type Scholarship @table {
+  title: String!
+  provider: String!
+  amount: Float!
+  currency: String! @default(value: "€")
+  description: String!
+  color: String!
+  country: Country
+  continent: Continent
+}
+
+type ScholarshipCourse @table(key: ["scholarship", "course"]) {
+  scholarship: Scholarship!
+  course: Course!
+}
+
+type ScholarshipApplication @table(key: ["id"], name: "scholarship_application") {
+  id: UUID! @default(expr: "uuidV4()")
+  user: User!
+  scholarship: Scholarship!
+  appliedAt: Timestamp!
+  message: String @col(dataType: "varchar(2000)")
+}
+
+type ScholarshipAttachment @table(key: ["id"], name: "scholarship_attachment") {
+  id: UUID! @default(expr: "uuidV4()")
+  scholarshipApplication: ScholarshipApplication!
+  filename: String! @col(dataType: "text")
+  path: String! @col(dataType: "text")
+}
+
+type PointsBalance @table {
+  user: User!
+  totalPoints: Int!
+  lastBudgetRewardMonth: String
+  lastBudgetRewardWeek: String
+  updatedAt: Timestamp!
+}
+
+type PointsTransaction @table {
+  user: User!
+  amount: Int!
+  reason: String!
+  createdAt: Timestamp!
+}
+
+type Product @table {
+  name: String!
+  description: String!
+  storeName: String!
+  cost: Int!
+  active: Boolean! @default(value: true)
+  createdAt: Timestamp!
+}
+
+type RedeemedProduct @table(key: ["user", "product"]) {
+  user: User!
+  product: Product!
+  code: String! @unique
+  redeemedAt: Timestamp!
+}
