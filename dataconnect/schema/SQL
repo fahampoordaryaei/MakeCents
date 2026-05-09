@@ -1,0 +1,52 @@
+CREATE TABLE scholarshipapplication (
+    id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES user(id) ON DELETE CASCADE,
+    scholarship_id INTEGER REFERENCES scholarship(id),
+    message VARCHAR(2000),
+    document_id Varchar
+);
+
+CREATE TABLE category_budget (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES user(id) ON DELETE CASCADE,
+    category_id INTEGER,
+    budget_amount FLOAT,
+    notes VARCHAR(255)
+);
+
+CREATE TABLE user (
+    id int [pk]
+    username VARCHAR(255) 
+    email VARCHAR(255) UNIQUE
+    institution_id INTEGER
+    other_institution varchar
+    course_id INTEGER
+    currency_id int
+    other_course varchar
+    first_name VARCHAR(255)
+    last_name VARCHAR(255)
+    budget FLOAT
+	  is_weekly BOOLEAN
+    locked_until TIMESTAMP
+	  country_id int
+	  failed_attempts int
+	  allow_overbudget Boolean
+);
+
+CREATE TABLE country (
+    id SERIAL PRIMARY KEY,
+    country_code CHAR(2) NOT NULL UNIQUE,
+    name VARCHAR(100)
+);
+ 
+CREATE TABLE continent (
+    id  SERIAL PRIMARY KEY,
+    code VARCHAR(3)  NOT NULL UNIQUE,
+    name VARCHAR(100) NOT NULL
+);
+ 
+CREATE TABLE country_continent (
+    country_id    INTEGER NOT NULL REFERENCES country(id) ON DELETE CASCADE,
+    continent_id  INTEGER NOT NULL REFERENCES continent(id) ON DELETE RESTRICT,
+    PRIMARY KEY (country_id, continent_id)
+);
