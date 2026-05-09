@@ -11,6 +11,7 @@ class ForgotPasswordPage extends StatefulWidget {
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final _emailCtrl = TextEditingController();
   String _message = '';
+  bool _messageSuccess = false;
   bool _isLoading = false;
 
   @override
@@ -22,29 +23,39 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   Future<void> _resetPassword() async {
     final email = _emailCtrl.text.trim();
     if (email.isEmpty) {
-      setState(() => _message = 'Please enter your email address.');
+      setState(() {
+        _message = 'Please enter your email address.';
+        _messageSuccess = false;
+      });
       return;
     }
 
     setState(() {
       _message = '';
+      _messageSuccess = false;
       _isLoading = true;
     });
 
     try {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      if (!mounted) return;
       setState(() {
         _message = 'Password reset email sent. Check your inbox.';
+        _messageSuccess = true;
         _isLoading = false;
       });
     } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
       setState(() {
         _message = e.message ?? 'Failed to send reset email.';
+        _messageSuccess = false;
         _isLoading = false;
       });
     } catch (_) {
+      if (!mounted) return;
       setState(() {
         _message = 'An unexpected error occurred.';
+        _messageSuccess = false;
         _isLoading = false;
       });
     }
@@ -52,6 +63,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
@@ -84,9 +96,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         color: Theme.of(context).scaffoldBackgroundColor,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.arrow_back,
-                        color: Color(0xFF3e7f3f),
+                        color: scheme.primary,
                         size: 18,
                       ),
                     ),
@@ -148,7 +160,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton(
-                    onPressed: _resetPassword,
+                    onPressed: _isLoading ? null : _resetPassword,
                     style: FilledButton.styleFrom(
                       backgroundColor: const Color(0xFF3e7f3f),
                       padding: const EdgeInsets.symmetric(vertical: 16),
@@ -180,20 +192,20 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: _message.contains('sent')
-                          ? const Color(0xFFE8F5E8)
-                          : const Color(0xFFFEF2F2),
+                      color: _messageSuccess
+                          ? scheme.primaryContainer
+                          : scheme.errorContainer,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       children: [
                         Icon(
-                          _message.contains('sent')
+                          _messageSuccess
                               ? Icons.check_circle_outline
                               : Icons.info_outline,
-                          color: _message.contains('sent')
-                              ? const Color(0xFF2E7D32)
-                              : const Color(0xFFB91C1C),
+                          color: _messageSuccess
+                              ? scheme.onPrimaryContainer
+                              : scheme.onErrorContainer,
                           size: 18,
                         ),
                         const SizedBox(width: 8),
@@ -201,9 +213,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           child: Text(
                             _message,
                             style: TextStyle(
-                              color: _message.contains('sent')
-                                  ? const Color(0xFF2E7D32)
-                                  : const Color(0xFFB91C1C),
+                              color: _messageSuccess
+                                  ? scheme.onPrimaryContainer
+                                  : scheme.onErrorContainer,
                               fontWeight: FontWeight.w600,
                               fontSize: 18,
                             ),

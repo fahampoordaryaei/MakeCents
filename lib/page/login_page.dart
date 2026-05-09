@@ -127,6 +127,7 @@ class _LoginPageState extends State<LoginPage> {
         if (lockedUntil != null && DateTime.now().isBefore(lockedUntil)) {
           final remaining =
               lockedUntil.difference(DateTime.now()).inMinutes + 1;
+          if (!mounted) return;
           setState(() {
             _error =
                 'Account locked. Try again in $remaining minute${remaining == 1 ? '' : 's'}.';
@@ -164,15 +165,19 @@ class _LoginPageState extends State<LoginPage> {
       if (e.code == 'wrong-password' || e.code == 'invalid-credential') {
         await _recordFailure(email);
       } else {
-        setState(() {
-          _error = e.message ?? 'Sign in failed.';
-        });
+        if (mounted) {
+          setState(() {
+            _error = e.message ?? 'Sign in failed.';
+          });
+        }
       }
     } catch (_) {
       _resetEmailMfaFlow();
-      setState(() {
-        _error = 'An unexpected error occurred.';
-      });
+      if (mounted) {
+        setState(() {
+          _error = 'An unexpected error occurred.';
+        });
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -222,11 +227,13 @@ class _LoginPageState extends State<LoginPage> {
       if (!mounted) return;
       await _completeSignIn(authUser);
     } catch (e) {
-      setState(() {
-        _error = e is FirebaseAuthException
-            ? (e.message ?? 'Invalid code.')
-            : 'Unable to verify the code.';
-      });
+      if (mounted) {
+        setState(() {
+          _error = e is FirebaseAuthException
+              ? (e.message ?? 'Invalid code.')
+              : 'Unable to verify the code.';
+        });
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -321,13 +328,16 @@ class _LoginPageState extends State<LoginPage> {
       );
       await FirebaseAuth.instance.signInWithCredential(credential);
       final authUser = FirebaseAuth.instance.currentUser!;
+      if (!mounted) return;
       await _completeSignIn(authUser);
     } catch (e) {
-      setState(() {
-        _error = e is FirebaseAuthException
-            ? (e.message ?? 'Unable to verify code.')
-            : 'Unable to verify code.';
-      });
+      if (mounted) {
+        setState(() {
+          _error = e is FirebaseAuthException
+              ? (e.message ?? 'Unable to verify code.')
+              : 'Unable to verify code.';
+        });
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -376,6 +386,7 @@ class _LoginPageState extends State<LoginPage> {
           .getLoginStatus(email: email)
           .execute();
 
+      if (!mounted) return;
       if (statusResult.data.users.isEmpty) {
         setState(() => _error = 'Incorrect email or password.');
         return;
@@ -399,6 +410,7 @@ class _LoginPageState extends State<LoginPage> {
       }
       await recordFailureBuilder.execute();
 
+      if (!mounted) return;
       if (newCount >= 3) {
         setState(() {
           _error = 'Too many failed attempts. Account locked for 15 minutes.';
@@ -410,8 +422,10 @@ class _LoginPageState extends State<LoginPage> {
         _error =
             'Incorrect password. $remaining attempt${remaining == 1 ? '' : 's'} remaining.';
       });
-    } catch (e) {
-      setState(() => _error = 'Incorrect email or password.');
+    } catch (_) {
+      if (mounted) {
+        setState(() => _error = 'Incorrect email or password.');
+      }
     }
   }
 
@@ -436,6 +450,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final identityTrim = _identityCtrl.text.trim();
 
     final idError =
@@ -510,9 +525,9 @@ class _LoginPageState extends State<LoginPage> {
                         color: Theme.of(context).scaffoldBackgroundColor,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.arrow_back,
-                        color: Color(0xFF3e7f3f),
+                        color: scheme.primary,
                         size: 18,
                       ),
                     ),
@@ -654,22 +669,22 @@ class _LoginPageState extends State<LoginPage> {
                         width: double.infinity,
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFEF2F2),
+                          color: scheme.errorContainer,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.info_outline,
-                              color: Color(0xFFB91C1C),
+                              color: scheme.onErrorContainer,
                               size: 18,
                             ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 _error,
-                                style: const TextStyle(
-                                  color: Color(0xFFB91C1C),
+                                style: TextStyle(
+                                  color: scheme.onErrorContainer,
                                   fontWeight: FontWeight.w600,
                                   fontSize: 18,
                                 ),
@@ -683,7 +698,7 @@ class _LoginPageState extends State<LoginPage> {
                     SizedBox(
                       width: double.infinity,
                       child: FilledButton(
-                        onPressed: _signIn,
+                        onPressed: _isLoading ? null : _signIn,
                         style: FilledButton.styleFrom(
                           backgroundColor: const Color(0xFF3e7f3f),
                           padding: const EdgeInsets.symmetric(vertical: 16),
@@ -732,9 +747,9 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           );
                         },
-                        child: const Text(
+                        child: Text(
                           'Forgot Password?',
-                          style: TextStyle(color: Color(0xFF3e7f3f)),
+                          style: TextStyle(color: scheme.primary),
                         ),
                       ),
                     ],
@@ -754,16 +769,14 @@ class _LoginPageState extends State<LoginPage> {
                           text: "Don't have an account? ",
                           style: TextStyle(
                             fontSize: 18,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.75),
+                            color: scheme.onSurface.withValues(alpha: 0.75),
                           ),
-                          children: const [
+                          children: [
                             TextSpan(
                               text: 'Sign Up',
                               style: TextStyle(
                                 fontSize: 18,
-                                color: Color(0xFF3e7f3f),
+                                color: scheme.primary,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),

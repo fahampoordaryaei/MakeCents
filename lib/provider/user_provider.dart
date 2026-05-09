@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:makecents/dataconnect_generated/generated.dart';
 import 'package:makecents/helper/currency_helper.dart';
 

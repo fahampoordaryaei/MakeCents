@@ -110,6 +110,7 @@ class _RegisterPageState extends State<RegisterPage> {
     if (!mounted || !_usePhoneRegister) return;
     if (result.additionalUserInfo?.isNewUser == false) {
       await FirebaseAuth.instance.signOut();
+      if (!mounted) return;
       setState(() {
         _error = 'An account already exists for this phone number.';
         _isLoading = false;
@@ -334,26 +335,29 @@ class _RegisterPageState extends State<RegisterPage> {
         }());
       }
 
+      if (!mounted) return;
+      await popupAlert(
+        context,
+        message: 'We sent a verification email to $email.',
+        level: AppAlertLevel.success,
+      );
+      if (!mounted) return;
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) =>
+              StudentProfilePage(firstName: firstName, lastName: lastName),
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
       if (mounted) {
-        await popupAlert(
-          context,
-          message: 'We sent a verification email to $email.',
-          level: AppAlertLevel.success,
-        );
-        if (!mounted) return;
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) =>
-                StudentProfilePage(firstName: firstName, lastName: lastName),
-          ),
+        setState(
+          () => _error = e.message ?? 'An error occurred during registration.',
         );
       }
-    } on FirebaseAuthException catch (e) {
-      setState(
-        () => _error = e.message ?? 'An error occurred during registration.',
-      );
-    } catch (e) {
-      setState(() => _error = 'Registration error: $e');
+    } catch (_) {
+      if (mounted) {
+        setState(() => _error = 'Registration failed. Please try again.');
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -368,6 +372,7 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Widget _passwordCriteriaList(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final password = _passwordController.text;
     final criteria = _PasswordCriteria(password);
 
@@ -378,7 +383,7 @@ class _RegisterPageState extends State<RegisterPage> {
           fontSize: 18,
           height: 1.4,
           fontWeight: FontWeight.w600,
-          color: met ? Color(0xFF3e7f3f) : Color(0xFFB91C1C),
+          color: met ? scheme.primary : scheme.error,
         ),
       );
     }
@@ -467,6 +472,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final firstName = _firstNameController.text.trim();
     final lastName = _lastNameController.text.trim();
     final email = _emailController.text.trim();
@@ -484,7 +490,7 @@ class _RegisterPageState extends State<RegisterPage> {
           child: Container(
             padding: const EdgeInsets.all(28),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
+              color: scheme.surface,
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
@@ -518,9 +524,9 @@ class _RegisterPageState extends State<RegisterPage> {
                         color: Theme.of(context).scaffoldBackgroundColor,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.arrow_back,
-                        color: Color(0xFF3e7f3f),
+                        color: scheme.primary,
                         size: 18,
                       ),
                     ),
@@ -529,7 +535,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF3e7f3f),
+                    color: scheme.primary,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(
@@ -544,7 +550,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
-                    color: Theme.of(context).colorScheme.onSurface,
+                    color: scheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -566,27 +572,29 @@ class _RegisterPageState extends State<RegisterPage> {
                   children: [
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: () {
-                          setState(() {
-                            _usePhoneRegister = false;
-                            _codeSent = false;
-                            _verificationId = null;
-                            _phoneController.clear();
-                            _codeController.clear();
-                            _error = '';
-                            _passwordCriteriaAttempted = false;
-                            _namesSubmitAttempted = false;
-                            _phoneCodeSubmitAttempted = false;
-                            _phoneFieldAttempted = false;
-                          });
-                        },
+                        onPressed: _isLoading
+                            ? null
+                            : () {
+                                setState(() {
+                                  _usePhoneRegister = false;
+                                  _codeSent = false;
+                                  _verificationId = null;
+                                  _phoneController.clear();
+                                  _codeController.clear();
+                                  _error = '';
+                                  _passwordCriteriaAttempted = false;
+                                  _namesSubmitAttempted = false;
+                                  _phoneCodeSubmitAttempted = false;
+                                  _phoneFieldAttempted = false;
+                                });
+                              },
                         style: OutlinedButton.styleFrom(
                           backgroundColor: !_usePhoneRegister
-                              ? const Color(0xFF3e7f3f)
+                              ? scheme.primary
                               : Colors.transparent,
                           foregroundColor: !_usePhoneRegister
-                              ? Colors.white
-                              : Theme.of(context).colorScheme.onSurface,
+                              ? scheme.onPrimary
+                              : scheme.onSurface,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           textStyle: const TextStyle(
                             fontSize: 18,
@@ -602,27 +610,29 @@ class _RegisterPageState extends State<RegisterPage> {
                     const SizedBox(width: 20),
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: () {
-                          setState(() {
-                            _usePhoneRegister = true;
-                            _codeSent = false;
-                            _verificationId = null;
-                            _emailController.clear();
-                            _passwordController.clear();
-                            _confirmPasswordController.clear();
-                            _codeController.clear();
-                            _error = '';
-                            _passwordCriteriaAttempted = false;
-                            _registerSubmitAttempted = false;
-                          });
-                        },
+                        onPressed: _isLoading
+                            ? null
+                            : () {
+                                setState(() {
+                                  _usePhoneRegister = true;
+                                  _codeSent = false;
+                                  _verificationId = null;
+                                  _emailController.clear();
+                                  _passwordController.clear();
+                                  _confirmPasswordController.clear();
+                                  _codeController.clear();
+                                  _error = '';
+                                  _passwordCriteriaAttempted = false;
+                                  _registerSubmitAttempted = false;
+                                });
+                              },
                         style: OutlinedButton.styleFrom(
                           backgroundColor: _usePhoneRegister
-                              ? const Color(0xFF3e7f3f)
+                              ? scheme.primary
                               : Colors.transparent,
                           foregroundColor: _usePhoneRegister
-                              ? Colors.white
-                              : Theme.of(context).colorScheme.onSurface,
+                              ? scheme.onPrimary
+                              : scheme.onSurface,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           textStyle: const TextStyle(
                             fontSize: 18,
@@ -693,9 +703,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     Text(
                       'Enter the SMS code sent to your phone.',
                       style: TextStyle(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.75),
+                        color: scheme.onSurface.withValues(alpha: 0.75),
                         fontSize: 18,
                       ),
                     ),
@@ -707,22 +715,22 @@ class _RegisterPageState extends State<RegisterPage> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFEF2F2),
+                      color: scheme.errorContainer,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.info_outline,
-                          color: Color(0xFFB91C1C),
+                          color: scheme.onErrorContainer,
                           size: 18,
                         ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             _error,
-                            style: const TextStyle(
-                              color: Color(0xFFB91C1C),
+                            style: TextStyle(
+                              color: scheme.onErrorContainer,
                               fontWeight: FontWeight.w600,
                               fontSize: 18,
                             ),
@@ -738,7 +746,8 @@ class _RegisterPageState extends State<RegisterPage> {
                   child: FilledButton(
                     onPressed: _isLoading ? null : _onRegister,
                     style: FilledButton.styleFrom(
-                      backgroundColor: const Color(0xFF3e7f3f),
+                      backgroundColor: scheme.primary,
+                      foregroundColor: scheme.onPrimary,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       minimumSize: const Size(double.infinity, 48),
                       shape: RoundedRectangleBorder(

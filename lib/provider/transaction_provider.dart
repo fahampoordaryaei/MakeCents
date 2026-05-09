@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:makecents/dataconnect_generated/generated.dart';
 
 class Transaction {
@@ -108,7 +107,10 @@ class TransactionProvider with ChangeNotifier {
     String categoryName = 'Other',
     required String categoryId,
   }) async {
-    final user = auth.FirebaseAuth.instance.currentUser!;
+    final user = auth.FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return;
+    }
 
     final tempId = DateTime.now().toString();
     _transactions.insert(

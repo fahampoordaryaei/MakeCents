@@ -1,33 +1,42 @@
 import 'package:flutter/material.dart';
 
 Widget busyButton({
+  required BuildContext context,
   required bool busy,
   required String label,
   TextStyle? labelStyle,
   double size = 22,
-  Color indicatorColor = Colors.white,
+  Color? indicatorColor,
 }) {
+  final scheme = Theme.of(context).colorScheme;
+  final spinColor = indicatorColor ?? scheme.onPrimary;
   final style = labelStyle;
   if (busy) {
     return SizedBox(
       width: size,
       height: size,
-      child: CircularProgressIndicator(strokeWidth: 2, color: indicatorColor),
+      child: CircularProgressIndicator(strokeWidth: 2, color: spinColor),
     );
   }
   return Text(label, style: style);
 }
 
-ButtonStyle busyDialog() => FilledButton.styleFrom(
-  backgroundColor: Color(0xFF3e7f3f),
-  foregroundColor: Colors.white,
-  minimumSize: const Size(100, 48),
-  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-);
+ButtonStyle busyDialog(BuildContext context) {
+  final scheme = Theme.of(context).colorScheme;
+  return FilledButton.styleFrom(
+    backgroundColor: scheme.primary,
+    foregroundColor: scheme.onPrimary,
+    minimumSize: const Size(100, 48),
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+  );
+}
 
-ButtonStyle busySave() => FilledButton.styleFrom(
-  backgroundColor: Color(0xFF3e7f3f),
-  foregroundColor: Colors.white,
-  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-);
+ButtonStyle busySave(BuildContext context) {
+  final scheme = Theme.of(context).colorScheme;
+  return FilledButton.styleFrom(
+    backgroundColor: scheme.primary,
+    foregroundColor: scheme.onPrimary,
+    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+  );
+}

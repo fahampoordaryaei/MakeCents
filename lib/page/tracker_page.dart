@@ -144,7 +144,7 @@ class _TrackerPageState extends State<TrackerPage> {
       context: context,
       builder: (_) {
         return StatefulBuilder(
-          builder: (ctx, setDialogState) {
+          builder: (context, setDialogState) {
             return AlertDialog(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -277,7 +277,7 @@ class _TrackerPageState extends State<TrackerPage> {
                           hintText: '0',
                           prefixText: currency,
                           filled: true,
-                          fillColor: Theme.of(ctx).scaffoldBackgroundColor,
+                          fillColor: Theme.of(context).colorScheme.surface,
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
                             borderSide: BorderSide.none,
@@ -290,12 +290,14 @@ class _TrackerPageState extends State<TrackerPage> {
                       ),
                       const SizedBox(height: 24),
                       SliderTheme(
-                        data: SliderTheme.of(ctx).copyWith(
-                          activeTrackColor: const Color(0xFF3e7f3f),
-                          inactiveTrackColor: const Color(
-                            0xFF3e7f3f,
-                          ).withValues(alpha: 0.2),
-                          thumbColor: const Color(0xFF3e7f3f),
+                        data: SliderTheme.of(context).copyWith(
+                          activeTrackColor: Theme.of(
+                            context,
+                          ).colorScheme.primary,
+                          inactiveTrackColor: Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.25),
+                          thumbColor: Theme.of(context).colorScheme.primary,
                           trackHeight: 6.0,
                         ),
                         child: Slider(
@@ -319,14 +321,14 @@ class _TrackerPageState extends State<TrackerPage> {
                             Text(
                               '${currency}0',
                               style: TextStyle(
-                                color: Theme.of(ctx).colorScheme.onSurface,
+                                color: Theme.of(context).colorScheme.onSurface,
                                 fontSize: 18,
                               ),
                             ),
                             Text(
                               '${currency}10,000',
                               style: TextStyle(
-                                color: Theme.of(ctx).colorScheme.onSurface,
+                                color: Theme.of(context).colorScheme.onSurface,
                                 fontSize: 18,
                               ),
                             ),
@@ -339,12 +341,12 @@ class _TrackerPageState extends State<TrackerPage> {
               ),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.of(ctx).pop(),
+                  onPressed: () => Navigator.of(context).pop(),
                   child: const Text('Close', style: TextStyle(fontSize: 18)),
                 ),
                 TextButton(
                   onPressed: () async {
-                    final nav = Navigator.of(ctx);
+                    final nav = Navigator.of(context);
                     final uid = FirebaseAuth.instance.currentUser!.uid;
                     final had = root.read<CategoryBudgetProvider>().budgets.any(
                       (b) => b.categoryId == selectedId,
@@ -361,14 +363,17 @@ class _TrackerPageState extends State<TrackerPage> {
                     if (!mounted) return;
                     setState(() {});
                   },
-                  child: const Text(
+                  child: Text(
                     'Delete',
-                    style: TextStyle(fontSize: 18, color: Color(0xFFDC2626)),
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Theme.of(context).colorScheme.error,
+                    ),
                   ),
                 ),
                 FilledButton(
                   onPressed: () async {
-                    final nav = Navigator.of(ctx);
+                    final nav = Navigator.of(context);
                     final uid = FirebaseAuth.instance.currentUser!.uid;
                     final selected = categories.firstWhere(
                       (c) => c.id == selectedId,
@@ -440,23 +445,23 @@ class _TrackerPageState extends State<TrackerPage> {
     final budget = bp.budget.amount;
     final txProvider = Provider.of<TransactionProvider>(context, listen: false);
 
+    final selectedCat = _selectedCategory!;
     final catBudget = context
         .read<CategoryBudgetProvider>()
         .budgets
-        .where((b) => b.categoryId == _selectedCategory!.id)
+        .where((b) => b.categoryId == selectedCat.id)
         .firstOrNull;
     if (catBudget != null) {
       final spentByCategory = txProvider.getCategorySpending(
         isWeekly: bp.isWeekly,
       );
 
-      final selectedSpent = spentByCategory[_selectedCategory!.name] ?? 0.0;
+      final selectedSpent = spentByCategory[selectedCat.name] ?? 0.0;
       final catLimit = catBudget.budgetAmount.toDouble();
       if (selectedSpent + amount > catLimit) {
         await popupAlert(
           context,
-          message:
-              'Expense not added:\nNot enough ${_selectedCategory!.name} budget!',
+          message: 'Expense not added:\nNot enough ${selectedCat.name} budget!',
           level: AppAlertLevel.error,
         );
         return;
@@ -512,7 +517,8 @@ class _TrackerPageState extends State<TrackerPage> {
           ),
           FilledButton(
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFFDC2626),
+              backgroundColor: Theme.of(dialogContext).colorScheme.error,
+              foregroundColor: Theme.of(dialogContext).colorScheme.onError,
               minimumSize: const Size(100, 48),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               shape: RoundedRectangleBorder(
@@ -523,7 +529,11 @@ class _TrackerPageState extends State<TrackerPage> {
               Navigator.of(dialogContext).pop();
               try {
                 await p.removeTransaction(idx);
-              } catch (_) {
+              } catch (e) {
+                assert(() {
+                  debugPrint('Remove transaction failed: $e');
+                  return true;
+                }());
                 if (!mounted) return;
                 await popupAlert(
                   context,
@@ -556,6 +566,7 @@ class _TrackerPageState extends State<TrackerPage> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final bp = Provider.of<BudgetProvider>(context);
     final catBudgetRows = context.watch<CategoryBudgetProvider>().budgets;
     final budget = bp.budget.amount;
@@ -672,7 +683,7 @@ class _TrackerPageState extends State<TrackerPage> {
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.w800,
-                color: Theme.of(context).colorScheme.onSurface,
+                color: scheme.onSurface,
               ),
             ),
             const SizedBox(height: 24),
@@ -682,22 +693,17 @@ class _TrackerPageState extends State<TrackerPage> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: over
-                      ? [
-                          const Color.fromARGB(255, 197, 51, 51),
-                          const Color.fromARGB(255, 203, 106, 71),
-                        ]
-                      : [const Color(0xFF3e7f3f), const Color(0xFF6abf69)],
+                      ? [scheme.error, scheme.errorContainer]
+                      : [scheme.primary, scheme.primaryContainer],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(8),
                 boxShadow: [
                   BoxShadow(
-                    color:
-                        (over
-                                ? const Color(0xFFDC2626)
-                                : const Color(0xFF3e7f3f))
-                            .withValues(alpha: 0.3),
+                    color: (over ? scheme.error : scheme.primary).withValues(
+                      alpha: 0.28,
+                    ),
                     blurRadius: 12,
                     offset: const Offset(0, 6),
                   ),
@@ -939,11 +945,11 @@ class _TrackerPageState extends State<TrackerPage> {
                     ),
                     const SizedBox(height: 8),
                     if (_isLoadingCategories)
-                      const Center(
+                      Center(
                         child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 20),
+                          padding: const EdgeInsets.symmetric(vertical: 20),
                           child: CircularProgressIndicator(
-                            color: Color(0xFF3e7f3f),
+                            color: scheme.primary,
                           ),
                         ),
                       )
@@ -1046,11 +1052,13 @@ class _TrackerPageState extends State<TrackerPage> {
                       child: FilledButton.icon(
                         onPressed: _submit,
                         style: FilledButton.styleFrom(
-                          backgroundColor: const Color(0xFF3e7f3f),
-                          foregroundColor:
-                              Theme.of(context).brightness == Brightness.dark
-                              ? Colors.white
-                              : null,
+                          backgroundColor: scheme.primary,
+                          foregroundColor: scheme.onPrimary,
+                          disabledBackgroundColor:
+                              scheme.surfaceContainerHighest,
+                          disabledForegroundColor: scheme.onSurface.withValues(
+                            alpha: 0.38,
+                          ),
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           minimumSize: const Size(double.infinity, 48),
                           shape: RoundedRectangleBorder(
@@ -1150,7 +1158,7 @@ class _TrackerPageState extends State<TrackerPage> {
                                       ? (available / totalForPct)
                                       : 0;
                                   return PieChartSectionData(
-                                    color: Colors.green.withValues(
+                                    color: scheme.primary.withValues(
                                       alpha:
                                           Theme.of(context).brightness ==
                                               Brightness.light
@@ -1183,7 +1191,7 @@ class _TrackerPageState extends State<TrackerPage> {
                                         'other',
                                         'Other',
                                         Icons.more_horiz,
-                                        Colors.grey,
+                                        scheme.onSurfaceVariant,
                                       )
                                     : categoryFor(e.key);
                                 final pct = totalForPct > 0
@@ -1223,13 +1231,13 @@ class _TrackerPageState extends State<TrackerPage> {
                         children: [
                           if (budget > 0)
                             _Chip(
-                              Colors.green.withValues(alpha: 0.7),
+                              scheme.primary.withValues(alpha: 0.75),
                               'Available ${formatMoney(available, decimals: 0)}',
                             ),
                           ...groupedEntries.map(
                             (e) => _Chip(
                               e.key == 'Other'
-                                  ? Colors.grey
+                                  ? scheme.onSurfaceVariant
                                   : categoryFor(e.key).color,
                               '${e.key} ${formatMoney(e.value, decimals: 0)}',
                             ),
@@ -1279,11 +1287,11 @@ class _TrackerPageState extends State<TrackerPage> {
                     ),
                     const SizedBox(height: 12),
                     if (txP.isLoading)
-                      const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 40),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 40),
                         child: Center(
                           child: CircularProgressIndicator(
-                            color: Color(0xFF3e7f3f),
+                            color: scheme.primary,
                           ),
                         ),
                       )
@@ -1296,7 +1304,7 @@ class _TrackerPageState extends State<TrackerPage> {
                               Icon(
                                 Icons.receipt_long_outlined,
                                 size: 40,
-                                color: Colors.grey,
+                                color: scheme.onSurfaceVariant,
                               ),
                               SizedBox(height: 8),
                               Text(
@@ -1317,7 +1325,7 @@ class _TrackerPageState extends State<TrackerPage> {
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: pageEndExclusive - pageStart,
                         separatorBuilder: (_, _) => const Divider(height: 1),
-                        itemBuilder: (ctx, i) {
+                        itemBuilder: (context, i) {
                           final globalI = pageStart + i;
                           final tx = txs[globalI];
                           final cat = categoryFor(tx.category);
@@ -1407,11 +1415,9 @@ class _TrackerPageState extends State<TrackerPage> {
                                               fontWeight: FontWeight.w500,
                                             ),
                                             minimumSize: const Size(50, 40),
-                                            foregroundColor: const Color(
-                                              0xFFDC2626,
-                                            ),
-                                            side: const BorderSide(
-                                              color: Color(0xFFDC2626),
+                                            foregroundColor: scheme.error,
+                                            side: BorderSide(
+                                              color: scheme.error,
                                             ),
                                             visualDensity:
                                                 VisualDensity.compact,
@@ -1427,8 +1433,8 @@ class _TrackerPageState extends State<TrackerPage> {
                             ),
                             trailing: Text(
                               '-${formatMoney(tx.amount)}',
-                              style: const TextStyle(
-                                color: Color(0xFFF87171),
+                              style: TextStyle(
+                                color: scheme.error,
                                 fontWeight: FontWeight.w700,
                                 fontSize: 18,
                               ),
@@ -1577,7 +1583,6 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
       navigator.pop();
     } catch (_) {
       if (!mounted) return;
-      navigator.pop();
       if (widget.messengerContext.mounted) {
         await popupAlert(
           widget.messengerContext,
@@ -1592,10 +1597,11 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Padding(
       padding: EdgeInsets.only(left: 24, right: 24, top: 8, bottom: 16),
       child: Material(
-        color: Theme.of(context).colorScheme.surface,
+        color: scheme.surface,
         borderRadius: BorderRadius.circular(8),
         clipBehavior: Clip.antiAlias,
         child: SafeArea(
@@ -1612,17 +1618,15 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 24,
-                    color: Theme.of(context).colorScheme.onSurface,
+                    color: scheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 24),
                 if (widget.categoriesLoading)
-                  const Center(
+                  Center(
                     child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 24),
-                      child: CircularProgressIndicator(
-                        color: Color(0xFF3e7f3f),
-                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      child: CircularProgressIndicator(color: scheme.primary),
                     ),
                   )
                 else ...[
@@ -1736,9 +1740,10 @@ class _EditTransactionSheetState extends State<_EditTransactionSheet> {
                     ),
                     const SizedBox(width: 24),
                     FilledButton(
-                      style: busySave(),
+                      style: busySave(context),
                       onPressed: _saving ? null : _saveExpense,
                       child: busyButton(
+                        context: context,
                         busy: _saving,
                         label: 'Save',
                         labelStyle: const TextStyle(
@@ -1778,6 +1783,7 @@ class _SpendChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final chartAccent = theme.colorScheme.primary;
     final axisLabelStyle = TextStyle(fontSize: 18);
     final yFormat = NumberFormat.currency(symbol: currency, decimalDigits: 0);
     final dayMonthFmt = DateFormat('dd/MM');
@@ -1790,16 +1796,16 @@ class _SpendChart extends StatelessWidget {
         activationMode: ActivationMode.singleTap,
         lineType: TrackballLineType.vertical,
         lineWidth: 1.5,
-        lineColor: const Color(0xFF3e7f3f),
+        lineColor: chartAccent,
         hideDelay: 4000,
-        markerSettings: const TrackballMarkerSettings(
+        markerSettings: TrackballMarkerSettings(
           markerVisibility: TrackballVisibilityMode.visible,
           height: 11,
           width: 11,
           shape: DataMarkerType.circle,
           borderWidth: 2,
           color: Colors.white,
-          borderColor: Color(0xFF3e7f3f),
+          borderColor: chartAccent,
         ),
         tooltipSettings: InteractiveTooltip(
           color: theme.colorScheme.surfaceContainerHighest,
@@ -1882,12 +1888,12 @@ class _SpendChart extends StatelessWidget {
           dataSource: points,
           xValueMapper: (p, _) => p.day,
           yValueMapper: (p, _) => p.total,
-          borderColor: const Color(0xFF3e7f3f),
+          borderColor: chartAccent,
           borderWidth: 3,
           gradient: LinearGradient(
             colors: [
-              const Color(0xFF3e7f3f).withValues(alpha: 0.14),
-              const Color(0xFF3e7f3f).withValues(alpha: 0.02),
+              chartAccent.withValues(alpha: 0.14),
+              chartAccent.withValues(alpha: 0.02),
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,

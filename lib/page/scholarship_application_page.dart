@@ -218,9 +218,8 @@ class _ScholarshipApplicationPageState
           : (draft?.email ?? '').trim();
     }
 
-    if (mounted) {
-      setState(() => _isLoading = false);
-    }
+    if (!mounted) return;
+    setState(() => _isLoading = false);
   }
 
   Future<void> _pickFiles() async {
@@ -247,6 +246,7 @@ class _ScholarshipApplicationPageState
           )
           .toList();
       if (newFiles.isEmpty) return;
+      if (!mounted) return;
       setState(() {
         _attachments.addAll(newFiles);
         _attachmentError = null;
@@ -395,11 +395,13 @@ class _ScholarshipApplicationPageState
       if (!mounted) return;
       await popupAlert(
         context,
-        message: 'Upload failed: $e',
+        message: 'Submission failed. Check your connection and try again.',
         level: AppAlertLevel.error,
       );
     } finally {
-      setState(() => _isSubmitting = false);
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
     }
   }
 
@@ -457,12 +459,16 @@ class _ScholarshipApplicationPageState
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final busy = _isSaving || _isSubmitting;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
           widget.readOnly ? 'Submitted application' : 'Scholarship Application',
         ),
         backgroundColor: widget.brandColor,
+        foregroundColor: scheme.onPrimary,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -515,7 +521,7 @@ class _ScholarshipApplicationPageState
                         const SizedBox(height: 12),
                         TextFormField(
                           controller: _emailController,
-                          readOnly: widget.readOnly || !_isPhoneUser(),
+                          readOnly: widget.readOnly || !_isPhoneUser() || busy,
                           decoration: InputDecoration(
                             labelText: 'Email address',
                             border: OutlineInputBorder(),
@@ -551,7 +557,7 @@ class _ScholarshipApplicationPageState
                         const SizedBox(height: 12),
                         TextFormField(
                           controller: _statementController,
-                          readOnly: widget.readOnly,
+                          readOnly: widget.readOnly || busy,
                           minLines: 4,
                           maxLines: 8,
                           maxLength: widget.readOnly
@@ -592,7 +598,7 @@ class _ScholarshipApplicationPageState
                               FilledButton.icon(
                                 icon: const Icon(Icons.attach_file),
                                 label: const Text('Add files'),
-                                onPressed: _pickFiles,
+                                onPressed: busy ? null : _pickFiles,
                               ),
                           ],
                         ),
@@ -635,10 +641,13 @@ class _ScholarshipApplicationPageState
                                       ? null
                                       : IconButton(
                                           icon: const Icon(Icons.close),
-                                          onPressed: () =>
-                                              _removeAttachment(index),
+                                          onPressed: busy
+                                              ? null
+                                              : () => _removeAttachment(index),
                                         ),
-                                  onTap: () => _openAttachment(file),
+                                  onTap: busy
+                                      ? null
+                                      : () => _openAttachment(file),
                                 ),
                               );
                             }).toList(),
@@ -659,12 +668,16 @@ class _ScholarshipApplicationPageState
                           FilledButton(
                             style: FilledButton.styleFrom(
                               backgroundColor: widget.brandColor,
+                              foregroundColor: scheme.onPrimary,
+                              disabledBackgroundColor:
+                                  scheme.surfaceContainerHighest,
+                              disabledForegroundColor: scheme.onSurface
+                                  .withValues(alpha: 0.38),
                               minimumSize: const Size.fromHeight(52),
                             ),
-                            onPressed: (_isSaving || _isSubmitting)
-                                ? null
-                                : _submitApplication,
+                            onPressed: busy ? null : _submitApplication,
                             child: busyButton(
+                              context: context,
                               busy: _isSubmitting,
                               label: 'Submit Application',
                               size: 20,
@@ -674,9 +687,10 @@ class _ScholarshipApplicationPageState
                           const SizedBox(height: 8),
                           Center(
                             child: TextButton(
-                              onPressed: (_isSaving || _isSubmitting)
-                                  ? null
-                                  : _saveApplication,
+                              onPressed: busy ? null : _saveApplication,
+                              style: TextButton.styleFrom(
+                                foregroundColor: scheme.primary,
+                              ),
                               child: const Text(
                                 'Save Application',
                                 style: TextStyle(fontSize: 20),

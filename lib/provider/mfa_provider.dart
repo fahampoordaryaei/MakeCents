@@ -50,11 +50,15 @@ Future<void> reauthenticateUser({
     );
   } on FirebaseAuthMultiFactorException catch (e) {
     final trimmed = totpForSignIn.trim();
-    final MultiFactorInfo totp = e.resolver.hints.firstWhere(
-      (h) => h.factorId == 'totp',
-    );
+    if (trimmed.isEmpty) {
+      throw FirebaseAuthException(
+        code: 'missing-mfa-code',
+        message: 'Enter the code from your authenticator app.',
+      );
+    }
+
     final assertion = await TotpMultiFactorGenerator.getAssertionForSignIn(
-      totp.uid,
+      totpForSignIn,
       trimmed,
     );
     await e.resolver.resolveSignIn(assertion);
@@ -65,7 +69,10 @@ String _firebaseErrorMessage(Object e) {
   if (e is FirebaseAuthException) {
     return e.message ?? e.code;
   }
-  return e.toString();
+  if (e is StateError) {
+    return e.message;
+  }
+  return 'Something went wrong. Please try again.';
 }
 
 Widget buildQrCode(
@@ -146,10 +153,16 @@ class _MfaEnrollmentWidgetState extends State<MfaEnrollmentWidget> {
   Future<void> _sendVerificationEmail() async {
     setState(() => _busy = true);
     try {
-      await sendUserEmailVerification(_current!);
+      final cur = _current;
+      if (cur == null) {
+        if (!mounted) return;
+        setState(() => _busy = false);
+        return;
+      }
+      await sendUserEmailVerification(cur);
       if (!mounted) return;
       setState(() => _busy = false);
-      final email = _current!.email?.trim();
+      final email = cur.email?.trim();
       await popupAlert(
         context,
         message: 'We sent a verification email to $email.',
@@ -684,13 +697,18 @@ class _MfaAccountDialogState extends State<_MfaAccountDialog> {
       _error = '';
     });
     final u = FirebaseAuth.instance.currentUser!;
-    final factors = await u.multiFactor.getEnrolledFactors();
-    final on = factors.any((f) => f.factorId == 'totp');
-    if (!mounted) return;
-    setState(() {
-      _totpOn = on;
-      _loading = false;
-    });
+    try {
+      final factors = await u.multiFactor.getEnrolledFactors();
+      final on = factors.any((f) => f.factorId == 'totp');
+      if (!mounted) return;
+      setState(() {
+        _totpOn = on;
+        _loading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _loading = false);
+    }
   }
 
   void _initDisableMfa() {
@@ -750,7 +768,7 @@ class _MfaAccountDialogState extends State<_MfaAccountDialog> {
       setState(() {
         _busy = false;
         _attemptedDisableConfirm = false;
-        _error = e.toString();
+        _error = _firebaseErrorMessage(e);
       });
     }
   }

@@ -29,9 +29,19 @@ Future<Position> _positionForCountry() async {
 }
 
 Future<ProfileCountryResult> getCountryFromLocation() async {
+  final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  if (!serviceEnabled) {
+    throw StateError('Location services are off. Turn them on and try again.');
+  }
+
   var permission = await Geolocator.checkPermission();
   if (permission == LocationPermission.denied) {
     permission = await Geolocator.requestPermission();
+  }
+  if (permission == LocationPermission.deniedForever) {
+    throw StateError(
+      'Location access is blocked. Enable it for this app in Settings.',
+    );
   }
   if (permission != LocationPermission.whileInUse &&
       permission != LocationPermission.always) {
@@ -54,8 +64,9 @@ Future<ProfileCountryResult> getCountryFromLocation() async {
     throw StateError('Could not detect country.');
   }
 
-  final name = (p.country?.trim().isNotEmpty ?? false)
-      ? p.country!.trim()
+  final countryTrimmed = p.country?.trim();
+  final name = (countryTrimmed != null && countryTrimmed.isNotEmpty)
+      ? countryTrimmed
       : iso;
 
   return ProfileCountryResult(

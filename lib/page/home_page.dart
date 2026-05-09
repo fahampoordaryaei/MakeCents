@@ -130,6 +130,7 @@ class _HomePageState extends State<HomePage> {
     final available = budget > 0 ? (budget - expenses).clamp(0.0, budget) : 0.0;
     final spentPct = budget > 0 ? (expenses / budget).clamp(0.0, 1.0) : 0.0;
     final spentLabel = isWeekly ? 'Spent this week' : 'Spent this month';
+    final periodTxLabel = isWeekly ? 'This week' : 'This month';
     final recent = txProvider.transactions.take(3).toList();
     final txCount = isWeekly
         ? txProvider.transactions.where((t) {
@@ -248,7 +249,7 @@ class _HomePageState extends State<HomePage> {
                     child: _QuickStatCard(
                       icon: Icons.receipt_long_outlined,
                       color: const Color(0xFF4ECDC4),
-                      label: 'This month',
+                      label: periodTxLabel,
                       value: '$txCount',
                     ),
                   ),
@@ -541,9 +542,11 @@ class _HomePageState extends State<HomePage> {
                         ),
                         subtitle: Text(
                           DateFormat('MMM d').format(tx.date),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 18,
-                            color: Colors.grey,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withValues(alpha: 0.6),
                           ),
                         ),
                         trailing: Text(

@@ -53,8 +53,10 @@ class _AddExpensePageState extends State<AddExpensePage> {
         _categories.sort((a, b) {
           final aOther = a.name.toLowerCase() == 'other';
           final bOther = b.name.toLowerCase() == 'other';
-          if (aOther == bOther) return 0;
-          return aOther ? 1 : -1;
+          if (aOther != bOther) {
+            return aOther ? 1 : -1;
+          }
+          return a.name.toLowerCase().compareTo(b.name.toLowerCase());
         });
 
         if (_categories.isNotEmpty) {
@@ -84,7 +86,9 @@ class _AddExpensePageState extends State<AddExpensePage> {
     setState(() => _submitAttempted = true);
     final amountText = _amountController.text.trim();
     final parsedAmount = double.tryParse(amountText);
-    if (amountText.isEmpty || parsedAmount == null) return;
+    if (amountText.isEmpty || parsedAmount == null || parsedAmount <= 0) {
+      return;
+    }
     if (_selectedCategory == null) return;
 
     final enteredAmount = parsedAmount;
@@ -119,6 +123,9 @@ class _AddExpensePageState extends State<AddExpensePage> {
   Widget build(BuildContext context) {
     final amountText = _amountController.text.trim();
     final parsedAmount = double.tryParse(amountText);
+    final amountInvalid =
+        amountText.isNotEmpty &&
+        (parsedAmount == null || !parsedAmount.isFinite || parsedAmount <= 0);
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -135,8 +142,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                 context,
                 label: 'Amount',
                 hasError:
-                    _submitAttempted &&
-                    (amountText.isEmpty || parsedAmount == null),
+                    _submitAttempted && (amountText.isEmpty || amountInvalid),
               ).copyWith(prefixText: currency),
             ),
             const SizedBox(height: 12),
@@ -147,9 +153,13 @@ class _AddExpensePageState extends State<AddExpensePage> {
             ),
             const SizedBox(height: 16),
 
-            const Text(
+            Text(
               'Category',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
             const SizedBox(height: 8),
             _isLoadingCategories
@@ -172,6 +182,9 @@ class _AddExpensePageState extends State<AddExpensePage> {
                         children: _categories.map((cat) {
                           final isSelected =
                               _selectedCategory?.name == cat.name;
+                          final onSurface = Theme.of(
+                            context,
+                          ).colorScheme.onSurface;
                           return ChoiceChip(
                             avatar: Icon(
                               cat.icon,
@@ -182,7 +195,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                             selected: isSelected,
                             selectedColor: cat.color,
                             labelStyle: TextStyle(
-                              color: isSelected ? Colors.white : Colors.black87,
+                              color: isSelected ? Colors.white : onSurface,
                               fontWeight: isSelected
                                   ? FontWeight.bold
                                   : FontWeight.normal,
@@ -202,6 +215,9 @@ class _AddExpensePageState extends State<AddExpensePage> {
                 Expanded(
                   child: Text(
                     'Date: ${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                   ),
                 ),
                 TextButton(

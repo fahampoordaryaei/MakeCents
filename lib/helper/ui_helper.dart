@@ -63,10 +63,10 @@ Future<void> popupAlert(
   var visible = true;
   late OverlayEntry entry;
   entry = OverlayEntry(
-    builder: (ctx) => Positioned(
+    builder: (context) => Positioned(
       left: 20,
       right: 20,
-      bottom: MediaQuery.of(ctx).padding.bottom + 90,
+      bottom: MediaQuery.of(context).padding.bottom + 90,
       child: AnimatedOpacity(
         opacity: visible ? 1 : 0,
         duration: const Duration(milliseconds: 300),

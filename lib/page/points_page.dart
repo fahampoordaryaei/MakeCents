@@ -76,13 +76,13 @@ class _PointsPageState extends State<PointsPage> {
     ListProductsProducts product,
   ) async {
     await showProductRedeemDialog(context, product);
-    if (mounted) {
-      await Future.wait([_loadCloudPoints(), _loadProductsAndRedemptions()]);
-    }
+    if (!mounted) return;
+    await Future.wait([_loadCloudPoints(), _loadProductsAndRedemptions()]);
   }
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final points = _points ?? 0;
     final products = [..._products]
       ..sort((a, b) {
@@ -108,16 +108,14 @@ class _PointsPageState extends State<PointsPage> {
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.w800,
-                color: Theme.of(context).colorScheme.onSurface,
+                color: scheme.onSurface,
               ),
             ),
             const SizedBox(height: 4),
             Text(
               'Earn points by tracking your spending',
               style: TextStyle(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.85),
+                color: scheme.onSurface.withValues(alpha: 0.85),
                 fontSize: 18,
               ),
             ),
@@ -182,7 +180,7 @@ class _PointsPageState extends State<PointsPage> {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
-                color: Theme.of(context).colorScheme.onSurface,
+                color: scheme.onSurface,
               ),
             ),
             const SizedBox(height: 12),
@@ -197,7 +195,7 @@ class _PointsPageState extends State<PointsPage> {
                 budgetRewardLabel,
                 budgetRewardPts,
                 Icons.savings_outlined,
-                const Color(0xFF3e7f3f),
+                scheme.primary,
               ),
             ].map(
               (e) => Padding(
@@ -205,7 +203,7 @@ class _PointsPageState extends State<PointsPage> {
                 child: Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface,
+                    color: scheme.surface,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -225,7 +223,7 @@ class _PointsPageState extends State<PointsPage> {
                           e.$1,
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
-                            color: Theme.of(context).colorScheme.onSurface,
+                            color: scheme.onSurface,
                             fontSize: 18,
                           ),
                         ),
@@ -259,24 +257,22 @@ class _PointsPageState extends State<PointsPage> {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
-                color: Theme.of(context).colorScheme.onSurface,
+                color: scheme.onSurface,
               ),
             ),
             const SizedBox(height: 12),
             if (_isLoadingProducts)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
                 child: Center(
-                  child: CircularProgressIndicator(color: Color(0xFF3e7f3f)),
+                  child: CircularProgressIndicator(color: scheme.primary),
                 ),
               )
             else if (products.isEmpty)
               Text(
                 'No products available right now.',
                 style: TextStyle(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.85),
+                  color: scheme.onSurface.withValues(alpha: 0.85),
                   fontSize: 18,
                 ),
               )
@@ -293,7 +289,7 @@ class _PointsPageState extends State<PointsPage> {
                     child: Container(
                       padding: const EdgeInsets.fromLTRB(18, 18, 18, 12),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surface,
+                        color: scheme.surface,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
@@ -310,18 +306,14 @@ class _PointsPageState extends State<PointsPage> {
                                   style: TextStyle(
                                     fontWeight: FontWeight.w500,
                                     fontSize: 18,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurface,
+                                    color: scheme.onSurface,
                                   ),
                                 ),
                                 const SizedBox(height: 10),
                                 Text(
                                   p.storeName,
                                   style: TextStyle(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurface,
+                                    color: scheme.onSurface,
                                     fontSize: 18,
                                     fontWeight: FontWeight.w700,
                                   ),
@@ -331,9 +323,9 @@ class _PointsPageState extends State<PointsPage> {
                                   const SizedBox(height: 8),
                                   Text(
                                     'Code: ${redeemed.code}',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontWeight: FontWeight.w700,
-                                      color: Color(0xFF3e7f3f),
+                                      color: scheme.primary,
                                       fontSize: 18,
                                     ),
                                   ),
@@ -351,15 +343,13 @@ class _PointsPageState extends State<PointsPage> {
                                   vertical: 7,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: const Color(
-                                    0xFF3e7f3f,
-                                  ).withValues(alpha: 0.12),
+                                  color: scheme.primary.withValues(alpha: 0.12),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
                                   '${p.cost} pts',
-                                  style: const TextStyle(
-                                    color: Color(0xFF3e7f3f),
+                                  style: TextStyle(
+                                    color: scheme.primary,
                                     fontWeight: FontWeight.w700,
                                     fontSize: 18,
                                   ),

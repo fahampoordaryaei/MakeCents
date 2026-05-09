@@ -43,22 +43,22 @@ InputDecoration requiredField(
   String? counterText,
   EdgeInsetsGeometry? contentPadding,
 }) {
+  final scheme = Theme.of(context).colorScheme;
+  final errorColor = scheme.error;
   final labelStyle = hasError
-      ? const TextStyle(color: Color(0xFFB91C1C), fontWeight: FontWeight.w600)
+      ? TextStyle(color: errorColor, fontWeight: FontWeight.w600)
       : null;
-  final floatingLabelStyle = hasError
-      ? const TextStyle(color: Color(0xFFB91C1C))
-      : null;
+  final floatingLabelStyle = hasError ? TextStyle(color: errorColor) : null;
 
   if (outlined) {
-    final base = Theme.of(context).colorScheme.outline;
+    final base = scheme.outline;
     final normal = OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
       borderSide: BorderSide(color: base),
     );
     final error = OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
-      borderSide: const BorderSide(color: Color(0xFFB91C1C), width: 1.5),
+      borderSide: BorderSide(color: errorColor, width: 1.5),
     );
     final border = hasError ? error : normal;
     return InputDecoration(
@@ -76,9 +76,9 @@ InputDecoration requiredField(
   }
 
   final border = hasError
-      ? const OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8)),
-          borderSide: BorderSide(color: Color(0xFFB91C1C), width: 1.5),
+      ? OutlineInputBorder(
+          borderRadius: const BorderRadius.all(Radius.circular(8)),
+          borderSide: BorderSide(color: errorColor, width: 1.5),
         )
       : const OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(8)),
@@ -111,10 +111,13 @@ class ThemeProvider extends ChangeNotifier {
   ThemeData get currentTheme => _themes[_mode.index];
 
   Future<void> loadTheme() async {
-    final p = await SharedPreferences.getInstance();
-    _mode = p.getString('theme_mode') == 'dark'
-        ? ThemeModes.dark
-        : ThemeModes.light;
+    try {
+      final p = await SharedPreferences.getInstance();
+      final stored = p.getString('theme_mode');
+      _mode = stored == 'dark' ? ThemeModes.dark : ThemeModes.light;
+    } catch (_) {
+      _mode = ThemeModes.light;
+    }
     notifyListeners();
   }
 

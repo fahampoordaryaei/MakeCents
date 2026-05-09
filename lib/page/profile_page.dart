@@ -38,6 +38,7 @@ class ProfilePage extends StatelessWidget {
   Future<void> _showChangePasswordDialog(BuildContext context) async {
     final user = FirebaseAuth.instance.currentUser!;
     final email = user.email!;
+    final scheme = Theme.of(context).colorScheme;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
@@ -69,7 +70,8 @@ class ProfilePage extends StatelessWidget {
             ),
             FilledButton(
               style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFF3e7f3f),
+                backgroundColor: scheme.primary,
+                foregroundColor: scheme.onPrimary,
                 minimumSize: const Size(100, 48),
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -87,7 +89,7 @@ class ProfilePage extends StatelessWidget {
       },
     );
 
-    if (confirmed != true || !context.mounted) return;
+    if (confirmed != true) return;
 
     try {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
@@ -119,7 +121,7 @@ class ProfilePage extends StatelessWidget {
       MaterialPageRoute(
         builder: (_) => _SettingsPage(
           onChangePassword: _showChangePasswordDialog,
-          onMfa: (ctx) => showMfaAccountDialog(ctx),
+          onMfa: (context) => showMfaAccountDialog(context),
           onDeleteAccount: _confirmDeleteAccount,
         ),
       ),
@@ -128,7 +130,8 @@ class ProfilePage extends StatelessWidget {
 
   Future<void> _confirmDeleteAccount(BuildContext context) async {
     try {
-      final user = FirebaseAuth.instance.currentUser!;
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
 
       Future<void> deleteWith(AuthCredential credential) async {
         await user.reauthenticateWithCredential(credential);
@@ -226,6 +229,7 @@ class ProfilePage extends StatelessWidget {
   }
 
   Widget _signedInBody(BuildContext context, User user) {
+    final scheme = Theme.of(context).colorScheme;
     final txP = Provider.of<TransactionProvider>(context);
     final bp = Provider.of<BudgetProvider>(context);
     final tp = Provider.of<ThemeProvider>(context);
@@ -248,7 +252,7 @@ class ProfilePage extends StatelessWidget {
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.w800,
-                color: Theme.of(context).colorScheme.onSurface,
+                color: scheme.onSurface,
               ),
             ),
             Center(
@@ -259,7 +263,7 @@ class ProfilePage extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.w800,
-                      color: Theme.of(context).colorScheme.onSurface,
+                      color: scheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -267,9 +271,7 @@ class ProfilePage extends StatelessWidget {
                     userContact,
                     style: TextStyle(
                       fontSize: 18,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.6),
+                      color: scheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
                   if (up.profile != null &&
@@ -281,13 +283,13 @@ class ProfilePage extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF3e7f3f).withValues(alpha: 0.1),
+                        color: scheme.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         up.profile!.displayInstitution,
-                        style: const TextStyle(
-                          color: Color(0xFF3e7f3f),
+                        style: TextStyle(
+                          color: scheme.primary,
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
                         ),
@@ -325,16 +327,14 @@ class ProfilePage extends StatelessWidget {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w700,
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.7),
+                color: scheme.onSurface.withValues(alpha: 0.7),
               ),
             ),
             const SizedBox(height: 12),
 
             _SettingsTile(
               icon: Icons.school_outlined,
-              iconColor: const Color(0xFF3e7f3f),
+              iconColor: scheme.primary,
               title: 'Student Profile',
               subtitle:
                   '${up.profile?.displayInstitution ?? 'Not set'} • ${up.profile?.displayCourse ?? 'Not set'}',
@@ -343,7 +343,7 @@ class ProfilePage extends StatelessWidget {
             const SizedBox(height: 8),
             _SettingsTile(
               icon: Icons.account_balance_wallet_outlined,
-              iconColor: const Color(0xFF3e7f3f),
+              iconColor: scheme.primary,
               title: 'Budget',
               subtitle: formatMoney(bp.budget.amount),
               onTap: () => _editBudgetDialog(context),
@@ -359,7 +359,7 @@ class ProfilePage extends StatelessWidget {
                 onChanged: (val) {
                   tp.setTheme(val ? ThemeModes.dark : ThemeModes.light);
                 },
-                activeThumbColor: const Color(0xFF3e7f3f),
+                activeThumbColor: scheme.primary,
               ),
               onTap: () {
                 tp.setTheme(isDarkMode ? ThemeModes.light : ThemeModes.dark);
@@ -1061,6 +1061,7 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       title: const Text(
@@ -1079,7 +1080,9 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
                 ButtonSegment<bool>(value: true, label: Text('Weekly')),
               ],
               selected: {_isWeekly},
-              onSelectionChanged: (s) => setState(() => _isWeekly = s.first),
+              onSelectionChanged: _saving
+                  ? null
+                  : (s) => setState(() => _isWeekly = s.first),
             ),
             const SizedBox(height: 16),
             TextField(
@@ -1112,11 +1115,9 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
             const SizedBox(height: 24),
             SliderTheme(
               data: SliderTheme.of(context).copyWith(
-                activeTrackColor: const Color(0xFF3e7f3f),
-                inactiveTrackColor: const Color(
-                  0xFF3e7f3f,
-                ).withValues(alpha: 0.2),
-                thumbColor: const Color(0xFF3e7f3f),
+                activeTrackColor: scheme.primary,
+                inactiveTrackColor: scheme.primary.withValues(alpha: 0.2),
+                thumbColor: scheme.primary,
                 trackHeight: 6.0,
               ),
               child: Slider(
@@ -1124,12 +1125,14 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
                 min: 10,
                 max: 10000,
                 divisions: 100,
-                onChanged: (v) {
-                  setState(() {
-                    _sliderVal = v;
-                    _ctrl.text = v.toInt().toString();
-                  });
-                },
+                onChanged: _saving
+                    ? null
+                    : (v) {
+                        setState(() {
+                          _sliderVal = v;
+                          _ctrl.text = v.toInt().toString();
+                        });
+                      },
               ),
             ),
             Padding(
@@ -1139,17 +1142,11 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
                 children: [
                   Text(
                     '${_sign}10',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontSize: 18,
-                    ),
+                    style: TextStyle(color: scheme.onSurface, fontSize: 18),
                   ),
                   Text(
                     '${_sign}10,000',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontSize: 18,
-                    ),
+                    style: TextStyle(color: scheme.onSurface, fontSize: 18),
                   ),
                 ],
               ),
@@ -1169,19 +1166,19 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
                 'Allow adding expenses that go over your budget',
                 style: TextStyle(
                   fontSize: 16,
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.9),
+                  color: scheme.onSurface.withValues(alpha: 0.9),
                 ),
               ),
               value: _allowOverBudget,
-              onChanged: (v) => setState(() => _allowOverBudget = v),
+              onChanged: _saving
+                  ? null
+                  : (v) => setState(() => _allowOverBudget = v),
             ),
             if (_dialogError.isNotEmpty) ...[
               const SizedBox(height: 16),
               Text(
                 _dialogError,
-                style: const TextStyle(color: Color(0xFFB91C1C), fontSize: 18),
+                style: TextStyle(color: scheme.error, fontSize: 18),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -1198,7 +1195,7 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
           child: const Text('Cancel', style: TextStyle(fontSize: 18)),
         ),
         FilledButton(
-          style: busyDialog(),
+          style: busyDialog(context),
           onPressed: _saving
               ? null
               : () async {
@@ -1234,22 +1231,27 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
                     if (!context.mounted) return;
                     await Navigator.of(context).maybePop();
                   } catch (_) {
-                    if (!mounted) return;
+                    if (!context.mounted) return;
                     setState(() {
                       _dialogError = 'Could not save. Please try again.';
                       _saving = false;
                     });
                   }
                 },
-          child: busyButton(busy: _saving, label: 'Save Changes'),
+          child: busyButton(
+            context: context,
+            busy: _saving,
+            label: 'Save Changes',
+          ),
         ),
       ],
     );
   }
 
   Widget _buildCurrencyDropdown(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final textStyle = TextStyle(
-      color: Theme.of(context).colorScheme.onSurface,
+      color: scheme.onSurface,
       fontSize: 32,
       fontWeight: FontWeight.w900,
     );
@@ -1258,7 +1260,7 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
       width: 3,
       height: 32,
       margin: const EdgeInsets.only(left: 8, right: 12),
-      color: const Color(0xFF7B7B7B),
+      color: scheme.outline,
     );
 
     if (_currencies.length < 2) {
@@ -1295,7 +1297,7 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
                 Text(c.code.trim()),
                 if (c.id == _selectedCurrency?.id) ...[
                   const Spacer(),
-                  const Icon(Icons.check, size: 18, color: Color(0xFF3e7f3f)),
+                  Icon(Icons.check, size: 18, color: scheme.primary),
                 ],
               ],
             ),
@@ -1308,9 +1310,7 @@ class _EditBudgetDialogState extends State<_EditBudgetDialog> {
           Icon(
             Icons.arrow_drop_down,
             size: 36,
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.6),
+            color: scheme.onSurface.withValues(alpha: 0.6),
           ),
           divider,
         ],
@@ -1389,7 +1389,6 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
       final userProvider = context.read<UserProvider>();
       await budgetProvider.init();
       await userProvider.loadProfile();
-
       if (!mounted) return;
       Navigator.pop(context);
     } catch (_) {
@@ -1403,6 +1402,7 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       title: const Text(
@@ -1420,10 +1420,7 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
               if (_error.isNotEmpty) ...[
                 Text(
                   _error,
-                  style: const TextStyle(
-                    color: Color(0xFFB91C1C),
-                    fontSize: 16,
-                  ),
+                  style: TextStyle(color: scheme.error, fontSize: 16),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 12),
@@ -1431,9 +1428,7 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
               StudentProfileForm(
                 key: _formKey,
                 initialProfile: widget.profile,
-                onUpdated: () {
-                  if (mounted) setState(() {});
-                },
+                onUpdated: () => setState(() {}),
               ),
             ],
           ),
@@ -1449,11 +1444,15 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
           child: const Text('Cancel', style: TextStyle(fontSize: 18)),
         ),
         FilledButton(
-          style: busyDialog(),
+          style: busyDialog(context),
           onPressed: _saving
               ? null
               : (_formKey.currentState?.canSubmit == true ? _save : null),
-          child: busyButton(busy: _saving, label: 'Save Changes'),
+          child: busyButton(
+            context: context,
+            busy: _saving,
+            label: 'Save Changes',
+          ),
         ),
       ],
     );
@@ -1605,8 +1604,8 @@ class _SettingsPageState extends State<_SettingsPage> {
   Future<void> _onVerifyEmailTap(BuildContext context) async {
     await _reloadUser();
     if (!context.mounted) return;
-    final u = FirebaseAuth.instance.currentUser!;
-    if (u.emailVerified) return;
+    final u = FirebaseAuth.instance.currentUser;
+    if (u == null || u.emailVerified) return;
     if (_emailCooldown > 0) return;
     try {
       await sendUserEmailVerification(u);
@@ -1625,15 +1624,25 @@ class _SettingsPageState extends State<_SettingsPage> {
         message: e.message ?? 'Could not send verification email.',
         level: AppAlertLevel.error,
       );
-    } catch (e) {
+    } catch (_) {
       if (!context.mounted) return;
-      await popupAlert(context, message: '$e', level: AppAlertLevel.error);
+      await popupAlert(
+        context,
+        message: 'Could not send verification email.',
+        level: AppAlertLevel.error,
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser!;
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
     final hasPassword = user.providerData.any(
       (p) => p.providerId == 'password',
     );

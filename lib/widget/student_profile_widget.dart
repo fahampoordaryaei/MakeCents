@@ -152,6 +152,8 @@ class StudentProfileFormState extends State<StudentProfileForm> {
         _countryResult = null;
         _countryError = e is UnsupportedError
             ? (e.message ?? 'Not supported.')
+            : e is StateError
+            ? e.message
             : 'Could not detect country.';
       });
       widget.onUpdated?.call();
@@ -269,12 +271,12 @@ class StudentProfileFormState extends State<StudentProfileForm> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     if (_isLoading) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 24),
-        child: Center(
-          child: CircularProgressIndicator(color: Color(0xFF3e7f3f)),
-        ),
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        child: Center(child: CircularProgressIndicator(color: scheme.primary)),
       );
     }
 
@@ -283,10 +285,7 @@ class StudentProfileFormState extends State<StudentProfileForm> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            _loadError,
-            style: const TextStyle(color: Color(0xFFB91C1C), fontSize: 16),
-          ),
+          Text(_loadError, style: TextStyle(color: scheme.error, fontSize: 16)),
           const SizedBox(height: 12),
           OutlinedButton.icon(
             onPressed: _loadData,
@@ -304,7 +303,7 @@ class StudentProfileFormState extends State<StudentProfileForm> {
         if (_validationError.isNotEmpty) ...[
           Text(
             _validationError,
-            style: const TextStyle(color: Color(0xFFB91C1C), fontSize: 16),
+            style: TextStyle(color: scheme.error, fontSize: 16),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),
@@ -316,27 +315,27 @@ class StudentProfileFormState extends State<StudentProfileForm> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF000000),
+              color: scheme.onSurface,
               letterSpacing: 0.8,
             ),
           ),
         ),
         const SizedBox(height: 8),
         if (_countryLoading)
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
             child: Row(
               children: [
                 SizedBox(
                   height: 22,
                   width: 22,
                   child: CircularProgressIndicator(
-                    color: Color(0xFF3e7f3f),
+                    color: scheme.primary,
                     strokeWidth: 2,
                   ),
                 ),
-                SizedBox(width: 12),
-                Expanded(
+                const SizedBox(width: 12),
+                const Expanded(
                   child: Text(
                     'Detecting country…',
                     style: TextStyle(fontSize: 16),
@@ -351,7 +350,7 @@ class StudentProfileFormState extends State<StudentProfileForm> {
             children: [
               Text(
                 _countryError!,
-                style: const TextStyle(color: Color(0xFFB91C1C), fontSize: 15),
+                style: TextStyle(color: scheme.error, fontSize: 15),
               ),
               const SizedBox(height: 8),
               OutlinedButton.icon(
@@ -417,7 +416,7 @@ class StudentProfileFormState extends State<StudentProfileForm> {
                 onPressed: _detectCountry,
                 tooltip: 'Refresh location',
                 icon: const Icon(Icons.refresh),
-                color: const Color(0xFF3e7f3f),
+                color: scheme.primary,
               ),
             ],
           ),
@@ -429,7 +428,7 @@ class StudentProfileFormState extends State<StudentProfileForm> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF000000),
+              color: scheme.onSurface,
               letterSpacing: 0.8,
             ),
           ),
@@ -476,7 +475,7 @@ class StudentProfileFormState extends State<StudentProfileForm> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF000000),
+              color: scheme.onSurface,
               letterSpacing: 0.8,
             ),
           ),

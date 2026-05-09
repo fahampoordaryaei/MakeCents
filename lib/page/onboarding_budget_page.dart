@@ -131,12 +131,10 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
   }
 
   Future<void> _onFinish() async {
+    final user = FirebaseAuth.instance.currentUser!;
     final budgetText = _budgetController.text.trim();
     if (budgetText.isEmpty) {
-      setState(() {
-        _budgetSubmitAttempted = true;
-        _error = '';
-      });
+      setState(() => _budgetSubmitAttempted = true);
       return;
     }
 
@@ -160,18 +158,13 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
     });
 
     try {
-      final user = FirebaseAuth.instance.currentUser!;
-
       final fullName = '${widget.firstName} ${widget.lastName}'.trim();
       if (fullName.isNotEmpty && (user.displayName?.trim().isEmpty ?? true)) {
-        try {
-          await user.updateDisplayName(fullName);
-          await user.reload();
-        } on FirebaseAuthException catch (_) {}
+        await user.updateDisplayName(fullName);
+        await user.reload();
       }
 
       final connector = ExampleConnector.instance;
-
       final countryId = await _resolveCountryId(
         connector,
         widget.countryIsoCode,
@@ -216,10 +209,14 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
       } else {
         Navigator.of(
           context,
-        ).push(MaterialPageRoute(builder: (_) => const OnboardingMfaPage()));
+        ).push(MaterialPageRoute(builder: (_) => const MfaWidget()));
       }
     } catch (_) {
-      setState(() => _error = 'Could not save your profile. Please try again.');
+      if (mounted) {
+        setState(
+          () => _error = 'Could not save your profile. Please try again.',
+        );
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -245,6 +242,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
@@ -254,7 +252,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
             padding: const EdgeInsets.all(30.0),
             margin: const EdgeInsets.symmetric(horizontal: 30.0),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
+              color: scheme.surface,
               borderRadius: BorderRadius.circular(16.0),
               boxShadow: [
                 BoxShadow(
@@ -279,9 +277,9 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                     ),
                     child: IconButton(
                       padding: EdgeInsets.zero,
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.arrow_back,
-                        color: Color(0xFF3e7f3f),
+                        color: scheme.primary,
                         size: 18,
                       ),
                       onPressed: () {
@@ -301,7 +299,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                 Container(
                   padding: const EdgeInsets.all(12.0),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF3e7f3f),
+                    color: scheme.primary,
                     borderRadius: BorderRadius.circular(12.0),
                   ),
                   child: const Icon(
@@ -316,7 +314,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onSurface,
+                    color: scheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 24.0),
@@ -324,25 +322,23 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                   'Set your budget period',
                   style: TextStyle(
                     fontSize: 18,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.75),
+                    color: scheme.onSurface.withValues(alpha: 0.75),
                   ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 20.0),
                 _BudgetPeriodToggle(
                   value: _budgetPeriod,
-                  onChanged: (v) => setState(() => _budgetPeriod = v),
+                  onChanged: _isLoading
+                      ? null
+                      : (v) => setState(() => _budgetPeriod = v),
                 ),
                 const SizedBox(height: 32.0),
                 Text(
                   'Set your $_budgetPeriod budget.',
                   style: TextStyle(
                     fontSize: 18,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.75),
+                    color: scheme.onSurface.withValues(alpha: 0.75),
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -353,23 +349,23 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFEF2F2),
+                      color: scheme.errorContainer,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.info_outline,
-                          color: Color(0xFFB91C1C),
+                          color: scheme.onErrorContainer,
                           size: 16,
                         ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             _error,
-                            style: const TextStyle(
-                              color: Color(0xFFB91C1C),
+                            style: TextStyle(
+                              color: scheme.onErrorContainer,
                               fontSize: 18,
                             ),
                           ),
@@ -385,10 +381,12 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                     final border =
                         _budgetSubmitAttempted &&
                             _budgetController.text.trim().isEmpty
-                        ? const OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(8)),
+                        ? OutlineInputBorder(
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(8),
+                            ),
                             borderSide: BorderSide(
-                              color: Color(0xFFB91C1C),
+                              color: scheme.error,
                               width: 1.5,
                             ),
                           )
@@ -398,6 +396,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                           );
                     return TextFormField(
                       controller: _budgetController,
+                      readOnly: _isLoading,
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
@@ -417,8 +416,8 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                         hintStyle:
                             _budgetSubmitAttempted &&
                                 _budgetController.text.trim().isEmpty
-                            ? const TextStyle(
-                                color: Color(0xFFB91C1C),
+                            ? TextStyle(
+                                color: scheme.error,
                                 fontWeight: FontWeight.w600,
                               )
                             : null,
@@ -441,14 +440,10 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
 
                 SliderTheme(
                   data: SliderTheme.of(context).copyWith(
-                    activeTrackColor: const Color(0xFF3e7f3f),
-                    inactiveTrackColor: const Color(
-                      0xFF3e7f3f,
-                    ).withValues(alpha: 0.2),
-                    thumbColor: const Color(0xFF3e7f3f),
-                    overlayColor: const Color(
-                      0xFF3e7f3f,
-                    ).withValues(alpha: 0.1),
+                    activeTrackColor: scheme.primary,
+                    inactiveTrackColor: scheme.primary.withValues(alpha: 0.2),
+                    thumbColor: scheme.primary,
+                    overlayColor: scheme.primary.withValues(alpha: 0.1),
                     trackHeight: 8.0,
                     thumbShape: const RoundSliderThumbShape(
                       enabledThumbRadius: 12.0,
@@ -459,7 +454,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                     min: 10,
                     max: 10000,
                     divisions: 100,
-                    onChanged: _onSliderChanged,
+                    onChanged: _isLoading ? null : _onSliderChanged,
                   ),
                 ),
                 Padding(
@@ -470,14 +465,14 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                       Text(
                         '${currency}10',
                         style: TextStyle(
-                          color: Color(0xFF000000),
+                          color: scheme.onSurface,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                       Text(
                         '${currency}10,000',
                         style: TextStyle(
-                          color: Color(0xFF000000),
+                          color: scheme.onSurface,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -496,13 +491,13 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                     'Allow adding expenses that go over your budget',
                     style: TextStyle(
                       fontSize: 16,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.9),
+                      color: scheme.onSurface.withValues(alpha: 0.9),
                     ),
                   ),
                   value: _allowOverBudget,
-                  onChanged: (v) => setState(() => _allowOverBudget = v),
+                  onChanged: _isLoading
+                      ? null
+                      : (v) => setState(() => _allowOverBudget = v),
                 ),
 
                 const SizedBox(height: 24.0),
@@ -511,7 +506,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                   width: double.infinity,
                   child: FilledButton(
                     style: FilledButton.styleFrom(
-                      backgroundColor: const Color(0xFF3e7f3f),
+                      backgroundColor: scheme.primary,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       minimumSize: const Size(double.infinity, 48),
                       shape: RoundedRectangleBorder(
@@ -520,6 +515,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
                     ),
                     onPressed: _isLoading ? null : _onFinish,
                     child: busyButton(
+                      context: context,
                       busy: _isLoading,
                       label: _isPhoneRegistration
                           ? 'Complete setup'
@@ -541,9 +537,10 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
   }
 
   Widget _buildCurrencyDropdown(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final sign = _selectedCurrency?.sign ?? currency;
     final textStyle = TextStyle(
-      color: Theme.of(context).colorScheme.onSurface,
+      color: scheme.onSurface,
       fontSize: 32,
       fontWeight: FontWeight.w900,
     );
@@ -552,7 +549,7 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
       width: 3,
       height: 32,
       margin: const EdgeInsets.only(left: 8, right: 12),
-      color: const Color(0xFF7B7B7B),
+      color: scheme.outline,
     );
 
     if (_currencies.length < 2) {
@@ -565,49 +562,50 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
       );
     }
 
-    return PopupMenuButton<ListCurrenciesCurrencies>(
-      tooltip: 'Change currency',
-      position: PopupMenuPosition.under,
-      onSelected: _onCurrencyChanged,
-      itemBuilder: (context) => [
-        for (final c in _currencies)
-          PopupMenuItem<ListCurrenciesCurrencies>(
-            value: c,
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 24,
-                  child: Text(
-                    c.sign,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
+    return AbsorbPointer(
+      absorbing: _isLoading,
+      child: PopupMenuButton<ListCurrenciesCurrencies>(
+        tooltip: 'Change currency',
+        position: PopupMenuPosition.under,
+        onSelected: _onCurrencyChanged,
+        itemBuilder: (context) => [
+          for (final c in _currencies)
+            PopupMenuItem<ListCurrenciesCurrencies>(
+              value: c,
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 24,
+                    child: Text(
+                      c.sign,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Text(c.code.trim()),
-                if (c.id == _selectedCurrency?.id) ...[
-                  const Spacer(),
-                  const Icon(Icons.check, size: 18, color: Color(0xFF3e7f3f)),
+                  const SizedBox(width: 8),
+                  Text(c.code.trim()),
+                  if (c.id == _selectedCurrency?.id) ...[
+                    const Spacer(),
+                    Icon(Icons.check, size: 18, color: scheme.primary),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
-      ],
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(sign, style: textStyle),
-          Icon(
-            Icons.arrow_drop_down,
-            size: 36,
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.6),
-          ),
-          divider,
         ],
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(sign, style: textStyle),
+            Icon(
+              Icons.arrow_drop_down,
+              size: 36,
+              color: scheme.onSurface.withValues(alpha: 0.6),
+            ),
+            divider,
+          ],
+        ),
       ),
     );
   }
@@ -623,9 +621,9 @@ String _checkEmailCredentials(User user) {
 
 class _BudgetPeriodToggle extends StatelessWidget {
   final String value;
-  final ValueChanged<String> onChanged;
+  final ValueChanged<String>? onChanged;
 
-  const _BudgetPeriodToggle({required this.value, required this.onChanged});
+  const _BudgetPeriodToggle({required this.value, this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -645,17 +643,18 @@ class _BudgetPeriodToggle extends StatelessWidget {
   }
 
   Widget _option(BuildContext context, String optionValue, String label) {
+    final scheme = Theme.of(context).colorScheme;
     final selected = value == optionValue;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
-        if (!selected) onChanged(optionValue);
+        if (!selected) onChanged?.call(optionValue);
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          color: selected ? const Color(0xFF3e7f3f) : Colors.transparent,
+          color: selected ? scheme.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Center(
@@ -665,10 +664,8 @@ class _BudgetPeriodToggle extends StatelessWidget {
               fontSize: 18,
               fontWeight: FontWeight.w700,
               color: selected
-                  ? Colors.white
-                  : Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.75),
+                  ? scheme.onPrimary
+                  : scheme.onSurface.withValues(alpha: 0.75),
             ),
           ),
         ),

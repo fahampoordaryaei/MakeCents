@@ -50,11 +50,11 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
         await context.read<CategoryBudgetProvider>().load(uid);
       }
       await _loadAvailableCategories();
-    } catch (e) {
+    } catch (_) {
       if (mounted) {
         await popupAlert(
           context,
-          message: 'Error loading data: $e',
+          message: 'Could not load data. Check your connection and try again.',
           level: AppAlertLevel.error,
         );
       }
@@ -103,11 +103,11 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
           level: AppAlertLevel.success,
         );
       }
-    } catch (e) {
+    } catch (_) {
       if (mounted) {
         await popupAlert(
           context,
-          message: 'Error updating budget: $e',
+          message: 'Could not update budget. Try again.',
           level: AppAlertLevel.error,
         );
       }
@@ -125,11 +125,11 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
           level: AppAlertLevel.success,
         );
       }
-    } catch (e) {
+    } catch (_) {
       if (mounted) {
         await popupAlert(
           context,
-          message: 'Error deleting budget: $e',
+          message: 'Could not delete budget. Try again.',
           level: AppAlertLevel.error,
         );
       }
@@ -151,7 +151,7 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
         var deleting = false;
 
         return StatefulBuilder(
-          builder: (ctx, setDialogState) {
+          builder: (context, setDialogState) {
             final busy = saving || deleting;
             return AlertDialog(
               title: Text('Set Budget for ${category.name}'),
@@ -174,7 +174,7 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                       vertical: 12,
                     ),
                   ),
-                  onPressed: busy ? null : () => Navigator.of(ctx).pop(),
+                  onPressed: busy ? null : () => Navigator.of(context).pop(),
                   child: const Text('Cancel', style: TextStyle(fontSize: 18)),
                 ),
                 if (existingBudget != null)
@@ -192,9 +192,10 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                         : () async {
                             setDialogState(() => deleting = true);
                             await _deleteBudget(category.id);
-                            if (ctx.mounted) Navigator.of(ctx).pop();
+                            if (context.mounted) Navigator.of(context).pop();
                           },
                     child: busyButton(
+                      context: context,
                       busy: deleting,
                       label: 'Delete',
                       size: 20,
@@ -202,7 +203,7 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                     ),
                   ),
                 FilledButton(
-                  style: busyDialog(),
+                  style: busyDialog(context),
                   onPressed: busy
                       ? null
                       : () async {
@@ -210,9 +211,13 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                           if (amount == null || amount <= 0) return;
                           setDialogState(() => saving = true);
                           await _setBudget(category.id, amount);
-                          if (ctx.mounted) Navigator.of(ctx).pop();
+                          if (context.mounted) Navigator.of(context).pop();
                         },
-                  child: busyButton(busy: saving, label: 'Save'),
+                  child: busyButton(
+                    context: context,
+                    busy: saving,
+                    label: 'Save',
+                  ),
                 ),
               ],
             );
@@ -259,8 +264,11 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                     .where((cb) => cb.categoryId == category.id)
                     .firstOrNull;
 
+                final scheme = Theme.of(context).colorScheme;
                 return Card(
                   margin: const EdgeInsets.only(bottom: 8),
+                  color: scheme.surface,
+                  surfaceTintColor: Colors.transparent,
                   child: ListTile(
                     leading: Container(
                       width: 40,
@@ -274,12 +282,26 @@ class _CategoryBudgetPageState extends State<CategoryBudgetPage> {
                         color: Colors.white,
                       ),
                     ),
-                    title: Text(category.name),
+                    title: Text(
+                      category.name,
+                      style: TextStyle(
+                        color: scheme.onSurface,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                     subtitle: existingBudget != null
                         ? Text(
                             'Budget: ${formatMoney(existingBudget.budgetAmount.toDouble())}',
+                            style: TextStyle(
+                              color: scheme.onSurface.withValues(alpha: 0.75),
+                            ),
                           )
-                        : const Text('No budget set'),
+                        : Text(
+                            'No budget set',
+                            style: TextStyle(
+                              color: scheme.onSurface.withValues(alpha: 0.75),
+                            ),
+                          ),
                     trailing: IconButton(
                       icon: const Icon(Icons.edit),
                       onPressed: () =>

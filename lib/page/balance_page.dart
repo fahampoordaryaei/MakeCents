@@ -10,12 +10,15 @@ class BalancePage extends StatelessWidget {
   const BalancePage({super.key});
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final transactionProvider = Provider.of<TransactionProvider>(context);
     final bp = Provider.of<BudgetProvider>(context);
     final spent = transactionProvider.periodSpent(isWeekly: bp.isWeekly);
     final label = bp.isWeekly ? 'Spent this week' : 'Spent this month';
 
     return Card(
+      color: scheme.surface,
+      surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       elevation: 2,
       child: Padding(
@@ -28,7 +31,7 @@ class BalancePage extends StatelessWidget {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w500,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                color: scheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 8),
@@ -37,7 +40,7 @@ class BalancePage extends StatelessWidget {
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.w800,
-                color: Theme.of(context).colorScheme.primary,
+                color: scheme.primary,
               ),
             ),
           ],

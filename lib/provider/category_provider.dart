@@ -68,7 +68,7 @@ Color parseColorHex(String colorHex) {
 }
 
 void setCategories(List<ListCategoriesCategories> rows) {
-  categories = rows
+  final next = rows
       .map(
         (c) => Category(
           c.id,
@@ -79,10 +79,11 @@ void setCategories(List<ListCategoriesCategories> rows) {
       )
       .toList();
 
-  categories.sort((a, b) {
+  next.sort((a, b) {
     final aOther = a.name.toLowerCase() == 'other';
     final bOther = b.name.toLowerCase() == 'other';
     if (aOther == bOther) return 0;
     return aOther ? 1 : -1;
   });
+  categories = List<Category>.unmodifiable(next);
 }

@@ -89,6 +89,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late final List<Widget> _pages;
 
   Future<void> _refreshSessionData() async {
+    if (!mounted) return;
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       return;
@@ -131,12 +132,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: _pages[_selectedIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
+          color: scheme.surface,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -156,20 +158,20 @@ class _HomeScreenState extends State<HomeScreen> {
             removeTop: true,
             child: NavigationBar(
               height: 90,
-              backgroundColor: Theme.of(context).colorScheme.surface,
+              backgroundColor: scheme.surface,
               selectedIndex: _selectedIndex,
               onDestinationSelected: (i) => setState(() => _selectedIndex = i),
-              indicatorColor: const Color(0xFF3e7f3f).withValues(alpha: 0.15),
+              indicatorColor: scheme.primary.withValues(alpha: 0.15),
               destinations: [
                 NavigationDestination(
                   icon: Icon(
                     Icons.home_outlined,
-                    color: Theme.of(context).colorScheme.onSurface,
+                    color: scheme.onSurface,
                     size: 32,
                   ),
-                  selectedIcon: const Icon(
+                  selectedIcon: Icon(
                     Icons.home,
-                    color: Color(0xFF3e7f3f),
+                    color: scheme.primary,
                     size: 32,
                   ),
                   label: '',
@@ -177,12 +179,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 NavigationDestination(
                   icon: Icon(
                     Icons.insights_outlined,
-                    color: Theme.of(context).colorScheme.onSurface,
+                    color: scheme.onSurface,
                     size: 32,
                   ),
-                  selectedIcon: const Icon(
+                  selectedIcon: Icon(
                     Icons.insights,
-                    color: Color(0xFF3e7f3f),
+                    color: scheme.primary,
                     size: 32,
                   ),
                   label: '',
@@ -190,12 +192,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 NavigationDestination(
                   icon: Icon(
                     Icons.emoji_events_outlined,
-                    color: Theme.of(context).colorScheme.onSurface,
+                    color: scheme.onSurface,
                     size: 32,
                   ),
-                  selectedIcon: const Icon(
+                  selectedIcon: Icon(
                     Icons.emoji_events,
-                    color: Color(0xFF3e7f3f),
+                    color: scheme.primary,
                     size: 32,
                   ),
                   label: '',
@@ -203,12 +205,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 NavigationDestination(
                   icon: Icon(
                     Icons.school_outlined,
-                    color: Theme.of(context).colorScheme.onSurface,
+                    color: scheme.onSurface,
                     size: 32,
                   ),
-                  selectedIcon: const Icon(
+                  selectedIcon: Icon(
                     Icons.school,
-                    color: Color(0xFF3e7f3f),
+                    color: scheme.primary,
                     size: 32,
                   ),
                   label: '',
@@ -216,12 +218,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 NavigationDestination(
                   icon: Icon(
                     Icons.person_outline,
-                    color: Theme.of(context).colorScheme.onSurface,
+                    color: scheme.onSurface,
                     size: 32,
                   ),
-                  selectedIcon: const Icon(
+                  selectedIcon: Icon(
                     Icons.person,
-                    color: Color(0xFF3e7f3f),
+                    color: scheme.primary,
                     size: 32,
                   ),
                   label: '',

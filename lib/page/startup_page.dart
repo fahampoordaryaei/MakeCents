@@ -54,8 +54,10 @@ class _StartupPageState extends State<StartupPage> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: scheme.surface,
       body: SafeArea(
         child: Column(
           children: [
@@ -91,7 +93,7 @@ class _StartupPageState extends State<StartupPage> {
                           style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.w800,
-                            color: Theme.of(context).colorScheme.onSurface,
+                            color: scheme.onSurface,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -101,9 +103,7 @@ class _StartupPageState extends State<StartupPage> {
                           style: TextStyle(
                             fontSize: 18,
                             height: 1.6,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withValues(alpha: 0.78),
+                            color: scheme.onSurface.withValues(alpha: 0.78),
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -128,8 +128,8 @@ class _StartupPageState extends State<StartupPage> {
                         height: 8,
                         decoration: BoxDecoration(
                           color: _page == i
-                              ? const Color(0xFF3e7f3f)
-                              : Colors.grey[300],
+                              ? scheme.primary
+                              : scheme.outline.withValues(alpha: 0.35),
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
@@ -143,7 +143,8 @@ class _StartupPageState extends State<StartupPage> {
                         MaterialPageRoute(builder: (_) => const RegisterPage()),
                       ),
                       style: FilledButton.styleFrom(
-                        backgroundColor: const Color(0xFF3e7f3f),
+                        backgroundColor: scheme.primary,
+                        foregroundColor: scheme.onPrimary,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         minimumSize: const Size(double.infinity, 48),
                         shape: RoundedRectangleBorder(
@@ -165,6 +166,7 @@ class _StartupPageState extends State<StartupPage> {
                       MaterialPageRoute(builder: (_) => const LoginPage()),
                     ),
                     style: TextButton.styleFrom(
+                      foregroundColor: scheme.primary,
                       minimumSize: const Size(double.infinity, 48),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
@@ -172,7 +174,6 @@ class _StartupPageState extends State<StartupPage> {
                       'Already have an account? Log in',
                       style: TextStyle(
                         fontSize: 20,
-                        color: Color(0xFF3e7f3f),
                         fontWeight: FontWeight.w600,
                       ),
                     ),

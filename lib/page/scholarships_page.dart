@@ -37,7 +37,7 @@ class Scholarship {
     this.color = const Color(0xFF3e7f3f),
   });
 
-  static Color accentFromHex(String colorHex) {
+  static Color accentColor(String colorHex) {
     try {
       return Color(int.parse(colorHex.replaceFirst('#', '0xFF')));
     } catch (_) {
@@ -54,6 +54,7 @@ class ScholarshipsPage extends StatefulWidget {
 
 class _ScholarshipsPageState extends State<ScholarshipsPage> {
   List<Scholarship>? _allScholarships;
+  final user = FirebaseAuth.instance.currentUser!;
 
   @override
   void initState() {
@@ -63,7 +64,6 @@ class _ScholarshipsPageState extends State<ScholarshipsPage> {
 
   Future<void> _loadScholarships() async {
     try {
-      final user = FirebaseAuth.instance.currentUser!;
       final connector = ExampleConnector.instance;
       final profileResult = await connector
           .getUserProfile(userId: user.uid)
@@ -87,7 +87,7 @@ class _ScholarshipsPageState extends State<ScholarshipsPage> {
             courseIds: s.courses_via_ScholarshipCourse
                 .map((course) => course.id)
                 .toList(),
-            color: Scholarship.accentFromHex(s.color),
+            color: Scholarship.accentColor(s.color),
             regionLabel: r.$1,
             regionColor: r.$2,
           );
@@ -123,7 +123,11 @@ class _ScholarshipsPageState extends State<ScholarshipsPage> {
       child: Center(
         child: Column(
           children: [
-            Icon(icon, size: 44, color: Colors.grey),
+            Icon(
+              icon,
+              size: 44,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
             const SizedBox(height: 12),
             Text(
               title,
@@ -152,6 +156,7 @@ class _ScholarshipsPageState extends State<ScholarshipsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final userProvider = context.watch<UserProvider>();
     final profile = userProvider.profile;
     final matched = _scholarshipsMatches(profile);
@@ -168,16 +173,14 @@ class _ScholarshipsPageState extends State<ScholarshipsPage> {
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.w800,
-                color: Theme.of(context).colorScheme.onSurface,
+                color: scheme.onSurface,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               'Filtered by your student profile',
               style: TextStyle(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.85),
+                color: scheme.onSurface.withValues(alpha: 0.85),
                 fontSize: 18,
               ),
             ),
@@ -186,6 +189,7 @@ class _ScholarshipsPageState extends State<ScholarshipsPage> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 TextButton.icon(
+                  style: TextButton.styleFrom(foregroundColor: scheme.primary),
                   onPressed: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
@@ -201,6 +205,7 @@ class _ScholarshipsPageState extends State<ScholarshipsPage> {
                 ),
                 const SizedBox(width: 16),
                 TextButton.icon(
+                  style: TextButton.styleFrom(foregroundColor: scheme.primary),
                   onPressed: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
@@ -218,17 +223,17 @@ class _ScholarshipsPageState extends State<ScholarshipsPage> {
             ),
             const SizedBox(height: 12),
             if (scholarshipsLoading)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 24),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24),
                 child: Center(
-                  child: CircularProgressIndicator(color: Color(0xFF3e7f3f)),
+                  child: CircularProgressIndicator(color: scheme.primary),
                 ),
               )
             else if (userProvider.isLoading)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 24),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24),
                 child: Center(
-                  child: CircularProgressIndicator(color: Color(0xFF3e7f3f)),
+                  child: CircularProgressIndicator(color: scheme.primary),
                 ),
               )
             else if (profile?.hasOtherCourse ?? false)
@@ -254,16 +259,17 @@ class _ScholarshipCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = scholarship;
+    final scheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
+          color: scheme.surface,
           borderRadius: BorderRadius.circular(8),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: scheme.shadow.withValues(alpha: 0.12),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -291,7 +297,7 @@ class _ScholarshipCard extends StatelessWidget {
                     style: TextStyle(
                       fontWeight: FontWeight.w800,
                       fontSize: 20,
-                      color: Theme.of(context).colorScheme.onSurface,
+                      color: scheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -310,9 +316,7 @@ class _ScholarshipCard extends StatelessWidget {
                     s.description,
                     style: TextStyle(
                       fontSize: 18,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.85),
+                      color: scheme.onSurface.withValues(alpha: 0.85),
                       height: 1.4,
                     ),
                   ),
@@ -441,6 +445,7 @@ class _SubmittedApplicationsPageState extends State<SubmittedApplicationsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -449,7 +454,7 @@ class _SubmittedApplicationsPageState extends State<SubmittedApplicationsPage> {
         ),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator(color: scheme.primary))
           : _applications.isEmpty
           ? Center(
               child: Text(
@@ -470,7 +475,7 @@ class _SubmittedApplicationsPageState extends State<SubmittedApplicationsPage> {
                 final row = _applications[index];
                 final sch = row.scholarship;
                 final dateStr = row.appliedAt.toJson().split('T').first;
-                final brandColor = Scholarship.accentFromHex(sch.color);
+                final brandColor = Scholarship.accentColor(sch.color);
 
                 return Card(
                   margin: const EdgeInsets.only(bottom: 12),
@@ -584,6 +589,7 @@ class _SavedApplicationsPageState extends State<SavedApplicationsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -592,7 +598,7 @@ class _SavedApplicationsPageState extends State<SavedApplicationsPage> {
         ),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator(color: scheme.primary))
           : _applications.isEmpty
           ? Center(
               child: Text(

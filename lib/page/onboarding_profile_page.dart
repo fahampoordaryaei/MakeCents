@@ -50,52 +50,48 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
   }
 
   Future<void> _confirmCancelRegistration() async {
-    if (await showDialog<bool>(
-              context: context,
-              builder: (dialogContext) => AlertDialog(
-                title: const Text('Cancel setup?'),
-                content: Text(
-                  'Your registration will be canceled.',
-                  style: TextStyle(
-                    color: Theme.of(dialogContext).colorScheme.onSurfaceVariant,
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Cancel setup?'),
+        content: Text(
+          'Your registration will be canceled.',
+          style: TextStyle(
+            color: Theme.of(dialogContext).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        actions: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FilledButton(
+                autofocus: true,
+                onPressed: () => Navigator.of(dialogContext).pop(false),
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFF3e7f3f),
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('No'),
+              ),
+              const SizedBox(width: 8),
+              OutlinedButton(
+                onPressed: () => Navigator.of(dialogContext).pop(true),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Theme.of(dialogContext).colorScheme.error,
+                  side: BorderSide(
+                    color: Theme.of(dialogContext).colorScheme.error,
                   ),
                 ),
-                actions: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      FilledButton(
-                        autofocus: true,
-                        onPressed: () => Navigator.of(dialogContext).pop(false),
-                        style: FilledButton.styleFrom(
-                          backgroundColor: const Color(0xFF3e7f3f),
-                          foregroundColor: Colors.white,
-                        ),
-                        child: const Text('No'),
-                      ),
-                      const SizedBox(width: 8),
-                      OutlinedButton(
-                        onPressed: () => Navigator.of(dialogContext).pop(true),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Theme.of(
-                            dialogContext,
-                          ).colorScheme.error,
-                          side: BorderSide(
-                            color: Theme.of(dialogContext).colorScheme.error,
-                          ),
-                        ),
-                        child: const Text('Yes, cancel'),
-                      ),
-                    ],
-                  ),
-                ],
+                child: const Text('Yes, cancel'),
               ),
-            ) !=
-            true ||
-        !mounted) {
-      return;
-    }
+            ],
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
 
     try {
       await FirebaseAuth.instance.currentUser!.delete();
@@ -103,6 +99,7 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
     try {
       await FirebaseAuth.instance.signOut();
     } catch (_) {}
+
     if (!mounted) return;
     Navigator.of(
       context,
@@ -190,9 +187,7 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
 
                 StudentProfileForm(
                   key: _formKey,
-                  onUpdated: () {
-                    if (mounted) setState(() {});
-                  },
+                  onUpdated: () => setState(() {}),
                 ),
                 const SizedBox(height: 32.0),
                 SizedBox(
