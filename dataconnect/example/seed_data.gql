@@ -111,80 +111,70 @@ mutation seedData @transaction @auth(level: USER, insecureReason: "Seed data is 
       description: "Save on textbooks and academic stationery.",
       storeName: "Campus Bookstore",
       cost: 240,
-      active: true,
-      createdAt_expr: "request.time"
+      active: true
     },
     {
       name: "Printing Credit Pack",
       description: "Discount on university printing and binding.",
       storeName: "Uni Print Hub",
       cost: 180,
-      active: true,
-      createdAt_expr: "request.time"
+      active: true
     },
     {
       name: "Online Course Coupon",
       description: "Redeem on selected upskilling courses.",
       storeName: "LearnFast Academy",
       cost: 360,
-      active: true,
-      createdAt_expr: "request.time"
+      active: true
     },
     {
       name: "Exam Prep Bundle",
       description: "Discounted access to mock exams and notes.",
       storeName: "PrepMaster",
       cost: 320,
-      active: true,
-      createdAt_expr: "request.time"
+      active: true
     },
     {
       name: "Coffee Shop Student Deal",
       description: "Fuel study sessions with discounted drinks.",
       storeName: "Bean Corner",
       cost: 140,
-      active: true,
-      createdAt_expr: "request.time"
+      active: true
     },
     {
       name: "Grocery Saver Coupon",
       description: "Save on weekly essentials and snacks.",
       storeName: "FreshMart",
       cost: 220,
-      active: true,
-      createdAt_expr: "request.time"
+      active: true
     },
     {
       name: "Fitness Pass Discount",
       description: "Reduced price on gym and classes.",
       storeName: "ActiveLife Gym",
       cost: 420,
-      active: true,
-      createdAt_expr: "request.time"
+      active: true
     },
     {
       name: "Streaming Student Offer",
       description: "Discount on entertainment subscription.",
       storeName: "StreamWave",
       cost: 280,
-      active: true,
-      createdAt_expr: "request.time"
+      active: true
     },
     {
       name: "Phone Repair Discount",
       description: "Lower repair costs for accidental damage.",
       storeName: "FixPoint Mobile",
       cost: 340,
-      active: true,
-      createdAt_expr: "request.time"
+      active: true
     },
     {
       name: "Food Delivery Student Code",
       description: "Discount on delivery orders near campus.",
       storeName: "QuickBite",
       cost: 200,
-      active: true,
-      createdAt_expr: "request.time"
+      active: true
     }
   ])
 }

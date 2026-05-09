@@ -188,8 +188,6 @@ class _OnboardingBudgetPageState extends State<OnboardingBudgetPage> {
           .currencyId(_selectedCurrency?.id)
           .isWeekly(_isWeekly)
           .allowOverbudget(_allowOverBudget)
-          .prefix(widget.phonePrefix)
-          .phoneNumber(widget.phoneNumber)
           .execute();
 
       await connector

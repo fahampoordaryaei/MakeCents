@@ -102,9 +102,7 @@ mutation StoreUserProfile(
   $courseId: UUID,
   $otherInstitution: String,
   $otherCourse: String,
-  $budget: Float,
-  $prefix: String,
-  $phoneNumber: String
+  $budget: Float
 ) @auth(level: USER) {
   user_upsert(data: {
     userId: $userId,
@@ -115,10 +113,7 @@ mutation StoreUserProfile(
     courseId: $courseId,
     otherInstitution: $otherInstitution,
     otherCourse: $otherCourse,
-    budget: $budget,
-    prefix: $prefix,
-    phoneNumber: $phoneNumber,
-    createdAt_expr: "request.time"
+    budget: $budget
   })
 }
 

@@ -14,8 +14,6 @@ class StoreUserProfileVariablesBuilder {
   Optional<int> _currencyId = Optional.optional(nativeFromJson, nativeToJson);
   Optional<bool> _isWeekly = Optional.optional(nativeFromJson, nativeToJson);
   Optional<bool> _allowOverbudget = Optional.optional(nativeFromJson, nativeToJson);
-  Optional<String> _prefix = Optional.optional(nativeFromJson, nativeToJson);
-  Optional<String> _phoneNumber = Optional.optional(nativeFromJson, nativeToJson);
 
   final FirebaseDataConnect _dataConnect;  StoreUserProfileVariablesBuilder institutionId(String? t) {
    _institutionId.value = t;
@@ -53,14 +51,6 @@ class StoreUserProfileVariablesBuilder {
    _allowOverbudget.value = t;
    return this;
   }
-  StoreUserProfileVariablesBuilder prefix(String? t) {
-   _prefix.value = t;
-   return this;
-  }
-  StoreUserProfileVariablesBuilder phoneNumber(String? t) {
-   _phoneNumber.value = t;
-   return this;
-  }
 
   StoreUserProfileVariablesBuilder(this._dataConnect, {required  this.userId,required  this.email,required  this.firstName,required  this.lastName,});
   Deserializer<StoreUserProfileData> dataDeserializer = (dynamic json)  => StoreUserProfileData.fromJson(jsonDecode(json));
@@ -70,7 +60,7 @@ class StoreUserProfileVariablesBuilder {
   }
 
   MutationRef<StoreUserProfileData, StoreUserProfileVariables> ref() {
-    StoreUserProfileVariables vars= StoreUserProfileVariables(userId: userId,email: email,firstName: firstName,lastName: lastName,institutionId: _institutionId,courseId: _courseId,otherInstitution: _otherInstitution,otherCourse: _otherCourse,budget: _budget,countryId: _countryId,currencyId: _currencyId,isWeekly: _isWeekly,allowOverbudget: _allowOverbudget,prefix: _prefix,phoneNumber: _phoneNumber,);
+    StoreUserProfileVariables vars= StoreUserProfileVariables(userId: userId,email: email,firstName: firstName,lastName: lastName,institutionId: _institutionId,courseId: _courseId,otherInstitution: _otherInstitution,otherCourse: _otherCourse,budget: _budget,countryId: _countryId,currencyId: _currencyId,isWeekly: _isWeekly,allowOverbudget: _allowOverbudget,);
     return _dataConnect.mutation("StoreUserProfile", dataDeserializer, varsSerializer, vars);
   }
 }
@@ -158,8 +148,6 @@ class StoreUserProfileVariables {
   late final Optional<int>currencyId;
   late final Optional<bool>isWeekly;
   late final Optional<bool>allowOverbudget;
-  late final Optional<String>prefix;
-  late final Optional<String>phoneNumber;
   @Deprecated('fromJson is deprecated for Variable classes as they are no longer required for deserialization.')
   StoreUserProfileVariables.fromJson(Map<String, dynamic> json):
   
@@ -208,14 +196,6 @@ class StoreUserProfileVariables {
     allowOverbudget = Optional.optional(nativeFromJson, nativeToJson);
     allowOverbudget.value = json['allowOverbudget'] == null ? null : nativeFromJson<bool>(json['allowOverbudget']);
   
-  
-    prefix = Optional.optional(nativeFromJson, nativeToJson);
-    prefix.value = json['prefix'] == null ? null : nativeFromJson<String>(json['prefix']);
-  
-  
-    phoneNumber = Optional.optional(nativeFromJson, nativeToJson);
-    phoneNumber.value = json['phoneNumber'] == null ? null : nativeFromJson<String>(json['phoneNumber']);
-  
   }
   @override
   bool operator ==(Object other) {
@@ -239,13 +219,11 @@ class StoreUserProfileVariables {
     countryId == otherTyped.countryId && 
     currencyId == otherTyped.currencyId && 
     isWeekly == otherTyped.isWeekly && 
-    allowOverbudget == otherTyped.allowOverbudget && 
-    prefix == otherTyped.prefix && 
-    phoneNumber == otherTyped.phoneNumber;
+    allowOverbudget == otherTyped.allowOverbudget;
     
   }
   @override
-  int get hashCode => Object.hashAll([userId.hashCode, email.hashCode, firstName.hashCode, lastName.hashCode, institutionId.hashCode, courseId.hashCode, otherInstitution.hashCode, otherCourse.hashCode, budget.hashCode, countryId.hashCode, currencyId.hashCode, isWeekly.hashCode, allowOverbudget.hashCode, prefix.hashCode, phoneNumber.hashCode]);
+  int get hashCode => Object.hashAll([userId.hashCode, email.hashCode, firstName.hashCode, lastName.hashCode, institutionId.hashCode, courseId.hashCode, otherInstitution.hashCode, otherCourse.hashCode, budget.hashCode, countryId.hashCode, currencyId.hashCode, isWeekly.hashCode, allowOverbudget.hashCode]);
   
 
   Map<String, dynamic> toJson() {
@@ -281,12 +259,6 @@ class StoreUserProfileVariables {
     if(allowOverbudget.state == OptionalState.set) {
       json['allowOverbudget'] = allowOverbudget.toJson();
     }
-    if(prefix.state == OptionalState.set) {
-      json['prefix'] = prefix.toJson();
-    }
-    if(phoneNumber.state == OptionalState.set) {
-      json['phoneNumber'] = phoneNumber.toJson();
-    }
     return json;
   }
 
@@ -304,8 +276,6 @@ class StoreUserProfileVariables {
     required this.currencyId,
     required this.isWeekly,
     required this.allowOverbudget,
-    required this.prefix,
-    required this.phoneNumber,
   });
 }
 

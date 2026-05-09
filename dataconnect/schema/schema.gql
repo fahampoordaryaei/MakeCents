@@ -33,9 +33,6 @@ type User @table(key: ["userId"]) {
   budget: Float
   failedAttempts: Int! @default(value: 0)
   lockedUntil: Timestamp
-  createdAt: Timestamp!
-  prefix: String
-  phoneNumber: String @unique @col(name: "phone_number", dataType: "varchar(20)")
   country: Country
   currency: Currency
   isWeekly: Boolean! @default(value: false) @col(name: "is_weekly")
@@ -124,7 +121,6 @@ type Product @table {
   storeName: String!
   cost: Int!
   active: Boolean! @default(value: true)
-  createdAt: Timestamp!
 }
 
 type RedeemedProduct @table(key: ["user", "product"]) {
