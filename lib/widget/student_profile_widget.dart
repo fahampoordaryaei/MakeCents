@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:makecents/dataconnect_generated/generated.dart';
 import 'package:makecents/provider/user_provider.dart';
-import 'package:makecents/provider/geolocation_provider.dart';
+import 'package:makecents/helper/geolocation_helper.dart';
 
 class StudentProfileSelection {
   const StudentProfileSelection({
