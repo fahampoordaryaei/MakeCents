@@ -1334,15 +1334,6 @@ extend type Product {
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "Product.cost", purpose: QUERY_COUNT)
   """
-  ✨ Count the number of rows in the `Product` table where the `createdAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
-  """
-  createdAt_count(
-    """
-    Set to true to count the number of distinct values.
-    """
-    distinct: Boolean = false
-  ): Int! @fdc_generated(from: "Product.createdAt", purpose: QUERY_COUNT)
-  """
   ✨ Count the number of rows in the `Product` table where the `description` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
   description_count(
@@ -1401,17 +1392,9 @@ extend type Product {
   """
   cost_min: Int @fdc_generated(from: "Product.cost", purpose: QUERY_MIN)
   """
-  ✨ Minimum of the `createdAt` field in the `Product` table.
-  """
-  createdAt_min: Timestamp @fdc_generated(from: "Product.createdAt", purpose: QUERY_MIN)
-  """
   ✨ Maximum of the `cost` field in the `Product` table.
   """
   cost_max: Int @fdc_generated(from: "Product.cost", purpose: QUERY_MAX)
-  """
-  ✨ Maximum of the `createdAt` field in the `Product` table.
-  """
-  createdAt_max: Timestamp @fdc_generated(from: "Product.createdAt", purpose: QUERY_MAX)
   """
   A generated field that is used for caching results in SDKs.
   """
@@ -2370,15 +2353,6 @@ extend type User {
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "User.courseId", purpose: QUERY_COUNT)
   """
-  ✨ Count the number of rows in the `User` table where the `createdAt` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
-  """
-  createdAt_count(
-    """
-    Set to true to count the number of distinct values.
-    """
-    distinct: Boolean = false
-  ): Int! @fdc_generated(from: "User.createdAt", purpose: QUERY_COUNT)
-  """
   ✨ Count the number of rows in the `User` table where the `currencyId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
   currencyId_count(
@@ -2469,24 +2443,6 @@ extend type User {
     distinct: Boolean = false
   ): Int! @fdc_generated(from: "User.otherInstitution", purpose: QUERY_COUNT)
   """
-  ✨ Count the number of rows in the `User` table where the `phoneNumber` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
-  """
-  phoneNumber_count(
-    """
-    Set to true to count the number of distinct values.
-    """
-    distinct: Boolean = false
-  ): Int! @fdc_generated(from: "User.phoneNumber", purpose: QUERY_COUNT)
-  """
-  ✨ Count the number of rows in the `User` table where the `prefix` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
-  """
-  prefix_count(
-    """
-    Set to true to count the number of distinct values.
-    """
-    distinct: Boolean = false
-  ): Int! @fdc_generated(from: "User.prefix", purpose: QUERY_COUNT)
-  """
   ✨ Count the number of rows in the `User` table where the `userId` field is non-null. Pass the `distinct` argument to instead count the number of distinct values.
   """
   userId_count(
@@ -2576,10 +2532,6 @@ extend type User {
   """
   countryId_min: Int @fdc_generated(from: "User.countryId", purpose: QUERY_MIN)
   """
-  ✨ Minimum of the `createdAt` field in the `User` table.
-  """
-  createdAt_min: Timestamp @fdc_generated(from: "User.createdAt", purpose: QUERY_MIN)
-  """
   ✨ Minimum of the `currencyId` field in the `User` table.
   """
   currencyId_min: Int @fdc_generated(from: "User.currencyId", purpose: QUERY_MIN)
@@ -2599,10 +2551,6 @@ extend type User {
   ✨ Maximum of the `countryId` field in the `User` table.
   """
   countryId_max: Int @fdc_generated(from: "User.countryId", purpose: QUERY_MAX)
-  """
-  ✨ Maximum of the `createdAt` field in the `User` table.
-  """
-  createdAt_max: Timestamp @fdc_generated(from: "User.createdAt", purpose: QUERY_MAX)
   """
   ✨ Maximum of the `currencyId` field in the `User` table.
   """

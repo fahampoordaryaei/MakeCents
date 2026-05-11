@@ -131,6 +131,8 @@ class _HomePageState extends State<HomePage> {
     final budget = budgetProvider.budget.amount;
     final available = budget > 0 ? (budget - expenses).clamp(0.0, budget) : 0.0;
     final spentPct = budget > 0 ? (expenses / budget).clamp(0.0, 1.0) : 0.0;
+    final over = budget > 0 && expenses > budget;
+    final scheme = Theme.of(context).colorScheme;
     final spentLabel = isWeekly ? 'Spent this week' : 'Spent this month';
     final periodTxLabel = isWeekly ? 'This week' : 'This month';
     final recent = txProvider.transactions.take(3).toList();
@@ -181,15 +183,21 @@ class _HomePageState extends State<HomePage> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(22),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF3e7f3f), Color(0xFF6abf69)],
+                  gradient: LinearGradient(
+                    colors: over
+                        ? [
+                            const Color.fromARGB(255, 197, 51, 51),
+                            const Color.fromARGB(255, 203, 106, 71),
+                          ]
+                        : [const Color(0xFF3e7f3f), const Color(0xFF6abf69)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF3e7f3f).withValues(alpha: 0.35),
+                      color: (over ? scheme.error : const Color(0xFF3e7f3f))
+                          .withValues(alpha: 0.35),
                       blurRadius: 16,
                       offset: const Offset(0, 8),
                     ),
